@@ -118,8 +118,7 @@ export default function DashboardPage() {
         <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-24 max-w-4xl mx-auto">
 
           <StatBlock value="100%" label="Calculs auto" accent />
-          <StatBlock value="0" label="Tableur Excel" />
-          <StatBlock value="∞" label="Articles tracés" />
+<StatBlock value="24/7" label="Accès cloud" />
           <StatBlock value="FR · BE" label="Conformité" />
 
         </section>
@@ -401,7 +400,7 @@ function KyrivoLogo() {
             }}
           >
             <span className="text-2xl sm:text-3xl font-black text-neutral-950 tracking-tighter">
-              V
+              K
             </span>
           </div>
         </div>
