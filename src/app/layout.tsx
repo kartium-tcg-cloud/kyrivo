@@ -24,9 +24,9 @@ export default function RootLayout({
     <html lang="fr" className="dark">
       <body>
   <Sidebar />
-<main className="min-h-screen lg:pl-64 pt-16 lg:pt-0">
-  {children}
-</main>
+  <main className="min-h-screen pt-16 lg:pt-0 lg:pl-64 overflow-x-hidden">
+    {children}
+  </main>
   <Toaster
   position="top-right"
   richColors

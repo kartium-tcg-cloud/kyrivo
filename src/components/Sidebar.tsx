@@ -182,20 +182,21 @@ return (
       </button>
     </header>
 
-    {mobileOpen && (
-      <button
-        type="button"
-        onClick={() => setMobileOpen(false)}
-        className="fixed inset-0 z-30 bg-black/60 backdrop-blur-sm lg:hidden"
-        aria-label="Fermer le menu"
-      />
-    )}
+{mobileOpen && (
+  <button
+    type="button"
+    onClick={() => setMobileOpen(false)}
+    className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
+    aria-label="Fermer le menu"
+  />
+)}
 
     <aside
 className={`
-  fixed top-0 left-0 z-50 lg:z-30
+  fixed top-0 left-0 z-50
   flex flex-col
-  w-64 h-screen
+  h-screen
+  w-[82vw] max-w-72 lg:w-64 lg:max-w-none
   bg-neutral-950
   border-r border-neutral-800/60
   transition-transform duration-200
