@@ -85,7 +85,9 @@ if (!appUrl) {
 
 const session = await stripe.checkout.sessions.create({
   mode: "subscription",
-  payment_method_types: ["card", "link", "bancontact", "sepa_debit", "paypal"],
+payment_method_types: ["card", "sepa_debit", "bancontact", "paypal"],
+payment_method_collection: "always",
+billing_address_collection: "required",
   customer_email: user.email ?? undefined,
 
       line_items: [
@@ -99,6 +101,9 @@ const session = await stripe.checkout.sessions.create({
 
       subscription_data: {
         metadata,
+        payment_settings: {
+  payment_method_types: ["card", "sepa_debit", "bancontact", "paypal"],
+},
       },
 
 success_url: `${appUrl}/dashboard?stripe=success`,
