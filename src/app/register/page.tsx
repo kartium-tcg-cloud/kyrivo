@@ -16,83 +16,31 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  async function handleRegister(e: React.FormEvent) {
-    e.preventDefault();
+async function handleRegister(e: React.FormEvent) {
+  e.preventDefault();
 
-    setLoading(true);
-    setError("");
+  setLoading(true);
+  setError("");
 
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
+  const { error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        company_name: companyName.trim(),
+      },
+    },
+  });
 
-    if (error) {
-      setError(error.message);
-      setLoading(false);
-      return;
-    }
-
-    const userId = data.user?.id;
-
-    if (!userId) {
-      router.push("/login");
-      return;
-    }
-
-    const { data: company, error: companyError } = await supabase
-      .from("companies")
-      .insert({
-        name: companyName,
-        created_by: userId,
-      })
-      .select()
-      .single();
-
-    if (companyError) {
-      setError(companyError.message);
-      setLoading(false);
-      return;
-    }
-
-    const { error: membershipError } = await supabase
-      .from("memberships")
-      .insert({
-        user_id: userId,
-        company_id: company.id,
-        role: "owner",
-      });
-
-    if (membershipError) {
-      setError(membershipError.message);
-      setLoading(false);
-      return;
-    }
-
-    const trialEnds = new Date();
-    trialEnds.setDate(trialEnds.getDate() + 7);
-
-    const { error: subscriptionError } = await supabase
-      .from("subscriptions")
-      .insert({
-        company_id: company.id,
-        plan: "trial",
-        status: "trialing",
-        monthly_line_limit: 125,
-        current_period_start: new Date().toISOString(),
-        current_period_end: trialEnds.toISOString(),
-        trial_ends_at: trialEnds.toISOString(),
-      });
-
-    if (subscriptionError) {
-      setError(subscriptionError.message);
-      setLoading(false);
-      return;
-    }
-
-    router.push("/login");
-    router.refresh();
+  if (error) {
+    setError(error.message);
+    setLoading(false);
+    return;
   }
+
+  router.push("/dashboard");
+  router.refresh();
+}
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-neutral-950 text-white flex items-center justify-center px-6 py-10">
@@ -155,7 +103,7 @@ export default function RegisterPage() {
 
               <p className="mt-2 text-sm leading-relaxed text-neutral-500">
                 Lancez votre espace Kyrivo avec une société, un essai Pro de 7 jours
-                et 500 lignes mensuelles incluses.
+                et 125 lignes incluses pendant votre essai.
               </p>
             </div>
 

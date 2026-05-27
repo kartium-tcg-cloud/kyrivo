@@ -120,6 +120,8 @@ export default function DashboardPage() {
           <StatBlock value="100%" label="Calculs auto" accent />
 <StatBlock value="24/7" label="Accès cloud" />
           <StatBlock value="FR · BE" label="Conformité" />
+          <StatBlock value="100%" label="Simplicité" accent />
+
 
         </section>
 
