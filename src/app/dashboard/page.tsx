@@ -154,12 +154,7 @@ resetDateText =
 
   return (
 
-    <div
-      className="p-6 lg:p-8"
-      style={{
-        maxWidth: "1120px",
-      }}
-    >
+<div className="w-full max-w-6xl p-4 sm:p-6 lg:p-8 overflow-x-hidden">
 
       {/* HERO */}
       <div
@@ -264,12 +259,7 @@ resetDateText =
       </div>
 
       {/* STATS */}
-      <div
-        className="grid gap-4 mb-6"
-        style={{
-          gridTemplateColumns: "repeat(6, 1fr)",
-        }}
-      >
+<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mb-6">
 
         <StatCard label="Sociétés" value={nbSocietes.toString()} />
 
@@ -308,12 +298,7 @@ resetDateText =
 
 
       {/* GRID */}
-      <div
-        className="grid gap-4 mb-6"
-        style={{
-          gridTemplateColumns: "300px 1fr",
-        }}
-      >
+<div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-4 mb-6">
 
         {/* PROFIL */}
         <div style={cardStyle}>
@@ -525,12 +510,7 @@ value={email}
       </div>
 
       {/* PLACEHOLDERS */}
-      <div
-        className="grid gap-4"
-        style={{
-          gridTemplateColumns: "1fr 1fr",
-        }}
-      >
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
         <PlaceholderSection label="Derniers achats" />
 
