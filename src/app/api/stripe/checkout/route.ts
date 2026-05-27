@@ -85,30 +85,36 @@ if (!appUrl) {
 
 const session = await stripe.checkout.sessions.create({
   mode: "subscription",
-payment_method_types: ["card", "sepa_debit", "bancontact", "paypal"],
-payment_method_collection: "always",
-billing_address_collection: "required",
+
   customer_email: user.email ?? undefined,
 
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
-        },
-      ],
+  payment_method_types: [
+    "card",
+    "bancontact",
+    "sepa_debit",
+    "paypal"
+  ],
 
-      metadata,
+  payment_method_collection: "always",
 
-      subscription_data: {
-        metadata,
-payment_method_types: ["card", "sepa_debit", "bancontact", "paypal"],
-payment_method_collection: "always",
-billing_address_collection: "required",
-      },
+  billing_address_collection: "required",
 
-success_url: `${appUrl}/dashboard?stripe=success`,
-cancel_url: `${appUrl}/abonnements?stripe=cancel`,
-    });
+  line_items: [
+    {
+      price: priceId,
+      quantity: 1,
+    },
+  ],
+
+  metadata,
+
+  subscription_data: {
+    metadata,
+  },
+
+  success_url: `${appUrl}/dashboard?stripe=success`,
+  cancel_url: `${appUrl}/abonnements?stripe=cancel`,
+});
 
     return NextResponse.json({
       ok: true,
