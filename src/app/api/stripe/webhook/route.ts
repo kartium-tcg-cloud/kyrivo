@@ -11,6 +11,10 @@ function getMonthlyLineLimit(plan: string): number {
   return 0;
 }
 
+function getDurationMonths(billingPeriod: string): number {
+  return billingPeriod === "quarterly" ? 3 : 1;
+}
+
 export async function POST(req: NextRequest) {
   const body = await req.text();
   const signature = req.headers.get("stripe-signature");
@@ -67,100 +71,81 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ received: true });
       }
 
-      const subscription = (await stripe.subscriptions.retrieve(
-        stripeSubscriptionId
-      )) as Stripe.Subscription;
+      const { data: existingSubscription, error: existingError } =
+        await supabaseAdmin
+          .from("subscriptions")
+          .select("*")
+          .eq("company_id", companyId)
+          .maybeSingle();
 
-const { data: existingSubscription } = await supabaseAdmin
-  .from("subscriptions")
-  .select("*")
-  .eq("company_id", companyId)
-  .maybeSingle();
+      if (existingError) {
+        console.error("Erreur lecture abonnement existant:", existingError);
+        throw existingError;
+      }
 
-const newLimit = getMonthlyLineLimit(plan);
+      const newMonthlyLimit = getMonthlyLineLimit(plan);
+      const durationMonths = getDurationMonths(billingPeriod);
+      const now = new Date();
 
-const durationMonths =
-  billingPeriod === "quarterly" ? 3 : 1;
+      const isSamePlan = existingSubscription?.plan === plan;
 
-const now = new Date();
+      let baseEndDate = now;
 
-let currentPeriodEnd = now;
+      if (
+        isSamePlan &&
+        existingSubscription?.current_period_end &&
+        new Date(existingSubscription.current_period_end) > now
+      ) {
+        baseEndDate = new Date(existingSubscription.current_period_end);
+      }
 
-if (
-  existingSubscription?.current_period_end &&
-  new Date(existingSubscription.current_period_end) > now
-) {
-  currentPeriodEnd = new Date(
-    existingSubscription.current_period_end
-  );
-}
+      const newEndDate = new Date(baseEndDate);
+      newEndDate.setMonth(newEndDate.getMonth() + durationMonths);
 
-const isSamePlan =
-  existingSubscription?.plan === plan;
+      let finalLineLimit = newMonthlyLimit * durationMonths;
 
-let finalLineLimit = newLimit;
+      if (isSamePlan && existingSubscription) {
+        const oldLimit = Number(existingSubscription.monthly_line_limit || 0);
+        const oldUsed = Number(existingSubscription.used_lines || 0);
+        const remainingLines = Math.max(0, oldLimit - oldUsed);
 
-if (isSamePlan) {
-  const remainingLines =
-    Math.max(
-      0,
-      (existingSubscription.monthly_line_limit || 0) -
-        (existingSubscription.used_lines || 0)
-    );
+        finalLineLimit = remainingLines + newMonthlyLimit * durationMonths;
+      }
 
-  finalLineLimit =
-    remainingLines + newLimit;
-}
+      const { error: upsertError } = await supabaseAdmin
+        .from("subscriptions")
+        .upsert(
+          {
+            company_id: companyId,
+            plan,
+            status: "active",
+            billing_period: billingPeriod,
+            monthly_line_limit: finalLineLimit,
+            used_lines: 0,
+            current_period_start: now.toISOString(),
+            current_period_end: newEndDate.toISOString(),
+            stripe_customer_id: stripeCustomerId,
+            stripe_subscription_id: stripeSubscriptionId,
+            updated_at: now.toISOString(),
+          },
+          {
+            onConflict: "company_id",
+          }
+        );
 
-const newEndDate = new Date(currentPeriodEnd);
-
-newEndDate.setMonth(
-  newEndDate.getMonth() + durationMonths
-);
-
-const { error } = await supabaseAdmin
-  .from("subscriptions")
-  .upsert(
-    {
-      company_id: companyId,
-
-      plan,
-
-      status: "active",
-
-      billing_period: billingPeriod,
-
-      monthly_line_limit: finalLineLimit,
-
-      used_lines: 0,
-
-      current_period_start: now.toISOString(),
-
-      current_period_end: newEndDate.toISOString(),
-
-      stripe_customer_id: stripeCustomerId,
-
-      stripe_subscription_id: stripeSubscriptionId,
-
-      updated_at: new Date().toISOString(),
-    },
-    {
-      onConflict: "company_id",
+      if (upsertError) {
+        console.error("Erreur upsert subscription:", upsertError);
+        throw upsertError;
+      }
     }
-  );
 
-if (error) {
-  console.error("Erreur upsert subscription:", error);
-  throw error;
-}
+    return NextResponse.json({ received: true });
+  } catch (error) {
+    console.error("Erreur traitement webhook Stripe:", error);
 
-return NextResponse.json({ received: true });
-
-} catch (error) {
-  console.error("Erreur traitement webhook Stripe:", error);
-
-  return NextResponse.json(
-    { error: "Erreur traitement webhook Stripe" },
-    { status: 500 }
-  );
+    return NextResponse.json(
+      { error: "Erreur traitement webhook Stripe" },
+      { status: 500 }
+    );
+  }
 }
