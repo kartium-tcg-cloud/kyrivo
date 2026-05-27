@@ -101,9 +101,9 @@ billing_address_collection: "required",
 
       subscription_data: {
         metadata,
-        payment_settings: {
-  payment_method_types: ["card", "sepa_debit", "bancontact", "paypal"],
-},
+payment_method_types: ["card", "sepa_debit", "bancontact", "paypal"],
+payment_method_collection: "always",
+billing_address_collection: "required",
       },
 
 success_url: `${appUrl}/dashboard?stripe=success`,
