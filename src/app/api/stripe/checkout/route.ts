@@ -85,10 +85,7 @@ if (!appUrl) {
 
 const session = await stripe.checkout.sessions.create({
   mode: "subscription",
-  automatic_payment_methods: {
-    enabled: true,
-  } as any,
-  
+  payment_method_types: ["card", "link", "bancontact", "sepa_debit", "paypal"],
   customer_email: user.email ?? undefined,
 
       line_items: [
