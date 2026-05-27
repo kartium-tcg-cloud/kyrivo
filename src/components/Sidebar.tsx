@@ -108,6 +108,7 @@ export default function Sidebar() {
 
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   // ─── Récupération état auth Supabase ───────────────────
   useEffect(() => {
@@ -131,6 +132,10 @@ export default function Sidebar() {
     return () => subscription.unsubscribe();
   }, []);
 
+  useEffect(() => {
+  setMobileOpen(false);
+}, [pathname]);
+
   // ─── Handler déconnexion ───────────────────────────────
   async function handleSignOut() {
     const supabase = createClient();
@@ -148,15 +153,55 @@ export default function Sidebar() {
   // Choix des sections selon état auth
   const navSections = isAuthenticated ? authenticatedNavSections : publicNavSections;
 
-  return (
+return (
+  <>
+    <header className="fixed top-0 left-0 right-0 z-40 flex h-16 items-center justify-between border-b border-neutral-800/60 bg-neutral-950/95 px-4 backdrop-blur lg:hidden">
+      <Link href="/" className="flex items-center gap-3">
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-amber-400/40 bg-amber-500">
+          <span className="text-base font-black text-neutral-950">K</span>
+        </div>
+
+        <div>
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-lg font-bold text-white">Kyrivo</span>
+            <span className="text-[8px] font-bold uppercase tracking-[0.18em] text-amber-400/80">
+              SaaS
+            </span>
+          </div>
+          <p className="text-[10px] text-neutral-500">by Kartium TCG</p>
+        </div>
+      </Link>
+
+      <button
+        type="button"
+        onClick={() => setMobileOpen((v) => !v)}
+        className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-neutral-800 bg-neutral-900 text-neutral-300"
+        aria-label="Ouvrir le menu"
+      >
+        {mobileOpen ? "×" : "☰"}
+      </button>
+    </header>
+
+    {mobileOpen && (
+      <button
+        type="button"
+        onClick={() => setMobileOpen(false)}
+        className="fixed inset-0 z-30 bg-black/60 backdrop-blur-sm lg:hidden"
+        aria-label="Fermer le menu"
+      />
+    )}
+
     <aside
-      className="
-        fixed top-0 left-0 z-30
-        flex flex-col
-        w-64 h-screen
-        bg-neutral-950
-        border-r border-neutral-800/60
-      "
+className={`
+  fixed top-0 left-0 z-50 lg:z-30
+  flex flex-col
+  w-64 h-screen
+  bg-neutral-950
+  border-r border-neutral-800/60
+  transition-transform duration-200
+  lg:translate-x-0
+  ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
+`}
     >
 
       {/* ═══ HEADER LOGO ═══════════════════════════════════ */}
@@ -470,6 +515,7 @@ export default function Sidebar() {
         </div>
       </div>
 
-    </aside>
+     </aside>
+  </>
   );
 }
