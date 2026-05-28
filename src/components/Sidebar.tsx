@@ -497,22 +497,22 @@ className={`
           </p>
         )}
 
-        {/* Version + status */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <span
-              className={`
-                h-1.5 w-1.5 rounded-full animate-pulse
-                ${isAuthenticated ? "bg-emerald-400" : "bg-neutral-600"}
-              `}
-            />
-            <span className="text-[10px] text-neutral-600 font-medium">
-              {isAuthenticated ? "Opérationnel" : "Visiteur"}
-            </span>
-          </div>
-          <span className="text-[10px] text-neutral-700 font-mono">
-            v0.1.0
-          </span>
+        {/* Liens légaux */}
+        <div className="flex flex-wrap gap-x-3 gap-y-1.5 pt-1">
+          {[
+            { href: "/mentions-legales", label: "Légal" },
+            { href: "/conditions-generales", label: "CGU" },
+            { href: "/politique-confidentialite", label: "Confidentialité" },
+            { href: "/cookies", label: "Cookies" },
+          ].map(({ href, label }) => (
+            <Link
+              key={href}
+              href={href}
+              className="text-xs text-neutral-600 hover:text-neutral-400 transition-colors"
+            >
+              {label}
+            </Link>
+          ))}
         </div>
       </div>
 

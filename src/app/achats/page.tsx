@@ -185,6 +185,7 @@ setSuppliers(
         await refreshPurchases(companyId);
       } catch (error) {
         console.error(error);
+        toast.error("Erreur lors du chargement des achats.");
       }
     }
 
@@ -231,7 +232,7 @@ setSuppliers(
     await exportPurchasesToExcel(achatsFiltres);
   } catch (error) {
     console.error(error);
-    alert("Erreur lors de l'export Excel des achats.");
+    toast.error("Erreur lors de l'export Excel des achats.");
   }
 };
 
@@ -340,6 +341,7 @@ if (usageError) {
       fermerModal();
     } catch (error) {
       console.error(error);
+      toast.error("Une erreur est survenue lors de la création de l'achat.");
     }
   };
 
@@ -494,13 +496,38 @@ const modifierAchat = async (achatModifie: Achat) => {
     </button>
   </div>
 
-      <AchatsFiltres filtres={filtres} onChangeFiltres={setFiltres} />
-
-      <AchatsTableau
-        achats={achatsFiltres}
-        onModifier={ouvrirEdition}
-        onSupprimer={supprimerAchat}
-      />
+      {achats.length === 0 ? (
+        <div className="flex flex-col items-center justify-center rounded-xl border border-neutral-800/60 bg-neutral-900/30 px-6 py-20 text-center">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-neutral-800 bg-neutral-900 mb-5">
+            <svg className="h-7 w-7 text-neutral-600" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+            </svg>
+          </div>
+          <h3 className="text-base font-semibold text-white mb-2">Aucun achat enregistré</h3>
+          <p className="text-sm text-neutral-500 max-w-sm leading-relaxed mb-6">
+            Commencez par enregistrer votre premier achat. Tous vos achats PRO et particuliers seront centralisés ici.
+          </p>
+          <button
+            type="button"
+            onClick={ouvrirAjout}
+            className="inline-flex items-center gap-2 rounded-lg bg-amber-500 px-5 py-2.5 text-sm font-semibold text-neutral-950 hover:bg-amber-400 transition-colors shadow-lg shadow-amber-500/10"
+          >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            Ajouter un achat
+          </button>
+        </div>
+      ) : (
+        <>
+          <AchatsFiltres filtres={filtres} onChangeFiltres={setFiltres} />
+          <AchatsTableau
+            achats={achatsFiltres}
+            onModifier={ouvrirEdition}
+            onSupprimer={supprimerAchat}
+          />
+        </>
+      )}
 
       <AchatFormModal
         ouvert={modalOuverte}

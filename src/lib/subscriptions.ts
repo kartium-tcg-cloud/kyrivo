@@ -17,6 +17,7 @@ function mapSubscription(row: any): CompanySubscription {
     monthlyLineLimit: Number(row.monthly_line_limit || 0),
     currentPeriodStart: row.current_period_start,
     currentPeriodEnd: row.current_period_end,
+    subscriptionEndsAt: row.subscription_ends_at,
     trialEndsAt: row.trial_ends_at,
     stripeCustomerId: row.stripe_customer_id,
     stripeSubscriptionId: row.stripe_subscription_id,
@@ -145,14 +146,22 @@ export async function canCreateLines(params: {
     };
   }
 
-  const periodEnd = subscription.currentPeriodEnd
-    ? new Date(subscription.currentPeriodEnd)
-    : null;
-
-  const isExpired = periodEnd ? periodEnd <= now : true;
-
+  // "canceled" = Stripe a arrêté le renouvellement, mais l'accès reste valide jusqu'à subscriptionEndsAt
   const isActive =
-    subscription.status === "active" || subscription.status === "trialing";
+    subscription.status === "active" ||
+    subscription.status === "trialing" ||
+    subscription.status === "canceled";
+
+  // Trials expire at trial_ends_at ; paid subscriptions at subscription_ends_at.
+  // current_period_end is only the monthly usage-reset boundary, not the overall expiry.
+  let isExpired: boolean;
+  if (subscription.status === "trialing") {
+    const trialEnd = subscription.trialEndsAt ? new Date(subscription.trialEndsAt) : null;
+    isExpired = trialEnd ? trialEnd <= now : true;
+  } else {
+    const subEnd = subscription.subscriptionEndsAt ? new Date(subscription.subscriptionEndsAt) : null;
+    isExpired = subEnd ? subEnd <= now : true;
+  }
 
   if (!isActive || isExpired) {
     return {

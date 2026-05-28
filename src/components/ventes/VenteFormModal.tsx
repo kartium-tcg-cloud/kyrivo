@@ -3,7 +3,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { getCompanyPreferences } from "@/lib/preferences";import Modal from "@/components/ui/Modal";
+import { getCompanyPreferences } from "@/lib/preferences";
+import Modal from "@/components/ui/Modal";
 import {
   AvailableStockItem,
   Sale,
@@ -64,14 +65,14 @@ function genId(): string {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 }
 
-function emptyLine(): FormLine {
+function emptyLine(vatRate = 21): FormLine {
   return {
     id: genId(),
     itemName: "",
     quantity: "1",
     unitPrice: "",
     purchaseCost: "",
-    vatRate: "21",
+    vatRate: String(vatRate),
     notes: "",
   };
 }
@@ -105,6 +106,7 @@ clients = [],
   const [modeMontantStandard, setModeMontantStandard] =
     useState<"ht" | "ttc">("ttc");
 
+  const [defaultVatRate, setDefaultVatRate] = useState(21);
   const [lines, setLines] = useState<FormLine[]>([emptyLine()]);
   const [erreurs, setErreurs] = useState<string[]>([]);
   const [paymentMethods, setPaymentMethods] = useState<string[]>([
@@ -156,6 +158,10 @@ useEffect(() => {
       ) {
         setPaymentMethods(prefs.defaultPaymentMethods);
       }
+
+      if (Number.isFinite(prefs.defaultVatRate)) {
+        setDefaultVatRate(prefs.defaultVatRate);
+      }
     } catch (e) {
       console.error(e);
     }
@@ -168,7 +174,7 @@ useEffect(() => {
     if (!ouvert) return;
 
     if (!venteInitiale) {
-      resetForm();
+      resetForm(defaultVatRate);
       return;
     }
 
@@ -231,7 +237,7 @@ setForm({
   };
 
   const ajouterLigne = () => {
-    setLines((prev) => [...prev, emptyLine()]);
+    setLines((prev) => [...prev, emptyLine(defaultVatRate)]);
   };
 
   const supprimerLigne = (id: string) => {
@@ -323,7 +329,7 @@ setForm({
     };
   }, [form.vatMode, mappedLines]);
 
-  const resetForm = () => {
+  const resetForm = (vatRate = defaultVatRate) => {
     setForm({
       date: dateAujourdhui(),
       customerName: "",
@@ -334,12 +340,12 @@ setForm({
     });
 
     setModeMontantStandard("ttc");
-    setLines([emptyLine()]);
+    setLines([emptyLine(vatRate)]);
     setErreurs([]);
   };
 
   const handleFermer = () => {
-    resetForm();
+    resetForm(defaultVatRate);
     onFermer();
   };
 
@@ -532,6 +538,9 @@ setForm({
                 {form.vatMode === "margin_vat"
                   ? "Sélectionnez un article acheté à un particulier."
                   : "Sélectionnez un article acheté à un pro ou encodez une ligne manuelle."}
+              </p>
+              <p className="text-[11px] text-neutral-700 mt-1">
+                Le taux de TVA par défaut peut être modifié dans les Préférences.
               </p>
             </div>
 

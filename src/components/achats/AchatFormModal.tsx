@@ -81,7 +81,8 @@ export default function AchatFormModal({
 });
 
   const [modeMontant, setModeMontant] = useState<"ht" | "ttc">("ttc");
-  const [tauxTVA, setTauxTVA] = useState(20);
+  const [tauxTVA, setTauxTVA] = useState(21);
+  const [defaultVatRate, setDefaultVatRate] = useState(21);
   const [items, setItems] = useState<AchatItem[]>([emptyItem()]);
   const [erreurs, setErreurs] = useState<Record<string, string>>({});
   const [documentFile, setDocumentFile] = useState<File | null>(null);
@@ -137,6 +138,11 @@ useEffect(() => {
       ) {
         setPaymentMethods(prefs.defaultPaymentMethods);
       }
+
+      if (Number.isFinite(prefs.defaultVatRate)) {
+        setDefaultVatRate(prefs.defaultVatRate);
+        setTauxTVA(prefs.defaultVatRate);
+      }
     } catch (e) {
       console.error(e);
     }
@@ -171,7 +177,7 @@ setForm({
         ? Number(((achatInitial.prixTVA / achatInitial.prixHT) * 100).toFixed(2))
         : 0;
 
-    setTauxTVA(achatInitial.type === "particulier" ? 0 : computedVatRate || 20);
+    setTauxTVA(achatInitial.type === "particulier" ? 0 : computedVatRate || defaultVatRate);
 
     setItems(
       achatInitial.articles && achatInitial.articles.length > 0
@@ -203,7 +209,7 @@ setForm({
       if (valeur === "particulier") {
         setTauxTVA(0);
       } else if (tauxTVA === 0) {
-        setTauxTVA(20);
+        setTauxTVA(defaultVatRate);
       }
     }
 
@@ -367,7 +373,7 @@ setForm({
     });
 
     setModeMontant("ttc");
-    setTauxTVA(20);
+    setTauxTVA(defaultVatRate);
     setItems([emptyItem()]);
     setDocumentFile(null);
     setErreurs({});
@@ -582,7 +588,7 @@ const buildPayload = (): Achat => {
                   value={tauxTVA}
                   onChange={(e) => setTauxTVA(Number(e.target.value))}
                   onWheel={(e) => e.currentTarget.blur()}
-                  placeholder="20"
+                  placeholder="21"
                   className={`${inputClasses} pr-7 ${
                     erreurs.tauxTVA ? "border-red-500/50" : ""
                   }`}
@@ -592,7 +598,7 @@ const buildPayload = (): Achat => {
                 </span>
               </div>
               <p className="text-[10px] text-neutral-600 mt-1.5 px-1">
-                Taux TVA
+                Taux TVA · <span className="text-neutral-700">modifiable dans les Préférences</span>
               </p>
               {erreurs.tauxTVA && (
                 <p className={erreurClasses}>{erreurs.tauxTVA}</p>

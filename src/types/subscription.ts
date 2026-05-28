@@ -19,6 +19,7 @@ export interface CompanySubscription {
   monthlyLineLimit: number;
   currentPeriodStart: string;
   currentPeriodEnd?: string | null;
+  subscriptionEndsAt?: string | null;
   trialEndsAt?: string | null;
   stripeCustomerId?: string | null;
   stripeSubscriptionId?: string | null;

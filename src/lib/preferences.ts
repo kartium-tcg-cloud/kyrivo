@@ -38,6 +38,10 @@ function mapPreference(row: any): CompanyPreferences {
     defaultPaymentMethods: Array.isArray(row.default_payment_methods)
       ? row.default_payment_methods
       : DEFAULT_COMPANY_PREFERENCES.defaultPaymentMethods,
+
+    defaultVatRate: Number.isFinite(Number(row.default_vat_rate))
+      ? Number(row.default_vat_rate)
+      : DEFAULT_COMPANY_PREFERENCES.defaultVatRate,
   };
 }
 
@@ -153,6 +157,7 @@ export async function upsertCompanyPreferences(
         invoice_next_number: nextNumberForPrefix,
 
         default_payment_methods: preferences.defaultPaymentMethods,
+        default_vat_rate: preferences.defaultVatRate,
 
         updated_at: new Date().toISOString(),
       },

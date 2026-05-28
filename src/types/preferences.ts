@@ -15,6 +15,7 @@ export interface CompanyPreferences {
   invoiceNextNumber: number;
 
   defaultPaymentMethods: string[];
+  defaultVatRate: number;
 }
 
 export const DEFAULT_COMPANY_PREFERENCES: Omit<
@@ -32,6 +33,8 @@ export const DEFAULT_COMPANY_PREFERENCES: Omit<
 
   invoicePrefix: "FAC",
   invoiceNextNumber: 1,
+
+  defaultVatRate: 21,
 
   defaultPaymentMethods: [
     "Virement",

@@ -9,12 +9,23 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { toast } from "sonner";
 
 // ═══════════════════════════════════════════════════════════
 // TYPES
 // ═══════════════════════════════════════════════════════════
 
 type BillingPeriod = "monthly" | "quarterly";
+
+type CurrentPlan = "trial" | "pro" | "business" | "entreprise" | null;
+
+function getPlanRank(plan: CurrentPlan): number {
+  if (plan === "trial") return 1;
+  if (plan === "pro") return 1;
+  if (plan === "business") return 2;
+  if (plan === "entreprise") return 3;
+  return 0;
+}
 
 interface PlanFeature {
   label: string;
@@ -126,26 +137,68 @@ const PLANS: Plan[] = [
 
 export default function AbonnementsPage() {
 
-  const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>("monthly");
-    const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-    const [loadingPlanId, setLoadingPlanId] = useState<string | null>(null);
+const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>("monthly");
+const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+const [loadingPlanId, setLoadingPlanId] = useState<string | null>(null);
+const [currentPlan, setCurrentPlan] = useState<CurrentPlan>(null);
 
   // ─── Détection auth (sans logique compliquée) ────────────
 useEffect(() => {
   const supabase = createClient();
 
-  async function checkAuth() {
-    try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+async function checkAuth() {
+  try {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-      setIsAuthenticated(!!user);
-    } catch (error) {
-      console.error(error);
-      setIsAuthenticated(false);
+    setIsAuthenticated(!!user);
+
+    if (!user) {
+      setCurrentPlan(null);
+      return;
     }
+
+    const { data: membership } = await supabase
+      .from("memberships")
+      .select("company_id")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (!membership?.company_id) {
+      setCurrentPlan(null);
+      return;
+    }
+
+    const { data: subscription } = await supabase
+      .from("subscriptions")
+      .select("plan, status, current_period_end, subscription_ends_at, trial_ends_at")
+      .eq("company_id", membership.company_id)
+      .maybeSingle();
+
+    const now = new Date();
+
+    const isTrialActive =
+      subscription?.status === "trialing" &&
+      subscription.trial_ends_at &&
+      new Date(subscription.trial_ends_at) > now;
+
+    const isPaidActive =
+      subscription?.status === "active" &&
+      subscription.subscription_ends_at &&
+      new Date(subscription.subscription_ends_at) > now;
+
+    if (isTrialActive || isPaidActive) {
+      setCurrentPlan(subscription.plan as CurrentPlan);
+    } else {
+      setCurrentPlan(null);
+    }
+  } catch (error) {
+    console.error(error);
+    setIsAuthenticated(false);
+    setCurrentPlan(null);
   }
+}
 
   checkAuth();
 
@@ -198,8 +251,6 @@ const handleCheckout = async (planId: Plan["id"]) => {
 
     const data = await response.json();
 
-    console.log("Réponse checkout:", data);
-
     if (!response.ok || !data.ok) {
       throw new Error(data.error || "Erreur checkout");
     }
@@ -208,7 +259,7 @@ window.location.assign(data.url);
 
   } catch (error) {
     console.error(error);
-    alert("Impossible de démarrer le paiement.");
+    toast.error("Impossible de démarrer le paiement.");
   } finally {
     setLoadingPlanId(null);
   }
@@ -415,7 +466,8 @@ window.location.assign(data.url);
                 billingPeriod={billingPeriod}
                 isAuthenticated={isAuthenticated}
                 loadingPlanId={loadingPlanId}
-                onCheckout={handleCheckout}
+                currentPlan={currentPlan}
+onCheckout={handleCheckout}
                 />
           ))}
         </section>
@@ -481,18 +533,36 @@ function PlanCard({
   billingPeriod,
   isAuthenticated,
   loadingPlanId,
-  onCheckout,
+currentPlan,
+onCheckout,
 }: {
   plan: Plan;
   billingPeriod: BillingPeriod;
   isAuthenticated: boolean | null;
   loadingPlanId: string | null;
+  currentPlan: CurrentPlan;
   onCheckout: (planId: Plan["id"]) => void;
 }) {
 
   const isHighlighted = plan.highlighted;
   const isPremium = plan.premium;
   const pricing = plan.pricing[billingPeriod];
+  const currentRank = getPlanRank(currentPlan);
+  const planRank = getPlanRank(plan.id);
+  const isDowngradeBlocked =
+    currentPlan !== null &&
+    currentPlan !== "trial" &&
+    planRank < currentRank;
+
+  const isSameActivePlan =
+    currentPlan !== null &&
+    currentPlan !== "trial" &&
+    currentPlan === plan.id;
+
+  const isUpgrade =
+    currentPlan !== null &&
+    currentPlan !== "trial" &&
+    planRank > currentRank;
 
   // Styles selon le tier
   const cardClasses = isHighlighted
@@ -526,11 +596,23 @@ function PlanCard({
       };
     }
 if (isAuthenticated) {
+  if (isDowngradeBlocked) {
+    return {
+      label: "Vous avez déjà un meilleur abonnement",
+      href: null,
+      disabled: true,
+    };
+  }
+
   return {
     label:
       loadingPlanId === plan.id
         ? "Préparation…"
-        : "Choisir ce plan",
+        : isSameActivePlan
+          ? "Prolonger mon abonnement"
+          : isUpgrade
+            ? "Upgrade mon compte"
+            : "Choisir ce plan",
     href: null,
     disabled: loadingPlanId !== null,
   };

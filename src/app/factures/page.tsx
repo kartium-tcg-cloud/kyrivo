@@ -8,6 +8,7 @@ import { getCompanyPreferences } from "@/lib/preferences";
 import { getSales, getSaleLines } from "@/lib/sales";
 import { generateInvoicesZip } from "@/lib/invoiceZip";
 
+import { toast } from "sonner";
 import { CompanyPreferences } from "@/types/preferences";
 import { Sale } from "@/types/sale";
 
@@ -221,12 +222,12 @@ function formatDateFr(value: string): string {
 
 function handleGenerateZip() {
   if (!preferences) {
-    alert("Préférences introuvables.");
+    toast.error("Préférences introuvables.");
     return;
   }
 
   if (filteredSales.length === 0) {
-    alert("Aucune vente à facturer.");
+    toast.error("Aucune vente à facturer.");
     return;
   }
 
@@ -298,7 +299,7 @@ async function confirmGenerateZip() {
     }
   } catch (e) {
     console.error(e);
-    alert("Erreur lors de la génération des factures.");
+    toast.error("Erreur lors de la génération des factures.");
   } finally {
     setGeneratingZip(false);
   }
@@ -639,7 +640,8 @@ async function confirmGenerateZip() {
           <button
             type="button"
             onClick={confirmGenerateZip}
-            className="rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-neutral-950 hover:bg-amber-400 transition-colors shadow-lg shadow-amber-500/20"
+            disabled={generatingZip}
+            className="rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-neutral-950 hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-lg shadow-amber-500/20"
           >
             Confirmer
           </button>

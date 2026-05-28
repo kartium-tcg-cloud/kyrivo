@@ -1,10 +1,6 @@
-// src/app/dashboard/page.tsx
-// Page d'accueil Kyrivo — présentation produit
-// 100% frontend, Tailwind only, aucune dépendance externe
-
 import Link from "next/link";
 
-export default function DashboardPage() {
+export default function HomePage() {
   return (
     <div className="relative overflow-hidden">
 
@@ -33,7 +29,7 @@ export default function DashboardPage() {
           <div className="mt-8 inline-flex items-center gap-2 rounded-full bg-amber-500/10 border border-amber-500/20 px-3 py-1">
             <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
             <span className="text-[11px] font-semibold text-amber-400 tracking-widest uppercase">
-              Kyrivo — MVP v0.1
+              Kyrivo · Gestion &amp; facturation
             </span>
           </div>
 
@@ -117,10 +113,10 @@ export default function DashboardPage() {
         {/* ═══════════════════════════════════════════════════ */}
         <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-24 max-w-4xl mx-auto">
 
-          <StatBlock value="100%" label="Calculs auto" accent />
-<StatBlock value="24/7" label="Accès cloud" />
-          <StatBlock value="FR · BE" label="Conformité" />
-          <StatBlock value="100%" label="Simplicité" accent />
+          <StatBlock value="TVA marge" label="Intégrée nativement" accent />
+          <StatBlock value="FR · BE" label="Conformité fiscale" />
+          <StatBlock value="PDF" label="Factures auto" />
+          <StatBlock value="Excel" label="Export comptable" accent />
 
 
         </section>
@@ -352,11 +348,30 @@ export default function DashboardPage() {
         </section>
 
         {/* Footer mini */}
-        <div className="pt-6 mt-6 border-t border-neutral-800/60 flex items-center justify-between">
-          <p className="text-[11px] text-neutral-600 tracking-wider uppercase">
-            Kyrivo · by Kartium TCG · v0.1.0
-          </p>
-          <p className="text-[11px] text-neutral-600">🇫🇷 🇧🇪 🇱🇺</p>
+        <div className="pt-6 mt-6 border-t border-neutral-800/60">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[11px] text-neutral-600 tracking-wider uppercase">
+              Kyrivo · Gestion &amp; facturation
+            </p>
+            <p className="text-[11px] text-neutral-600">🇫🇷 🇧🇪 🇱🇺</p>
+          </div>
+          <nav className="flex flex-wrap gap-x-4 gap-y-1.5" aria-label="Liens légaux">
+            {[
+              { href: "/mentions-legales", label: "Mentions légales" },
+              { href: "/conditions-generales", label: "CGU / CGV" },
+              { href: "/politique-confidentialite", label: "Confidentialité" },
+              { href: "/cookies", label: "Cookies" },
+              { href: "/donnees-personnelles", label: "Données personnelles" },
+            ].map(({ href, label }) => (
+              <Link
+                key={href}
+                href={href}
+                className="text-[10px] text-neutral-600 hover:text-neutral-400 transition-colors"
+              >
+                {label}
+              </Link>
+            ))}
+          </nav>
         </div>
 
       </div>
