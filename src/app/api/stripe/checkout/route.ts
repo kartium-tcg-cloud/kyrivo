@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { createClient } from "@/lib/supabase/server";
+import { calculateUpgradeCreditPreview } from "@/lib/billing";
+import type { BillingPeriod, PaidSubscriptionPlan } from "@/types/subscription";
 
 const PRICE_IDS = {
   pro: {
@@ -22,6 +24,16 @@ function getPlanRank(plan: string | null | undefined): number {
   if (plan === "entreprise") return 3;
   if (plan === "pro" || plan === "trial") return 1;
   return 0;
+}
+
+// Nombre de mois complets entre deux dates (jamais négatif)
+function calcFullRemainingMonths(from: Date, to: Date): number {
+  if (to <= from) return 0;
+  const yearDiff = to.getFullYear() - from.getFullYear();
+  const monthDiff = to.getMonth() - from.getMonth();
+  let months = yearDiff * 12 + monthDiff;
+  if (to.getDate() < from.getDate()) months--;
+  return Math.max(0, months);
 }
 
 export async function POST(req: NextRequest) {
@@ -71,7 +83,7 @@ export async function POST(req: NextRequest) {
 
     const { data: existingSubscription } = await supabase
       .from("subscriptions")
-      .select("plan, status, stripe_customer_id")
+      .select("plan, status, stripe_customer_id, billing_period, current_period_start, current_period_end, subscription_ends_at")
       .eq("company_id", membership.company_id)
       .maybeSingle();
 
@@ -84,6 +96,66 @@ export async function POST(req: NextRequest) {
         { ok: false, error: "Rétrogradation non autorisée" },
         { status: 400 }
       );
+    }
+
+    const currentPlanValue = existingSubscription?.plan ?? null;
+
+    const isRealUpgrade =
+      isActive &&
+      existingSubscription !== null &&
+      currentPlanValue !== null &&
+      currentPlanValue !== "trial" &&
+      getPlanRank(plan) > getPlanRank(currentPlanValue);
+
+    let creditPreview: ReturnType<typeof calculateUpgradeCreditPreview> | null = null;
+    let usedLines = 0;
+    let fullRemainingMonths = 0;
+
+    if (isRealUpgrade && existingSubscription) {
+      const periodStart = existingSubscription.current_period_start as string | null;
+      const periodEnd = (existingSubscription.current_period_end ?? new Date().toISOString()) as string;
+
+      if (periodStart) {
+        const { data: usageData } = await supabase
+          .from("usage_events")
+          .select("lines_used")
+          .eq("company_id", membership.company_id)
+          .gte("created_at", periodStart)
+          .lt("created_at", periodEnd);
+
+        usedLines = (usageData ?? []).reduce(
+          (sum: number, e: any) => sum + Number(e.lines_used || 0),
+          0
+        );
+      }
+
+      const periodEndDate = existingSubscription.current_period_end
+        ? new Date(existingSubscription.current_period_end as string)
+        : new Date();
+      const subEndsDate = existingSubscription.subscription_ends_at
+        ? new Date(existingSubscription.subscription_ends_at as string)
+        : new Date();
+
+      fullRemainingMonths = calcFullRemainingMonths(periodEndDate, subEndsDate);
+
+      creditPreview = calculateUpgradeCreditPreview({
+        currentPlan: currentPlanValue as PaidSubscriptionPlan,
+        currentBillingPeriod: ((existingSubscription.billing_period ?? "monthly") as BillingPeriod),
+        targetPlan: plan as PaidSubscriptionPlan,
+        targetBillingPeriod: billingPeriod as BillingPeriod,
+        fullRemainingMonths,
+        usedLines,
+      });
+
+      console.log("[Stripe checkout] Upgrade credit preview", {
+        companyId: membership.company_id,
+        currentPlan: creditPreview.currentPlan,
+        targetPlan: creditPreview.targetPlan,
+        usedLines: creditPreview.usedLines,
+        fullRemainingMonths: creditPreview.fullRemainingMonths,
+        creditAmount: creditPreview.creditAmount,
+        finalPrice: creditPreview.finalPrice,
+      });
     }
 
     const existingStripeCustomerId = existingSubscription?.stripe_customer_id ?? null;
@@ -102,12 +174,19 @@ if (!appUrl) {
   );
 }
 
-    const metadata = {
+    const metadata: Record<string, string> = {
       userId: user.id,
       companyId: membership.company_id,
       plan,
       billingPeriod,
     };
+
+    if (creditPreview) {
+      metadata.creditAmount = String(creditPreview.creditAmount);
+      metadata.creditFinalPrice = String(creditPreview.finalPrice);
+      metadata.creditUsedLines = String(usedLines);
+      metadata.creditFullRemainingMonths = String(fullRemainingMonths);
+    }
 
 const session = await stripe.checkout.sessions.create({
   mode: "subscription",

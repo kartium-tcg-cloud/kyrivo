@@ -141,6 +141,8 @@ const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>("monthly");
 const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 const [loadingPlanId, setLoadingPlanId] = useState<string | null>(null);
 const [currentPlan, setCurrentPlan] = useState<CurrentPlan>(null);
+const [loadingPortal, setLoadingPortal] = useState(false);
+const [hasStripeCustomer, setHasStripeCustomer] = useState(false);
 
   // ─── Détection auth (sans logique compliquée) ────────────
 useEffect(() => {
@@ -156,6 +158,7 @@ async function checkAuth() {
 
     if (!user) {
       setCurrentPlan(null);
+      setHasStripeCustomer(false);
       return;
     }
 
@@ -167,12 +170,13 @@ async function checkAuth() {
 
     if (!membership?.company_id) {
       setCurrentPlan(null);
+      setHasStripeCustomer(false);
       return;
     }
 
     const { data: subscription } = await supabase
       .from("subscriptions")
-      .select("plan, status, current_period_end, subscription_ends_at, trial_ends_at")
+      .select("plan, status, current_period_end, subscription_ends_at, trial_ends_at, stripe_customer_id")
       .eq("company_id", membership.company_id)
       .maybeSingle();
 
@@ -190,13 +194,16 @@ async function checkAuth() {
 
     if (isTrialActive || isPaidActive) {
       setCurrentPlan(subscription.plan as CurrentPlan);
+      setHasStripeCustomer(!!subscription.stripe_customer_id);
     } else {
       setCurrentPlan(null);
+      setHasStripeCustomer(false);
     }
   } catch (error) {
     console.error(error);
     setIsAuthenticated(false);
     setCurrentPlan(null);
+    setHasStripeCustomer(false);
   }
 }
 
@@ -264,7 +271,24 @@ window.location.assign(data.url);
     setLoadingPlanId(null);
   }
 };
-  
+
+const handlePortal = async () => {
+  try {
+    setLoadingPortal(true);
+    const response = await fetch("/api/stripe/portal", { method: "POST" });
+    const data = await response.json();
+    if (!response.ok || !data.ok) {
+      throw new Error(data.error || "Erreur portail");
+    }
+    window.location.assign(data.url);
+  } catch (error) {
+    console.error(error);
+    toast.error("Impossible d'ouvrir le portail de gestion.");
+  } finally {
+    setLoadingPortal(false);
+  }
+};
+
   return (
     <div className="relative overflow-hidden">
 
@@ -471,6 +495,33 @@ onCheckout={handleCheckout}
                 />
           ))}
         </section>
+
+        {/* ═══ PORTAIL CLIENT STRIPE ══════════════════════ */}
+        {isAuthenticated && hasStripeCustomer && (
+          <section className="mb-8 flex justify-center">
+            <button
+              type="button"
+              disabled={loadingPortal}
+              onClick={handlePortal}
+              className={`
+                inline-flex items-center gap-2
+                rounded-lg border px-5 py-2.5
+                text-sm font-semibold
+                transition-all duration-200
+                ${loadingPortal
+                  ? "border-neutral-800 bg-neutral-900/40 text-neutral-500 cursor-not-allowed"
+                  : "border-neutral-700 bg-neutral-900/60 text-neutral-200 hover:bg-neutral-800 hover:border-neutral-600"
+                }
+              `}
+            >
+              {loadingPortal
+                ? <SpinnerIcon className="h-4 w-4 animate-spin" />
+                : <ExternalLinkIcon className="h-4 w-4 text-neutral-400" />
+              }
+              {loadingPortal ? "Ouverture…" : "Gérer mon abonnement"}
+            </button>
+          </section>
+        )}
 
         {/* ═══ NOTE EXPLICATIVE LIGNES ═════════════════════ */}
         <section className="mb-16">
@@ -1007,6 +1058,14 @@ function SpinnerIcon({ className }: { className?: string }) {
     <svg className={className} fill="none" viewBox="0 0 24 24">
       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+    </svg>
+  );
+}
+
+function ExternalLinkIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
     </svg>
   );
 }

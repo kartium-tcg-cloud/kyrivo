@@ -143,6 +143,31 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ received: true });
     }
 
+    // ── invoice.payment_failed ─────────────────────────────────────────────
+    if (event.type === "invoice.payment_failed") {
+      const invoice = event.data.object as Stripe.Invoice;
+      const invoiceRaw = invoice as any;
+      const stripeSubId: string | null =
+        typeof invoiceRaw.subscription === "string"
+          ? invoiceRaw.subscription
+          : typeof invoiceRaw.parent?.subscription_details?.subscription === "string"
+          ? invoiceRaw.parent.subscription_details.subscription
+          : null;
+
+      if (!stripeSubId) return NextResponse.json({ received: true });
+
+      await supabaseAdmin
+        .from("subscriptions")
+        .update({
+          status: "past_due",
+          updated_at: new Date().toISOString(),
+        })
+        .eq("stripe_subscription_id", stripeSubId)
+        .neq("status", "canceled");
+
+      return NextResponse.json({ received: true });
+    }
+
     // ── checkout.session.completed ─────────────────────────────────────────
     if (event.type !== "checkout.session.completed") {
       return NextResponse.json({ received: true });
@@ -284,6 +309,26 @@ export async function POST(req: NextRequest) {
 
     if (upsertError) {
       throw upsertError;
+    }
+
+    // Annuler l'ancienne subscription Stripe pour éviter deux abonnements actifs
+    const oldStripeSubscriptionId = existingSubscription?.stripe_subscription_id ?? null;
+
+    if (oldStripeSubscriptionId && oldStripeSubscriptionId !== stripeSubscriptionId) {
+      try {
+        await stripe.subscriptions.cancel(oldStripeSubscriptionId);
+        console.log("[Stripe] Ancienne subscription annulée:", oldStripeSubscriptionId);
+      } catch (cancelError: any) {
+        console.error("[Stripe] Échec annulation ancienne subscription:", {
+          oldStripeSubscriptionId,
+          newStripeSubscriptionId: stripeSubscriptionId,
+          companyId,
+          error: cancelError?.message,
+        });
+        // Ne pas propager : l'upsert DB est déjà validé. Retourner 500 ici
+        // ferait re-tenter Stripe, causant un second upsert et une tentative
+        // d'annulation sur une subscription déjà annulée → boucle infinie.
+      }
     }
 
     return NextResponse.json({ received: true });

@@ -34,24 +34,38 @@ export function getPlanLineLimit(plan: SubscriptionPlan) {
   return PLAN_LINE_LIMITS[plan];
 }
 
+// Prix mensuel effectif : monthly = prix mensuel, quarterly = prix trimestriel / 3
+function getEffectiveMonthlyPrice(
+  plan: PaidSubscriptionPlan,
+  billingPeriod: BillingPeriod
+): number {
+  if (billingPeriod === "monthly") {
+    return PLAN_PRICES_EUR[plan];
+  }
+  return PLAN_QUARTERLY_PRICES_EUR[plan] / 3;
+}
+
 export function calculateRemainingLineCredit(params: {
   currentPlan: PaidSubscriptionPlan;
   remainingLines: number;
+  currentBillingPeriod?: BillingPeriod;
 }) {
-  const { currentPlan, remainingLines } = params;
+  const { currentPlan, remainingLines, currentBillingPeriod = "monthly" } = params;
 
-  const currentPrice = PLAN_PRICES_EUR[currentPlan];
   const currentLimit = PLAN_LINE_LIMITS[currentPlan];
 
   if (currentLimit <= 0 || remainingLines <= 0) {
     return 0;
   }
 
+  const effectiveMonthlyPrice = getEffectiveMonthlyPrice(currentPlan, currentBillingPeriod);
+
   return Number(
-    ((currentPrice / currentLimit) * remainingLines).toFixed(2)
+    ((effectiveMonthlyPrice / currentLimit) * remainingLines).toFixed(2)
   );
 }
 
+// Non utilisé dans la logique de crédit upgrade. Conservé pour rétrocompatibilité.
 export function calculateRemainingMonthCredit(params: {
   currentPlan: PaidSubscriptionPlan;
   fullRemainingMonths: number;
@@ -67,6 +81,7 @@ export function calculateRemainingMonthCredit(params: {
   );
 }
 
+// Remplacé par calculateUpgradeCreditPreview. Conservé pour rétrocompatibilité.
 export function calculatePlanChangePrice(params: {
   currentPlan: SubscriptionPlan | null;
   targetPlan: PaidSubscriptionPlan;
@@ -121,6 +136,113 @@ export function calculatePlanChangePrice(params: {
     basePrice: targetPrice,
     credit,
     finalPrice,
+  };
+}
+
+export interface UpgradeCreditPreview {
+  currentPlan: PaidSubscriptionPlan;
+  currentBillingPeriod: BillingPeriod;
+  targetPlan: PaidSubscriptionPlan;
+  targetBillingPeriod: BillingPeriod;
+  fullRemainingMonths: number;
+  usedLines: number;
+  totalLines: number;
+  remainingLines: number;
+  effectiveMonthlyPrice: number;
+  fullMonthsCredit: number;
+  currentMonthCredit: number;
+  creditAmount: number;
+  targetPrice: number;
+  finalPrice: number;
+  lostCredit: number;
+  isFreeUpgrade: boolean;
+}
+
+export function calculateUpgradeCreditPreview(params: {
+  currentPlan: PaidSubscriptionPlan;
+  currentBillingPeriod: BillingPeriod;
+  targetPlan: PaidSubscriptionPlan;
+  targetBillingPeriod: BillingPeriod;
+  fullRemainingMonths: number;
+  usedLines: number;
+}): UpgradeCreditPreview {
+  const {
+    currentPlan,
+    currentBillingPeriod,
+    targetPlan,
+    targetBillingPeriod,
+    fullRemainingMonths,
+    usedLines,
+  } = params;
+
+  const targetPrice = getSubscriptionPrice({
+    plan: targetPlan,
+    period: targetBillingPeriod,
+  });
+
+  const totalLines = PLAN_LINE_LIMITS[currentPlan];
+  const remainingLines = Math.max(0, totalLines - usedLines);
+  const effectiveMonthlyPrice = getEffectiveMonthlyPrice(currentPlan, currentBillingPeriod);
+
+  // Prolongation du même plan : crédit = 0 €, on paie le plein tarif
+  if (currentPlan === targetPlan) {
+    return {
+      currentPlan,
+      currentBillingPeriod,
+      targetPlan,
+      targetBillingPeriod,
+      fullRemainingMonths,
+      usedLines,
+      totalLines,
+      remainingLines,
+      effectiveMonthlyPrice,
+      fullMonthsCredit: 0,
+      currentMonthCredit: 0,
+      creditAmount: 0,
+      targetPrice,
+      finalPrice: targetPrice,
+      lostCredit: 0,
+      isFreeUpgrade: false,
+    };
+  }
+
+  const fullMonthsCredit = Number(
+    (effectiveMonthlyPrice * fullRemainingMonths).toFixed(2)
+  );
+
+  const currentMonthCredit =
+    totalLines > 0
+      ? Number(((effectiveMonthlyPrice / totalLines) * remainingLines).toFixed(2))
+      : 0;
+
+  const creditAmount = Number((fullMonthsCredit + currentMonthCredit).toFixed(2));
+
+  const finalPrice = Math.max(0, Number((targetPrice - creditAmount).toFixed(2)));
+
+  const lostCredit =
+    creditAmount > targetPrice
+      ? Number((creditAmount - targetPrice).toFixed(2))
+      : 0;
+
+  const isFreeUpgrade = creditAmount >= targetPrice;
+
+  return {
+    currentPlan,
+    currentBillingPeriod,
+    targetPlan,
+    targetBillingPeriod,
+    fullRemainingMonths,
+    usedLines,
+    totalLines,
+    remainingLines,
+    effectiveMonthlyPrice,
+    fullMonthsCredit,
+    currentMonthCredit,
+    creditAmount,
+    targetPrice,
+    finalPrice,
+    lostCredit,
+    isFreeUpgrade,
   };
 }
 
