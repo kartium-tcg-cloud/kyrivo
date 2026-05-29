@@ -626,7 +626,7 @@ function drawTotalsBlock(doc: jsPDF, sale: Sale, tableEndY: number): number {
   // ─── MENTION TVA MARGE À GAUCHE (si applicable) ──────────
   if (sale.vatMode === "margin_vat") {
     const noticeWidth = totalsX - marginX - 8;
-    const noticeHeight = 38; // hauteur pour s'aligner avec le bloc totaux complet
+    const noticeHeight = 46;
 
     drawBox(doc, marginX, y, noticeWidth, noticeHeight, COLORS.amberBgAlt);
     drawBorder(doc, marginX, y, noticeWidth, noticeHeight, COLORS.amber, 0.2);
@@ -648,41 +648,59 @@ function drawTotalsBlock(doc: jsPDF, sale: Sale, tableEndY: number): number {
     });
 
     // Label
-    drawLabel(doc, "Mention obligatoire", marginX + 13, y + 7, {
+    drawLabel(doc, "Mention TVA sur marge", marginX + 13, y + 7, {
       color: COLORS.amberDeep,
       size: 6.5,
     });
 
-    // Texte légal sur 2 lignes pour mieux tenir dans la largeur
+    // Titre principal
     drawText(
       doc,
-      "Régime particulier de la marge",
+      "Régime particulier de la marge — biens d'occasion",
       marginX + 13,
       y + 14,
       { size: FONT.small, bold: true, color: COLORS.inkSoft }
     );
 
+    // Mention acquéreur
     drawText(
       doc,
-      "Biens d'occasion — Art. 297 A CGI / 312-325",
+      "TVA non déductible par l'acquéreur.",
       marginX + 13,
       y + 19,
       { size: FONT.small, color: COLORS.inkMid }
     );
 
+    // Séparateur pointillé
+    drawDottedLine(doc, marginX + 13, y + 23, marginX + noticeWidth - 6, COLORS.amberDeep);
+
+    // Références légales bicountry
+    drawLabel(doc, "Références légales", marginX + 13, y + 28, {
+      color: COLORS.amberDeep,
+      size: 6.0,
+    });
+
     drawText(
       doc,
-      "Directive 2006/112/CE",
+      "Directive 2006/112/CE, art. 311 à 343",
       marginX + 13,
-      y + 24,
-      { size: FONT.small, color: COLORS.inkMid }
+      y + 33,
+      { size: FONT.caption, color: COLORS.inkMuted }
     );
 
     drawText(
       doc,
-      "TVA non déductible par l'acquéreur.",
+      "France : art. 297 A et suivants du CGI",
       marginX + 13,
-      y + 32,
+      y + 38,
+      { size: FONT.caption, color: COLORS.inkMuted }
+    );
+
+    drawText(
+      doc,
+      "Belgique : art. 58, §4 du Code de la TVA",
+      marginX + 13,
+      y + 43,
       { size: FONT.caption, color: COLORS.inkMuted }
     );
   }

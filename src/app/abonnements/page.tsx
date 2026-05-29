@@ -143,6 +143,7 @@ const [loadingPlanId, setLoadingPlanId] = useState<string | null>(null);
 const [currentPlan, setCurrentPlan] = useState<CurrentPlan>(null);
 const [loadingPortal, setLoadingPortal] = useState(false);
 const [hasStripeCustomer, setHasStripeCustomer] = useState(false);
+const [isPastDue, setIsPastDue] = useState(false);
 
   // ─── Détection auth (sans logique compliquée) ────────────
 useEffect(() => {
@@ -192,7 +193,10 @@ async function checkAuth() {
       subscription.subscription_ends_at &&
       new Date(subscription.subscription_ends_at) > now;
 
-    if (isTrialActive || isPaidActive) {
+    const pastDue = subscription?.status === "past_due";
+    setIsPastDue(pastDue);
+
+    if (isTrialActive || isPaidActive || pastDue) {
       setCurrentPlan(subscription.plan as CurrentPlan);
       setHasStripeCustomer(!!subscription.stripe_customer_id);
     } else {
@@ -245,18 +249,6 @@ const handleCheckout = async (planId: Plan["id"]) => {
   try {
     setLoadingPlanId(planId);
 
-    console.log("[Abonnements] clicked plan card", {
-      planId,
-      billingPeriod,
-      currentPlan,
-      isAuthenticated,
-    });
-
-    console.log("[Abonnements] checkout request body", {
-      plan: planId,
-      billingPeriod,
-    });
-
     const response = await fetch("/api/stripe/checkout", {
       method: "POST",
       headers: {
@@ -270,16 +262,10 @@ const handleCheckout = async (planId: Plan["id"]) => {
 
     const data = await response.json();
 
-    console.log("[Abonnements] checkout raw response", data);
-
     if (!response.ok || !data.ok) {
       throw new Error(data.error || "Erreur checkout");
     }
 
-    console.log("[Abonnements] redirecting to exact checkout session", {
-      url: data.url,
-      sessionIdFromUrl: data.url?.match(/cs_live_[^#?/]+/)?.[0] ?? null,
-    });
     window.location.href = data.url;
 
   } catch (error) {
@@ -309,6 +295,31 @@ const handlePortal = async () => {
 
   return (
     <div className="relative overflow-hidden">
+
+      {/* ═══ BANNIÈRE PAST_DUE ══════════════════════════════ */}
+      {isPastDue && (
+        <div className="flex items-start gap-3 border-b border-red-500/20 bg-red-500/8 px-6 py-3.5 lg:px-10">
+          <svg className="h-4 w-4 text-red-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+          </svg>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-red-300">Paiement échoué</p>
+            <p className="text-xs text-neutral-400 mt-0.5 leading-relaxed">
+              Votre paiement a échoué. Mettez à jour votre moyen de paiement pour éviter l'interruption de votre accès.
+            </p>
+          </div>
+          {hasStripeCustomer && (
+            <button
+              type="button"
+              disabled={loadingPortal}
+              onClick={handlePortal}
+              className="flex-shrink-0 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-300 hover:bg-red-500/20 transition-colors disabled:opacity-50"
+            >
+              {loadingPortal ? "Ouverture…" : "Mettre à jour"}
+            </button>
+          )}
+        </div>
+      )}
 
       {/* ═══ GLOW BACKGROUND ═══════════════════════════════ */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">

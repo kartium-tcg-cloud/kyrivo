@@ -43,7 +43,15 @@ export default function RegisterPage() {
     });
 
     if (error) {
-      setError(error.message);
+      const msg = error.message.toLowerCase();
+      if (msg.includes("already registered") || msg.includes("already been registered"))
+        setError("Un compte existe déjà avec cette adresse email.");
+      else if (msg.includes("password"))
+        setError("Le mot de passe ne respecte pas les critères requis (minimum 6 caractères).");
+      else if (msg.includes("invalid email"))
+        setError("L'adresse email n'est pas valide.");
+      else
+        setError("Une erreur est survenue lors de la création du compte. Réessayez.");
       setLoading(false);
       return;
     }

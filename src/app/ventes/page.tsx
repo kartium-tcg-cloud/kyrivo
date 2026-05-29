@@ -92,6 +92,8 @@ function mapSale(sale: any, saleLines: any[]): Sale {
     totalTTC: Number(sale.total_ttc),
     marginAmount: Number(sale.margin_amount || 0),
     notes: sale.notes || undefined,
+    invoiceNumber: sale.invoice_number || undefined,
+    billedAt: sale.billed_at || undefined,
     lines: saleLines
       .filter((line: any) => line.sale_id === sale.id)
       .map(mapSaleLine),

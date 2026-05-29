@@ -15,6 +15,16 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  function mapAuthError(msg: string): string {
+    if (msg.toLowerCase().includes("invalid login credentials"))
+      return "Email ou mot de passe incorrect.";
+    if (msg.toLowerCase().includes("email not confirmed"))
+      return "Veuillez confirmer votre adresse email avant de vous connecter.";
+    if (msg.toLowerCase().includes("too many requests"))
+      return "Trop de tentatives. Attendez quelques minutes avant de réessayer.";
+    return "Une erreur est survenue. Veuillez réessayer.";
+  }
+
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
 
@@ -27,12 +37,12 @@ export default function LoginPage() {
     });
 
     if (error) {
-      setError(error.message);
+      setError(mapAuthError(error.message));
       setLoading(false);
       return;
     }
 
-    router.push("/");
+    router.push("/dashboard");
     router.refresh();
   }
 

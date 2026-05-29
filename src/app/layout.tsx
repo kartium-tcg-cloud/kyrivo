@@ -11,8 +11,8 @@ import { Toaster } from "sonner";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Kyrivo",
-  description: "Gestion comptable pour vendeurs TCG",
+  title: "Kyrivo — Gestion achats, ventes et stock pour revendeurs",
+  description: "Kyrivo centralise vos achats, ventes et stock en un seul outil. TVA sur marge, facturation PDF et export comptable — pour revendeurs TCG, manga, figurines, sneakers, Lego et brocante, en France et en Belgique.",
 };
 
 export default function RootLayout({

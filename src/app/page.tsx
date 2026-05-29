@@ -1,6 +1,14 @@
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const primaryCta = user ? "/dashboard" : "/register";
+  const primaryLabel = user ? "Accéder à mon espace" : "Essai gratuit 7 jours";
+  const finalCta = user ? "/dashboard" : "/register";
+  const finalLabel = user ? "Accéder à mon espace" : "Démarrer gratuitement";
+
   return (
     <div className="relative overflow-hidden">
 
@@ -62,7 +70,7 @@ export default function HomePage() {
           <div className="mt-10 flex flex-col sm:flex-row gap-3 items-center justify-center">
 
             <Link
-              href="/abonnements"
+              href={primaryCta}
               className="
                 group inline-flex items-center justify-center gap-2
                 rounded-lg px-6 py-3
@@ -73,14 +81,14 @@ export default function HomePage() {
                 shadow-lg shadow-amber-500/20
               "
             >
-              Voir les abonnements
+              {primaryLabel}
               <svg className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
               </svg>
             </Link>
 
             <Link
-              href="/achats"
+              href="/abonnements"
               className="
                 inline-flex items-center justify-center gap-2
                 rounded-lg px-6 py-3
@@ -91,7 +99,7 @@ export default function HomePage() {
                 transition-all duration-200
               "
             >
-              Commencer
+              Voir les tarifs
             </Link>
 
           </div>
@@ -313,7 +321,7 @@ export default function HomePage() {
               <div className="mt-8 flex flex-col sm:flex-row gap-3 items-center justify-center">
 
                 <Link
-                  href="/abonnements"
+                  href={finalCta}
                   className="
                     group inline-flex items-center justify-center gap-2
                     rounded-lg px-6 py-3
@@ -324,14 +332,14 @@ export default function HomePage() {
                     shadow-lg shadow-amber-500/30
                   "
                 >
-                  Voir les abonnements
+                  {finalLabel}
                   <svg className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
                   </svg>
                 </Link>
 
                 <Link
-                  href="/achats"
+                  href="/abonnements"
                   className="
                     inline-flex items-center justify-center gap-2
                     rounded-lg px-6 py-3
@@ -343,7 +351,7 @@ export default function HomePage() {
                     backdrop-blur-sm
                   "
                 >
-                  Explorer la démo
+                  Voir les tarifs
                 </Link>
 
               </div>

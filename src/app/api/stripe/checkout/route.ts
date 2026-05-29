@@ -150,11 +150,8 @@ export async function POST(req: NextRequest) {
       });
 
       console.log("[Stripe checkout] Upgrade credit preview", {
-        companyId: membership.company_id,
         currentPlan: creditPreview.currentPlan,
         targetPlan: creditPreview.targetPlan,
-        usedLines: creditPreview.usedLines,
-        fullRemainingMonths: creditPreview.fullRemainingMonths,
         creditAmount: creditPreview.creditAmount,
         finalPrice: creditPreview.finalPrice,
       });
@@ -277,24 +274,6 @@ const session = await stripe.checkout.sessions.create({
     });
   }
   throw err;
-});
-
-const verifiedSession = await stripe.checkout.sessions.retrieve(session.id, {
-  expand: ["total_details", "discounts", "line_items", "invoice", "subscription"],
-});
-
-console.log("[Stripe checkout] verified session after create", {
-  sessionId:      verifiedSession.id,
-  status:         verifiedSession.status,
-  paymentStatus:  verifiedSession.payment_status,
-  url:            verifiedSession.url,
-  amountSubtotal: verifiedSession.amount_subtotal,
-  amountTotal:    verifiedSession.amount_total,
-  totalDetails:   verifiedSession.total_details,
-  discounts:      verifiedSession.discounts,
-  invoice:        verifiedSession.invoice,
-  subscription:   verifiedSession.subscription,
-  metadata:       verifiedSession.metadata,
 });
 
     return NextResponse.json({

@@ -87,6 +87,8 @@ export interface Sale {
   notes?: string;
   lines?: SaleLine[];
   saveClient?: boolean;
+  invoiceNumber?: string;
+  billedAt?: string;
 }
 
 export interface SaleFiltres {

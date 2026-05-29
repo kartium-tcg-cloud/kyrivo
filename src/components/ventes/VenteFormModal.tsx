@@ -487,6 +487,17 @@ setForm({
               );
             })}
           </div>
+
+          {form.vatMode === "margin_vat" && (
+            <div className="mt-2 flex items-start gap-2.5 rounded-lg border border-amber-500/20 bg-amber-500/5 px-3 py-2.5">
+              <svg className="h-3.5 w-3.5 text-amber-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+              </svg>
+              <p className="text-[11px] text-neutral-400 leading-relaxed">
+                Le régime de TVA sur marge s'applique uniquement aux biens achetés sans TVA déductible (ex. achat à un particulier). Vérifiez avec votre comptable avant utilisation.
+              </p>
+            </div>
+          )}
         </div>
 
         {form.vatMode === "standard_vat" && (

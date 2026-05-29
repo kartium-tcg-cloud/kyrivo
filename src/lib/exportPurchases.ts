@@ -16,24 +16,69 @@ type PurchaseExportRow = {
   Notes: string;
 };
 
-function buildColumnWidths(rows: PurchaseExportRow[]) {
-  const columns = Object.keys(rows[0] || {}) as (keyof PurchaseExportRow)[];
+const AMOUNT_COLS = new Set<string>([
+  "Coût unitaire HT",
+  "Coût unitaire TTC",
+  "Total achat TTC",
+]);
 
-  return columns.map((key) => {
-    const headerLength = String(key).length;
+function dateFR(iso: string): string {
+  if (!iso) return "";
+  const s = iso.split("T")[0].split("-");
+  return s.length === 3 ? `${s[2]}/${s[1]}/${s[0]}` : iso;
+}
 
-    const maxContentLength = rows.reduce((max, row) => {
-      const value = row[key];
-      const length =
-        value === null || value === undefined ? 0 : String(value).length;
-
-      return Math.max(max, length);
+function buildColWidths(rows: PurchaseExportRow[]) {
+  const keys = Object.keys(rows[0] || {}) as (keyof PurchaseExportRow)[];
+  return keys.map((key) => {
+    const h = String(key).length;
+    const c = rows.reduce((m, r) => {
+      const v = r[key];
+      return Math.max(m, v === null || v === undefined ? 0 : String(v).length);
     }, 0);
-
-    return {
-      wch: Math.min(Math.max(headerLength, maxContentLength) + 2, 45),
-    };
+    return { wch: Math.min(Math.max(h, c) + 2, 45) };
   });
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function applyStyles(ws: any, XLSX: any) {
+  const ref: string | undefined = ws["!ref"];
+  if (!ref) return;
+
+  const range = XLSX.utils.decode_range(ref);
+
+  // Noms de colonne indexés
+  const headers: Record<number, string> = {};
+  for (let C = range.s.c; C <= range.e.c; C++) {
+    const cell = ws[XLSX.utils.encode_cell({ r: 0, c: C })];
+    if (cell) headers[C] = String(cell.v);
+  }
+
+  for (let R = range.s.r; R <= range.e.r; R++) {
+    for (let C = range.s.c; C <= range.e.c; C++) {
+      const addr = XLSX.utils.encode_cell({ r: R, c: C });
+      const cell = ws[addr];
+      if (!cell) continue;
+
+      if (R === 0) {
+        cell.s = {
+          font: { bold: true },
+          fill: { fgColor: { rgb: "E5E7EB" }, patternType: "solid" },
+          alignment: { horizontal: "center" },
+        };
+      } else if (cell.t === "n" && AMOUNT_COLS.has(headers[C])) {
+        cell.z = '#,##0.00 "€"';
+      }
+    }
+  }
+
+  // Première ligne figée
+  ws["!sheetViews"] = [
+    { state: "frozen", ySplit: 1, topLeftCell: "A2", activePane: "bottomLeft" },
+  ];
+
+  // Filtre automatique sur la ligne d'en-tête
+  ws["!autofilter"] = { ref: `A1:${XLSX.utils.encode_col(range.e.c)}1` };
 }
 
 export async function exportPurchasesToExcel(achats: Achat[]) {
@@ -44,7 +89,7 @@ export async function exportPurchasesToExcel(achats: Achat[]) {
       achat.articles && achat.articles.length > 0 ? achat.articles : [null];
 
     return articles.map((article) => ({
-      Date: achat.date,
+      Date: dateFR(achat.date),
       "N° achat": achat.numInterne,
       Fournisseur: achat.fournisseur,
 
@@ -67,7 +112,8 @@ export async function exportPurchasesToExcel(achats: Achat[]) {
   });
 
   const worksheet = XLSX.utils.json_to_sheet(rows);
-  worksheet["!cols"] = buildColumnWidths(rows);
+  worksheet["!cols"] = buildColWidths(rows);
+  applyStyles(worksheet, XLSX);
 
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, "Achats");

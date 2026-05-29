@@ -79,28 +79,6 @@ export async function ensureTrialSubscription(
   return mapSubscription(data);
 }
 
-export async function updateSubscriptionPlan(params: {
-  companyId: string;
-  plan: SubscriptionPlan;
-}) {
-  const { companyId, plan } = params;
-
-  const { data, error } = await supabase
-    .from("subscriptions")
-    .update({
-      plan,
-      status: "active",
-      monthly_line_limit: PLAN_LINE_LIMITS[plan],
-      updated_at: new Date().toISOString(),
-    })
-    .eq("company_id", companyId)
-    .select(SUBSCRIPTION_COLUMNS)
-    .single();
-
-  if (error) throw error;
-
-  return mapSubscription(data);
-}
 
 export async function getLineUsageForPeriod(params: {
   companyId: string;
