@@ -98,8 +98,14 @@ export default function HomePage() {
 
           {/* Feature badges */}
           <div className="mt-10 flex flex-wrap gap-2 justify-center">
-            <FeatureBadge>🇫🇷 TVA marge française</FeatureBadge>
-            <FeatureBadge>🇧🇪 TVA marge belge</FeatureBadge>
+            <FeatureBadge>
+              <img src="https://flagcdn.com/16x12/fr.png" srcSet="https://flagcdn.com/32x24/fr.png 2x" width={16} height={12} alt="France" className="inline-block flex-shrink-0" />
+              TVA marge française
+            </FeatureBadge>
+            <FeatureBadge>
+              <img src="https://flagcdn.com/16x12/be.png" srcSet="https://flagcdn.com/32x24/be.png 2x" width={16} height={12} alt="Belgique" className="inline-block flex-shrink-0" />
+              TVA marge belge
+            </FeatureBadge>
             <FeatureBadge>Multi-plateforme</FeatureBadge>
             <FeatureBadge>Factures PDF</FeatureBadge>
             <FeatureBadge>Export Excel</FeatureBadge>
@@ -353,7 +359,11 @@ export default function HomePage() {
             <p className="text-[11px] text-neutral-600 tracking-wider uppercase">
               Kyrivo · Gestion &amp; facturation
             </p>
-            <p className="text-[11px] text-neutral-600">🇫🇷 🇧🇪 🇱🇺</p>
+            <p className="flex items-center gap-1.5 text-[11px] text-neutral-600">
+              <img src="https://flagcdn.com/16x12/fr.png" srcSet="https://flagcdn.com/32x24/fr.png 2x" width={16} height={12} alt="France" />
+              <img src="https://flagcdn.com/16x12/be.png" srcSet="https://flagcdn.com/32x24/be.png 2x" width={16} height={12} alt="Belgique" />
+              <img src="https://flagcdn.com/16x12/lu.png" srcSet="https://flagcdn.com/32x24/lu.png 2x" width={16} height={12} alt="Luxembourg" />
+            </p>
           </div>
           <nav className="flex flex-wrap gap-x-4 gap-y-1.5" aria-label="Liens légaux">
             {[

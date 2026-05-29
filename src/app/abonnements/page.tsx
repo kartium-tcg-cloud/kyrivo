@@ -351,7 +351,7 @@ window.location.assign(data.url);
                 <div className="inline-flex items-center gap-2 rounded-full bg-neutral-950/40 border border-amber-500/30 px-2.5 py-1 mb-2 backdrop-blur-sm">
                   <SparkleIcon className="h-3 w-3 text-amber-400" />
                   <span className="text-[10px] font-bold text-amber-400 uppercase tracking-widest">
-                    Réservé à Kyrivo Pro
+                    Testez gratuitement, sans engagement
                   </span>
                 </div>
 

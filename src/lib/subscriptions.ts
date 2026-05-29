@@ -8,6 +8,9 @@ import {
 
 const supabase = createClient();
 
+const SUBSCRIPTION_COLUMNS =
+  "id,company_id,plan,status,monthly_line_limit,current_period_start,current_period_end,subscription_ends_at,trial_ends_at,billing_period,created_at,updated_at";
+
 function mapSubscription(row: any): CompanySubscription {
   return {
     id: row.id,
@@ -19,8 +22,7 @@ function mapSubscription(row: any): CompanySubscription {
     currentPeriodEnd: row.current_period_end,
     subscriptionEndsAt: row.subscription_ends_at,
     trialEndsAt: row.trial_ends_at,
-    stripeCustomerId: row.stripe_customer_id,
-    stripeSubscriptionId: row.stripe_subscription_id,
+    billingPeriod: row.billing_period,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -31,7 +33,7 @@ export async function getCompanySubscription(
 ): Promise<CompanySubscription | null> {
   const { data, error } = await supabase
     .from("subscriptions")
-    .select("*")
+    .select(SUBSCRIPTION_COLUMNS)
     .eq("company_id", companyId)
     .maybeSingle();
 
@@ -67,7 +69,7 @@ export async function ensureTrialSubscription(
       trial_ends_at: trialEnds.toISOString(),
       updated_at: now.toISOString(),
     })
-    .select()
+    .select(SUBSCRIPTION_COLUMNS)
     .single();
 
   if (error) throw error;
@@ -90,7 +92,7 @@ export async function updateSubscriptionPlan(params: {
       updated_at: new Date().toISOString(),
     })
     .eq("company_id", companyId)
-    .select()
+    .select(SUBSCRIPTION_COLUMNS)
     .single();
 
   if (error) throw error;

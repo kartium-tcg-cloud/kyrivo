@@ -163,7 +163,7 @@ export default async function DashboardPage() {
       { count: stCount },
     ] = await Promise.all([
       supabase
-        .from("purchase_documents")
+        .from("purchases")
         .select("*", { count: "exact", head: true })
         .eq("company_id", companyId)
         .gte("purchase_date", firstDayOfMonth),
@@ -187,7 +187,7 @@ export default async function DashboardPage() {
     const [{ data: recentPurchases }, { data: recentSales }] =
       await Promise.all([
         supabase
-          .from("purchase_documents")
+          .from("purchases")
           .select("supplier, amount_ttc, purchase_date")
           .eq("company_id", companyId)
           .order("purchase_date", { ascending: false })

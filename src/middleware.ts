@@ -42,7 +42,7 @@ export async function middleware(request: NextRequest) {
   const isPublicRoute =
     PUBLIC_ROUTES.includes(pathname) ||
     pathname.startsWith("/auth") ||
-    pathname.startsWith("/api") ||
+    pathname === "/api/stripe/webhook" ||
     pathname.startsWith("/_next") ||
     pathname.includes(".");
 
