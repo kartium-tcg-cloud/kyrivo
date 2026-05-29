@@ -158,6 +158,41 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    // Appliquer le crédit via coupon Stripe si upgrade réel avec crédit partiel
+    let couponId: string | null = null;
+
+    if (creditPreview && creditPreview.creditAmount > 0) {
+      const amountOffCents = Math.round(creditPreview.creditAmount * 100);
+      const targetPriceCents = Math.round(creditPreview.targetPrice * 100);
+
+      if (amountOffCents >= targetPriceCents) {
+        return NextResponse.json(
+          {
+            ok: false,
+            error: "Votre crédit couvre entièrement ce changement. Contactez le support.",
+          },
+          { status: 400 }
+        );
+      }
+
+      const coupon = await stripe.coupons.create({
+        amount_off: amountOffCents,
+        currency: "eur",
+        duration: "once",
+        max_redemptions: 1,
+        name: `Crédit upgrade Kyrivo - ${creditPreview.creditAmount.toFixed(2)} €`,
+      });
+
+      couponId = coupon.id;
+
+      console.log("[Stripe checkout] Upgrade coupon applied", {
+        companyId: membership.company_id,
+        couponId,
+        amountOffCents,
+        finalPrice: creditPreview.finalPrice,
+      });
+    }
+
     const existingStripeCustomerId = existingSubscription?.stripe_customer_id ?? null;
 
     const priceId =
@@ -188,11 +223,18 @@ if (!appUrl) {
       metadata.creditFullRemainingMonths = String(fullRemainingMonths);
     }
 
+    if (couponId) {
+      metadata.couponId = couponId;
+    }
+
+const discountsParam = couponId ? [{ coupon: couponId }] : undefined;
+
 const session = await stripe.checkout.sessions.create({
   mode: "subscription",
   ...(existingStripeCustomerId
     ? { customer: existingStripeCustomerId }
     : { customer_email: user.email ?? undefined }),
+  ...(discountsParam ? { discounts: discountsParam } : {}),
   payment_method_types: ["card", "bancontact", "sepa_debit", "paypal"],
   payment_method_collection: "always",
   billing_address_collection: "required",
@@ -212,6 +254,7 @@ const session = await stripe.checkout.sessions.create({
     return stripe.checkout.sessions.create({
       mode: "subscription",
       customer_email: user.email ?? undefined,
+      ...(discountsParam ? { discounts: discountsParam } : {}),
       payment_method_types: ["card", "bancontact", "sepa_debit", "paypal"],
       payment_method_collection: "always",
       billing_address_collection: "required",
