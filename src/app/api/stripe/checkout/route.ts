@@ -19,6 +19,8 @@ const PRICE_IDS = {
   },
 };
 
+const MIN_CHECKOUT_AMOUNT_CENTS = 50;
+
 function getPlanRank(plan: string | null | undefined): number {
   if (plan === "business") return 2;
   if (plan === "entreprise") return 3;
@@ -158,39 +160,45 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Appliquer le crédit via coupon Stripe si upgrade réel avec crédit partiel
+    // Appliquer le crédit via coupon Stripe si upgrade réel
     let couponId: string | null = null;
+    let appliedDiscountCents = 0;
+    let lostCreditCents = 0;
 
     if (creditPreview && creditPreview.creditAmount > 0) {
-      const amountOffCents = Math.round(creditPreview.creditAmount * 100);
       const targetPriceCents = Math.round(creditPreview.targetPrice * 100);
+      const theoreticalCreditCents = Math.round(creditPreview.creditAmount * 100);
+      const maxAllowedDiscountCents = targetPriceCents - MIN_CHECKOUT_AMOUNT_CENTS;
 
-      if (amountOffCents >= targetPriceCents) {
-        return NextResponse.json(
-          {
-            ok: false,
-            error: "Votre crédit couvre entièrement ce changement. Contactez le support.",
-          },
-          { status: 400 }
-        );
+      appliedDiscountCents = Math.min(theoreticalCreditCents, maxAllowedDiscountCents);
+      lostCreditCents = theoreticalCreditCents - appliedDiscountCents;
+
+      if (appliedDiscountCents > 0) {
+        const coupon = await stripe.coupons.create({
+          amount_off: appliedDiscountCents,
+          currency: "eur",
+          duration: "once",
+          max_redemptions: 1,
+          name: `Crédit upgrade Kyrivo - ${(appliedDiscountCents / 100).toFixed(2)} €`,
+        });
+
+        couponId = coupon.id;
+
+        console.log("[Stripe checkout] Upgrade coupon applied", {
+          companyId: membership.company_id,
+          couponId,
+          theoreticalCreditCents,
+          appliedDiscountCents,
+          lostCreditCents,
+          realFinalPriceCents: targetPriceCents - appliedDiscountCents,
+        });
+      } else {
+        console.log("[Stripe checkout] Credit absorbed by minimum amount rule — no coupon", {
+          companyId: membership.company_id,
+          theoreticalCreditCents,
+          maxAllowedDiscountCents,
+        });
       }
-
-      const coupon = await stripe.coupons.create({
-        amount_off: amountOffCents,
-        currency: "eur",
-        duration: "once",
-        max_redemptions: 1,
-        name: `Crédit upgrade Kyrivo - ${creditPreview.creditAmount.toFixed(2)} €`,
-      });
-
-      couponId = coupon.id;
-
-      console.log("[Stripe checkout] Upgrade coupon applied", {
-        companyId: membership.company_id,
-        couponId,
-        amountOffCents,
-        finalPrice: creditPreview.finalPrice,
-      });
     }
 
     const existingStripeCustomerId = existingSubscription?.stripe_customer_id ?? null;
@@ -217,8 +225,11 @@ if (!appUrl) {
     };
 
     if (creditPreview) {
+      const realFinalPriceCents = Math.round(creditPreview.targetPrice * 100) - appliedDiscountCents;
       metadata.creditAmount = String(creditPreview.creditAmount);
-      metadata.creditFinalPrice = String(creditPreview.finalPrice);
+      metadata.creditAppliedAmount = (appliedDiscountCents / 100).toFixed(2);
+      metadata.creditLostAmount = (lostCreditCents / 100).toFixed(2);
+      metadata.creditFinalPrice = (realFinalPriceCents / 100).toFixed(2);
       metadata.creditUsedLines = String(usedLines);
       metadata.creditFullRemainingMonths = String(fullRemainingMonths);
     }
