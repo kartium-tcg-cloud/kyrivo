@@ -268,6 +268,24 @@ const session = await stripe.checkout.sessions.create({
   throw err;
 });
 
+const verifiedSession = await stripe.checkout.sessions.retrieve(session.id, {
+  expand: ["total_details", "discounts", "line_items", "invoice", "subscription"],
+});
+
+console.log("[Stripe checkout] verified session after create", {
+  sessionId:      verifiedSession.id,
+  status:         verifiedSession.status,
+  paymentStatus:  verifiedSession.payment_status,
+  url:            verifiedSession.url,
+  amountSubtotal: verifiedSession.amount_subtotal,
+  amountTotal:    verifiedSession.amount_total,
+  totalDetails:   verifiedSession.total_details,
+  discounts:      verifiedSession.discounts,
+  invoice:        verifiedSession.invoice,
+  subscription:   verifiedSession.subscription,
+  metadata:       verifiedSession.metadata,
+});
+
     return NextResponse.json({
       ok: true,
       url: session.url,

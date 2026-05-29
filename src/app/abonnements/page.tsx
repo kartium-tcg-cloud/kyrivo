@@ -245,6 +245,18 @@ const handleCheckout = async (planId: Plan["id"]) => {
   try {
     setLoadingPlanId(planId);
 
+    console.log("[Abonnements] clicked plan card", {
+      planId,
+      billingPeriod,
+      currentPlan,
+      isAuthenticated,
+    });
+
+    console.log("[Abonnements] checkout request body", {
+      plan: planId,
+      billingPeriod,
+    });
+
     const response = await fetch("/api/stripe/checkout", {
       method: "POST",
       headers: {
@@ -258,11 +270,17 @@ const handleCheckout = async (planId: Plan["id"]) => {
 
     const data = await response.json();
 
+    console.log("[Abonnements] checkout raw response", data);
+
     if (!response.ok || !data.ok) {
       throw new Error(data.error || "Erreur checkout");
     }
 
-window.location.assign(data.url);
+    console.log("[Abonnements] redirecting to exact checkout session", {
+      url: data.url,
+      sessionIdFromUrl: data.url?.match(/cs_live_[^#?/]+/)?.[0] ?? null,
+    });
+    window.location.href = data.url;
 
   } catch (error) {
     console.error(error);
