@@ -9,7 +9,7 @@ import {
 const supabase = createClient();
 
 const SUBSCRIPTION_COLUMNS =
-  "id,company_id,plan,status,monthly_line_limit,current_period_start,current_period_end,subscription_ends_at,trial_ends_at,billing_period,created_at,updated_at";
+  "id,company_id,plan,status,monthly_line_limit,current_period_start,current_period_end,subscription_ends_at,trial_ends_at,billing_period,stripe_customer_id,stripe_subscription_id,created_at,updated_at";
 
 function mapSubscription(row: any): CompanySubscription {
   return {
@@ -23,6 +23,8 @@ function mapSubscription(row: any): CompanySubscription {
     subscriptionEndsAt: row.subscription_ends_at,
     trialEndsAt: row.trial_ends_at,
     billingPeriod: row.billing_period,
+    stripeCustomerId: row.stripe_customer_id ?? null,
+    stripeSubscriptionId: row.stripe_subscription_id ?? null,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };

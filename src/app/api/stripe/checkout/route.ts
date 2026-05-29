@@ -17,6 +17,13 @@ const PRICE_IDS = {
   },
 };
 
+function getPlanRank(plan: string | null | undefined): number {
+  if (plan === "business") return 2;
+  if (plan === "entreprise") return 3;
+  if (plan === "pro" || plan === "trial") return 1;
+  return 0;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const supabase = await createClient();
@@ -62,6 +69,25 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const { data: existingSubscription } = await supabase
+      .from("subscriptions")
+      .select("plan, status, stripe_customer_id")
+      .eq("company_id", membership.company_id)
+      .maybeSingle();
+
+    const isActive =
+      existingSubscription?.status === "active" ||
+      existingSubscription?.status === "trialing";
+
+    if (isActive && getPlanRank(existingSubscription?.plan) > getPlanRank(plan)) {
+      return NextResponse.json(
+        { ok: false, error: "Rétrogradation non autorisée" },
+        { status: 400 }
+      );
+    }
+
+    const existingStripeCustomerId = existingSubscription?.stripe_customer_id ?? null;
+
     const priceId =
       PRICE_IDS[plan as keyof typeof PRICE_IDS][
         billingPeriod as "monthly" | "quarterly"
@@ -85,35 +111,39 @@ if (!appUrl) {
 
 const session = await stripe.checkout.sessions.create({
   mode: "subscription",
-
-  customer_email: user.email ?? undefined,
-
-  payment_method_types: [
-    "card",
-    "bancontact",
-    "sepa_debit",
-    "paypal"
-  ],
-
+  ...(existingStripeCustomerId
+    ? { customer: existingStripeCustomerId }
+    : { customer_email: user.email ?? undefined }),
+  payment_method_types: ["card", "bancontact", "sepa_debit", "paypal"],
   payment_method_collection: "always",
-
   billing_address_collection: "required",
-
-  line_items: [
-    {
-      price: priceId,
-      quantity: 1,
-    },
-  ],
-
+  line_items: [{ price: priceId, quantity: 1 }],
   metadata,
-
-  subscription_data: {
-    metadata,
-  },
-
+  subscription_data: { metadata },
   success_url: `${appUrl}/dashboard?stripe=success`,
   cancel_url: `${appUrl}/abonnements?stripe=cancel`,
+}).catch((err: any) => {
+  if (
+    existingStripeCustomerId &&
+    err?.code === "resource_missing" &&
+    typeof err?.message === "string" &&
+    err.message.toLowerCase().includes("customer")
+  ) {
+    console.warn("[Stripe] Customer introuvable, fallback email:", existingStripeCustomerId);
+    return stripe.checkout.sessions.create({
+      mode: "subscription",
+      customer_email: user.email ?? undefined,
+      payment_method_types: ["card", "bancontact", "sepa_debit", "paypal"],
+      payment_method_collection: "always",
+      billing_address_collection: "required",
+      line_items: [{ price: priceId, quantity: 1 }],
+      metadata,
+      subscription_data: { metadata },
+      success_url: `${appUrl}/dashboard?stripe=success`,
+      cancel_url: `${appUrl}/abonnements?stripe=cancel`,
+    });
+  }
+  throw err;
 });
 
     return NextResponse.json({
