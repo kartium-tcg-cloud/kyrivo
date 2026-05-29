@@ -168,7 +168,6 @@ return (
               SaaS
             </span>
           </div>
-          <p className="text-[10px] text-neutral-500">by Kartium TCG</p>
         </div>
       </Link>
 

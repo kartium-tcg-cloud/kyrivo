@@ -104,6 +104,11 @@ export default async function HomePage() {
 
           </div>
 
+          {/* Réassurance sous les CTA */}
+          <p className="mt-4 text-[12px] text-neutral-600">
+            Aucune carte bancaire requise · Sans engagement · Annulable à tout moment
+          </p>
+
           {/* Feature badges */}
           <div className="mt-10 flex flex-wrap gap-2 justify-center">
             <FeatureBadge>
