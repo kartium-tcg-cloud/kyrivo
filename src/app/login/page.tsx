@@ -3,11 +3,10 @@
 import Link from "next/link";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 export default function LoginPage() {
   const supabase = createClient();
-  const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect");
 
@@ -45,8 +44,7 @@ export default function LoginPage() {
     }
 
     const destination = redirectTo?.startsWith("/") ? redirectTo : "/dashboard";
-    router.push(destination);
-    router.refresh();
+    window.location.href = destination;
   }
 
   return (
