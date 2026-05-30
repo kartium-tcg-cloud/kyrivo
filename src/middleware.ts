@@ -1,17 +1,16 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PUBLIC_ROUTES = [
-  "/",
-  "/dashboard",
-  "/abonnements",
-  "/login",
-  "/register",
+const PUBLIC_EXACT = ["/", "/dashboard", "/abonnements", "/login", "/register"];
+
+const PUBLIC_PREFIXES = [
   "/mentions-legales",
   "/conditions-generales",
   "/politique-confidentialite",
   "/cookies",
   "/donnees-personnelles",
+  "/auth",
+  "/_next",
 ];
 
 export async function middleware(request: NextRequest) {
@@ -51,10 +50,9 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const isPublicRoute =
-    PUBLIC_ROUTES.includes(pathname) ||
-    pathname.startsWith("/auth") ||
+    PUBLIC_EXACT.includes(pathname) ||
+    PUBLIC_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/")) ||
     pathname === "/api/stripe/webhook" ||
-    pathname.startsWith("/_next") ||
     pathname.includes(".");
 
   if (!user && !isPublicRoute) {
