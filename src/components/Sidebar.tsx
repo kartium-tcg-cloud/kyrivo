@@ -155,7 +155,7 @@ export default function Sidebar() {
 
 return (
   <>
-    <header className="fixed top-0 left-0 right-0 z-40 flex h-16 items-center justify-between border-b border-neutral-800/60 bg-neutral-950/95 px-4 backdrop-blur lg:hidden">
+    <header className="fixed top-8 left-0 right-0 z-40 flex h-16 items-center justify-between border-b border-neutral-800/60 bg-neutral-950/95 px-4 backdrop-blur lg:hidden">
       <Link href="/" className="flex items-center gap-3">
         <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-amber-400/40 bg-amber-500">
           <span className="text-base font-black text-neutral-950">K</span>
@@ -192,9 +192,9 @@ return (
 
     <aside
 className={`
-  fixed top-0 left-0 z-50
+  fixed top-8 left-0 z-50
   flex flex-col
-  h-screen
+  h-[calc(100vh-2rem)]
   w-[82vw] max-w-72 lg:w-64 lg:max-w-none
   bg-neutral-950
   border-r border-neutral-800/60
