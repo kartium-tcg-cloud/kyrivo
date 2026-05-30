@@ -150,6 +150,7 @@ export default function LegalPage({ title, subtitle, lastUpdated, children }: Le
                 <Link
                   key={href}
                   href={href}
+                  prefetch={false}
                   className="text-[11px] text-neutral-500 hover:text-amber-400 transition-colors"
                 >
                   {label}

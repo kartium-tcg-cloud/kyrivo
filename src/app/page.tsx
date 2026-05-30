@@ -389,6 +389,7 @@ export default async function HomePage() {
               <Link
                 key={href}
                 href={href}
+                prefetch={false}
                 className="text-[10px] text-neutral-600 hover:text-neutral-400 transition-colors"
               >
                 {label}
