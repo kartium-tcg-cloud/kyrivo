@@ -1,18 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useSearchParams } from "next/navigation";
 
-export default function LoginPage() {
+// ── Formulaire isolé pour useSearchParams (requis par Next.js Suspense) ──────
+function LoginForm() {
   const supabase = createClient();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -28,14 +28,10 @@ export default function LoginPage() {
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
-
     setLoading(true);
     setError("");
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
       setError(mapAuthError(error.message));
@@ -47,6 +43,129 @@ export default function LoginPage() {
     window.location.href = destination;
   }
 
+  return (
+    <div className="overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900/70 shadow-2xl shadow-black/30 backdrop-blur">
+      <div className="h-px bg-gradient-to-r from-transparent via-amber-500/50 to-transparent" />
+
+      <div className="p-8">
+        <div className="mb-7">
+          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1">
+            <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
+            <span className="text-[10px] font-semibold uppercase tracking-widest text-amber-400">
+              Connexion sécurisée
+            </span>
+          </div>
+
+          <h2 className="text-3xl font-bold tracking-tight text-white">
+            Se connecter
+          </h2>
+
+          <p className="mt-2 text-sm leading-relaxed text-neutral-500">
+            Accédez à votre espace Kyrivo pour gérer vos achats, ventes,
+            stocks et factures.
+          </p>
+        </div>
+
+        <form onSubmit={handleLogin} className="space-y-4">
+          <div>
+            <label className="mb-2 block text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
+              Adresse email
+            </label>
+            <input
+              type="email"
+              placeholder="vous@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="
+                w-full rounded-xl border border-neutral-800
+                bg-neutral-950 px-4 py-3
+                text-sm text-white
+                placeholder:text-neutral-700
+                outline-none transition
+                focus:border-amber-500/50
+                focus:ring-2 focus:ring-amber-500/10
+              "
+              required
+            />
+          </div>
+
+          <div>
+            <div className="mb-2 flex items-center justify-between">
+              <label className="block text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
+                Mot de passe
+              </label>
+              <Link
+                href="/forgot-password"
+                className="text-xs text-neutral-500 hover:text-amber-400 transition-colors"
+              >
+                Mot de passe oublié ?
+              </Link>
+            </div>
+            <input
+              type="password"
+              placeholder="Votre mot de passe"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="
+                w-full rounded-xl border border-neutral-800
+                bg-neutral-950 px-4 py-3
+                text-sm text-white
+                placeholder:text-neutral-700
+                outline-none transition
+                focus:border-amber-500/50
+                focus:ring-2 focus:ring-amber-500/10
+              "
+              required
+            />
+          </div>
+
+          {error && (
+            <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+              {error}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="
+              w-full rounded-xl bg-amber-500 px-4 py-3
+              text-sm font-bold text-neutral-950
+              transition hover:bg-amber-400
+              disabled:cursor-not-allowed disabled:opacity-50
+              shadow-lg shadow-amber-500/10
+            "
+          >
+            {loading ? "Connexion..." : "Se connecter"}
+          </button>
+        </form>
+
+        <div className="mt-6 border-t border-neutral-800 pt-6 text-center">
+          <p className="text-sm text-neutral-500">
+            Pas encore de compte ?
+          </p>
+
+          <Link
+            href="/register"
+            className="
+              mt-3 inline-flex w-full items-center justify-center
+              rounded-xl border border-neutral-800
+              bg-neutral-950 px-4 py-3
+              text-sm font-semibold text-neutral-300
+              transition
+              hover:border-amber-500/30 hover:bg-amber-500/5 hover:text-amber-400
+            "
+          >
+            Créer un compte Kyrivo
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Page ──────────────────────────────────────────────────────────────────────
+export default function LoginPage() {
   return (
     <main className="relative min-h-screen overflow-hidden bg-neutral-950 text-white flex items-center justify-center px-6">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -90,123 +209,21 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <div className="overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900/70 shadow-2xl shadow-black/30 backdrop-blur">
-          <div className="h-px bg-gradient-to-r from-transparent via-amber-500/50 to-transparent" />
-
-          <div className="p-8">
-            <div className="mb-7">
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1">
-                <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
-                <span className="text-[10px] font-semibold uppercase tracking-widest text-amber-400">
-                  Connexion sécurisée
-                </span>
+        <Suspense
+          fallback={
+            <div className="overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900/70 shadow-2xl shadow-black/30">
+              <div className="h-px bg-gradient-to-r from-transparent via-amber-500/50 to-transparent" />
+              <div className="p-8 space-y-4 animate-pulse">
+                <div className="h-6 w-40 bg-neutral-800 rounded" />
+                <div className="h-12 bg-neutral-800 rounded-xl" />
+                <div className="h-12 bg-neutral-800 rounded-xl" />
+                <div className="h-12 bg-amber-500/20 rounded-xl" />
               </div>
-
-              <h2 className="text-3xl font-bold tracking-tight text-white">
-                Se connecter
-              </h2>
-
-              <p className="mt-2 text-sm leading-relaxed text-neutral-500">
-                Accédez à votre espace Kyrivo pour gérer vos achats, ventes,
-                stocks et factures.
-              </p>
             </div>
-
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div>
-                <label className="mb-2 block text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
-                  Adresse email
-                </label>
-                <input
-                  type="email"
-                  placeholder="vous@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="
-                    w-full rounded-xl border border-neutral-800
-                    bg-neutral-950 px-4 py-3
-                    text-sm text-white
-                    placeholder:text-neutral-700
-                    outline-none transition
-                    focus:border-amber-500/50
-                    focus:ring-2 focus:ring-amber-500/10
-                  "
-                  required
-                />
-              </div>
-
-              <div>
-                <div className="mb-2 flex items-center justify-between">
-                  <label className="block text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
-                    Mot de passe
-                  </label>
-                  <Link
-                    href="/forgot-password"
-                    className="text-xs text-neutral-500 hover:text-amber-400 transition-colors"
-                  >
-                    Mot de passe oublié ?
-                  </Link>
-                </div>
-                <input
-                  type="password"
-                  placeholder="Votre mot de passe"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="
-                    w-full rounded-xl border border-neutral-800
-                    bg-neutral-950 px-4 py-3
-                    text-sm text-white
-                    placeholder:text-neutral-700
-                    outline-none transition
-                    focus:border-amber-500/50
-                    focus:ring-2 focus:ring-amber-500/10
-                  "
-                  required
-                />
-              </div>
-
-              {error && (
-                <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400">
-                  {error}
-                </div>
-              )}
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="
-                  w-full rounded-xl bg-amber-500 px-4 py-3
-                  text-sm font-bold text-neutral-950
-                  transition hover:bg-amber-400
-                  disabled:cursor-not-allowed disabled:opacity-50
-                  shadow-lg shadow-amber-500/10
-                "
-              >
-                {loading ? "Connexion..." : "Se connecter"}
-              </button>
-            </form>
-
-            <div className="mt-6 border-t border-neutral-800 pt-6 text-center">
-              <p className="text-sm text-neutral-500">
-                Pas encore de compte ?
-              </p>
-
-              <Link
-                href="/register"
-                className="
-                  mt-3 inline-flex w-full items-center justify-center
-                  rounded-xl border border-neutral-800
-                  bg-neutral-950 px-4 py-3
-                  text-sm font-semibold text-neutral-300
-                  transition
-                  hover:border-amber-500/30 hover:bg-amber-500/5 hover:text-amber-400
-                "
-              >
-                Créer un compte Kyrivo
-              </Link>
-            </div>
-          </div>
-        </div>
+          }
+        >
+          <LoginForm />
+        </Suspense>
       </div>
     </main>
   );
