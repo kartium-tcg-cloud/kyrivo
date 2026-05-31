@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import LogoutButton from "@/components/auth/LogoutButton";
+import PeriodStats from "@/components/dashboard/PeriodStats";
 
 type ActivityItem = {
   type: "achat" | "vente";
@@ -65,6 +66,7 @@ export default async function DashboardPage() {
   let purchasesCount = 0;
   let salesCount = 0;
   let stockCount = 0;
+  let stockImmobilise = 0;
   let recentActivity: ActivityItem[] = [];
 
   if (companyId) {
@@ -158,11 +160,12 @@ export default async function DashboardPage() {
           })
         : "—";
 
-    // ── Compteurs mensuels ────────────────────────────────────
+    // ── Compteurs mensuels + valeur stock ────────────────────
     const [
       { count: pCount },
       { count: sCount },
       { count: stCount },
+      { data: stockItems },
     ] = await Promise.all([
       supabase
         .from("purchases")
@@ -179,11 +182,23 @@ export default async function DashboardPage() {
         .select("*", { count: "exact", head: true })
         .eq("company_id", companyId)
         .eq("status", "in_stock"),
+      supabase
+        .from("purchase_items")
+        .select("stock_quantity, unit_cost")
+        .eq("company_id", companyId)
+        .eq("status", "in_stock"),
     ]);
 
     purchasesCount = pCount ?? 0;
     salesCount = sCount ?? 0;
     stockCount = stCount ?? 0;
+    stockImmobilise = Math.round(
+      (stockItems ?? []).reduce(
+        (sum, item) =>
+          sum + Number(item.stock_quantity ?? 0) * Number(item.unit_cost ?? 0),
+        0
+      ) * 100
+    ) / 100;
 
     // ── Activité récente ──────────────────────────────────────
     const [{ data: recentPurchases }, { data: recentSales }] =
@@ -343,6 +358,34 @@ export default async function DashboardPage() {
 
       </div>
 
+      {/* ── Stock immobilisé ────────────────────────────────── */}
+      <div className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-4 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3 min-w-0">
+          <span className="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-amber-500/20 bg-amber-500/10 text-amber-400">
+            <LockStockIcon />
+          </span>
+          <div className="min-w-0">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-500">
+              Argent immobilisé en stock
+            </p>
+            <p className="text-[10px] text-neutral-700 mt-0.5">
+              Valeur d'achat des articles encore en stock
+            </p>
+          </div>
+        </div>
+        <p className="text-lg font-bold tabular-nums text-white flex-shrink-0">
+          {formatEuro(stockImmobilise)}
+        </p>
+      </div>
+
+      {/* ── Lien vers analyse ───────────────────────────────── */}
+      <p className="text-[11px] text-neutral-600 text-right -mt-4">
+        Besoin d'une période précise ?{" "}
+        <a href="#analyse-periode" className="text-neutral-500 hover:text-amber-400 transition-colors underline-offset-2 underline decoration-neutral-700 hover:decoration-amber-400">
+          Accéder à l'analyse
+        </a>
+      </p>
+
       {/* ── MAIN GRID ───────────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_260px] gap-6">
 
@@ -483,6 +526,14 @@ export default async function DashboardPage() {
         </div>
 
       </div>
+
+      {/* ── Analyse par période ──────────────────────────────── */}
+      {companyId && (
+        <div id="analyse-periode" className="scroll-mt-10">
+          <PeriodStats companyId={companyId} />
+        </div>
+      )}
+
     </div>
   );
 }
@@ -603,6 +654,14 @@ function MailIcon() {
   return (
     <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+    </svg>
+  );
+}
+
+function LockStockIcon() {
+  return (
+    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />
     </svg>
   );
 }

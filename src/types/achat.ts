@@ -41,6 +41,8 @@ export interface Achat {
   prixHT: number;
   prixTVA: number;
   prixTTC: number;
+  /** Taux de TVA en % (ex. 21). Issu de purchases.vat_rate. */
+  vatRate?: number;
   paiement: ModePaiement;
   numFacture: string;
   commentaire?: string;
@@ -49,6 +51,8 @@ export interface Achat {
   items?: AchatItemInput[];
   articles?: AchatArticle[];
   saveSupplier?: boolean;
+  /** true = achat de stock (défaut), false = dépense sans stock */
+  avecStock?: boolean;
 }
 
 export interface AchatFiltres {

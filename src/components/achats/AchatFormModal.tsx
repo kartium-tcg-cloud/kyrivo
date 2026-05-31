@@ -83,6 +83,7 @@ export default function AchatFormModal({
   const [modeMontant, setModeMontant] = useState<"ht" | "ttc">("ttc");
   const [tauxTVA, setTauxTVA] = useState(21);
   const [defaultVatRate, setDefaultVatRate] = useState(21);
+  const [avecStock, setAvecStock] = useState(true);
   const [items, setItems] = useState<AchatItem[]>([emptyItem()]);
   const [erreurs, setErreurs] = useState<Record<string, string>>({});
   const [documentFile, setDocumentFile] = useState<File | null>(null);
@@ -179,9 +180,12 @@ setForm({
 
     setTauxTVA(achatInitial.type === "particulier" ? 0 : computedVatRate || defaultVatRate);
 
+    const hasArticles = (achatInitial.articles?.length ?? 0) > 0;
+    setAvecStock(hasArticles);
+
     setItems(
-      achatInitial.articles && achatInitial.articles.length > 0
-        ? achatInitial.articles.map((article) => ({
+      hasArticles
+        ? achatInitial.articles!.map((article) => ({
             id: article.id,
             nom: article.nom,
             quantite: String(article.quantite),
@@ -192,7 +196,7 @@ setForm({
             modeMontant: article.coutTTC !== undefined ? "ttc" : "ht",
             notes: article.notes || "",
           }))
-        : [emptyItem()]
+        : []
     );
 
     setDocumentFile(null);
@@ -219,6 +223,13 @@ setForm({
         delete copy[champ];
         return copy;
       });
+    }
+  };
+
+  const handleAvecStockChange = (value: boolean) => {
+    setAvecStock(value);
+    if (value && items.length === 0) {
+      setItems([emptyItem()]);
     }
   };
 
@@ -322,29 +333,35 @@ setForm({
       errs.commentaire = `Maximum ${MAX_TEXT.commentaire} caractères`;
     }
 
-    items.forEach((item, index) => {
-      const prefix = `Article ${index + 1}`;
-
-      if (!item.nom.trim()) {
-        errs[`item-${item.id}-nom`] = `${prefix} : nom requis`;
-      } else if (item.nom.length > MAX_TEXT.articleNom) {
-        errs[`item-${item.id}-nom`] = `${prefix} : nom trop long`;
+    if (avecStock) {
+      if (items.length === 0) {
+        errs["items"] = "Ajoutez au moins un article en stock.";
       }
 
-      const quantite = Number(item.quantite) || 1;
-      if (quantite <= 0 || quantite > 9999) {
-        errs[`item-${item.id}-quantite`] = `${prefix} : quantité invalide`;
-      }
+      items.forEach((item, index) => {
+        const prefix = `Article ${index + 1}`;
 
-      const cout = parseFloat(item.cout) || 0;
-      if (cout <= 0 || cout > 999999) {
-        errs[`item-${item.id}-cout`] = `${prefix} : coût invalide`;
-      }
+        if (!item.nom.trim()) {
+          errs[`item-${item.id}-nom`] = `${prefix} : nom requis`;
+        } else if (item.nom.length > MAX_TEXT.articleNom) {
+          errs[`item-${item.id}-nom`] = `${prefix} : nom trop long`;
+        }
 
-      if (item.notes.length > MAX_TEXT.notes) {
-        errs[`item-${item.id}-notes`] = `${prefix} : notes trop longues`;
-      }
-    });
+        const quantite = Number(item.quantite) || 1;
+        if (quantite <= 0 || quantite > 9999) {
+          errs[`item-${item.id}-quantite`] = `${prefix} : quantité invalide`;
+        }
+
+        const cout = parseFloat(item.cout) || 0;
+        if (cout <= 0 || cout > 999999) {
+          errs[`item-${item.id}-cout`] = `${prefix} : coût invalide`;
+        }
+
+        if (item.notes.length > MAX_TEXT.notes) {
+          errs[`item-${item.id}-notes`] = `${prefix} : notes trop longues`;
+        }
+      });
+    }
 
     if (documentFile) {
       if (!ALLOWED_FILE_TYPES.includes(documentFile.type)) {
@@ -374,20 +391,23 @@ setForm({
 
     setModeMontant("ttc");
     setTauxTVA(defaultVatRate);
+    setAvecStock(true);
     setItems([emptyItem()]);
     setDocumentFile(null);
     setErreurs({});
   };
 
 const buildPayload = (): Achat => {
-  const mappedItems: AchatItemInput[] = items.map((item) => ({
-    id: item.id,
-    nom: item.nom.trim(),
-    cout: parseFloat(item.cout) || 0,
-    quantite: Number(item.quantite) || 1,
-    modeMontant: item.modeMontant,
-    notes: item.notes.trim() || undefined,
-  }));
+  const mappedItems: AchatItemInput[] = avecStock
+    ? items.map((item) => ({
+        id: item.id,
+        nom: item.nom.trim(),
+        cout: parseFloat(item.cout) || 0,
+        quantite: Number(item.quantite) || 1,
+        modeMontant: item.modeMontant,
+        notes: item.notes.trim() || undefined,
+      }))
+    : [];
 
   return {
     id: achatInitial?.id || genId(),
@@ -405,6 +425,7 @@ const buildPayload = (): Achat => {
     documentUrl: achatInitial?.documentUrl,
     documentFile,
     items: mappedItems,
+    avecStock,
     saveSupplier: form.saveSupplier,
   };
 };
@@ -643,18 +664,70 @@ const buildPayload = (): Achat => {
           )}
         </div>
 
+        {/* ── Toggle Achat de stock / Dépense sans stock ──────── */}
+        <div>
+          <label className={labelClasses}>Type d&apos;achat</label>
+          <div className="grid grid-cols-2 gap-1.5 p-1 rounded-lg bg-neutral-900/60 border border-neutral-800">
+            <button
+              type="button"
+              onClick={() => handleAvecStockChange(true)}
+              className={`rounded-md px-3 py-2 text-xs font-semibold transition-all duration-150 text-left flex items-center gap-2 ${
+                avecStock
+                  ? "bg-amber-500/15 text-amber-400 shadow-sm"
+                  : "text-neutral-500 hover:text-neutral-300"
+              }`}
+            >
+              <svg className="h-3.5 w-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />
+              </svg>
+              Achat de stock
+            </button>
+            <button
+              type="button"
+              onClick={() => handleAvecStockChange(false)}
+              className={`rounded-md px-3 py-2 text-xs font-semibold transition-all duration-150 text-left flex items-center gap-2 ${
+                !avecStock
+                  ? "bg-amber-500/15 text-amber-400 shadow-sm"
+                  : "text-neutral-500 hover:text-neutral-300"
+              }`}
+            >
+              <svg className="h-3.5 w-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75" />
+              </svg>
+              Dépense sans stock
+            </button>
+          </div>
+        </div>
+
+        {/* ── Info : Dépense sans stock ────────────────────────── */}
+        {!avecStock && (
+          <div className="flex items-start gap-2.5 rounded-lg border border-neutral-800/60 bg-neutral-900/20 px-4 py-3">
+            <svg className="h-4 w-4 text-neutral-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="m11.25 11.25.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0Zm-9-3.75h.008v.008H12V8.25Z" />
+            </svg>
+            <p className="text-[11px] text-neutral-500 leading-relaxed">
+              Cette dépense sera comptabilisée dans vos achats et votre TVA déductible, mais ne créera aucun article en stock.
+            </p>
+          </div>
+        )}
+
+        {/* ── Section Articles en stock (conditionnelle) ─────── */}
+        {avecStock && (
         <div className="rounded-xl border border-neutral-800 bg-neutral-900/30 overflow-hidden">
           <div className="flex items-center justify-between px-5 py-4 border-b border-neutral-800 bg-neutral-900/40">
             <div>
               <h3 className="text-sm font-semibold text-white">
-                Articles détaillés
+                Articles en stock
               </h3>
               <p className="text-[11px] text-neutral-500 mt-0.5">
-                Répartition du coût par article
-                <span className="inline-flex items-center gap-1 ml-2 text-amber-400/70 font-mono">
-                  Réf. PKM-XXXXXX auto
-                </span>
+                Ajoutez les produits qui doivent entrer dans votre stock.
               </p>
+              <p className="text-[10px] text-neutral-700 mt-1 font-mono">
+                Références : {form.date ? `${form.date.split("-")[0]}-0000001` : "AAAA-0000001"}, …
+              </p>
+              {erreurs["items"] && (
+                <p className="text-red-400 text-[11px] mt-1">{erreurs["items"]}</p>
+              )}
             </div>
 
             <button
@@ -876,6 +949,7 @@ const buildPayload = (): Achat => {
             )}
           </div>
         </div>
+        )}
 
         <div className="grid grid-cols-1 gap-4">
           <div>

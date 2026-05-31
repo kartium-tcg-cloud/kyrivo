@@ -25,6 +25,21 @@ import AchatsTableau from "@/components/achats/AchatsTableau";
 import AchatFormModal from "@/components/achats/AchatFormModal";
 
 function mapPurchase(p: any, itemsByPurchaseId: Map<string, any[]>): Achat {
+  const articles = (itemsByPurchaseId.get(p.id) || []).map((item: any) => ({
+    id: item.id,
+    reference: item.item_reference,
+    nom: item.item_name,
+    quantite: Number(item.quantity),
+    stockRestant: Number(item.stock_quantity ?? item.quantity),
+    coutHT: Number(item.unit_cost),
+    coutTTC:
+      item.total_cost !== null && item.quantity
+        ? Number(item.total_cost) / Number(item.quantity)
+        : undefined,
+    statut: isItemStatus(item.status) ? item.status : "in_stock",
+    notes: item.notes || undefined,
+  }));
+
   return {
     id: p.id,
     date: p.purchase_date,
@@ -35,25 +50,13 @@ function mapPurchase(p: any, itemsByPurchaseId: Map<string, any[]>): Achat {
     prixHT: Number(p.amount_ht),
     prixTVA: Number(p.vat_amount),
     prixTTC: Number(p.amount_ttc),
+    vatRate: Number(p.vat_rate ?? 0),
     paiement: (p.payment_method as Achat["paiement"]) || "Virement",
     numFacture: "",
     commentaire: p.comment || undefined,
     documentUrl: p.document_url || undefined,
-
-    articles: (itemsByPurchaseId.get(p.id) || []).map((item: any) => ({
-      id: item.id,
-      reference: item.item_reference,
-      nom: item.item_name,
-      quantite: Number(item.quantity),
-      stockRestant: Number(item.stock_quantity ?? item.quantity),
-      coutHT: Number(item.unit_cost),
-      coutTTC:
-        item.total_cost !== null && item.quantity
-          ? Number(item.total_cost) / Number(item.quantity)
-          : undefined,
-      statut: isItemStatus(item.status) ? item.status : "in_stock",
-      notes: item.notes || undefined,
-    })),
+    articles,
+    avecStock: articles.length > 0,
   };
 }
 
@@ -316,13 +319,40 @@ toast.error(
           .eq("id", created.id);
       }
 
-      await createPurchaseItems(
-        buildPurchaseItems({
+      // Achat de stock : créer les purchase_items avec référence YYYY-XXXXXXX
+      if (nouvelAchat.avecStock !== false) {
+        const purchaseYear = nouvelAchat.date.split("-")[0];
+
+        // Compter les items existants avec le nouveau format pour cette année
+        const { count: existingYearCount } = await supabase
+          .from("purchase_items")
+          .select("id", { count: "exact", head: true })
+          .eq("company_id", companyId)
+          .like("item_reference", `${purchaseYear}-%`);
+
+        const startRef = (existingYearCount ?? 0) + 1;
+
+        const baseItems = buildPurchaseItems({
           achat: nouvelAchat,
           purchaseId: created.id,
           companyId,
-        })
-      );
+        });
+
+        const createdItems = await createPurchaseItems(baseItems);
+
+        // Mettre à jour les références avec le format YYYY-XXXXXXX
+        // (le trigger DB peut avoir généré un format PKM-..., on le remplace)
+        await Promise.all(
+          createdItems.map((item: any, i: number) =>
+            supabase
+              .from("purchase_items")
+              .update({
+                item_reference: `${purchaseYear}-${String(startRef + i).padStart(7, "0")}`,
+              })
+              .eq("id", item.id)
+          )
+        );
+      }
 
       const { error: usageError } = await supabase
   .from("usage_events")
