@@ -57,6 +57,15 @@ export default function RegisterPage() {
     }
 
     setSuccess(true);
+
+    if (typeof window !== "undefined" && (window as Window & { fbq?: (...args: unknown[]) => void }).fbq) {
+      (window as Window & { fbq?: (...args: unknown[]) => void }).fbq!("track", "Lead", {
+        content_name: "Inscription Kyrivo",
+        value: 0,
+        currency: "EUR",
+      });
+    }
+
     setLoading(false);
   }
 

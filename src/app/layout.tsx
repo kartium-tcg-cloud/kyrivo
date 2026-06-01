@@ -6,6 +6,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Sidebar from "@/components/Sidebar";
+import MetaPixel from "@/components/MetaPixel";
+import CookieConsent from "@/components/CookieConsent";
 import { Toaster } from "sonner";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -31,6 +33,7 @@ export default function RootLayout({
   return (
     <html lang="fr" className="dark">
       <body>
+        <MetaPixel />
         {/* ── Barre d'annonce/support ── */}
         <div className="fixed top-0 left-0 right-0 z-[60] flex h-8 items-center justify-center border-b border-neutral-800/40 bg-neutral-950/98 px-4 backdrop-blur-sm">
           <p className="text-center text-[11px] text-neutral-500">
@@ -53,6 +56,7 @@ export default function RootLayout({
   richColors
   theme="dark"
 />
+        <CookieConsent />
 </body>
     </html>
   );

@@ -18,7 +18,7 @@ export default function CookiesPage() {
     <LegalPage
       title="Politique relative aux cookies"
       subtitle="Informations sur les cookies et technologies similaires utilisés par Kyrivo."
-      lastUpdated="mai 2026"
+      lastUpdated="juin 2026"
     >
       <div>
 
@@ -64,21 +64,31 @@ export default function CookiesPage() {
           <LegalSubSection title="2.3 Cookies d'analyse">
             <InfoCard>
               <p className="text-sm">
-                Kyrivo <strong className="text-neutral-100">n&apos;utilise actuellement aucun outil d&apos;analyse ou de statistiques</strong> (Google Analytics, Plausible, etc.).
-                Aucun cookie d&apos;analyse n&apos;est déposé.
-              </p>
-              <p className="text-sm text-neutral-400 mt-1">
-                Si des outils d&apos;analyse venaient à être intégrés, cette politique sera mise à jour et un mécanisme de consentement approprié sera mis en place au préalable.
+                Kyrivo <strong className="text-neutral-100">n&apos;utilise pas d&apos;outil d&apos;analyse de trafic</strong> (Google Analytics, Plausible, etc.).
+                Aucun cookie de statistiques n&apos;est déposé.
               </p>
             </InfoCard>
           </LegalSubSection>
 
-          <LegalSubSection title="2.4 Cookies publicitaires">
+          <LegalSubSection title="2.4 Cookies publicitaires — Meta Pixel">
+            <p>
+              Kyrivo utilise le <strong className="text-neutral-100">Meta Pixel</strong> (fourni par Meta Platforms Ireland Ltd) pour mesurer l&apos;efficacité de ses campagnes publicitaires sur Facebook et Instagram.
+              Ce cookie n&apos;est déposé <strong className="text-neutral-100">qu&apos;après votre consentement explicite</strong> via le bandeau qui s&apos;affiche lors de votre première visite.
+            </p>
             <InfoCard>
-              <p className="text-sm">
-                Kyrivo <strong className="text-neutral-100">n&apos;utilise aucun cookie publicitaire ou de reciblage</strong>.
-              </p>
+              <p><strong className="text-neutral-100">Origine :</strong> Meta Platforms Ireland Ltd</p>
+              <p><strong className="text-neutral-100">Finalité :</strong> Mesure des conversions publicitaires, optimisation des campagnes, audiences personnalisées</p>
+              <p><strong className="text-neutral-100">Données collectées :</strong> Pages visitées, actions effectuées (inscription, visite page tarifs), adresse IP anonymisée</p>
+              <p><strong className="text-neutral-100">Durée :</strong> Jusqu&apos;à 90 jours</p>
+              <p><strong className="text-neutral-100">Base légale :</strong> Consentement (article 6.1.a RGPD)</p>
+              <p><strong className="text-neutral-100">Transfert hors UE :</strong> Oui — vers les serveurs de Meta aux États-Unis, encadré par les clauses contractuelles types</p>
             </InfoCard>
+            <p className="text-neutral-400 text-sm mt-2">
+              Vous pouvez retirer votre consentement à tout moment en supprimant les données de ce site dans les paramètres de votre navigateur ou en contactant{" "}
+              <a href="mailto:contact@kartium-tcg.com" className="text-amber-400 hover:text-amber-300 transition-colors">
+                contact@kartium-tcg.com
+              </a>.
+            </p>
           </LegalSubSection>
 
         </LegalSection>

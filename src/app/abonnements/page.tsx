@@ -145,6 +145,16 @@ const [loadingPortal, setLoadingPortal] = useState(false);
 const [hasStripeCustomer, setHasStripeCustomer] = useState(false);
 const [isPastDue, setIsPastDue] = useState(false);
 
+  // ─── Meta Pixel — ViewContent ────────────────────────────
+  useEffect(() => {
+    if (typeof window !== "undefined" && (window as Window & { fbq?: (...args: unknown[]) => void }).fbq) {
+      (window as Window & { fbq?: (...args: unknown[]) => void }).fbq!("track", "ViewContent", {
+        content_name: "Page Abonnements",
+        content_category: "pricing",
+      });
+    }
+  }, []);
+
   // ─── Détection auth (sans logique compliquée) ────────────
 useEffect(() => {
   const supabase = createClient();
