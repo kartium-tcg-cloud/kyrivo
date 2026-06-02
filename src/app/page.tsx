@@ -5,9 +5,9 @@ export default async function HomePage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   const primaryCta = user ? "/dashboard" : "/register";
-  const primaryLabel = user ? "Accéder à mon espace" : "Essai gratuit 7 jours";
+  const primaryLabel = user ? "Accéder à mon espace" : "Essayer gratuitement";
   const finalCta = user ? "/dashboard" : "/register";
-  const finalLabel = user ? "Accéder à mon espace" : "Démarrer gratuitement";
+  const finalLabel = user ? "Accéder à mon espace" : "Essayer gratuitement";
 
   return (
     <div className="relative overflow-hidden">
@@ -28,23 +28,22 @@ export default async function HomePage() {
         {/* ═══════════════════════════════════════════════════ */}
         {/* HERO                                                */}
         {/* ═══════════════════════════════════════════════════ */}
-        <section className="flex flex-col items-center text-center pt-6 pb-24">
+        <section className="flex flex-col items-center text-center pt-6 pb-16">
 
           {/* ─── LOGO BLOCK ─────────────────────────────── */}
           <KyrivoLogo />
 
-          {/* Badge version */}
+          {/* Eyebrow — pour qui */}
           <div className="mt-8 inline-flex items-center gap-2 rounded-full bg-amber-500/10 border border-amber-500/20 px-3 py-1">
             <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
             <span className="text-[11px] font-semibold text-amber-400 tracking-widest uppercase">
-              Kyrivo · Gestion &amp; facturation
+              Pour revendeurs · France &amp; Belgique
             </span>
           </div>
 
           {/* Title */}
-          <h1 className="mt-6 text-4xl sm:text-5xl lg:text-6xl font-bold text-white tracking-tight leading-[1.05] max-w-4xl">
-            Pilotez votre activité.
-            <br />
+          <h1 className="mt-6 text-4xl sm:text-5xl lg:text-6xl font-bold text-white tracking-tight leading-[1.1] max-w-3xl">
+            Tu sais{" "}
             <span
               className="bg-clip-text text-transparent"
               style={{
@@ -52,28 +51,26 @@ export default async function HomePage() {
                   "linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%)",
               }}
             >
-              Oubliez Excel.
+              vraiment
             </span>
+            {" "}ce que tu gagnes&nbsp;?
           </h1>
 
           {/* Subtitle */}
-          <p className="mt-6 text-base sm:text-lg text-neutral-400 max-w-2xl leading-relaxed mx-auto">
-            Kyrivo centralise vos{" "}
-            <strong className="text-neutral-200">achats</strong>, vos{" "}
-            <strong className="text-neutral-200">ventes</strong> et votre{" "}
-            <strong className="text-neutral-200">stock</strong> dans une seule interface.
-            TVA sur marge, facturation, suivi des marges — tout est calculé pour vous,
-            que vous soyez en France ou en Belgique.
+          <p className="mt-5 text-base sm:text-lg text-neutral-400 max-w-xl leading-relaxed mx-auto">
+            Quand tu revends régulièrement, Excel devient vite ingérable. Kyrivo centralise tes{" "}
+            <strong className="text-neutral-200">achats, ventes, stock, marges et TVA</strong>{" "}
+            dans un outil simple — pour la France et la Belgique.
           </p>
 
           {/* CTAs */}
-          <div className="mt-10 flex flex-col sm:flex-row gap-3 items-center justify-center">
+          <div className="mt-8 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-center w-full max-w-sm sm:max-w-none">
 
             <Link
               href={primaryCta}
               className="
                 group inline-flex items-center justify-center gap-2
-                rounded-lg px-6 py-3
+                rounded-lg px-6 py-3.5
                 bg-amber-500 text-neutral-950
                 text-sm font-semibold
                 hover:bg-amber-400 active:scale-[0.98]
@@ -91,7 +88,7 @@ export default async function HomePage() {
               href="/abonnements"
               className="
                 inline-flex items-center justify-center gap-2
-                rounded-lg px-6 py-3
+                rounded-lg px-6 py-3.5
                 bg-neutral-900/60 text-neutral-200
                 text-sm font-semibold
                 border border-neutral-800
@@ -105,12 +102,12 @@ export default async function HomePage() {
           </div>
 
           {/* Réassurance sous les CTA */}
-          <p className="mt-4 text-[12px] text-neutral-600">
+          <p className="mt-3.5 text-[12px] text-neutral-600">
             Aucune carte bancaire requise · Sans engagement · Annulable à tout moment
           </p>
 
           {/* Feature badges */}
-          <div className="mt-10 flex flex-wrap gap-2 justify-center">
+          <div className="mt-8 flex flex-wrap gap-2 justify-center">
             <FeatureBadge>
               <img src="https://flagcdn.com/16x12/fr.png" srcSet="https://flagcdn.com/32x24/fr.png 2x" width={16} height={12} alt="France" className="inline-block flex-shrink-0" />
               TVA marge française
@@ -130,13 +127,50 @@ export default async function HomePage() {
         {/* ═══════════════════════════════════════════════════ */}
         {/* STATS / VALUE PROPS                                 */}
         {/* ═══════════════════════════════════════════════════ */}
-        <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-24 max-w-4xl mx-auto">
+        <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-20 max-w-4xl mx-auto">
 
           <StatBlock value="TVA marge" label="Intégrée nativement" accent />
           <StatBlock value="FR · BE" label="Conformité fiscale" />
           <StatBlock value="PDF" label="Factures auto" />
           <StatBlock value="Excel" label="Export comptable" accent />
 
+        </section>
+
+        {/* ═══════════════════════════════════════════════════ */}
+        {/* COMMENT KYRIVO T'AIDE                               */}
+        {/* ═══════════════════════════════════════════════════ */}
+        <section className="mb-24">
+
+          <SectionHeader
+            label="Comment ça marche"
+            title="Comment Kyrivo t'aide"
+            description="De l'achat à la marge — en trois étapes simples."
+          />
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-10 max-w-4xl mx-auto">
+
+            <HowItWorksCard
+              step="Étape 1"
+              icon={<CartIcon />}
+              title="Encode tes achats"
+              description="Produit, coût, fournisseur, TVA. Tu gardes une trace propre de chaque acquisition."
+            />
+
+            <HowItWorksCard
+              step="Étape 2"
+              icon={<StockIcon />}
+              title="Suis ton stock et tes marges"
+              description="Kyrivo calcule tes quantités disponibles, tes coûts et tes marges en temps réel."
+            />
+
+            <HowItWorksCard
+              step="Étape 3"
+              icon={<ExportIcon />}
+              title="Prépare tes exports"
+              description="Achats, ventes, TVA et données utiles pour ton suivi ou ton comptable."
+            />
+
+          </div>
 
         </section>
 
@@ -315,21 +349,21 @@ export default async function HomePage() {
               </div>
 
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white tracking-tight max-w-2xl leading-tight">
-                Reprenez le contrôle de votre activité dès aujourd'hui.
+                Reprends le contrôle de ton activité.
               </h2>
 
               <p className="mt-4 text-neutral-400 max-w-xl mx-auto">
-                Découvrez les abonnements Kyrivo et choisissez la formule adaptée à votre volume.
-                Démarrez en quelques minutes.
+                7 jours gratuits pour voir si Kyrivo correspond à ta façon de vendre.
+                Sans carte bancaire. Sans engagement.
               </p>
 
-              <div className="mt-8 flex flex-col sm:flex-row gap-3 items-center justify-center">
+              <div className="mt-8 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-center w-full max-w-sm sm:max-w-none">
 
                 <Link
                   href={finalCta}
                   className="
                     group inline-flex items-center justify-center gap-2
-                    rounded-lg px-6 py-3
+                    rounded-lg px-6 py-3.5
                     bg-amber-500 text-neutral-950
                     text-sm font-semibold
                     hover:bg-amber-400 active:scale-[0.98]
@@ -347,7 +381,7 @@ export default async function HomePage() {
                   href="/abonnements"
                   className="
                     inline-flex items-center justify-center gap-2
-                    rounded-lg px-6 py-3
+                    rounded-lg px-6 py-3.5
                     bg-neutral-900/60 text-neutral-200
                     text-sm font-semibold
                     border border-neutral-800
@@ -360,6 +394,10 @@ export default async function HomePage() {
                 </Link>
 
               </div>
+
+              <p className="mt-3.5 text-[12px] text-neutral-600">
+                Aucune carte bancaire requise · Sans engagement · Annulable à tout moment
+              </p>
 
             </div>
           </div>
@@ -414,9 +452,9 @@ function KyrivoLogo() {
       {/* Lockup principal */}
       <div className="flex items-center gap-4">
 
-        {/* Mark : V doré */}
+        {/* Mark : K doré */}
         <div className="relative">
-          {/* Glow derrière le V */}
+          {/* Glow derrière le K */}
           <div
             className="absolute inset-0 blur-2xl opacity-60"
             style={{
@@ -547,6 +585,35 @@ function SectionHeader({
       <p className="mt-4 text-neutral-400 leading-relaxed mx-auto">
         {description}
       </p>
+    </div>
+  );
+}
+
+function HowItWorksCard({
+  step,
+  icon,
+  title,
+  description,
+}: {
+  step: string;
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="rounded-xl bg-neutral-900/40 border border-neutral-800 p-6 hover:border-amber-500/20 transition-colors duration-200">
+      <div className="flex items-start gap-4">
+        <span className="inline-flex items-center justify-center h-10 w-10 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 flex-shrink-0">
+          {icon}
+        </span>
+        <div>
+          <p className="text-[10px] font-bold text-amber-400/60 uppercase tracking-widest mb-1">
+            {step}
+          </p>
+          <h3 className="text-sm font-semibold text-white">{title}</h3>
+          <p className="mt-1.5 text-sm text-neutral-400 leading-relaxed">{description}</p>
+        </div>
+      </div>
     </div>
   );
 }
