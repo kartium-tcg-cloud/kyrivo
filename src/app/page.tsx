@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function HomePage() {
@@ -120,6 +121,22 @@ export default async function HomePage() {
             <FeatureBadge>Factures PDF</FeatureBadge>
             <FeatureBadge>Export Excel</FeatureBadge>
             <FeatureBadge>Stock temps réel</FeatureBadge>
+          </div>
+
+          {/* App screenshot */}
+          <div className="mt-6 md:mt-10 mx-auto w-full max-w-full md:max-w-[900px] md:[transform:perspective(1000px)_rotateX(3deg)]">
+            <Image
+              src="/app-screenshot.png"
+              alt="Interface Kyrivo — Gestion des achats pour revendeurs"
+              width={900}
+              height={506}
+              className="w-full h-auto rounded-[12px]"
+              style={{
+                border: "1px solid rgba(212, 134, 42, 0.2)",
+                boxShadow: "0 0 60px rgba(212, 134, 42, 0.12), 0 20px 60px rgba(0,0,0,0.4)",
+              }}
+              priority
+            />
           </div>
 
         </section>
