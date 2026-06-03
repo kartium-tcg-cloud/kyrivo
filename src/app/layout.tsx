@@ -18,8 +18,22 @@ export const metadata: Metadata = {
     default: "Kyrivo — Gestion achats, ventes et stock pour revendeurs",
     template: "%s | Kyrivo",
   },
-  description: "Suivez vos achats, ventes, stock, marges, TVA et exports sans fichier Excel compliqué. Pour revendeurs TCG, Lego, sneakers, brocante. France & Belgique.",
-  keywords: ["revendeur", "TCG", "gestion stock", "TVA sur marge", "Cardmarket", "Vinted", "SaaS", "France", "Belgique"],
+  description:
+    "Suivez vos achats, ventes, stock, marges, TVA et exports sans fichier Excel compliqué. Kyrivo est un outil de gestion pour revendeurs de biens physiques en France et Belgique.",
+  keywords: [
+    "Kyrivo",
+    "logiciel gestion revendeur",
+    "outil gestion revente",
+    "gestion achats ventes stock",
+    "gestion stock cartes Pokémon",
+    "logiciel revente Vinted",
+    "gestion TCG",
+    "suivi marges revente",
+    "TVA sur marge",
+    "alternative Excel revente",
+    "gestion stock brocante",
+    "revendeur France Belgique",
+  ],
   authors: [{ name: "Kartium TCG" }],
   creator: "Kartium TCG",
   publisher: "Kartium TCG",
@@ -31,13 +45,14 @@ export const metadata: Metadata = {
     url: "https://kyrivo.kartium-tcg.com",
     siteName: "Kyrivo",
     title: "Kyrivo — Gestion achats, ventes et stock pour revendeurs",
-    description: "Suivez vos achats, ventes, stock, marges, TVA et exports sans fichier Excel compliqué.",
+    description:
+      "Achats, ventes, stock, marges, TVA et exports dans un outil simple pour revendeurs de biens physiques.",
     images: [
       {
         url: "/og-kyrivo.png",
         width: 1200,
         height: 630,
-        alt: "Kyrivo — SaaS de gestion pour revendeurs",
+        alt: "Kyrivo — Outil de gestion pour revendeurs : achats, ventes, stock, marges et TVA",
         type: "image/png",
       },
     ],
@@ -46,7 +61,8 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Kyrivo — Gestion achats, ventes et stock pour revendeurs",
-    description: "Suivez vos achats, ventes, stock, marges, TVA et exports sans fichier Excel compliqué.",
+    description:
+      "Achats, ventes, stock, marges, TVA et exports dans un outil simple pour revendeurs de biens physiques.",
     images: ["/og-kyrivo.png"],
   },
 

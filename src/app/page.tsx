@@ -1,6 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: "https://kyrivo.kartium-tcg.com/",
+  },
+};
 
 export default async function HomePage() {
   const supabase = await createClient();
@@ -10,8 +17,109 @@ export default async function HomePage() {
   const finalCta = user ? "/dashboard" : "/register";
   const finalLabel = user ? "Accéder à mon espace" : "Essayer gratuitement";
 
+  const structuredData = [
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      name: "Kyrivo",
+      applicationCategory: "BusinessApplication",
+      operatingSystem: "Web",
+      url: "https://kyrivo.kartium-tcg.com",
+      description:
+        "Outil de gestion des achats, ventes, stock, marges et TVA pour revendeurs de biens physiques en France et en Belgique.",
+      inLanguage: "fr",
+      featureList: [
+        "Gestion des achats",
+        "Gestion des ventes",
+        "Suivi du stock en temps réel",
+        "Calcul des marges",
+        "TVA sur marge",
+        "Facturation PDF",
+        "Export Excel et CSV",
+      ],
+      offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "EUR",
+        description: "Essai gratuit 7 jours sans carte bancaire",
+      },
+      creator: {
+        "@type": "Organization",
+        name: "Kartium TCG",
+      },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      name: "Kartium TCG",
+      url: "https://kyrivo.kartium-tcg.com",
+      brand: {
+        "@type": "Brand",
+        name: "Kyrivo",
+      },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: [
+        {
+          "@type": "Question",
+          name: "À qui s'adresse Kyrivo ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Kyrivo s'adresse aux revendeurs de biens physiques : cartes Pokémon et TCG, Vinted, Lego, sneakers, figurines, mangas, brocante et autres objets de collection.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Kyrivo remplace-t-il Excel ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Kyrivo aide à remplacer les fichiers Excel compliqués en centralisant les achats, ventes, stock, marges, TVA et exports dans un seul outil.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Kyrivo gère-t-il la TVA ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Kyrivo permet de suivre la TVA standard et la TVA sur marge selon les informations encodées. L'outil aide au suivi, mais ne remplace pas un accompagnement comptable professionnel.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Puis-je suivre mon stock avec Kyrivo ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Oui. Les achats de stock créent des articles suivis avec quantités restantes, références et coûts d'achat.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Kyrivo est-il adapté aux vendeurs de cartes Pokémon ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Oui. Kyrivo a été pensé au départ pour des revendeurs TCG et cartes Pokémon, puis élargi aux autres revendeurs de biens physiques.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Puis-je exporter mes données ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Oui. Kyrivo permet d'exporter les achats et ventes pour faciliter le suivi et la préparation des informations utiles au comptable.",
+          },
+        },
+      ],
+    },
+  ];
+
   return (
     <div className="relative overflow-hidden">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
 
       {/* ═══ GLOW BACKGROUND ═══════════════════════════════ */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -198,7 +306,7 @@ export default async function HomePage() {
 
           <SectionHeader
             label="Fonctionnalités"
-            title="Tout ce qu'il vous faut"
+            title="Un outil de gestion pour revendeurs de biens physiques"
             description="Conçu pour les revendeurs français et belges qui gèrent du stock, vendent sur plusieurs plateformes et veulent garder le contrôle de leurs marges."
           />
 
@@ -250,7 +358,7 @@ export default async function HomePage() {
 
           <SectionHeader
             label="Workflow"
-            title="Le cycle complet"
+            title="Suivez vos achats, ventes, stock et marges"
             description="De l'achat à la marge nette, Kyrivo suit chaque étape automatiquement."
           />
 
@@ -287,7 +395,7 @@ export default async function HomePage() {
 
           <SectionHeader
             label="Bénéfices"
-            title="Pourquoi passer à Kyrivo"
+            title="Remplacez votre fichier Excel de revente"
             description="Pensé pour les revendeurs qui veulent du temps, de la clarté et de la conformité fiscale."
           />
 
@@ -315,6 +423,53 @@ export default async function HomePage() {
               icon={<ShieldIcon />}
               title="Conformité fiscale"
               description="TVA sur marge calculée selon les normes françaises et belges. Factures prêtes pour votre comptable."
+            />
+
+          </div>
+
+        </section>
+
+        {/* ═══════════════════════════════════════════════════ */}
+        {/* FAQ                                                  */}
+        {/* ═══════════════════════════════════════════════════ */}
+        <section className="mb-28" aria-labelledby="faq-heading">
+
+          <SectionHeader
+            label="FAQ"
+            title="Questions fréquentes"
+            description="Tout ce que vous voulez savoir sur Kyrivo avant de commencer."
+          />
+
+          <div className="mt-12 max-w-3xl mx-auto space-y-3">
+
+            <FAQItem
+              question="À qui s'adresse Kyrivo ?"
+              answer="Kyrivo s'adresse aux revendeurs de biens physiques : cartes Pokémon et TCG, Vinted, Lego, sneakers, figurines, mangas, brocante et autres objets de collection."
+            />
+
+            <FAQItem
+              question="Kyrivo remplace-t-il Excel ?"
+              answer="Kyrivo aide à remplacer les fichiers Excel compliqués en centralisant les achats, ventes, stock, marges, TVA et exports dans un seul outil."
+            />
+
+            <FAQItem
+              question="Kyrivo gère-t-il la TVA ?"
+              answer="Kyrivo permet de suivre la TVA standard et la TVA sur marge selon les informations encodées. L'outil aide au suivi, mais ne remplace pas un accompagnement comptable professionnel."
+            />
+
+            <FAQItem
+              question="Puis-je suivre mon stock avec Kyrivo ?"
+              answer="Oui. Les achats de stock créent des articles suivis avec quantités restantes, références et coûts d'achat."
+            />
+
+            <FAQItem
+              question="Kyrivo est-il adapté aux vendeurs de cartes Pokémon ?"
+              answer="Oui. Kyrivo a été pensé au départ pour des revendeurs TCG et cartes Pokémon, puis élargi aux autres revendeurs de biens physiques."
+            />
+
+            <FAQItem
+              question="Puis-je exporter mes données ?"
+              answer="Oui. Kyrivo permet d'exporter les achats et ventes pour faciliter le suivi et la préparation des informations utiles au comptable."
             />
 
           </div>
@@ -902,6 +1057,15 @@ function ShieldIcon() {
     <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
     </svg>
+  );
+}
+
+function FAQItem({ question, answer }: { question: string; answer: string }) {
+  return (
+    <div className="rounded-xl bg-neutral-900/40 border border-neutral-800 px-6 py-5 hover:border-neutral-700 transition-colors duration-200">
+      <h3 className="text-sm font-semibold text-white mb-2">{question}</h3>
+      <p className="text-sm text-neutral-400 leading-relaxed">{answer}</p>
+    </div>
   );
 }
 
