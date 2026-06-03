@@ -13,8 +13,53 @@ import { Toaster } from "sonner";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Kyrivo — Gestion achats, ventes et stock pour revendeurs",
-  description: "Kyrivo centralise vos achats, ventes et stock en un seul outil. TVA sur marge, facturation PDF et export comptable — pour revendeurs TCG, manga, figurines, sneakers, Lego et brocante, en France et en Belgique.",
+  metadataBase: new URL("https://kyrivo.kartium-tcg.com"),
+  title: {
+    default: "Kyrivo — Gestion achats, ventes et stock pour revendeurs",
+    template: "%s | Kyrivo",
+  },
+  description: "Suivez vos achats, ventes, stock, marges, TVA et exports sans fichier Excel compliqué. Pour revendeurs TCG, Lego, sneakers, brocante. France & Belgique.",
+  keywords: ["revendeur", "TCG", "gestion stock", "TVA sur marge", "Cardmarket", "Vinted", "SaaS", "France", "Belgique"],
+  authors: [{ name: "Kartium TCG" }],
+  creator: "Kartium TCG",
+  publisher: "Kartium TCG",
+
+  openGraph: {
+    type: "website",
+    locale: "fr_FR",
+    alternateLocale: ["fr_BE"],
+    url: "https://kyrivo.kartium-tcg.com",
+    siteName: "Kyrivo",
+    title: "Kyrivo — Gestion achats, ventes et stock pour revendeurs",
+    description: "Suivez vos achats, ventes, stock, marges, TVA et exports sans fichier Excel compliqué.",
+    images: [
+      {
+        url: "/og-kyrivo.png",
+        width: 1200,
+        height: 630,
+        alt: "Kyrivo — SaaS de gestion pour revendeurs",
+        type: "image/png",
+      },
+    ],
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    title: "Kyrivo — Gestion achats, ventes et stock pour revendeurs",
+    description: "Suivez vos achats, ventes, stock, marges, TVA et exports sans fichier Excel compliqué.",
+    images: ["/og-kyrivo.png"],
+  },
+
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+    },
+  },
+
   icons: {
     icon: [
       { url: "/favicon.svg", type: "image/svg+xml" },
