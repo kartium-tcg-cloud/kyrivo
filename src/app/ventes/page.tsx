@@ -20,6 +20,7 @@ import {
 
 import {
   applySaleStockMovements,
+  checkStockAvailability,
   rollbackSaleStockMovements,
 } from "@/lib/items";
 
@@ -268,9 +269,21 @@ const usageCheck = await canCreateLines({
 });
 
 if (!usageCheck.allowed) {
-toast.error(
-  `Limite mensuelle atteinte (${usageCheck.used}/${usageCheck.limit}).`
-);
+  toast.error(
+    `Limite mensuelle atteinte (${usageCheck.used}/${usageCheck.limit}).`
+  );
+  return;
+}
+
+const stockCheck = await checkStockAvailability(vente.lines);
+if (!stockCheck.ok) {
+  if (stockCheck.errors.length === 1) {
+    toast.error(
+      `Stock insuffisant pour cet article. Quantité disponible : ${stockCheck.errors[0].available}.`
+    );
+  } else {
+    toast.error("Stock insuffisant pour un ou plusieurs articles sélectionnés.");
+  }
   return;
 }
 
@@ -351,6 +364,21 @@ if (usageError) {
       const companyId = await getCompanyId();
       if (!companyId) return;
 
+      const stockCheck = await checkStockAvailability(
+        vente.lines,
+        venteEnEdition.lines || []
+      );
+      if (!stockCheck.ok) {
+        if (stockCheck.errors.length === 1) {
+          toast.error(
+            `Stock insuffisant pour cet article. Quantité disponible : ${stockCheck.errors[0].available}.`
+          );
+        } else {
+          toast.error("Stock insuffisant pour un ou plusieurs articles sélectionnés.");
+        }
+        return;
+      }
+
       await rollbackSaleStockMovements(venteEnEdition.lines || []);
 
       await updateSale(venteEnEdition.id, {
@@ -386,6 +414,7 @@ if (usageError) {
       fermerModal();
     } catch (error) {
       console.error(error);
+      toast.error("Une erreur est survenue lors de la modification de la vente.");
     }
   };
 

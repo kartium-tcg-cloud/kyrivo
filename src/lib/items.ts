@@ -97,6 +97,56 @@ export async function rollbackSaleStockMovements(
   }
 }
 
+// ─── Vérification stock avant vente ─────────────────────────
+// existingLines : lignes de la vente EN COURS DE MODIFICATION
+//   → leur quantité s'ajoute au stock courant car le rollback les restituera
+export async function checkStockAvailability(
+  lines: { purchaseItemId?: string; quantity: number }[],
+  existingLines?: { purchaseItemId?: string; quantity: number }[]
+): Promise<{ ok: boolean; errors: { available: number; requested: number }[] }> {
+  const linkedLines = lines.filter((l) => l.purchaseItemId);
+  if (linkedLines.length === 0) return { ok: true, errors: [] };
+
+  // Quantités demandées par article
+  const requestedByItem = new Map<string, number>();
+  for (const line of linkedLines) {
+    const id = line.purchaseItemId!;
+    requestedByItem.set(id, (requestedByItem.get(id) ?? 0) + line.quantity);
+  }
+
+  // Quantités déjà allouées dans la vente existante (cas modification)
+  const existingByItem = new Map<string, number>();
+  for (const line of (existingLines ?? []).filter((l) => l.purchaseItemId)) {
+    const id = line.purchaseItemId!;
+    existingByItem.set(id, (existingByItem.get(id) ?? 0) + line.quantity);
+  }
+
+  const itemIds = [...requestedByItem.keys()];
+  const { data, error } = await supabase
+    .from("purchase_items")
+    .select("id, stock_quantity")
+    .in("id", itemIds);
+
+  if (error) throw error;
+
+  const stockByItem = new Map<string, number>();
+  for (const item of data ?? []) {
+    stockByItem.set(item.id, Number(item.stock_quantity ?? 0));
+  }
+
+  const errors: { available: number; requested: number }[] = [];
+  for (const [itemId, requested] of requestedByItem.entries()) {
+    const currentStock = stockByItem.get(itemId) ?? 0;
+    const alreadyAllocated = existingByItem.get(itemId) ?? 0;
+    const available = currentStock + alreadyAllocated;
+    if (requested > available) {
+      errors.push({ available, requested });
+    }
+  }
+
+  return { ok: errors.length === 0, errors };
+}
+
 export async function updateItemStockQuantity(params: {
   itemId: string;
   stockQuantity: number;

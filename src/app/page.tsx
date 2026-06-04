@@ -315,13 +315,13 @@ export default async function HomePage() {
             <FeatureCard
               icon={<CartIcon />}
               title="Gestion achats"
-              description="Enregistrez vos achats PRO et particuliers, joignez les factures, suivez l'historique complet."
+              description="Enregistre tes achats PRO et particuliers, joins les factures, suis l'historique complet."
             />
 
             <FeatureCard
               icon={<SalesIcon />}
               title="Gestion ventes"
-              description="Suivez vos ventes par plateforme — Cardmarket, Vinted, Shopify — avec marge calculée automatiquement."
+              description="Suis tes ventes par plateforme — Cardmarket, Vinted, Shopify — avec marge calculée automatiquement."
             />
 
             <FeatureCard
@@ -345,7 +345,7 @@ export default async function HomePage() {
             <FeatureCard
               icon={<ExportIcon />}
               title="Export comptable"
-              description="Exports Excel et CSV prêts pour votre comptable, en France comme en Belgique."
+              description="Exports Excel et CSV prêts pour ton comptable, en France comme en Belgique."
             />
 
           </div>
@@ -358,7 +358,7 @@ export default async function HomePage() {
 
           <SectionHeader
             label="Workflow"
-            title="Suivez vos achats, ventes, stock et marges"
+            title="Suis tes achats, ventes, stock et marges"
             description="De l'achat à la marge nette, Kyrivo suit chaque étape automatiquement."
           />
 
@@ -367,7 +367,7 @@ export default async function HomePage() {
             {/* Pipeline desktop */}
             <div className="hidden lg:grid grid-cols-[1fr_auto_1fr_auto_1fr_auto_1fr] items-stretch gap-0 max-w-5xl mx-auto">
 
-              <WorkflowStep step={1} icon={<CartIcon />} title="Achat" description="Vous enregistrez un achat avec sa facture." state="completed" />
+              <WorkflowStep step={1} icon={<CartIcon />} title="Achat" description="Tu enregistres un achat avec sa facture." state="completed" />
               <Arrow />
               <WorkflowStep step={2} icon={<StockIcon />} title="Stock" description="Référence générée, article ajouté au stock." state="active" />
               <Arrow />
@@ -379,7 +379,7 @@ export default async function HomePage() {
 
             {/* Pipeline mobile/tablet */}
             <div className="lg:hidden space-y-3 max-w-md mx-auto">
-              <WorkflowStep step={1} icon={<CartIcon />} title="Achat" description="Vous enregistrez un achat avec sa facture." state="completed" />
+              <WorkflowStep step={1} icon={<CartIcon />} title="Achat" description="Tu enregistres un achat avec sa facture." state="completed" />
               <WorkflowStep step={2} icon={<StockIcon />} title="Stock" description="Référence générée, article ajouté au stock." state="active" />
               <WorkflowStep step={3} icon={<SalesIcon />} title="Vente" description="L'article passe en vendu, lié à une vente." state="pending" />
               <WorkflowStep step={4} icon={<TrendIcon />} title="Marge" description="Marge nette calculée automatiquement." state="pending" />
@@ -395,7 +395,7 @@ export default async function HomePage() {
 
           <SectionHeader
             label="Bénéfices"
-            title="Remplacez votre fichier Excel de revente"
+            title="Remplace ton fichier Excel de revente"
             description="Pensé pour les revendeurs qui veulent du temps, de la clarté et de la conformité fiscale."
           />
 
@@ -410,19 +410,19 @@ export default async function HomePage() {
             <BenefitCard
               icon={<LayersIcon />}
               title="Centralisation"
-              description="Toutes vos plateformes, tous vos clients, tous vos articles — un seul endroit, une seule source de vérité."
+              description="Toutes tes plateformes, tous tes clients, tous tes articles — un seul endroit, une seule source de vérité."
             />
 
             <BenefitCard
               icon={<TrendIcon />}
               title="Suivi rentabilité"
-              description="Marge nette en temps réel sur chaque vente. Identifiez vos meilleurs produits et plateformes en un coup d'œil."
+              description="Marge nette en temps réel sur chaque vente. Identifie tes meilleurs produits et plateformes en un coup d'œil."
             />
 
             <BenefitCard
               icon={<ShieldIcon />}
               title="Conformité fiscale"
-              description="TVA sur marge calculée selon les normes françaises et belges. Factures prêtes pour votre comptable."
+              description="TVA sur marge calculée selon les normes françaises et belges. Factures prêtes pour ton comptable."
             />
 
           </div>
@@ -437,7 +437,7 @@ export default async function HomePage() {
           <SectionHeader
             label="FAQ"
             title="Questions fréquentes"
-            description="Tout ce que vous voulez savoir sur Kyrivo avant de commencer."
+            description="Tout ce que tu veux savoir sur Kyrivo avant de commencer."
           />
 
           <div className="mt-12 max-w-3xl mx-auto space-y-3">

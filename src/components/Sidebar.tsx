@@ -383,6 +383,48 @@ className={`
                 </Link>
               )}
 
+              {/* Mode d'emploi — toujours visible */}
+              <Link
+                href="/mode-emploi"
+                className={`
+                  relative flex items-center gap-3
+                  rounded-lg px-3 py-2
+                  text-sm font-medium
+                  transition-all duration-150
+                  group
+                  ${
+                    isActive("/mode-emploi")
+                      ? "bg-amber-500/10 text-amber-400"
+                      : "text-neutral-400 hover:bg-neutral-900/60 hover:text-neutral-200"
+                  }
+                `}
+              >
+                {isActive("/mode-emploi") && (
+                  <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-0.5 rounded-r-full bg-amber-400" />
+                )}
+
+                <span
+                  className={`
+                    flex-shrink-0 transition-colors
+                    ${
+                      isActive("/mode-emploi")
+                        ? "text-amber-400"
+                        : "text-neutral-500 group-hover:text-neutral-300"
+                    }
+                  `}
+                >
+                  <svg className="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
+                  </svg>
+                </span>
+
+                <span className="flex-1">Mode d&apos;emploi</span>
+
+                {isActive("/mode-emploi") && (
+                  <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
+                )}
+              </Link>
+
               {/* Abonnement — toujours visible */}
               <Link
                 href="/abonnements"
