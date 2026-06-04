@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { buildRegisterUrl, trackFunnel, trackMetaCustom } from "@/lib/analytics";
 
 // ═══════════════════════════════════════════════════════════
 // IMAGE AVEC FALLBACK
@@ -430,9 +432,17 @@ const ITEMS: AccordionItem[] = [
 
 export default function ModeEmploiPage() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const router = useRouter();
 
   const toggle = (i: number) =>
     setOpenIndex((prev) => (prev === i ? null : i));
+
+  function handleRegisterClick(e: React.MouseEvent<HTMLAnchorElement>) {
+    e.preventDefault();
+    trackFunnel("cta_register_click");
+    trackMetaCustom("ClickStartTrial");
+    router.push(buildRegisterUrl());
+  }
 
   return (
     <div className="relative px-4 sm:px-6 lg:px-10 py-10 lg:py-14 mx-auto max-w-3xl">
@@ -486,6 +496,7 @@ export default function ModeEmploiPage() {
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link
             href="/register"
+            onClick={handleRegisterClick}
             className="
               inline-flex items-center justify-center gap-2
               rounded-lg px-5 py-2.5

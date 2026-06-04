@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { trackFunnel, trackMeta, trackMetaCustom } from "@/lib/analytics";
 
 export default function RegisterPage() {
   const supabase = createClient();
@@ -15,6 +16,11 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+
+  useEffect(() => {
+    trackFunnel("register_view");
+    trackMetaCustom("ViewRegister");
+  }, []);
 
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault();
@@ -57,14 +63,10 @@ export default function RegisterPage() {
     }
 
     setSuccess(true);
-
-    if (typeof window !== "undefined" && (window as Window & { fbq?: (...args: unknown[]) => void }).fbq) {
-      (window as Window & { fbq?: (...args: unknown[]) => void }).fbq!("track", "Lead", {
-        content_name: "Inscription Kyrivo",
-        value: 0,
-        currency: "EUR",
-      });
-    }
+    // Tracking interne (toujours, sans Meta)
+    trackFunnel("registration_success");
+    // Meta Pixel uniquement si consentement marketing accordé
+    trackMeta("Lead", { content_name: "Inscription Kyrivo", value: 0, currency: "EUR" });
 
     setLoading(false);
   }

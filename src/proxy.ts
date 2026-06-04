@@ -10,6 +10,7 @@ const PUBLIC_PREFIXES = [
   "/cookies",
   "/donnees-personnelles",
   "/mode-emploi",
+  "/api/analytics",
   "/auth",
   "/_next",
 ];
