@@ -110,6 +110,14 @@ export default async function HomePage() {
             text: "Oui. Kyrivo permet d'exporter les achats et ventes pour faciliter le suivi et la préparation des informations utiles au comptable.",
           },
         },
+        {
+          "@type": "Question",
+          name: "Que puis-je encore faire après expiration de mon abonnement ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Si vous ne souhaitez pas renouveler votre abonnement, vous conservez l'accès aux données déjà encodées. Vous pouvez toujours les consulter, les exporter vers Excel et générer les factures liées aux ventes déjà enregistrées. Les nouvelles créations peuvent toutefois nécessiter un abonnement actif.",
+          },
+        },
       ],
     },
   ];
@@ -470,6 +478,11 @@ export default async function HomePage() {
             <FAQItem
               question="Puis-je exporter mes données ?"
               answer="Oui. Kyrivo permet d'exporter les achats et ventes pour faciliter le suivi et la préparation des informations utiles au comptable."
+            />
+
+            <FAQItem
+              question="Que puis-je encore faire après expiration de mon abonnement ?"
+              answer="Si vous ne souhaitez pas renouveler votre abonnement, vous conservez l'accès aux données déjà encodées. Vous pouvez toujours les consulter, les exporter vers Excel et générer les factures liées aux ventes déjà enregistrées. Les nouvelles créations peuvent toutefois nécessiter un abonnement actif."
             />
 
           </div>
