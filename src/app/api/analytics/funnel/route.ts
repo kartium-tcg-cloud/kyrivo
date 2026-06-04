@@ -32,6 +32,22 @@ function sanitizeMetadata(value: unknown): Record<string, unknown> {
 }
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
+  // ── 0. Guard service role ────────────────────────────────────
+  // Défense en profondeur : vérifier ici aussi que la clé est présente.
+  // admin.ts throw déjà si elle est absente, mais ce check produit un message
+  // explicite dans les logs Vercel sans exposer la valeur.
+  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    console.error(
+      "[funnel] SUPABASE_SERVICE_ROLE_KEY absent.",
+      "L'insert ne peut pas utiliser le service role.",
+      "Configurez cette variable dans les variables d'environnement serveur (pas NEXT_PUBLIC_)."
+    );
+    return NextResponse.json(
+      { ok: false, error: "server_misconfiguration" },
+      { status: 500 }
+    );
+  }
+
   // ── 1. Parse du body ────────────────────────────────────────
   let body: Record<string, unknown>;
   try {
@@ -64,7 +80,12 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     metadata:     sanitizeMetadata(body.metadata),
   };
 
-  console.log("[funnel] event:", event_name, "| utm_source:", payload.utm_source, "| path:", payload.path);
+  console.log(
+    "[funnel] event:", event_name,
+    "| service_role_key_present:", !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+    "| utm_source:", payload.utm_source,
+    "| path:", payload.path
+  );
 
   // ── 4. Insertion Supabase ────────────────────────────────────
   // supabase-js retourne { data, error } — il ne lève jamais d'exception.
