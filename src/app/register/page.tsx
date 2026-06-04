@@ -160,7 +160,7 @@ export default function RegisterPage() {
                   </h2>
 
                   <p className="mt-2 text-sm leading-relaxed text-neutral-500">
-                    Lancez votre espace Kyrivo avec une société, un essai Pro de 7 jours
+                    Lancez votre espace Kyrivo avec un essai Pro de 7 jours
                     et 125 lignes incluses pendant votre essai.
                   </p>
                 </div>
@@ -168,7 +168,7 @@ export default function RegisterPage() {
                 <form onSubmit={handleRegister} className="space-y-4">
                   <div>
                     <label className="mb-2 block text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
-                      Nom de votre société
+                      Nom de société ou pseudo
                     </label>
                     <input
                       type="text"
