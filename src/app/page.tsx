@@ -144,21 +144,21 @@ export default async function HomePage() {
         {/* ═══════════════════════════════════════════════════ */}
         {/* HERO                                                */}
         {/* ═══════════════════════════════════════════════════ */}
-        <section className="flex flex-col items-center text-center pt-6 pb-16">
+        <section className="flex flex-col items-center text-center pt-3 sm:pt-6 pb-10 sm:pb-16">
 
           {/* ─── LOGO BLOCK ─────────────────────────────── */}
           <KyrivoLogo />
 
-          {/* Eyebrow — pour qui */}
-          <div className="mt-8 inline-flex items-center gap-2 rounded-full bg-amber-500/10 border border-amber-500/20 px-3 py-1">
+          {/* Eyebrow — desktop uniquement (cible couverte par les lignes mobile ci-dessous) */}
+          <div className="hidden sm:inline-flex mt-8 items-center gap-2 rounded-full bg-amber-500/10 border border-amber-500/20 px-3 py-1">
             <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
             <span className="text-[11px] font-semibold text-amber-400 tracking-widest uppercase">
               Pour revendeurs · France &amp; Belgique
             </span>
           </div>
 
-          {/* Title */}
-          <h1 className="mt-6 text-4xl sm:text-5xl lg:text-6xl font-bold text-white tracking-tight leading-[1.1] max-w-3xl">
+          {/* H1 */}
+          <h1 className="mt-4 sm:mt-6 text-4xl sm:text-5xl lg:text-6xl font-bold text-white tracking-tight leading-[1.1] max-w-3xl">
             Tu sais{" "}
             <span
               className="bg-clip-text text-transparent"
@@ -172,20 +172,30 @@ export default async function HomePage() {
             {" "}ce que tu gagnes&nbsp;?
           </h1>
 
-          {/* Subtitle */}
-          <p className="mt-5 text-base sm:text-lg text-neutral-400 max-w-xl leading-relaxed mx-auto">
-            Quand tu revends régulièrement, Excel devient vite ingérable. Kyrivo centralise tes{" "}
-            <strong className="text-neutral-200">achats, ventes, stock, marges et TVA</strong>{" "}
-            dans un outil simple — pour la France et la Belgique.
-          </p>
+          {/* Cible + bénéfice — MOBILE uniquement (2 lignes courtes, pas de scroll) */}
+          <div className="mt-3 sm:hidden space-y-1.5 max-w-[300px] mx-auto">
+            <p className="text-sm font-medium text-neutral-200 leading-snug">
+              Pour revendeurs TCG, seconde main, collection, Vinted et brocante
+            </p>
+            <p className="text-sm text-neutral-400 leading-snug">
+              Achats, ventes, stock, marges &amp; TVA — sans Excel compliqué.
+            </p>
+          </div>
 
-          {/* Phrase d'action */}
-          <p className="mt-4 text-sm text-neutral-300 max-w-md mx-auto leading-relaxed">
-            Crée ton compte, encode quelques achats et ventes, et vois directement tes marges.
-          </p>
+          {/* Subtitle + phrase d'action — DESKTOP uniquement */}
+          <div className="hidden sm:block">
+            <p className="mt-5 text-base sm:text-lg text-neutral-400 max-w-xl leading-relaxed mx-auto">
+              Quand tu revends régulièrement, Excel devient vite ingérable. Kyrivo centralise tes{" "}
+              <strong className="text-neutral-200">achats, ventes, stock, marges et TVA</strong>{" "}
+              dans un outil simple — pour la France et la Belgique.
+            </p>
+            <p className="mt-4 text-sm text-neutral-300 max-w-md mx-auto leading-relaxed">
+              Crée ton compte, encode quelques achats et ventes, et vois directement tes marges.
+            </p>
+          </div>
 
           {/* CTAs */}
-          <div className="mt-8 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-center w-full max-w-sm sm:max-w-none">
+          <div className="mt-5 sm:mt-8 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-center w-full max-w-sm sm:max-w-none">
 
             {user ? (
               <Link
@@ -210,9 +220,9 @@ export default async function HomePage() {
                 label="Essayer gratuitement"
                 className="
                   group inline-flex items-center justify-center gap-2
-                  rounded-lg px-6 py-3.5
+                  rounded-lg px-6 py-4 sm:py-3.5
                   bg-amber-500 text-neutral-950
-                  text-sm font-semibold
+                  text-base sm:text-sm font-bold sm:font-semibold
                   hover:bg-amber-400 active:scale-[0.98]
                   transition-all duration-200
                   shadow-lg shadow-amber-500/20
@@ -220,10 +230,11 @@ export default async function HomePage() {
               />
             )}
 
+            {/* Voir les tarifs : bouton sur desktop, lien texte discret sur mobile */}
             <Link
               href="/abonnements"
               className="
-                inline-flex items-center justify-center gap-2
+                hidden sm:inline-flex items-center justify-center gap-2
                 rounded-lg px-6 py-3.5
                 bg-neutral-900/60 text-neutral-200
                 text-sm font-semibold
@@ -234,16 +245,22 @@ export default async function HomePage() {
             >
               Voir les tarifs
             </Link>
+            <Link
+              href="/abonnements"
+              className="sm:hidden text-center text-xs text-neutral-500 hover:text-neutral-400 transition-colors py-1"
+            >
+              Voir les tarifs →
+            </Link>
 
           </div>
 
           {/* Réassurance sous les CTA */}
-          <p className="mt-3.5 text-[12px] text-neutral-500 font-medium tracking-wide">
+          <p className="mt-3 text-[12px] text-neutral-500 font-medium tracking-wide">
             7 jours gratuits · Sans carte bancaire · Données exportables
           </p>
 
-          {/* Feature badges */}
-          <div className="mt-8 flex flex-wrap gap-2 justify-center">
+          {/* Feature badges — desktop uniquement (ne pas bloquer le CTA sur mobile) */}
+          <div className="mt-8 hidden sm:flex flex-wrap gap-2 justify-center">
             <FeatureBadge>
               <img src="https://flagcdn.com/16x12/fr.png" srcSet="https://flagcdn.com/32x24/fr.png 2x" width={16} height={12} alt="France" className="inline-block flex-shrink-0" />
               TVA marge française
@@ -259,7 +276,7 @@ export default async function HomePage() {
           </div>
 
           {/* App screenshot */}
-          <div className="mt-6 md:mt-10 mx-auto w-full max-w-full md:max-w-[900px] md:[transform:perspective(1000px)_rotateX(3deg)]">
+          <div className="mt-4 sm:mt-6 md:mt-10 mx-auto w-full max-w-full md:max-w-[900px] md:[transform:perspective(1000px)_rotateX(3deg)]">
             <Image
               src="/app-screenshot.png"
               alt="Interface Kyrivo — Gestion des achats pour revendeurs"
