@@ -25,10 +25,10 @@ export default function RegisterCTA({
   }
 
   return (
-    <Link href="/register" onClick={handleClick} className={className}>
+    <Link href="/register" onClick={handleClick} className={`cta-pulse ${className}`}>
       {label}
       <svg
-        className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5"
+        className="cta-arrow h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5"
         fill="none"
         viewBox="0 0 24 24"
         strokeWidth={2.5}

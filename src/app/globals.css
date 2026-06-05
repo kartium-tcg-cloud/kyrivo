@@ -73,3 +73,53 @@ input[type="number"] {
   -moz-appearance: textfield;
   appearance: textfield;
 }
+
+/* ─── CTA Pulse — "Essayer gratuitement" ────────────────────────
+   Halo ambre périodique discret + micro-mouvement flèche.
+   Animations uniquement si prefers-reduced-motion n'est pas activé.
+   Le halo est rendu via ::after pour ne pas toucher au box-shadow Tailwind.
+   ─────────────────────────────────────────────────────────────── */
+
+@keyframes cta-glow {
+  /* Le bouton est au repos 70 % du cycle, puis le halo apparaît brièvement */
+  0%, 70%, 100% { opacity: 0; }
+  85%           { opacity: 1; }
+}
+
+@keyframes cta-arrow-nudge {
+  0%, 70%, 100% { transform: translateX(0);  }
+  85%           { transform: translateX(2px); }
+}
+
+.cta-pulse {
+  position: relative;
+}
+
+/* Halo ambre rendu en dehors du bouton via ::after */
+.cta-pulse::after {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  border-radius: inherit;
+  box-shadow:
+    0 0 0 3px rgba(245, 158, 11, 0.16),
+    0 0 22px 6px rgba(245, 158, 11, 0.09);
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .cta-pulse::after {
+    animation: cta-glow 4.5s ease-in-out infinite;
+  }
+
+  .cta-arrow {
+    animation: cta-arrow-nudge 4.5s ease-in-out infinite;
+  }
+
+  /* En hover desktop : stopper l'animation flèche,
+     laisser group-hover:translate-x-0.5 (Tailwind) prendre le relais */
+  .cta-pulse:hover .cta-arrow {
+    animation: none;
+  }
+}

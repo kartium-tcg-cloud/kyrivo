@@ -223,7 +223,7 @@ export default async function HomePage() {
                   rounded-lg px-6 py-4 sm:py-3.5
                   bg-amber-500 text-neutral-950
                   text-base sm:text-sm font-bold sm:font-semibold
-                  hover:bg-amber-400 active:scale-[0.98]
+                  hover:bg-amber-400 hover:-translate-y-px active:scale-[0.98]
                   transition-all duration-200
                   shadow-lg shadow-amber-500/20
                 "
@@ -310,7 +310,7 @@ export default async function HomePage() {
                 rounded-lg px-7 py-3.5
                 bg-amber-500 text-neutral-950
                 text-sm font-semibold
-                hover:bg-amber-400 active:scale-[0.98]
+                hover:bg-amber-400 hover:-translate-y-px active:scale-[0.98]
                 transition-all duration-200
                 shadow-lg shadow-amber-500/20
               "
@@ -616,7 +616,7 @@ export default async function HomePage() {
                       rounded-lg px-6 py-3.5
                       bg-amber-500 text-neutral-950
                       text-sm font-semibold
-                      hover:bg-amber-400 active:scale-[0.98]
+                      hover:bg-amber-400 hover:-translate-y-px active:scale-[0.98]
                       transition-all duration-200
                       shadow-lg shadow-amber-500/30
                     "
@@ -634,7 +634,7 @@ export default async function HomePage() {
                       rounded-lg px-6 py-3.5
                       bg-amber-500 text-neutral-950
                       text-sm font-semibold
-                      hover:bg-amber-400 active:scale-[0.98]
+                      hover:bg-amber-400 hover:-translate-y-px active:scale-[0.98]
                       transition-all duration-200
                       shadow-lg shadow-amber-500/30
                     "
