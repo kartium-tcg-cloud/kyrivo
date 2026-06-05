@@ -179,6 +179,11 @@ export default async function HomePage() {
             dans un outil simple — pour la France et la Belgique.
           </p>
 
+          {/* Phrase d'action */}
+          <p className="mt-4 text-sm text-neutral-300 max-w-md mx-auto leading-relaxed">
+            Crée ton compte, encode quelques achats et ventes, et vois directement tes marges.
+          </p>
+
           {/* CTAs */}
           <div className="mt-8 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-center w-full max-w-sm sm:max-w-none">
 
@@ -233,8 +238,8 @@ export default async function HomePage() {
           </div>
 
           {/* Réassurance sous les CTA */}
-          <p className="mt-3.5 text-[12px] text-neutral-600">
-            Aucune carte bancaire requise · Sans engagement · Annulable à tout moment
+          <p className="mt-3.5 text-[12px] text-neutral-500 font-medium tracking-wide">
+            7 jours gratuits · Sans carte bancaire · Données exportables
           </p>
 
           {/* Feature badges */}
@@ -270,6 +275,34 @@ export default async function HomePage() {
           </div>
 
         </section>
+
+        {/* ─── Mini CTA post-screenshot ────────────────────── */}
+        {!user && (
+          <div className="mb-20 max-w-lg mx-auto text-center">
+            <p className="text-base sm:text-lg font-semibold text-white mb-2">
+              Teste Kyrivo avec tes propres chiffres
+            </p>
+            <p className="text-sm text-neutral-400 leading-relaxed mb-5">
+              Ajoute quelques achats et ventes fictifs pour voir si l&apos;outil correspond à ta manière de vendre.
+            </p>
+            <RegisterCTA
+              label="Démarrer l'essai gratuit"
+              className="
+                group inline-flex items-center justify-center gap-2
+                w-full sm:w-auto
+                rounded-lg px-7 py-3.5
+                bg-amber-500 text-neutral-950
+                text-sm font-semibold
+                hover:bg-amber-400 active:scale-[0.98]
+                transition-all duration-200
+                shadow-lg shadow-amber-500/20
+              "
+            />
+            <p className="mt-2.5 text-xs text-neutral-600">
+              Sans carte bancaire. Sans engagement.
+            </p>
+          </div>
+        )}
 
         {/* ═══════════════════════════════════════════════════ */}
         {/* STATS / VALUE PROPS                                 */}
