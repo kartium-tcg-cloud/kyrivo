@@ -457,12 +457,11 @@ export default function ModeEmploiPage() {
         </div>
 
         <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight mb-4 leading-tight">
-          Mode d&apos;emploi Kyrivo
+          Mode d&apos;emploi Kyrivo — gérer achats, ventes, stock et marges
         </h1>
 
         <p className="text-base text-neutral-300 leading-relaxed max-w-2xl">
-          Découvre les étapes essentielles pour préparer ton compte, encoder tes achats et ventes,
-          suivre tes marges, exporter tes données et générer tes factures.
+          Ce guide explique comment utiliser Kyrivo pour gérer une activité d&apos;achat-revente : configuration du compte, encodage des achats, encodage des ventes, suivi du stock, analyse des marges, exports Excel et génération de factures.
         </p>
       </div>
 
