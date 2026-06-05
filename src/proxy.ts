@@ -11,6 +11,7 @@ const PUBLIC_PREFIXES = [
   "/donnees-personnelles",
   "/mode-emploi",
   "/api/analytics",
+  "/api/meta",
   "/auth",
   "/_next",
 ];
