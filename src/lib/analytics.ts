@@ -23,7 +23,7 @@ export type FunnelEvent =
   | "registration_success";
 
 // ─── Consentement ──────────────────────────────────────────────
-function hasMarketingConsent(): boolean {
+export function hasMarketingConsent(): boolean {
   try {
     const stored = localStorage.getItem(CONSENT_KEY);
     if (!stored) return false;
@@ -137,11 +137,17 @@ function fbq(): FbqFn | undefined {
 }
 
 // Événements Meta standard (e.g. "ViewContent", "Lead", "PageView")
+// eventId optionnel : permet la déduplication navigateur/CAPI côté Meta
 export function trackMeta(
   event: string,
-  params?: Record<string, unknown>
+  params?: Record<string, unknown>,
+  eventId?: string
 ): void {
-  fbq()?.("track", event, params);
+  if (eventId) {
+    fbq()?.("track", event, params, { eventID: eventId });
+  } else {
+    fbq()?.("track", event, params);
+  }
 }
 
 // Événements Meta custom (e.g. "ClickStartTrial", "ViewRegister")
@@ -150,4 +156,27 @@ export function trackMetaCustom(
   params?: Record<string, unknown>
 ): void {
   fbq()?.("trackCustom", event, params);
+}
+
+// ─── Meta Conversions API (CAPI) ───────────────────────────────
+// Appel serveur best-effort — ne bloque jamais l'inscription si Meta échoue.
+// Doit être appelé uniquement si hasMarketingConsent() === true.
+// L'email est hashé côté serveur ; ne jamais l'afficher ou le stocker.
+export async function sendMetaCapi(payload: {
+  event_id: string;
+  email?: string;
+  source_url?: string;
+  utm_source?: string;
+  utm_campaign?: string;
+  utm_content?: string;
+}): Promise<void> {
+  try {
+    await fetch("/api/meta/lead", {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body:    JSON.stringify(payload),
+    });
+  } catch {
+    // best-effort : erreur réseau ignorée
+  }
 }

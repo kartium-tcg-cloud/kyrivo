@@ -3,7 +3,14 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { trackFunnel, trackMeta, trackMetaCustom } from "@/lib/analytics";
+import {
+  trackFunnel,
+  trackMeta,
+  trackMetaCustom,
+  sendMetaCapi,
+  hasMarketingConsent,
+  getUtmParams,
+} from "@/lib/analytics";
 
 export default function RegisterPage() {
   const supabase = createClient();
@@ -63,10 +70,32 @@ export default function RegisterPage() {
     }
 
     setSuccess(true);
-    // Tracking interne (toujours, sans Meta)
+    // Tracking interne — toujours, indépendamment du consentement
     trackFunnel("registration_success");
-    // Meta Pixel uniquement si consentement marketing accordé
-    trackMeta("Lead", { content_name: "Inscription Kyrivo", value: 0, currency: "EUR" });
+
+    // Meta Pixel + CAPI uniquement si consentement marketing accordé
+    if (hasMarketingConsent()) {
+      // event_id partagé Pixel/CAPI pour déduplication Meta
+      const eventId = crypto.randomUUID();
+      const utms = getUtmParams();
+
+      // Pixel navigateur avec event_id
+      trackMeta(
+        "Lead",
+        { content_name: "Inscription Kyrivo", value: 0, currency: "EUR" },
+        eventId
+      );
+
+      // CAPI serveur avec même event_id — best-effort, ne bloque pas l'inscription
+      void sendMetaCapi({
+        event_id:     eventId,
+        email,
+        source_url:   typeof window !== "undefined" ? window.location.href : undefined,
+        utm_source:   utms.utm_source,
+        utm_campaign: utms.utm_campaign,
+        utm_content:  utms.utm_content,
+      });
+    }
 
     setLoading(false);
   }
