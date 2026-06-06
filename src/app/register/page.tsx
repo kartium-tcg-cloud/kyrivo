@@ -86,6 +86,9 @@ export default function RegisterPage() {
         eventId
       );
 
+      // Log de diagnostic — event_id uniquement, aucune donnée sensible
+      console.log("[meta-capi] calling /api/meta/lead", eventId);
+
       // CAPI serveur avec même event_id — best-effort, ne bloque pas l'inscription
       void sendMetaCapi({
         event_id:     eventId,

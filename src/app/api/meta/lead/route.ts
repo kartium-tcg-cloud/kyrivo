@@ -14,9 +14,17 @@ function trimStr(value: unknown, maxLen: number): string | null {
 }
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
-  // ── 1. Vérification des variables serveur ───────────────────
+  // ── 1. Diagnostic variables serveur ────────────────────────
   const pixelId     = process.env.META_PIXEL_ID;
   const accessToken = process.env.META_CAPI_ACCESS_TOKEN;
+  const testCode    = process.env.META_TEST_EVENT_CODE;
+
+  console.log(
+    "[meta-capi] config —",
+    "pixel_id_present:", !!pixelId,
+    "| token_present:", !!accessToken,
+    "| test_event_code_present:", !!testCode
+  );
 
   if (!pixelId || !accessToken) {
     console.error("[meta-capi] META_PIXEL_ID ou META_CAPI_ACCESS_TOKEN manquant");
@@ -46,12 +54,15 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     );
   }
 
-  // ── 4. user_data : hash email côté serveur uniquement ───────
-  const userData: Record<string, string> = {};
+  console.log("[meta-capi] event_id reçu:", eventId);
+
+  // ── 4. user_data : em = tableau de hash SHA-256 ─────────────
+  // Meta CAPI exige un tableau : { "em": ["hash"] }
+  // Email normalisé côté serveur : trim + lowercase avant hash.
+  // Ni l'email ni le hash ne sont loggués.
+  const userData: Record<string, unknown> = {};
   if (typeof body.email === "string" && body.email.trim()) {
-    // Normalise avant hash : trim + lowercase
-    userData.em = sha256hex(body.email.trim().toLowerCase());
-    // L'email et son hash ne sont jamais loggués
+    userData.em = [sha256hex(body.email.trim().toLowerCase())];
   }
 
   // ── 5. custom_data ──────────────────────────────────────────
@@ -85,14 +96,13 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     ],
   };
 
-  // Test event code (facultatif — pour Events Manager > Événements de test)
-  const testCode = process.env.META_TEST_EVENT_CODE;
+  // test_event_code uniquement si la variable est définie
   if (testCode) {
     capiPayload.test_event_code = testCode;
   }
 
   // ── 7. Envoi à Meta CAPI ────────────────────────────────────
-  // Le token est passé en query param (jamais loggué)
+  // Le token est passé en query param — jamais loggué
   const endpoint = `${META_GRAPH_API}/${pixelId}/events?access_token=${accessToken}`;
 
   try {
@@ -102,14 +112,36 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       body:    JSON.stringify(capiPayload),
     });
 
+    // Lire la réponse JSON de Meta pour logs précis
+    let metaJson: Record<string, unknown> = {};
+    try {
+      metaJson = (await res.json()) as Record<string, unknown>;
+    } catch {
+      // réponse non-JSON (rare)
+    }
+
     if (!res.ok) {
-      // On loggue le statut sans exposer le token
-      console.error("[meta-capi] Réponse Meta non-ok:", res.status);
+      // Extraire le message d'erreur Meta sans exposer de données sensibles
+      const metaError = metaJson.error as Record<string, unknown> | undefined;
+      console.error(
+        "[meta-capi] Meta API error —",
+        "status:", res.status,
+        "| message:", metaError?.message ?? "unknown",
+        "| code:", metaError?.code ?? "unknown",
+        "| type:", metaError?.type ?? "unknown"
+      );
       return NextResponse.json({ ok: false, error: "meta_api_error" });
     }
 
-    console.log("[meta-capi] Lead envoyé — event_id:", eventId);
-    return NextResponse.json({ ok: true });
+    console.log(
+      "[meta-capi] Lead accepté par Meta —",
+      "event_id:", eventId,
+      "| events_received:", metaJson.events_received ?? "?"
+    );
+    return NextResponse.json({
+      ok: true,
+      events_received: metaJson.events_received ?? null,
+    });
   } catch (err) {
     console.error(
       "[meta-capi] Erreur réseau:",
