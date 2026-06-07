@@ -55,10 +55,10 @@ const LAYOUT = {
   marginX: 18,
   contentWidth: 174,
 
-  headerHeight: 44,
-  metaY: 56,
-  partiesY: 84,
-  tableY: 142,
+  headerHeight: 38,  // réduit de 44 → 38 (~14%)
+  metaY: 50,         // décalé avec le header
+  partiesY: 78,      // décalé avec le header
+  tableY: 140,       // décalé avec le header
 
   // Footer ANCRÉ EN BAS — coordonnée fixe
   // Tout ce qui est avant le footer doit s'arrêter à footerTop - 4mm
@@ -356,7 +356,7 @@ function drawPartiesBlock(
   const { marginX, contentWidth, partiesY } = LAYOUT;
   const gap = 8;
   const cardWidth = (contentWidth - gap) / 2;
-  const cardHeight = 50;
+  const cardHeight = 58; // agrandi (était 50) pour accueillir l'adresse client
 
   // ─── ÉMETTEUR ────────────────────────────────────────────
   drawBox(doc, marginX, partiesY, cardWidth, cardHeight, COLORS.surface);
@@ -371,23 +371,32 @@ function drawPartiesBlock(
     doc,
     safe(preferences.invoiceCompanyName),
     marginX + 7,
-    partiesY + 16,
+    partiesY + 17,
     { size: 10.5, bold: true, color: COLORS.ink }
   );
 
-  const addressFirst = (preferences.invoiceCompanyAddress || "")
-    .split("\n")[0]
-    ?.trim() || "—";
+  const addrLines = (preferences.invoiceCompanyAddress || "")
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .slice(0, 2);
 
-  drawText(doc, addressFirst, marginX + 7, partiesY + 22, {
+  drawText(doc, addrLines[0] || "—", marginX + 7, partiesY + 24, {
     size: FONT.body,
     color: COLORS.inkSoft,
   });
 
+  if (addrLines[1]) {
+    drawText(doc, addrLines[1], marginX + 7, partiesY + 29, {
+      size: FONT.body,
+      color: COLORS.inkSoft,
+    });
+  }
+
   drawDottedLine(
     doc,
     marginX + 7,
-    partiesY + 26,
+    partiesY + 34,
     marginX + cardWidth - 7,
     COLORS.ruleFaint
   );
@@ -396,7 +405,7 @@ function drawPartiesBlock(
     doc,
     `TVA  ·  ${safe(preferences.invoiceCompanyVat)}`,
     marginX + 7,
-    partiesY + 32,
+    partiesY + 40,
     { size: FONT.small, color: COLORS.inkMid }
   );
 
@@ -404,7 +413,7 @@ function drawPartiesBlock(
     doc,
     safe(preferences.invoiceCompanyEmail),
     marginX + 7,
-    partiesY + 38,
+    partiesY + 46,
     { size: FONT.small, color: COLORS.inkMid }
   );
 
@@ -412,12 +421,13 @@ function drawPartiesBlock(
     doc,
     safe(preferences.invoiceCompanyPhone),
     marginX + 7,
-    partiesY + 44,
+    partiesY + 52,
     { size: FONT.small, color: COLORS.inkMid }
   );
 
   // ─── CLIENT ──────────────────────────────────────────────
   const clientX = marginX + cardWidth + gap;
+  const contact = sale.contact;
 
   drawBox(doc, clientX, partiesY, cardWidth, cardHeight, COLORS.surface);
   drawBorder(doc, clientX, partiesY, cardWidth, cardHeight, COLORS.ruleFaint);
@@ -431,36 +441,63 @@ function drawPartiesBlock(
     doc,
     sale.customerName || "Client",
     clientX + 7,
-    partiesY + 16,
+    partiesY + 17,
     { size: 10.5, bold: true, color: COLORS.ink }
   );
 
-  drawDottedLine(
-    doc,
-    clientX + 7,
-    partiesY + 22,
-    clientX + cardWidth - 7,
-    COLORS.ruleFaint
-  );
+  // Curseur dynamique pour gérer adresse + TVA + paiement sans débordement
+  let clientCursor = partiesY + 17;
+
+  if (contact?.address) {
+    const contactAddrLines = contact.address
+      .split("\n")
+      .map((l) => l.trim())
+      .filter(Boolean)
+      .slice(0, 2);
+
+    contactAddrLines.forEach((line, i) => {
+      clientCursor += i === 0 ? 7 : 5;
+      drawText(doc, truncate(doc, line, cardWidth - 14, FONT.small), clientX + 7, clientCursor, {
+        size: FONT.small,
+        color: COLORS.inkSoft,
+      });
+    });
+    clientCursor += 3;
+  } else {
+    clientCursor += 7;
+  }
+
+  drawDottedLine(doc, clientX + 7, clientCursor, clientX + cardWidth - 7, COLORS.ruleFaint);
+  clientCursor += 6;
+
+  if (contact?.vatNumber) {
+    drawText(doc, `TVA  ·  ${contact.vatNumber}`, clientX + 7, clientCursor, {
+      size: FONT.small,
+      color: COLORS.inkMid,
+    });
+    clientCursor += 6;
+  }
 
   if (sale.paymentMethod) {
-    drawLabel(doc, "Mode de paiement", clientX + 7, partiesY + 28, {
+    drawLabel(doc, "Mode de paiement", clientX + 7, clientCursor, {
       color: COLORS.inkMuted,
       size: 6.5,
     });
-    drawText(doc, sale.paymentMethod, clientX + 7, partiesY + 34, {
+    clientCursor += 6;
+    drawText(doc, sale.paymentMethod, clientX + 7, clientCursor, {
       size: FONT.bodySmall,
       color: COLORS.ink,
     });
+    clientCursor += 7;
   }
 
-  if (sale.notes) {
-    drawLabel(doc, "Référence client", clientX + 7, partiesY + 40, {
+  if (sale.notes && clientCursor < partiesY + cardHeight - 8) {
+    drawLabel(doc, "Référence client", clientX + 7, clientCursor, {
       color: COLORS.inkMuted,
       size: 6.5,
     });
-    const noteText = truncate(doc, sale.notes, cardWidth - 14, FONT.small);
-    drawText(doc, noteText, clientX + 7, partiesY + 45, {
+    clientCursor += 5;
+    drawText(doc, truncate(doc, sale.notes, cardWidth - 14, FONT.small), clientX + 7, clientCursor, {
       size: FONT.small,
       color: COLORS.inkSoft,
     });
@@ -472,134 +509,91 @@ function drawPartiesBlock(
 // ═══════════════════════════════════════════════════════════
 
 /**
- * Tableau articles — densité auto + remplissage subtil pour peu d'articles.
+ * Tableau articles — densité auto + pagination correcte.
  *
- * IMPORTANT — Stratégie anti-vide :
- * Au lieu de lignes fantômes claires (qui se voyaient), on calcule
- * l'espace disponible jusqu'au bloc totaux et on ajuste rowHeight pour
- * que le tableau prenne tout l'espace naturellement.
+ * Stratégie :
+ * - Pour ≤4 articles : rowHeight élargi pour remplir jusqu'à targetTableEndY (~198mm).
+ * - Le check de saut de page est PRE-dessin : on vérifie AVANT de tracer la ligne
+ *   qu'elle tiendrait sur la page, sinon on saute et on redessine le header.
+ * - buildInvoicePdf gère ensuite si les blocs finaux tiennent après le tableau.
  */
 function drawItemsTable(doc: jsPDF, sale: Sale): number {
   const { marginX, contentWidth, tableY } = LAYOUT;
-  const maxTableEndY = 235;
+
+  // Seuil interne : si la PROCHAINE ligne dépasserait cette valeur, saut de page.
+  // Laisse de la marge pour que buildInvoicePdf puisse décider du saut post-tableau.
+  const maxRowEndY = 230;
 
   const lines = sale.lines || [];
   const baseDensity = getTableDensity(lines.length);
   let { rowHeight, showRefBelow } = baseDensity;
 
-  // ─── ESPACE CIBLE ────────────────────────────────────────
-  // On veut que le tableau termine vers y = 200 max (pour laisser
-  // ~50mm pour totaux + footer en bas de page).
-  // Si on a peu de lignes, on augmente la rowHeight pour combler.
   const targetTableEndY = 198;
-  const headerHeight = 10;
-  const availableForRows = targetTableEndY - tableY - headerHeight;
+  const tblHeaderH = 10;
+  const availableForRows = targetTableEndY - tableY - tblHeaderH;
 
   if (lines.length > 0 && lines.length <= 4) {
-    // Élargit la rowHeight pour remplir naturellement
     const calculatedHeight = availableForRows / lines.length;
-    // Cap entre 10mm (mini) et 20mm (maxi pour rester lisible)
     rowHeight = Math.min(20, Math.max(rowHeight, calculatedHeight));
   }
 
-  // Positions colonnes
   const colArticle = marginX + 5;
   const colQty = marginX + 100;
   const colUnit = marginX + 135;
   const colTotal = marginX + contentWidth - 5;
 
-  // ─── HEADER FONCÉ ────────────────────────────────────────
-  drawBox(doc, marginX, tableY, contentWidth, headerHeight, COLORS.headerBg);
-  drawBox(doc, marginX, tableY + headerHeight - 0.3, contentWidth, 0.3, COLORS.amberDeep);
+  // Helper : dessine le header sombre et retourne Y après lui
+  const drawTblHeader = (startY: number): number => {
+    drawBox(doc, marginX, startY, contentWidth, tblHeaderH, COLORS.headerBg);
+    drawBox(doc, marginX, startY + tblHeaderH - 0.3, contentWidth, 0.3, COLORS.amberDeep);
+    const hTY = startY + 6.5;
+    drawLabel(doc, "Désignation", colArticle, hTY, { color: COLORS.headerInk, size: FONT.label });
+    drawLabel(doc, "Qté",         colQty,     hTY, { color: COLORS.headerInk, align: "right", size: FONT.label });
+    drawLabel(doc, "Prix unitaire", colUnit,  hTY, { color: COLORS.headerInk, align: "right", size: FONT.label });
+    drawLabel(doc, "Total HT",    colTotal,   hTY, { color: COLORS.headerInk, align: "right", size: FONT.label });
+    return startY + tblHeaderH;
+  };
 
-  const headerTextY = tableY + 6.5;
-
-  drawLabel(doc, "Désignation", colArticle, headerTextY, {
-    color: COLORS.headerInk,
-    size: FONT.label,
-  });
-  drawLabel(doc, "Qté", colQty, headerTextY, {
-    color: COLORS.headerInk,
-    align: "right",
-    size: FONT.label,
-  });
-  drawLabel(doc, "Prix unitaire", colUnit, headerTextY, {
-    color: COLORS.headerInk,
-    align: "right",
-    size: FONT.label,
-  });
-  drawLabel(doc, "Total HT", colTotal, headerTextY, {
-    color: COLORS.headerInk,
-    align: "right",
-    size: FONT.label,
-  });
-
-  // ─── LIGNES ARTICLES ─────────────────────────────────────
-  let y = tableY + headerHeight;
+  let y = drawTblHeader(tableY);
 
   lines.forEach((line, i) => {
+    // ─── Saut de page PRE-dessin ──────────────────────────
+    // Si cette ligne dépasserait maxRowEndY, on ferme proprement et on repart.
+    if (y + rowHeight > maxRowEndY) {
+      drawLine(doc, marginX, y, marginX + contentWidth, y, COLORS.ruleStrong, 0.4);
+      doc.addPage();
+      y = drawTblHeader(20);
+    }
+
     if (i % 2 === 1) {
       drawBox(doc, marginX, y, contentWidth, rowHeight, COLORS.surface);
     }
 
-    // Texte centré verticalement dans la ligne
     const textY = y + rowHeight * 0.55;
 
     const truncatedName = truncate(doc, line.itemName, 80, FONT.body);
-    drawText(
-      doc,
-      truncatedName,
-      colArticle,
+    drawText(doc, truncatedName, colArticle,
       textY - (showRefBelow && line.itemReference ? 1.8 : 0),
-      { size: FONT.body, color: COLORS.ink }
-    );
+      { size: FONT.body, color: COLORS.ink });
 
     if (showRefBelow && line.itemReference) {
-      drawText(doc, line.itemReference, colArticle, textY + 3, {
-        size: FONT.micro,
-        color: COLORS.inkFaint,
-        letterSpacing: 0.4,
+      drawText(doc, `Réf. ${line.itemReference}`, colArticle, textY + 3, {
+        size: FONT.micro, color: COLORS.inkFaint, letterSpacing: 0.4,
       });
     }
 
-    drawText(doc, String(line.quantity), colQty, textY, {
-      size: FONT.body,
-      align: "right",
-      color: COLORS.inkMid,
-    });
-
-    drawText(doc, euro(line.unitPrice), colUnit, textY, {
-      size: FONT.body,
-      align: "right",
-      color: COLORS.inkMid,
-    });
-
-    drawText(doc, euro(line.totalPrice), colTotal, textY, {
-      size: FONT.body,
-      bold: true,
-      align: "right",
-      color: COLORS.ink,
-    });
+    drawText(doc, String(line.quantity), colQty,  textY, { size: FONT.body, align: "right", color: COLORS.inkMid });
+    drawText(doc, euro(line.unitPrice),  colUnit,  textY, { size: FONT.body, align: "right", color: COLORS.inkMid });
+    drawText(doc, euro(line.totalPrice), colTotal, textY, { size: FONT.body, bold: true, align: "right", color: COLORS.ink });
 
     if (i < lines.length - 1) {
-      drawLine(
-        doc,
-        marginX + 5,
-        y + rowHeight,
-        marginX + contentWidth - 5,
-        y + rowHeight,
-        COLORS.ruleFaint
-      );
+      drawLine(doc, marginX + 5, y + rowHeight, marginX + contentWidth - 5, y + rowHeight, COLORS.ruleFaint);
     }
 
     y += rowHeight;
-    if (y > maxTableEndY) {
-        doc.addPage();
-        y = 30;
-    }
   });
 
-  // Ligne de fermeture appuyée
+  // Ligne de fermeture
   drawLine(doc, marginX, y, marginX + contentWidth, y, COLORS.ruleStrong, 0.4);
 
   return y;
@@ -626,7 +620,7 @@ function drawTotalsBlock(doc: jsPDF, sale: Sale, tableEndY: number): number {
   // ─── MENTION TVA MARGE À GAUCHE (si applicable) ──────────
   if (sale.vatMode === "margin_vat") {
     const noticeWidth = totalsX - marginX - 8;
-    const noticeHeight = 46;
+    const noticeHeight = 52; // agrandi (était 46) : titre sur 2 lignes pour éviter le débordement
 
     drawBox(doc, marginX, y, noticeWidth, noticeHeight, COLORS.amberBgAlt);
     drawBorder(doc, marginX, y, noticeWidth, noticeHeight, COLORS.amber, 0.2);
@@ -653,29 +647,32 @@ function drawTotalsBlock(doc: jsPDF, sale: Sale, tableEndY: number): number {
       size: 6.5,
     });
 
-    // Titre principal
-    drawText(
-      doc,
-      "Régime particulier de la marge — biens d'occasion",
-      marginX + 13,
-      y + 14,
-      { size: FONT.small, bold: true, color: COLORS.inkSoft }
-    );
+    // Titre sur 2 lignes pour ne pas déborder du cadre
+    drawText(doc, "Régime particulier de la marge", marginX + 13, y + 14, {
+      size: FONT.small,
+      bold: true,
+      color: COLORS.inkSoft,
+    });
+    drawText(doc, "— biens d'occasion", marginX + 13, y + 18.5, {
+      size: FONT.small,
+      bold: true,
+      color: COLORS.inkSoft,
+    });
 
     // Mention acquéreur
     drawText(
       doc,
       "TVA non déductible par l'acquéreur.",
       marginX + 13,
-      y + 19,
+      y + 24,
       { size: FONT.small, color: COLORS.inkMid }
     );
 
     // Séparateur pointillé
-    drawDottedLine(doc, marginX + 13, y + 23, marginX + noticeWidth - 6, COLORS.amberDeep);
+    drawDottedLine(doc, marginX + 13, y + 28.5, marginX + noticeWidth - 6, COLORS.amberDeep);
 
     // Références légales bicountry
-    drawLabel(doc, "Références légales", marginX + 13, y + 28, {
+    drawLabel(doc, "Références légales", marginX + 13, y + 33.5, {
       color: COLORS.amberDeep,
       size: 6.0,
     });
@@ -684,7 +681,7 @@ function drawTotalsBlock(doc: jsPDF, sale: Sale, tableEndY: number): number {
       doc,
       "Directive 2006/112/CE, art. 311 à 343",
       marginX + 13,
-      y + 33,
+      y + 38.5,
       { size: FONT.caption, color: COLORS.inkMuted }
     );
 
@@ -692,7 +689,7 @@ function drawTotalsBlock(doc: jsPDF, sale: Sale, tableEndY: number): number {
       doc,
       "France : art. 297 A et suivants du CGI",
       marginX + 13,
-      y + 38,
+      y + 43.5,
       { size: FONT.caption, color: COLORS.inkMuted }
     );
 
@@ -700,7 +697,7 @@ function drawTotalsBlock(doc: jsPDF, sale: Sale, tableEndY: number): number {
       doc,
       "Belgique : art. 58, §4 du Code de la TVA",
       marginX + 13,
-      y + 43,
+      y + 48.5,
       { size: FONT.caption, color: COLORS.inkMuted }
     );
   }
@@ -708,37 +705,50 @@ function drawTotalsBlock(doc: jsPDF, sale: Sale, tableEndY: number): number {
   // ─── BLOC TOTAUX À DROITE ────────────────────────────────
   let totalsY = y;
 
-  // Sous-total HT
-  drawText(doc, "Sous-total HT", totalsX, totalsY + 5, {
-    size: FONT.bodySmall,
-    color: COLORS.inkMid,
-  });
-  drawText(doc, euro(sale.subtotalHT), totalsX + totalsWidth, totalsY + 5, {
-    size: FONT.bodySmall,
-    align: "right",
-    color: COLORS.inkSoft,
-  });
+  if (sale.vatMode === "margin_vat") {
+    // Régime marge : ne pas afficher HT ni TVA séparément sur la facture client
+    // (TVA sur marge non déductible, non récupérable par l'acquéreur)
+    drawText(doc, "Total des articles", totalsX, totalsY + 5, {
+      size: FONT.bodySmall,
+      color: COLORS.inkMid,
+    });
+    drawText(doc, euro(sale.totalTTC), totalsX + totalsWidth, totalsY + 5, {
+      size: FONT.bodySmall,
+      align: "right",
+      color: COLORS.inkSoft,
+    });
 
-  totalsY += 11;
+    totalsY += 10;
+    drawLine(doc, totalsX, totalsY, totalsX + totalsWidth, totalsY, COLORS.rule, 0.3);
+    totalsY += 4;
+  } else {
+    // Régime TVA standard : afficher HT + TVA détaillée
+    drawText(doc, "Sous-total HT", totalsX, totalsY + 5, {
+      size: FONT.bodySmall,
+      color: COLORS.inkMid,
+    });
+    drawText(doc, euro(sale.subtotalHT), totalsX + totalsWidth, totalsY + 5, {
+      size: FONT.bodySmall,
+      align: "right",
+      color: COLORS.inkSoft,
+    });
 
-  // TVA
-  const tvaLabel = sale.vatMode === "margin_vat" ? "TVA sur marge" : "TVA";
-  drawText(doc, tvaLabel, totalsX, totalsY, {
-    size: FONT.bodySmall,
-    color: COLORS.inkMid,
-  });
-  drawText(doc, euro(sale.vatAmount), totalsX + totalsWidth, totalsY, {
-    size: FONT.bodySmall,
-    align: "right",
-    color: COLORS.inkSoft,
-  });
+    totalsY += 11;
 
-  totalsY += 4;
+    drawText(doc, "TVA", totalsX, totalsY, {
+      size: FONT.bodySmall,
+      color: COLORS.inkMid,
+    });
+    drawText(doc, euro(sale.vatAmount), totalsX + totalsWidth, totalsY, {
+      size: FONT.bodySmall,
+      align: "right",
+      color: COLORS.inkSoft,
+    });
 
-  // Séparateur
-  drawLine(doc, totalsX, totalsY, totalsX + totalsWidth, totalsY, COLORS.rule, 0.3);
-
-  totalsY += 4;
+    totalsY += 4;
+    drawLine(doc, totalsX, totalsY, totalsX + totalsWidth, totalsY, COLORS.rule, 0.3);
+    totalsY += 4;
+  }
 
   // ─── TOTAL TTC — bloc premium ────────────────────────────
   const totalBoxHeight = 16;
@@ -857,8 +867,24 @@ function buildInvoicePdf(params: {
   drawPartiesBlock(doc, sale, preferences);
 
   const tableEndY = drawItemsTable(doc, sale);
-  drawTotalsBlock(doc, sale, tableEndY);
 
+  // ─── Garde anti-chevauchement ────────────────────────────
+  // Hauteur minimale nécessaire depuis tableEndY pour les blocs finaux :
+  //   8mm gap + notice TVA marge 52mm (cas le plus haut)
+  //   8mm gap + totaux standard   40mm
+  // Le footer est ensuite ancré à LAYOUT.footerTop (258mm).
+  const totalsNeeded = sale.vatMode === "margin_vat" ? 60 : 48;
+
+  let totalsBaseY = tableEndY;
+
+  if (tableEndY + totalsNeeded > LAYOUT.footerTop) {
+    // Plus assez de place sur la page courante → nouvelle page.
+    // On ancre les totaux juste au-dessus du footer pour un rendu propre.
+    doc.addPage();
+    totalsBaseY = LAYOUT.footerTop - totalsNeeded - 6;
+  }
+
+  drawTotalsBlock(doc, sale, totalsBaseY);
   drawFooter(doc, preferences);
 
   return doc;

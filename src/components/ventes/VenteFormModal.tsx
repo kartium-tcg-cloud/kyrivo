@@ -1,7 +1,7 @@
 "use client";
 
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { getCompanyPreferences } from "@/lib/preferences";
 import Modal from "@/components/ui/Modal";
@@ -28,12 +28,13 @@ interface VenteFormModalProps {
   onModifier: (vente: VentePayload) => void;
   venteInitiale: Sale | null;
   stockItems: AvailableStockItem[];
-  clients?: string[];
+  clients?: { id: string; name: string }[];
 }
 
 type VentePayload = {
   date: string;
   customerName: string;
+  contactId?: string | null;
   vatMode: SaleVatMode;
   paymentMethod: SalePaymentMethod;
   subtotalHT: number;
@@ -97,6 +98,7 @@ clients = [],
   const [form, setForm] = useState({
   date: dateAujourdhui(),
   customerName: "",
+  contactId: null as string | null,
   vatMode: "standard_vat" as SaleVatMode,
   paymentMethod: "Virement" as SalePaymentMethod,
   notes: "",
@@ -115,6 +117,9 @@ clients = [],
   "Bancontact",
   "Cash",
 ]);
+  const [contactDropdownOpen, setContactDropdownOpen] = useState(false);
+  const isDirtyRef = useRef(false);
+  const [showUnsavedModal, setShowUnsavedModal] = useState(false);
 
   const inputClasses = `
     w-full rounded-lg px-3 py-2.5 text-sm
@@ -172,6 +177,8 @@ useEffect(() => {
 
   useEffect(() => {
     if (!ouvert) return;
+    isDirtyRef.current = false;
+    setShowUnsavedModal(false);
 
     if (!venteInitiale) {
       resetForm(defaultVatRate);
@@ -181,6 +188,7 @@ useEffect(() => {
 setForm({
   date: venteInitiale.date,
   customerName: venteInitiale.customerName,
+  contactId: venteInitiale.contactId ?? null,
   vatMode: venteInitiale.vatMode,
   paymentMethod: venteInitiale.paymentMethod,
   notes: venteInitiale.notes || "",
@@ -218,33 +226,57 @@ setForm({
   }, [stockItems, form.vatMode]);
 
   const updateForm = (champ: keyof typeof form, valeur: string) => {
+    isDirtyRef.current = true;
     setForm((prev) => ({
       ...prev,
       [champ]: valeur,
     }));
-
     setErreurs([]);
   };
 
+  // Saisie libre : efface toujours le contactId (pas de matching par nom)
+  const handleCustomerNameChange = (value: string) => {
+    isDirtyRef.current = true;
+    setForm((prev) => ({ ...prev, customerName: value, contactId: null }));
+    setErreurs([]);
+  };
+
+  // Sélection depuis le dropdown : ID réel du contact, pas de matching
+  const handleSelectContact = (contact: { id: string; name: string }) => {
+    isDirtyRef.current = true;
+    setForm((prev) => ({ ...prev, customerName: contact.name, contactId: contact.id }));
+    setContactDropdownOpen(false);
+    setErreurs([]);
+  };
+
+  const filteredContacts = useMemo(() => {
+    if (!form.customerName.trim()) return clients;
+    const q = form.customerName.toLowerCase();
+    return clients.filter((c) => c.name.toLowerCase().includes(q));
+  }, [clients, form.customerName]);
+
   const updateLine = (id: string, champ: keyof FormLine, valeur: string) => {
+    isDirtyRef.current = true;
     setLines((prev) =>
       prev.map((line) =>
         line.id === id ? { ...line, [champ]: valeur } : line
       )
     );
-
     setErreurs([]);
   };
 
   const ajouterLigne = () => {
+    isDirtyRef.current = true;
     setLines((prev) => [...prev, emptyLine(defaultVatRate)]);
   };
 
   const supprimerLigne = (id: string) => {
+    isDirtyRef.current = true;
     setLines((prev) => prev.filter((line) => line.id !== id));
   };
 
   const choisirItemStock = (lineId: string, itemId: string) => {
+    isDirtyRef.current = true;
     if (!itemId) {
       setLines((prev) =>
         prev.map((line) =>
@@ -330,21 +362,27 @@ setForm({
   }, [form.vatMode, mappedLines]);
 
   const resetForm = (vatRate = defaultVatRate) => {
+    isDirtyRef.current = false;
     setForm({
       date: dateAujourdhui(),
       customerName: "",
+      contactId: null,
       vatMode: "standard_vat",
       paymentMethod: "Virement",
       notes: "",
       saveClient: false,
     });
-
     setModeMontantStandard("ttc");
     setLines([emptyLine(vatRate)]);
     setErreurs([]);
   };
 
   const handleFermer = () => {
+    if (showUnsavedModal) return;
+    if (isEditing && isDirtyRef.current) {
+      setShowUnsavedModal(true);
+      return;
+    }
     resetForm(defaultVatRate);
     onFermer();
   };
@@ -391,6 +429,7 @@ setForm({
     const payload: VentePayload = {
       date: form.date,
       customerName: form.customerName.trim(),
+      contactId: form.contactId,
       vatMode: form.vatMode,
       paymentMethod: form.paymentMethod,
       subtotalHT: totals.subtotalHT,
@@ -410,6 +449,7 @@ setForm({
   };
 
   return (
+    <>
     <Modal
       ouvert={ouvert}
       onFermer={handleFermer}
@@ -436,23 +476,48 @@ setForm({
 
           <div>
             <label className={labelClasses}>Client</label>
-<>
-  <input
-    list="clients-list"
-    type="text"
-    value={form.customerName}
-    maxLength={MAX_TEXT.customerName}
-    onChange={(e) => updateForm("customerName", e.target.value)}
-    placeholder="Ex : Client comptoir"
-    className={inputClasses}
-  />
+            <div className="relative">
+              <input
+                type="text"
+                value={form.customerName}
+                maxLength={MAX_TEXT.customerName}
+                onChange={(e) => handleCustomerNameChange(e.target.value)}
+                onFocus={() => { if (clients.length > 0) setContactDropdownOpen(true); }}
+                onBlur={() => setTimeout(() => setContactDropdownOpen(false), 150)}
+                placeholder="Ex : Client comptoir"
+                className={`${inputClasses} ${form.contactId ? "pr-14" : ""}`}
+                autoComplete="off"
+              />
 
-  <datalist id="clients-list">
-    {clients.map((client) => (
-      <option key={client} value={client} />
-    ))}
-  </datalist>
-</>
+              {form.contactId && (
+                <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-amber-400">
+                  ✓ lié
+                </span>
+              )}
+
+              {contactDropdownOpen && filteredContacts.length > 0 && (
+                <ul className="absolute left-0 right-0 top-full z-50 mt-1 max-h-48 overflow-y-auto rounded-lg border border-neutral-700 bg-neutral-900 shadow-2xl">
+                  {filteredContacts.map((contact) => (
+                    <li key={contact.id}>
+                      <button
+                        type="button"
+                        onMouseDown={(e) => { e.preventDefault(); handleSelectContact(contact); }}
+                        className={`w-full px-3 py-2.5 text-left text-sm transition-colors hover:bg-amber-500/10 ${
+                          form.contactId === contact.id
+                            ? "text-amber-400 font-semibold"
+                            : "text-neutral-200"
+                        }`}
+                      >
+                        {contact.name}
+                        {form.contactId === contact.id && (
+                          <span className="ml-2 text-[10px] text-amber-400">✓</span>
+                        )}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </div>
         </div>
 
@@ -850,5 +915,46 @@ setForm({
         </div>
       </div>
     </Modal>
+
+    {showUnsavedModal && (
+      <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
+        <div className="w-full max-w-sm rounded-2xl border border-neutral-800 bg-neutral-950 shadow-2xl overflow-hidden">
+          <div className="h-px w-full bg-gradient-to-r from-transparent via-amber-500/60 to-transparent" />
+          <div className="p-6">
+            <h2 className="text-base font-semibold text-white">
+              Modifications non enregistrées
+            </h2>
+            <p className="mt-2 text-sm text-neutral-400 leading-relaxed">
+              Voulez-vous sauvegarder les modifications ?
+            </p>
+            <div className="mt-5 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowUnsavedModal(false);
+                  isDirtyRef.current = false;
+                  resetForm(defaultVatRate);
+                  onFermer();
+                }}
+                className="rounded-lg border border-neutral-800 bg-neutral-900 px-4 py-2 text-sm font-semibold text-neutral-300 hover:bg-neutral-800 transition-colors"
+              >
+                Non
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowUnsavedModal(false);
+                  handleSubmit();
+                }}
+                className="rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-neutral-950 hover:bg-amber-400 transition-colors shadow-lg shadow-amber-500/20"
+              >
+                Oui
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 }

@@ -44,6 +44,7 @@ import VenteFormModal from "@/components/ventes/VenteFormModal";
 type VentePayload = {
   date: string;
   customerName: string;
+  contactId?: string | null;
   vatMode: SaleVatMode;
   paymentMethod: SalePaymentMethod;
   subtotalHT: number;
@@ -86,6 +87,7 @@ function mapSale(sale: any, saleLines: any[]): Sale {
     date: sale.sale_date,
     numInterne: sale.id.slice(0, 8).toUpperCase(),
     customerName: sale.customer_name,
+    contactId: sale.contact_id ?? null,
     vatMode: sale.vat_mode,
     paymentMethod: sale.payment_method || "Virement",
     subtotalHT: Number(sale.subtotal_ht),
@@ -133,7 +135,7 @@ export default function VentesPage() {
   const [stockItems, setStockItems] = useState<AvailableStockItem[]>([]);
   const [modalOuverte, setModalOuverte] = useState(false);
   const [venteEnEdition, setVenteEnEdition] = useState<Sale | null>(null);
-  const [clients, setClients] = useState<string[]>([]);
+  const [clients, setClients] = useState<{ id: string; name: string }[]>([]);
 
   const [filtres, setFiltres] = useState<SaleFiltres>({
     recherche: "",
@@ -184,14 +186,15 @@ export default function VentesPage() {
         await refreshSales(companyId);
         await refreshStock(companyId);
         const { data: contacts } = await createClient()
-  .from("contacts")
-  .select("name")
-  .eq("company_id", companyId)
-  .eq("type", "client");
+          .from("contacts")
+          .select("id, name")
+          .eq("company_id", companyId)
+          .eq("type", "client")
+          .order("name");
 
-setClients(
-  [...new Set((contacts || []).map((c) => c.name))]
-);
+        setClients(
+          (contacts || []).map((c) => ({ id: c.id as string, name: c.name as string }))
+        );
       } catch (error) {
         console.error(error);
       }
@@ -289,23 +292,29 @@ if (!stockCheck.ok) {
 
 const supabase = createClient();
 
-if (vente.saveClient) {
-  const { data: existingClient } = await supabase
-    .from("contacts")
-    .select("id")
-    .eq("company_id", companyId)
-    .eq("type", "client")
-    .ilike("name", vente.customerName)
-    .maybeSingle();
+      // Résolution du contact_id : priorité au saveClient, sinon contactId déjà connu
+      let resolvedContactId: string | null = vente.contactId ?? null;
 
-  if (!existingClient) {
-    await supabase.from("contacts").insert({
-      company_id: companyId,
-      type: "client",
-      name: vente.customerName,
-    });
-  }
-}
+      if (vente.saveClient) {
+        const { data: existingClient } = await supabase
+          .from("contacts")
+          .select("id")
+          .eq("company_id", companyId)
+          .eq("type", "client")
+          .ilike("name", vente.customerName)
+          .maybeSingle();
+
+        if (existingClient) {
+          resolvedContactId = existingClient.id;
+        } else {
+          const { data: newContact } = await supabase
+            .from("contacts")
+            .insert({ company_id: companyId, type: "client", name: vente.customerName })
+            .select("id")
+            .single();
+          resolvedContactId = newContact?.id ?? null;
+        }
+      }
 
       const createdSale = await createSale({
         company_id: companyId,
@@ -318,6 +327,7 @@ if (vente.saveClient) {
         total_ttc: vente.totalTTC,
         margin_amount: vente.marginAmount,
         notes: vente.notes,
+        contact_id: resolvedContactId,
       });
 
       await createSaleLines(
@@ -391,6 +401,7 @@ if (usageError) {
         total_ttc: vente.totalTTC,
         margin_amount: vente.marginAmount,
         notes: vente.notes,
+        contact_id: vente.contactId ?? null,
       });
 
       await deleteSaleLines(venteEnEdition.id);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { getCompanyPreferences } from "@/lib/preferences";
 import { Achat, AchatItemInput, TypeAchat } from "@/types/achat";
@@ -93,6 +93,8 @@ export default function AchatFormModal({
   "Bancontact",
   "Cash",
 ]);
+  const isDirtyRef = useRef(false);
+  const [showUnsavedModal, setShowUnsavedModal] = useState(false);
 
   const inputClasses = `
     w-full rounded-lg px-3 py-2.5 text-sm
@@ -154,6 +156,8 @@ useEffect(() => {
 
   useEffect(() => {
     if (!ouvert) return;
+    isDirtyRef.current = false;
+    setShowUnsavedModal(false);
 
     if (!achatInitial) {
       resetForm();
@@ -204,6 +208,7 @@ setForm({
   }, [ouvert, achatInitial]);
 
   const updateChamp = (champ: string, valeur: string) => {
+    isDirtyRef.current = true;
     setForm((prev) => ({
       ...prev,
       [champ]: valeur,
@@ -227,6 +232,7 @@ setForm({
   };
 
   const handleAvecStockChange = (value: boolean) => {
+    isDirtyRef.current = true;
     setAvecStock(value);
     if (value && items.length === 0) {
       setItems([emptyItem()]);
@@ -234,14 +240,17 @@ setForm({
   };
 
   const ajouterItem = () => {
+    isDirtyRef.current = true;
     setItems((prev) => [...prev, emptyItem()]);
   };
 
   const supprimerItem = (id: string) => {
+    isDirtyRef.current = true;
     setItems((prev) => prev.filter((i) => i.id !== id));
   };
 
   const updateItem = (id: string, champ: keyof AchatItem, valeur: string) => {
+    isDirtyRef.current = true;
     setItems((prev) =>
       prev.map((item) => (item.id === id ? { ...item, [champ]: valeur } : item))
     );
@@ -378,6 +387,7 @@ setForm({
   };
 
   const resetForm = () => {
+    isDirtyRef.current = false;
     setForm({
       date: dateAujourdhui(),
       fournisseur: "",
@@ -388,7 +398,6 @@ setForm({
       paiement: "Virement",
       saveSupplier: false,
     });
-
     setModeMontant("ttc");
     setTauxTVA(defaultVatRate);
     setAvecStock(true);
@@ -443,11 +452,17 @@ const buildPayload = (): Achat => {
   };
 
   const handleFermer = () => {
+    if (showUnsavedModal) return;
+    if (isEditing && isDirtyRef.current) {
+      setShowUnsavedModal(true);
+      return;
+    }
     resetForm();
     onFermer();
   };
 
   return (
+    <>
     <Modal
       ouvert={ouvert}
       onFermer={handleFermer}
@@ -552,7 +567,7 @@ const buildPayload = (): Achat => {
             <div className="inline-flex p-0.5 rounded-md bg-neutral-900/60 border border-neutral-800">
               <button
                 type="button"
-                onClick={() => setModeMontant("ht")}
+                onClick={() => { isDirtyRef.current = true; setModeMontant("ht"); }}
                 className={`rounded px-3 py-1 text-[11px] font-semibold transition-all duration-150 ${
                   modeMontant === "ht"
                     ? "bg-amber-500/15 text-amber-400"
@@ -564,7 +579,7 @@ const buildPayload = (): Achat => {
 
               <button
                 type="button"
-                onClick={() => setModeMontant("ttc")}
+                onClick={() => { isDirtyRef.current = true; setModeMontant("ttc"); }}
                 className={`rounded px-3 py-1 text-[11px] font-semibold transition-all duration-150 ${
                   modeMontant === "ttc"
                     ? "bg-amber-500/15 text-amber-400"
@@ -607,7 +622,7 @@ const buildPayload = (): Achat => {
                   min="0"
                   max="100"
                   value={tauxTVA}
-                  onChange={(e) => setTauxTVA(Number(e.target.value))}
+                  onChange={(e) => { isDirtyRef.current = true; setTauxTVA(Number(e.target.value)); }}
                   onWheel={(e) => e.currentTarget.blur()}
                   placeholder="21"
                   className={`${inputClasses} pr-7 ${
@@ -974,6 +989,7 @@ const buildPayload = (): Achat => {
               type="file"
               accept=".pdf,image/jpeg,image/png,image/webp"
               onChange={(e) => {
+                isDirtyRef.current = true;
                 setDocumentFile(e.target.files?.[0] || null);
 
                 if (erreurs.documentFile) {
@@ -1074,5 +1090,46 @@ const buildPayload = (): Achat => {
         </div>
       </div>
     </Modal>
+
+    {showUnsavedModal && (
+      <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
+        <div className="w-full max-w-sm rounded-2xl border border-neutral-800 bg-neutral-950 shadow-2xl overflow-hidden">
+          <div className="h-px w-full bg-gradient-to-r from-transparent via-amber-500/60 to-transparent" />
+          <div className="p-6">
+            <h2 className="text-base font-semibold text-white">
+              Modifications non enregistrées
+            </h2>
+            <p className="mt-2 text-sm text-neutral-400 leading-relaxed">
+              Voulez-vous sauvegarder les modifications ?
+            </p>
+            <div className="mt-5 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowUnsavedModal(false);
+                  isDirtyRef.current = false;
+                  resetForm();
+                  onFermer();
+                }}
+                className="rounded-lg border border-neutral-800 bg-neutral-900 px-4 py-2 text-sm font-semibold text-neutral-300 hover:bg-neutral-800 transition-colors"
+              >
+                Non
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowUnsavedModal(false);
+                  handleSubmit();
+                }}
+                className="rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-neutral-950 hover:bg-amber-400 transition-colors shadow-lg shadow-amber-500/20"
+              >
+                Oui
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 }

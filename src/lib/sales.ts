@@ -79,6 +79,7 @@ export async function createSale(payload: {
   total_ttc: number;
   margin_amount: number;
   notes?: string;
+  contact_id?: string | null;
 }) {
   const {
     data: { user },
@@ -115,6 +116,7 @@ export async function updateSale(
     total_ttc: number;
     margin_amount: number;
     notes?: string;
+    contact_id?: string | null;
   }
 ) {
   if (!payload.customer_name?.trim()) {

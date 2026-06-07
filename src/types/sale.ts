@@ -73,11 +73,17 @@ export interface SaleLine {
   createdAt: string;
 }
 
+export interface ContactInfo {
+  address?: string;
+  vatNumber?: string;
+}
+
 export interface Sale {
   id: string;
   date: string;
   numInterne: string;
   customerName: string;
+  contactId?: string | null;
   vatMode: SaleVatMode;
   paymentMethod: SalePaymentMethod;
   subtotalHT: number;
@@ -89,6 +95,7 @@ export interface Sale {
   saveClient?: boolean;
   invoiceNumber?: string;
   billedAt?: string;
+  contact?: ContactInfo;
 }
 
 export interface SaleFiltres {

@@ -132,46 +132,79 @@ export default function FacturesPage() {
 
         const saleLines = await getSaleLines(filtered.map((sale: any) => sale.id));
 
-        const mappedSales: Sale[] = filtered.map((sale: any) => ({
-          id: sale.id,
-          date: sale.sale_date,
-          numInterne: sale.id.slice(0, 8).toUpperCase(),
-          customerName: sale.customer_name,
-          vatMode: sale.vat_mode,
-          paymentMethod: sale.payment_method || "Virement",
-          subtotalHT: Number(sale.subtotal_ht),
-          vatAmount: Number(sale.vat_amount),
-          totalTTC: Number(sale.total_ttc),
-          marginAmount: Number(sale.margin_amount || 0),
-          notes: sale.notes || undefined,
-          invoiceNumber: sale.invoice_number || undefined,
-          billedAt: sale.billed_at || undefined,
+        // Charger les contacts par ID relationnel (jamais par nom)
+        const contactIds = filtered
+          .map((s: any) => s.contact_id)
+          .filter((id: unknown): id is string => typeof id === "string" && id.length > 0);
 
-          lines: saleLines
-            .filter((line: any) => line.sale_id === sale.id)
-            .map((line: any) => ({
-              id: line.id,
-              saleId: line.sale_id,
-              companyId: line.company_id,
-              purchaseItemId: line.purchase_item_id || undefined,
-              itemReference: line.item_reference || undefined,
-              itemName: line.item_name,
-              quantity: Number(line.quantity),
-              unitPrice: Number(line.unit_price),
-              totalPrice: Number(line.total_price),
-              purchaseCost:
-                line.purchase_cost !== null && line.purchase_cost !== undefined
-                  ? Number(line.purchase_cost)
-                  : undefined,
-              marginAmount:
-                line.margin_amount !== null && line.margin_amount !== undefined
-                  ? Number(line.margin_amount)
-                  : undefined,
-              vatRate: Number(line.vat_rate),
-              notes: line.notes || undefined,
-              createdAt: line.created_at,
-            })),
-        }));
+        const contactMap = new Map<string, { address: string | null; vat_number: string | null }>();
+
+        if (contactIds.length > 0) {
+          const { data: contactsData } = await supabase
+            .from("contacts")
+            .select("id, address, vat_number")
+            .in("id", contactIds)
+            .eq("company_id", membership.company_id);
+
+          for (const c of contactsData ?? []) {
+            contactMap.set(c.id as string, {
+              address: c.address as string | null,
+              vat_number: c.vat_number as string | null,
+            });
+          }
+        }
+
+        const mappedSales: Sale[] = filtered.map((sale: any) => {
+          const matched = sale.contact_id ? contactMap.get(sale.contact_id) : undefined;
+
+          return {
+            id: sale.id,
+            date: sale.sale_date,
+            numInterne: sale.id.slice(0, 8).toUpperCase(),
+            customerName: sale.customer_name,
+            contactId: sale.contact_id ?? null,
+            vatMode: sale.vat_mode,
+            paymentMethod: sale.payment_method || "Virement",
+            subtotalHT: Number(sale.subtotal_ht),
+            vatAmount: Number(sale.vat_amount),
+            totalTTC: Number(sale.total_ttc),
+            marginAmount: Number(sale.margin_amount || 0),
+            notes: sale.notes || undefined,
+            invoiceNumber: sale.invoice_number || undefined,
+            billedAt: sale.billed_at || undefined,
+            contact: matched
+              ? {
+                  address: matched.address || undefined,
+                  vatNumber: matched.vat_number || undefined,
+                }
+              : undefined,
+
+            lines: saleLines
+              .filter((line: any) => line.sale_id === sale.id)
+              .map((line: any) => ({
+                id: line.id,
+                saleId: line.sale_id,
+                companyId: line.company_id,
+                purchaseItemId: line.purchase_item_id || undefined,
+                itemReference: line.item_reference || undefined,
+                itemName: line.item_name,
+                quantity: Number(line.quantity),
+                unitPrice: Number(line.unit_price),
+                totalPrice: Number(line.total_price),
+                purchaseCost:
+                  line.purchase_cost !== null && line.purchase_cost !== undefined
+                    ? Number(line.purchase_cost)
+                    : undefined,
+                marginAmount:
+                  line.margin_amount !== null && line.margin_amount !== undefined
+                    ? Number(line.margin_amount)
+                    : undefined,
+                vatRate: Number(line.vat_rate),
+                notes: line.notes || undefined,
+                createdAt: line.created_at,
+              })),
+          };
+        });
 
         setFilteredSales(mappedSales);
         setSalesCount(mappedSales.length);
@@ -375,104 +408,6 @@ async function confirmGenerateZip() {
         </div>
 
         <Section
-          title="Informations société"
-          description="Ces informations seront utilisées en en-tête de chaque facture générée."
-          icon={<BuildingIcon />}
-          headerExtra={
-            <div className="flex items-center gap-3">
-              <CompletenessBadge
-                filled={completenessScore.filled}
-                total={completenessScore.total}
-              />
-
-              <Link
-                href="/preferences"
-                className="inline-flex items-center gap-1.5 text-xs font-medium text-amber-400 hover:text-amber-300 transition-colors"
-              >
-                Modifier les préférences
-                <svg
-                  className="h-3 w-3"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={2}
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
-                  />
-                </svg>
-              </Link>
-            </div>
-          }
-        >
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <PreferenceField
-              label="Nom commercial"
-              value={preferences.invoiceCompanyName}
-            />
-
-            <PreferenceField
-              label="Numéro de TVA"
-              value={preferences.invoiceCompanyVat}
-              mono
-            />
-
-            <PreferenceField
-              label="Adresse"
-              value={preferences.invoiceCompanyAddress}
-              className="sm:col-span-2"
-              multiline
-            />
-
-            <PreferenceField
-              label="Email contact"
-              value={preferences.invoiceCompanyEmail}
-            />
-
-            <PreferenceField
-              label="Téléphone"
-              value={preferences.invoiceCompanyPhone}
-            />
-
-            <PreferenceField
-              label="Pied de facture"
-              value={preferences.invoiceFooter}
-              className="sm:col-span-2"
-              multiline
-            />
-
-            <PreferenceField
-              label="Conditions de paiement"
-              value={preferences.invoicePaymentTerms}
-              className="sm:col-span-2"
-              multiline
-            />
-
-            <PreferenceField
-              label="Préfixe facture"
-              value={preferences.invoicePrefix}
-              mono
-            />
-
-            <PreferenceField
-              label="Prochain numéro"
-              value={
-                preferences.invoiceNextNumber
-                  ? formatInvoiceNumber(
-                      preferences.invoicePrefix || "F-",
-                      preferences.invoiceNextNumber
-                    )
-                  : ""
-              }
-              mono
-              accent
-            />
-          </div>
-        </Section>
-
-        <Section
           title="Période à facturer"
           description="Sélectionnez la plage de dates et le régime TVA des ventes à inclure."
           icon={<CalendarIcon />}
@@ -591,6 +526,62 @@ async function confirmGenerateZip() {
             </div>
           )}
         </Section>
+
+        <Section
+          title="Informations société"
+          description="Aperçu des informations utilisées en en-tête de chaque facture. Non modifiables ici."
+          icon={<BuildingIcon />}
+          headerExtra={
+            <div className="flex items-center gap-3">
+              <CompletenessBadge
+                filled={completenessScore.filled}
+                total={completenessScore.total}
+              />
+
+              <Link
+                href="/preferences"
+                className="inline-flex items-center gap-1.5 text-xs font-medium text-amber-400 hover:text-amber-300 transition-colors"
+              >
+                Modifier les préférences
+                <svg
+                  className="h-3 w-3"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2}
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
+                  />
+                </svg>
+              </Link>
+            </div>
+          }
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <PreferenceField label="Nom commercial" value={preferences.invoiceCompanyName} readOnly />
+            <PreferenceField label="Numéro de TVA" value={preferences.invoiceCompanyVat} mono readOnly />
+            <PreferenceField label="Adresse" value={preferences.invoiceCompanyAddress} className="sm:col-span-2" multiline readOnly />
+            <PreferenceField label="Email contact" value={preferences.invoiceCompanyEmail} readOnly />
+            <PreferenceField label="Téléphone" value={preferences.invoiceCompanyPhone} readOnly />
+            <PreferenceField label="Pied de facture" value={preferences.invoiceFooter} className="sm:col-span-2" multiline readOnly />
+            <PreferenceField label="Conditions de paiement" value={preferences.invoicePaymentTerms} className="sm:col-span-2" multiline readOnly />
+            <PreferenceField label="Préfixe facture" value={preferences.invoicePrefix} mono readOnly />
+            <PreferenceField
+              label="Prochain numéro"
+              value={
+                preferences.invoiceNextNumber
+                  ? formatInvoiceNumber(preferences.invoicePrefix || "F-", preferences.invoiceNextNumber)
+                  : ""
+              }
+              mono
+              accent
+              readOnly
+            />
+          </div>
+        </Section>
       </div>
 
 {confirmModalOpen && (
@@ -681,19 +672,19 @@ async function confirmGenerateZip() {
             onClick={handleGenerateZip}
             disabled={generatingZip || filteredSales.length === 0}
             className="
-              inline-flex items-center gap-2
-              rounded-lg px-5 py-2
-              text-sm font-semibold
+              inline-flex items-center gap-2.5
+              rounded-xl px-6 py-2.5
+              text-sm font-bold tracking-wide
               bg-amber-500 text-neutral-950
-              hover:bg-amber-400
-              disabled:opacity-40
+              hover:bg-amber-400 active:scale-[0.98]
+              disabled:opacity-35
               disabled:cursor-not-allowed
-              transition-colors
-              shadow-lg shadow-amber-500/10
+              transition-all duration-150
+              shadow-xl shadow-amber-500/30
             "
           >
-            <ZipIcon className="h-3.5 w-3.5" />
-            {generatingZip ? "Génération..." : "Générer et télécharger le ZIP"}
+            <DownloadIcon className="h-4 w-4" />
+            {generatingZip ? "Génération en cours…" : "Générer et télécharger"}
           </button>
         </div>
       </div>
@@ -749,6 +740,7 @@ function PreferenceField({
   mono = false,
   accent = false,
   multiline = false,
+  readOnly = false,
 }: {
   label: string;
   value: string;
@@ -756,6 +748,7 @@ function PreferenceField({
   mono?: boolean;
   accent?: boolean;
   multiline?: boolean;
+  readOnly?: boolean;
 }) {
   const isEmpty = !value?.trim();
 
@@ -768,9 +761,10 @@ function PreferenceField({
       <div
         className={`
           rounded-lg px-3 py-2.5 text-sm border
-          ${
-            isEmpty
-              ? "border-dashed border-neutral-800 bg-neutral-900/20"
+          ${isEmpty
+            ? "border-dashed border-neutral-800/60 bg-neutral-900/10"
+            : readOnly
+              ? "border-neutral-800/50 bg-neutral-800/20"
               : "border-neutral-800 bg-neutral-900/40"
           }
           ${multiline ? "min-h-[2.75rem]" : ""}
@@ -779,7 +773,7 @@ function PreferenceField({
         {isEmpty ? (
           <Link
             href="/preferences"
-            className="inline-flex items-center gap-1.5 text-xs text-neutral-600 hover:text-amber-400 italic transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs text-neutral-700 hover:text-amber-400 italic transition-colors"
           >
             À compléter dans Préférences
           </Link>
@@ -787,7 +781,7 @@ function PreferenceField({
           <span
             className={`
               ${mono ? "font-mono" : ""}
-              ${accent ? "text-amber-400 font-semibold" : "text-neutral-200"}
+              ${accent ? "text-amber-400/80 font-semibold" : readOnly ? "text-neutral-500" : "text-neutral-200"}
               ${multiline ? "whitespace-pre-wrap" : ""}
               break-words
             `}
@@ -980,6 +974,24 @@ function ZipIcon({ className }: { className?: string }) {
         strokeLinecap="round"
         strokeLinejoin="round"
         d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 0 0-1.883 2.542l.857 6a2.25 2.25 0 0 0 2.227 1.932H19.05a2.25 2.25 0 0 0 2.227-1.932l.857-6a2.25 2.25 0 0 0-1.883-2.542m-16.5 0V6A2.25 2.25 0 0 1 6 3.75h3.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12a1.5 1.5 0 0 0 1.06.44H18A2.25 2.25 0 0 1 20.25 9v.776"
+      />
+    </svg>
+  );
+}
+
+function DownloadIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={2.5}
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"
       />
     </svg>
   );
