@@ -119,8 +119,18 @@ export default function AchatsTableau({
                   {achat.numInterne}
                 </td>
 
-                <td className="px-4 py-3 text-white font-medium max-w-[200px] truncate">
-                  {achat.fournisseur}
+                <td className="px-4 py-3 font-medium max-w-[200px] truncate">
+                  {achat.supplierContactId ? (
+                    <Link
+                      href={`/contacts/${achat.supplierContactId}`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-white underline decoration-amber-400/30 underline-offset-2 hover:text-amber-400 hover:decoration-amber-400/60 transition-colors"
+                    >
+                      {achat.fournisseur}
+                    </Link>
+                  ) : (
+                    <span className="text-white">{achat.fournisseur}</span>
+                  )}
                 </td>
 
                 <td className="px-4 py-3 text-neutral-400 max-w-[180px] truncate">

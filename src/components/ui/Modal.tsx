@@ -45,11 +45,8 @@ export default function Modal({ ouvert, onFermer, titre, children }: ModalProps)
         p-4
       "
     >
-      {/* Overlay sombre — clic pour fermer */}
-      <div
-        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
-        onClick={onFermer}
-      />
+      {/* Overlay sombre */}
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
 
       {/* Contenu de la modal */}
       <div

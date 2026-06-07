@@ -2,8 +2,9 @@
 
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
 type ContactType = "client" | "supplier";
@@ -683,8 +684,13 @@ function ContactsTable({
                   <ContactTypeBadge type={contact.type} />
                 </td>
 
-                <td className="max-w-[220px] truncate px-4 py-3 font-medium text-white">
-                  {contact.name}
+                <td className="max-w-[220px] truncate px-4 py-3 font-medium">
+                  <Link
+                    href={`/contacts/${contact.id}`}
+                    className="text-white underline decoration-amber-400/30 underline-offset-2 hover:text-amber-400 hover:decoration-amber-400/60 transition-colors"
+                  >
+                    {contact.name}
+                  </Link>
                 </td>
 
                 <td className="max-w-[220px] truncate px-4 py-3 text-neutral-400">
@@ -796,13 +802,16 @@ function ContactFormModal({
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
+  const [showUnsavedModal, setShowUnsavedModal] = useState(false);
+  const isDirtyRef = useRef(false);
+  const handleCloseRef = useRef<() => void>(() => {});
 
   const isClient = form.type === "client";
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
-        onClose();
+        handleCloseRef.current();
       }
     }
 
@@ -811,12 +820,24 @@ function ContactFormModal({
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [onClose]);
+  }, []);
+
+  function handleClose() {
+    if (showUnsavedModal) return;
+    if (mode === "edit" && isDirtyRef.current) {
+      setShowUnsavedModal(true);
+      return;
+    }
+    onClose();
+  }
+  handleCloseRef.current = handleClose;
 
   function updateField<K extends keyof ContactFormData>(
     key: K,
     value: ContactFormData[K]
   ) {
+    isDirtyRef.current = true;
+
     setForm((previousForm) => ({
       ...previousForm,
       [key]: value,
@@ -866,9 +887,9 @@ function ContactFormModal({
         : "Modifier le fournisseur";
 
   return (
+    <>
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
-      onClick={onClose}
     >
       <div
         className="
@@ -908,7 +929,7 @@ function ContactFormModal({
 
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleClose}
             className="rounded-lg p-1.5 text-neutral-500 transition-colors hover:bg-neutral-800 hover:text-neutral-200"
           >
             <CrossIcon className="h-5 w-5" />
@@ -991,7 +1012,7 @@ function ContactFormModal({
         <div className="flex items-center justify-end gap-3 border-t border-neutral-800 bg-neutral-950 px-6 py-4">
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleClose}
             disabled={submitting}
             className="
               rounded-lg px-4 py-2 text-sm font-medium text-neutral-400
@@ -1028,6 +1049,50 @@ function ContactFormModal({
         </div>
       </div>
     </div>
+
+    {showUnsavedModal && (
+      <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
+        <div className="w-full max-w-sm rounded-2xl border border-neutral-800 bg-neutral-950 shadow-2xl overflow-hidden">
+          <div className="h-px w-full bg-gradient-to-r from-transparent via-amber-500/60 to-transparent" />
+
+          <div className="p-6">
+            <h2 className="text-base font-semibold text-white">
+              Modifications non enregistrées
+            </h2>
+
+            <p className="mt-2 text-sm text-neutral-400 leading-relaxed">
+              Voulez-vous sauvegarder les modifications ?
+            </p>
+
+            <div className="mt-5 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowUnsavedModal(false);
+                  isDirtyRef.current = false;
+                  onClose();
+                }}
+                className="rounded-lg border border-neutral-800 bg-neutral-900 px-4 py-2 text-sm font-semibold text-neutral-300 hover:bg-neutral-800 transition-colors"
+              >
+                Non
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setShowUnsavedModal(false);
+                  handleSubmit();
+                }}
+                className="rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-neutral-950 hover:bg-amber-400 transition-colors shadow-lg shadow-amber-500/20"
+              >
+                Oui
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 }
 

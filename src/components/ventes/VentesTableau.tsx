@@ -120,8 +120,18 @@ export default function VentesTableau({
                     {vente.numInterne}
                   </td>
 
-                  <td className="px-4 py-3 text-white font-medium max-w-[220px] truncate">
-                    {vente.customerName}
+                  <td className="px-4 py-3 font-medium max-w-[220px] truncate">
+                    {vente.contactId ? (
+                      <Link
+                        href={`/contacts/${vente.contactId}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="text-white underline decoration-amber-400/30 underline-offset-2 hover:text-amber-400 hover:decoration-amber-400/60 transition-colors"
+                      >
+                        {vente.customerName}
+                      </Link>
+                    ) : (
+                      <span className="text-white">{vente.customerName}</span>
+                    )}
                   </td>
 
                   <td className="px-4 py-3">
@@ -272,7 +282,16 @@ export default function VentesTableau({
                             Client
                           </span>
                           <p className="text-neutral-200 mt-1">
-                            {vente.customerName}
+                            {vente.contactId ? (
+                              <Link
+                                href={`/contacts/${vente.contactId}`}
+                                className="text-neutral-200 underline decoration-amber-400/30 underline-offset-2 hover:text-amber-400 hover:decoration-amber-400/60 transition-colors"
+                              >
+                                {vente.customerName}
+                              </Link>
+                            ) : (
+                              vente.customerName
+                            )}
                           </p>
                         </div>
 

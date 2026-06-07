@@ -12,7 +12,7 @@ interface AchatFormModalProps {
   onAjouter: (achat: Achat) => void;
   onModifier?: (achat: Achat) => void;
   achatInitial?: Achat | null;
-  suppliers?: string[];
+  supplierContacts?: Array<{ id: string; name: string }>;
 }
 
 interface AchatItem {
@@ -65,7 +65,7 @@ export default function AchatFormModal({
   onAjouter,
   onModifier,
   achatInitial = null,
-  suppliers = [],
+  supplierContacts = [],
 }: AchatFormModalProps) {
   const isEditing = Boolean(achatInitial);
 
@@ -95,6 +95,8 @@ export default function AchatFormModal({
 ]);
   const isDirtyRef = useRef(false);
   const [showUnsavedModal, setShowUnsavedModal] = useState(false);
+  const [supplierContactId, setSupplierContactId] = useState<string | null>(null);
+  const [showSupplierDropdown, setShowSupplierDropdown] = useState(false);
 
   const inputClasses = `
     w-full rounded-lg px-3 py-2.5 text-sm
@@ -163,6 +165,8 @@ useEffect(() => {
       resetForm();
       return;
     }
+
+    setSupplierContactId(achatInitial.supplierContactId ?? null);
 
 setForm({
   date: achatInitial.date,
@@ -264,6 +268,12 @@ setForm({
       });
     }
   };
+
+  const filteredSuppliers = useMemo(() => {
+    const q = form.fournisseur.toLowerCase().trim();
+    if (!q) return supplierContacts.slice(0, 10);
+    return supplierContacts.filter((c) => c.name.toLowerCase().includes(q)).slice(0, 10);
+  }, [form.fournisseur, supplierContacts]);
 
   const totalItems = useMemo(() => {
     let totalHT = 0;
@@ -404,6 +414,8 @@ setForm({
     setItems([emptyItem()]);
     setDocumentFile(null);
     setErreurs({});
+    setSupplierContactId(null);
+    setShowSupplierDropdown(false);
   };
 
 const buildPayload = (): Achat => {
@@ -436,6 +448,7 @@ const buildPayload = (): Achat => {
     items: mappedItems,
     avecStock,
     saveSupplier: form.saveSupplier,
+    supplierContactId,
   };
 };
 
@@ -516,25 +529,62 @@ const buildPayload = (): Achat => {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className={labelClasses}>Fournisseur</label>
-<>
-  <input
-    list="suppliers-list"
-    type="text"
-    placeholder="Ex : Cardmarket"
-    value={form.fournisseur}
-    onChange={(e) => updateChamp("fournisseur", e.target.value)}
-    maxLength={MAX_TEXT.fournisseur}
-    className={`${inputClasses} ${
-      erreurs.fournisseur ? "border-red-500/50" : ""
-    }`}
-  />
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Ex : Cardmarket"
+                value={form.fournisseur}
+                onChange={(e) => {
+                  updateChamp("fournisseur", e.target.value);
+                  setSupplierContactId(null);
+                  setShowSupplierDropdown(true);
+                }}
+                onFocus={() => setShowSupplierDropdown(true)}
+                onBlur={() =>
+                  setTimeout(() => setShowSupplierDropdown(false), 150)
+                }
+                maxLength={MAX_TEXT.fournisseur}
+                className={`${inputClasses} ${supplierContactId ? "pr-14" : ""} ${
+                  erreurs.fournisseur ? "border-red-500/50" : ""
+                }`}
+              />
 
-  <datalist id="suppliers-list">
-    {suppliers.map((supplier) => (
-      <option key={supplier} value={supplier} />
-    ))}
-  </datalist>
-</>
+              {supplierContactId && (
+                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 rounded bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-400">
+                  Lié
+                </span>
+              )}
+
+              {showSupplierDropdown && filteredSuppliers.length > 0 && (
+                <div className="absolute left-0 right-0 top-full z-[100] mt-1 max-h-48 overflow-y-auto rounded-lg border border-neutral-700 bg-neutral-900 shadow-xl">
+                  {filteredSuppliers.map((contact) => (
+                    <button
+                      key={contact.id}
+                      type="button"
+                      onMouseDown={() => {
+                        setForm((prev) => ({
+                          ...prev,
+                          fournisseur: contact.name,
+                        }));
+                        setSupplierContactId(contact.id);
+                        setShowSupplierDropdown(false);
+                        isDirtyRef.current = true;
+                        if (erreurs.fournisseur) {
+                          setErreurs((prev) => {
+                            const copy = { ...prev };
+                            delete copy.fournisseur;
+                            return copy;
+                          });
+                        }
+                      }}
+                      className="w-full px-3 py-2.5 text-left text-sm text-neutral-200 transition-colors hover:bg-amber-500/5 hover:text-amber-400"
+                    >
+                      {contact.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             {erreurs.fournisseur && (
               <p className={erreurClasses}>{erreurs.fournisseur}</p>
             )}
@@ -1018,35 +1068,46 @@ const buildPayload = (): Achat => {
             )}
           </div>
 
-<div className="rounded-lg border border-neutral-800 bg-neutral-900/40 px-4 py-3">
-  <label className="flex items-start gap-3 cursor-pointer">
-    <input
-      type="checkbox"
-      checked={form.saveSupplier}
-      onChange={(e) =>
-        setForm((prev) => ({
-          ...prev,
-          saveSupplier: e.target.checked,
-        }))
-      }
-      className="
-        mt-0.5 h-4 w-4 rounded border-neutral-700
-        bg-neutral-900 text-amber-500
-        focus:ring-amber-500/20
-      "
-    />
+{supplierContactId ? (
+  <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-4 py-3">
+    <p className="text-sm font-medium text-emerald-400">
+      Fournisseur lié à un contact existant
+    </p>
+    <p className="text-xs text-neutral-500 mt-0.5">
+      L’achat sera automatiquement relié à ce contact dans Kyrivo.
+    </p>
+  </div>
+) : (
+  <div className="rounded-lg border border-neutral-800 bg-neutral-900/40 px-4 py-3">
+    <label className="flex items-start gap-3 cursor-pointer">
+      <input
+        type="checkbox"
+        checked={form.saveSupplier}
+        onChange={(e) =>
+          setForm((prev) => ({
+            ...prev,
+            saveSupplier: e.target.checked,
+          }))
+        }
+        className="
+          mt-0.5 h-4 w-4 rounded border-neutral-700
+          bg-neutral-900 text-amber-500
+          focus:ring-amber-500/20
+        "
+      />
 
-    <div>
-      <p className="text-sm font-medium text-white">
-        Enregistrer ce fournisseur dans les contacts
-      </p>
+      <div>
+        <p className="text-sm font-medium text-white">
+          Enregistrer ce fournisseur dans les contacts
+        </p>
 
-      <p className="text-xs text-neutral-500 mt-0.5">
-        Le fournisseur sera ajouté automatiquement dans l’onglet Contacts.
-      </p>
-    </div>
-  </label>
-</div>
+        <p className="text-xs text-neutral-500 mt-0.5">
+          Le fournisseur sera ajouté automatiquement dans l’onglet Contacts.
+        </p>
+      </div>
+    </label>
+  </div>
+)}
 
           <div>
             <label className={labelClasses}>

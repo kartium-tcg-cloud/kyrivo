@@ -45,6 +45,7 @@ function mapPurchase(p: any, itemsByPurchaseId: Map<string, any[]>): Achat {
     date: p.purchase_date,
     numInterne: p.id.slice(0, 8).toUpperCase(),
     fournisseur: p.supplier,
+    supplierContactId: p.supplier_contact_id ?? null,
     produit: p.product,
     type: p.purchase_type as Achat["type"],
     prixHT: Number(p.amount_ht),
@@ -126,7 +127,7 @@ export default function AchatsPage() {
   const [achats, setAchats] = useState<Achat[]>([]);
   const [modalOuverte, setModalOuverte] = useState(false);
   const [achatEnEdition, setAchatEnEdition] = useState<Achat | null>(null);
-  const [suppliers, setSuppliers] = useState<string[]>([]);
+  const [supplierContacts, setSupplierContacts] = useState<Array<{ id: string; name: string }>>([]);
 
   const [filtres, setFiltres] = useState<AchatFiltres>({
     recherche: "",
@@ -157,14 +158,13 @@ export default function AchatsPage() {
 
   const refreshPurchases = async (companyId: string) => {
     const { data: contacts } = await createClient()
-  .from("contacts")
-  .select("name")
-  .eq("company_id", companyId)
-  .eq("type", "supplier");
+      .from("contacts")
+      .select("id, name")
+      .eq("company_id", companyId)
+      .eq("type", "supplier")
+      .order("name", { ascending: true });
 
-setSuppliers(
-  [...new Set((contacts || []).map((c) => c.name))]
-);
+    setSupplierContacts(contacts ?? []);
     const purchases = await getPurchases(companyId);
     const purchaseIds = purchases.map((p: any) => p.id);
     const purchaseItems = await getPurchaseItems(purchaseIds);
@@ -273,28 +273,30 @@ toast.error(
 
       const supabase = createClient();
 
-      if (nouvelAchat.saveSupplier) {
-  const { data: existingSupplier } = await supabase
-    .from("contacts")
-    .select("id")
-    .eq("company_id", companyId)
-    .eq("type", "supplier")
-    .ilike("name", nouvelAchat.fournisseur)
-    .maybeSingle();
+      let resolvedSupplierContactId: string | null =
+        nouvelAchat.supplierContactId ?? null;
 
-  if (!existingSupplier) {
-    await supabase.from("contacts").insert({
-      company_id: companyId,
-      type: "supplier",
-      name: nouvelAchat.fournisseur,
-    });
-  }
-}
+      if (!resolvedSupplierContactId && nouvelAchat.saveSupplier) {
+        const { data: newContact } = await supabase
+          .from("contacts")
+          .insert({
+            company_id: companyId,
+            type: "supplier",
+            name: nouvelAchat.fournisseur,
+          })
+          .select("id")
+          .single();
+
+        if (newContact) {
+          resolvedSupplierContactId = newContact.id;
+        }
+      }
 
       const created = await createPurchase({
         company_id: companyId,
         purchase_date: nouvelAchat.date,
         supplier: nouvelAchat.fournisseur,
+        supplier_contact_id: resolvedSupplierContactId,
         product: nouvelAchat.produit,
         purchase_type: nouvelAchat.type,
         payment_method: nouvelAchat.paiement,
@@ -391,9 +393,29 @@ const modifierAchat = async (achatModifie: Achat) => {
       );
     }
 
+    let resolvedSupplierContactIdEdit: string | null =
+      achatModifie.supplierContactId ?? null;
+
+    if (!resolvedSupplierContactIdEdit && achatModifie.saveSupplier && companyId) {
+      const { data: newContact } = await createClient()
+        .from("contacts")
+        .insert({
+          company_id: companyId,
+          type: "supplier",
+          name: achatModifie.fournisseur,
+        })
+        .select("id")
+        .single();
+
+      if (newContact) {
+        resolvedSupplierContactIdEdit = newContact.id;
+      }
+    }
+
     await updatePurchase(achatEnEdition.id, {
       purchase_date: achatModifie.date,
       supplier: achatModifie.fournisseur,
+      supplier_contact_id: resolvedSupplierContactIdEdit,
       product: achatModifie.produit,
       purchase_type: achatModifie.type,
       payment_method: achatModifie.paiement,
@@ -565,8 +587,7 @@ const modifierAchat = async (achatModifie: Achat) => {
         onAjouter={ajouterAchat}
         onModifier={modifierAchat}
         achatInitial={achatEnEdition}
-          suppliers={suppliers}
-
+        supplierContacts={supplierContacts}
       />
     </div>
   );

@@ -36,6 +36,7 @@ export interface Achat {
   date: string;
   numInterne: string;
   fournisseur: string;
+  supplierContactId?: string | null;
   produit: string;
   type: TypeAchat;
   prixHT: number;

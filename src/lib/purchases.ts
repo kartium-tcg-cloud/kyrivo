@@ -19,6 +19,7 @@ export async function createPurchase(payload: {
   company_id: string;
   purchase_date: string;
   supplier: string;
+  supplier_contact_id?: string | null;
   product: string;
   purchase_type: string;
   payment_method?: string;
@@ -52,6 +53,7 @@ export async function updatePurchase(
   payload: {
     purchase_date: string;
     supplier: string;
+    supplier_contact_id?: string | null;
     product: string;
     purchase_type: string;
     payment_method?: string;
