@@ -118,25 +118,54 @@ export default function Sidebar() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [planInfo, setPlanInfo] = useState<
+    { plan: string; status: string } | null | undefined
+  >(undefined);
 
-  // ─── Récupération état auth Supabase ───────────────────
+  // ─── Récupération état auth + abonnement ───────────────
   useEffect(() => {
     const supabase = createClient();
 
     async function checkAuth() {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
       setIsAuthenticated(!!user);
       setUserEmail(user?.email ?? null);
+
+      if (user) {
+        const { data: membership } = await supabase
+          .from("memberships")
+          .select("company_id")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (membership?.company_id) {
+          const { data: sub } = await supabase
+            .from("subscriptions")
+            .select("plan,status")
+            .eq("company_id", membership.company_id)
+            .maybeSingle();
+
+          setPlanInfo(sub ?? null);
+        } else {
+          setPlanInfo(null);
+        }
+      } else {
+        setPlanInfo(null);
+      }
     }
 
     checkAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setIsAuthenticated(!!session?.user);
-        setUserEmail(session?.user?.email ?? null);
-      }
-    );
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsAuthenticated(!!session?.user);
+      setUserEmail(session?.user?.email ?? null);
+      if (!session?.user) setPlanInfo(null);
+    });
 
     return () => subscription.unsubscribe();
   }, []);
@@ -472,10 +501,8 @@ className={`
 
                 <span className="flex-1">Abonnement</span>
 
-                {!isActive("/abonnements") && (
-                  <span className="inline-flex items-center rounded-full bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider text-amber-400/80">
-                    Pro
-                  </span>
+                {!isActive("/abonnements") && planInfo !== undefined && (
+                  <PlanBadge info={planInfo} />
                 )}
 
                 {isActive("/abonnements") && (
@@ -568,5 +595,43 @@ className={`
 
      </aside>
   </>
+  );
+}
+
+function PlanBadge({
+  info,
+}: {
+  info: { plan: string; status: string } | null;
+}) {
+  let label: string;
+  let cls: string;
+
+  if (
+    !info ||
+    info.status === "inactive" ||
+    info.status === "past_due"
+  ) {
+    label = "Inactif";
+    cls = "bg-red-500/10 border-red-500/20 text-red-400/80";
+  } else if (info.status === "trialing") {
+    label = "Essai";
+    cls = "bg-sky-500/10 border-sky-500/20 text-sky-400/80";
+  } else if (info.plan === "business") {
+    label = "Business";
+    cls = "bg-violet-500/10 border-violet-500/20 text-violet-400/80";
+  } else if (info.plan === "entreprise") {
+    label = "Entreprise";
+    cls = "bg-emerald-500/10 border-emerald-500/20 text-emerald-400/80";
+  } else {
+    label = "Pro";
+    cls = "bg-amber-500/10 border-amber-500/20 text-amber-400/80";
+  }
+
+  return (
+    <span
+      className={`inline-flex items-center rounded-full border px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider ${cls}`}
+    >
+      {label}
+    </span>
   );
 }
