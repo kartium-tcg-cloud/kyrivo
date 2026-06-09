@@ -520,9 +520,8 @@ function drawPartiesBlock(
 function drawItemsTable(doc: jsPDF, sale: Sale): number {
   const { marginX, contentWidth, tableY } = LAYOUT;
 
-  // Seuil interne : si la PROCHAINE ligne dépasserait cette valeur, saut de page.
-  // Laisse de la marge pour que buildInvoicePdf puisse décider du saut post-tableau.
   const maxRowEndY = 230;
+  const isStandard = sale.vatMode === "standard_vat";
 
   const lines = sale.lines || [];
   const baseDensity = getTableDensity(lines.length);
@@ -542,23 +541,24 @@ function drawItemsTable(doc: jsPDF, sale: Sale): number {
   const colUnit = marginX + 135;
   const colTotal = marginX + contentWidth - 5;
 
-  // Helper : dessine le header sombre et retourne Y après lui
+  // Labels de colonnes : TTC pour TVA standard, HT pour TVA sur marge (déjà validé)
+  const labelUnit  = isStandard ? "Prix unit. TTC" : "Prix unitaire";
+  const labelTotal = isStandard ? "Total TTC"      : "Total HT";
+
   const drawTblHeader = (startY: number): number => {
     drawBox(doc, marginX, startY, contentWidth, tblHeaderH, COLORS.headerBg);
     drawBox(doc, marginX, startY + tblHeaderH - 0.3, contentWidth, 0.3, COLORS.amberDeep);
     const hTY = startY + 6.5;
     drawLabel(doc, "Désignation", colArticle, hTY, { color: COLORS.headerInk, size: FONT.label });
     drawLabel(doc, "Qté",         colQty,     hTY, { color: COLORS.headerInk, align: "right", size: FONT.label });
-    drawLabel(doc, "Prix unitaire", colUnit,  hTY, { color: COLORS.headerInk, align: "right", size: FONT.label });
-    drawLabel(doc, "Total HT",    colTotal,   hTY, { color: COLORS.headerInk, align: "right", size: FONT.label });
+    drawLabel(doc, labelUnit,     colUnit,    hTY, { color: COLORS.headerInk, align: "right", size: FONT.label });
+    drawLabel(doc, labelTotal,    colTotal,   hTY, { color: COLORS.headerInk, align: "right", size: FONT.label });
     return startY + tblHeaderH;
   };
 
   let y = drawTblHeader(tableY);
 
   lines.forEach((line, i) => {
-    // ─── Saut de page PRE-dessin ──────────────────────────
-    // Si cette ligne dépasserait maxRowEndY, on ferme proprement et on repart.
     if (y + rowHeight > maxRowEndY) {
       drawLine(doc, marginX, y, marginX + contentWidth, y, COLORS.ruleStrong, 0.4);
       doc.addPage();
@@ -582,13 +582,21 @@ function drawItemsTable(doc: jsPDF, sale: Sale): number {
       });
     }
 
-    drawText(doc, String(line.quantity), colQty,  textY, { size: FONT.body, align: "right", color: COLORS.inkMid });
-    // Prix unitaire affiché = total ligne ÷ quantité (fiable pour TVA standard ET TVA marge)
-    // Pour TVA marge, unit_price stocke le TTC total de la ligne, pas le prix unitaire réel.
+    drawText(doc, String(line.quantity), colQty, textY, { size: FONT.body, align: "right", color: COLORS.inkMid });
+
     const _qty = Math.max(Number(line.quantity) || 1, 1);
-    const displayUnitPrice = Math.round((Number(line.totalPrice) / _qty) * 100) / 100;
-    drawText(doc, euro(displayUnitPrice), colUnit,  textY, { size: FONT.body, align: "right", color: COLORS.inkMid });
-    drawText(doc, euro(line.totalPrice), colTotal, textY, { size: FONT.body, bold: true, align: "right", color: COLORS.ink });
+    const _totalHT = Number(line.totalPrice) || 0;
+    const _vatRate = Number(line.vatRate) || 0;
+
+    // TVA standard : afficher TTC = HT × (1 + taux)
+    // TVA sur marge : totalPrice est déjà TTC — aucune modification
+    const displayLineTTC = isStandard
+      ? Math.round(_totalHT * (1 + _vatRate / 100) * 100) / 100
+      : _totalHT;
+    const displayUnitTTC = Math.round((displayLineTTC / _qty) * 100) / 100;
+
+    drawText(doc, euro(displayUnitTTC),  colUnit,  textY, { size: FONT.body, align: "right", color: COLORS.inkMid });
+    drawText(doc, euro(displayLineTTC),  colTotal, textY, { size: FONT.body, bold: true, align: "right", color: COLORS.ink });
 
     if (i < lines.length - 1) {
       drawLine(doc, marginX + 5, y + rowHeight, marginX + contentWidth - 5, y + rowHeight, COLORS.ruleFaint);
