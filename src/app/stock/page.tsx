@@ -378,31 +378,31 @@ export default function StockPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-neutral-700/50">
-                    <th className="px-4 py-3 text-left text-[11px] font-semibold text-neutral-500 uppercase tracking-wider whitespace-nowrap">
+                    <th className="px-4 py-3.5 text-left text-[11px] font-semibold text-neutral-500 uppercase tracking-wider whitespace-nowrap">
                       Référence
                     </th>
-                    <th className="px-4 py-3 text-left text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">
+                    <th className="px-4 py-3.5 text-left text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">
                       Article
                     </th>
-                    <th className="px-4 py-3 text-left text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">
+                    <th className="px-4 py-3.5 text-left text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">
                       Catégorie
                     </th>
-                    <th className="px-4 py-3 text-right text-[11px] font-semibold text-neutral-500 uppercase tracking-wider whitespace-nowrap">
+                    <th className="px-4 py-3.5 text-right text-[11px] font-semibold text-neutral-500 uppercase tracking-wider whitespace-nowrap">
                       Stock
                     </th>
-                    <th className="px-4 py-3 text-right text-[11px] font-semibold text-neutral-500 uppercase tracking-wider whitespace-nowrap">
+                    <th className="px-4 py-3.5 text-right text-[11px] font-semibold text-neutral-500 uppercase tracking-wider whitespace-nowrap">
                       Coût unit. TTC
                     </th>
-                    <th className="px-4 py-3 text-right text-[11px] font-semibold text-neutral-500 uppercase tracking-wider whitespace-nowrap">
+                    <th className="px-4 py-3.5 text-right text-[11px] font-semibold text-neutral-500 uppercase tracking-wider whitespace-nowrap">
                       Valeur stock TTC
                     </th>
-                    <th className="px-4 py-3 text-left text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">
+                    <th className="px-4 py-3.5 text-left text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">
                       Statut
                     </th>
-                    <th className="px-4 py-3 text-left text-[11px] font-semibold text-neutral-500 uppercase tracking-wider whitespace-nowrap">
+                    <th className="px-4 py-3.5 text-left text-[11px] font-semibold text-neutral-500 uppercase tracking-wider whitespace-nowrap">
                       Date achat
                     </th>
-                    <th className="px-4 py-3 text-center text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">
+                    <th className="px-4 py-3.5 text-center text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">
                       Actions
                     </th>
                   </tr>
@@ -432,7 +432,7 @@ export default function StockPage() {
                           ${index % 2 === 0 ? "bg-transparent" : "bg-neutral-800/10"}
                         `}
                       >
-                        <td className="px-4 py-3 whitespace-nowrap">
+                        <td className="px-4 py-3.5 whitespace-nowrap">
                           <Link
                             href={`/items/${item.id}`}
                             className="font-mono text-xs text-amber-400/80 underline decoration-amber-400/30 underline-offset-2 hover:text-amber-300 hover:decoration-amber-400/60 transition-colors"
@@ -441,17 +441,17 @@ export default function StockPage() {
                           </Link>
                         </td>
 
-                        <td className="px-4 py-3 text-neutral-200 font-medium max-w-[200px] truncate">
+                        <td className="px-4 py-3.5 text-neutral-200 font-medium max-w-[200px] truncate">
                           {item.item_name}
                         </td>
 
-                        <td className="px-4 py-3 text-neutral-500 max-w-[140px] truncate text-xs">
+                        <td className="px-4 py-3.5 text-neutral-500 max-w-[140px] truncate text-xs">
                           {item.category || (
                             <span className="text-neutral-700">—</span>
                           )}
                         </td>
 
-                        <td className="px-4 py-3 text-right tabular-nums whitespace-nowrap">
+                        <td className="px-4 py-3.5 text-right tabular-nums whitespace-nowrap">
                           <span
                             className={
                               stockQty > 0
@@ -463,24 +463,24 @@ export default function StockPage() {
                           </span>
                         </td>
 
-                        <td className="px-4 py-3 text-right text-neutral-300 tabular-nums whitespace-nowrap">
+                        <td className="px-4 py-3.5 text-right text-neutral-300 tabular-nums whitespace-nowrap">
                           {formatEuro(unitCostTTC)}
                         </td>
 
-                        <td className="px-4 py-3 text-right text-white font-semibold tabular-nums whitespace-nowrap">
+                        <td className="px-4 py-3.5 text-right text-white font-semibold tabular-nums whitespace-nowrap">
                           {formatEuro(valeurStock)}
                         </td>
 
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-3.5">
                           <StockAvailabilityBadge qty={stockQty} />
                         </td>
 
-                        <td className="px-4 py-3 text-neutral-500 text-xs whitespace-nowrap">
+                        <td className="px-4 py-3.5 text-neutral-500 text-xs whitespace-nowrap">
                           {formatDate(purchaseDate)}
                         </td>
 
-                        <td className="px-4 py-3">
-                          <div className="flex items-center justify-center opacity-40 transition-opacity duration-200 group-hover:opacity-100">
+                        <td className="px-4 py-3.5">
+                          <div className="flex items-center justify-center opacity-100 md:opacity-40 md:group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-200">
                             <button
                               type="button"
                               onClick={() => setEditingItem(item)}

@@ -303,24 +303,29 @@ export default async function DashboardPage() {
           label="Achats ce mois"
           value={String(purchasesCount)}
           icon={<CartIcon />}
+          accent="blue"
         />
 
         <StatTile
           label="Ventes ce mois"
           value={String(salesCount)}
           icon={<SalesIcon />}
+          accent="emerald"
         />
 
         <StatTile
           label="Articles en stock"
           value={String(stockCount)}
           icon={<StockIcon />}
+          accent="amber"
         />
 
         {/* Quota avec progress bar */}
-        <div className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-4">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-neutral-600"><QuotaIcon /></span>
+        <div className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-4 transition-colors hover:border-neutral-700">
+          <div className="flex items-center gap-3 mb-3">
+            <span className="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border bg-neutral-800/60 border-neutral-700 text-neutral-400">
+              <QuotaIcon />
+            </span>
             <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-500">
               Quota lignes
             </p>
@@ -359,7 +364,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* ── Stock immobilisé ────────────────────────────────── */}
-      <div className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-4 flex items-center justify-between gap-4">
+      <div className="card-amber-glow rounded-xl border border-neutral-800/80 bg-neutral-900/40 p-4 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3 min-w-0">
           <span className="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-amber-500/20 bg-amber-500/10 text-amber-400">
             <LockStockIcon />
@@ -390,7 +395,7 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_260px] gap-6">
 
         {/* Activité récente */}
-        <div className="rounded-xl border border-neutral-800 bg-neutral-900/40 overflow-hidden">
+        <div className="rounded-xl border border-neutral-800 bg-neutral-900/40 overflow-hidden transition-colors hover:border-neutral-700/80">
           <div className="px-5 py-4 border-b border-neutral-800">
             <h2 className="text-sm font-semibold text-white">Activité récente</h2>
           </div>
@@ -464,7 +469,7 @@ export default async function DashboardPage() {
         <div className="space-y-4">
 
           {/* Accès rapide */}
-          <div className="rounded-xl border border-neutral-800 bg-neutral-900/40 overflow-hidden">
+          <div className="rounded-xl border border-neutral-800 bg-neutral-900/40 overflow-hidden transition-colors hover:border-neutral-700/80">
             <div className="px-5 py-4 border-b border-neutral-800">
               <h2 className="text-sm font-semibold text-white">Accès rapide</h2>
             </div>
@@ -478,7 +483,7 @@ export default async function DashboardPage() {
           </div>
 
           {/* Abonnement */}
-          <div className="rounded-xl border border-neutral-800 bg-neutral-900/40 overflow-hidden">
+          <div className="rounded-xl border border-neutral-800 bg-neutral-900/40 overflow-hidden transition-colors hover:border-neutral-700/80">
             <div className="px-5 py-4 border-b border-neutral-800">
               <h2 className="text-sm font-semibold text-white">Abonnement</h2>
             </div>
@@ -544,20 +549,35 @@ function StatTile({
   label,
   value,
   icon,
+  accent,
 }: {
   label: string;
   value: string;
   icon: React.ReactNode;
+  accent?: "amber" | "emerald" | "blue";
 }) {
+  const styles =
+    accent === "amber"
+      ? { icon: "bg-amber-500/10 border-amber-500/20 text-amber-400", value: "text-amber-400" }
+      : accent === "emerald"
+        ? { icon: "bg-emerald-500/10 border-emerald-500/20 text-emerald-400", value: "text-emerald-400" }
+        : accent === "blue"
+          ? { icon: "bg-blue-500/10 border-blue-500/20 text-blue-400", value: "text-blue-400" }
+          : { icon: "bg-neutral-800/60 border-neutral-700 text-neutral-400", value: "text-white" };
+
   return (
-    <div className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-4">
-      <div className="flex items-center gap-2 mb-3">
-        <span className="text-neutral-600">{icon}</span>
+    <div className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-4 transition-colors hover:border-neutral-700">
+      <div className="flex items-center gap-3 mb-3">
+        <span
+          className={`inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border ${styles.icon}`}
+        >
+          {icon}
+        </span>
         <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-500 leading-tight">
           {label}
         </p>
       </div>
-      <p className="text-2xl font-bold text-white tabular-nums leading-none">
+      <p className={`text-2xl font-bold tabular-nums leading-none ${styles.value}`}>
         {value}
       </p>
     </div>

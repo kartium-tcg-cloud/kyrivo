@@ -680,11 +680,11 @@ function ContactsTable({
                   ${index % 2 === 0 ? "bg-transparent" : "bg-neutral-800/10"}
                 `}
               >
-                <td className="px-4 py-3">
+                <td className="px-4 py-3.5">
                   <ContactTypeBadge type={contact.type} />
                 </td>
 
-                <td className="max-w-[220px] truncate px-4 py-3 font-medium">
+                <td className="max-w-[220px] truncate px-4 py-3.5font-medium">
                   <Link
                     href={`/contacts/${contact.id}`}
                     className="text-white underline decoration-amber-400/30 underline-offset-2 hover:text-amber-400 hover:decoration-amber-400/60 transition-colors"
@@ -693,22 +693,22 @@ function ContactsTable({
                   </Link>
                 </td>
 
-                <td className="max-w-[220px] truncate px-4 py-3 text-neutral-400">
+                <td className="max-w-[220px] truncate px-4 py-3.5text-neutral-400">
                   {contact.email || <span className="text-neutral-700">—</span>}
                 </td>
 
-                <td className="px-4 py-3 tabular-nums text-neutral-400">
+                <td className="px-4 py-3.5 tabular-nums text-neutral-400">
                   {contact.phone || <span className="text-neutral-700">—</span>}
                 </td>
 
-                <td className="px-4 py-3 font-mono text-xs text-neutral-400">
+                <td className="px-4 py-3.5 font-mono text-xs text-neutral-400">
                   {contact.vat_number || (
                     <span className="text-neutral-700">—</span>
                   )}
                 </td>
 
-                <td className="px-4 py-3">
-                  <div className="flex items-center justify-center gap-0.5 opacity-40 transition-opacity duration-200 group-hover:opacity-100">
+                <td className="px-4 py-3.5">
+                  <div className="flex items-center justify-center gap-0.5 opacity-100 md:opacity-40 md:group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-200">
                     <button
                       type="button"
                       onClick={() => onEdit(contact)}

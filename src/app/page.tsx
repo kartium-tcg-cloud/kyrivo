@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import LandingAnalytics from "@/components/LandingAnalytics";
 import RegisterCTA from "@/components/RegisterCTA";
@@ -51,10 +50,7 @@ export default async function HomePage() {
       "@type": "Organization",
       name: "Kartium TCG",
       url: "https://kyrivo.kartium-tcg.com",
-      brand: {
-        "@type": "Brand",
-        name: "Kyrivo",
-      },
+      brand: { "@type": "Brand", name: "Kyrivo" },
     },
     {
       "@context": "https://schema.org",
@@ -128,298 +124,180 @@ export default async function HomePage() {
       />
       <LandingAnalytics />
 
-      {/* ═══ GLOW BACKGROUND ═══════════════════════════════ */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+      {/* ── Background ambient ─────────────────────────── */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden -z-10">
         <div
-          className="absolute -top-40 left-1/2 -translate-x-1/2 h-[600px] w-[1100px] rounded-full opacity-[0.18] blur-3xl"
-          style={{
-            background:
-              "radial-gradient(circle, rgba(245,158,11,1) 0%, transparent 70%)",
-          }}
+          className="absolute -top-40 left-1/2 -translate-x-1/2 h-[700px] w-[1200px] rounded-full opacity-[0.13] blur-3xl"
+          style={{ background: "radial-gradient(circle, rgba(245,158,11,1) 0%, transparent 70%)" }}
+        />
+        <div
+          className="absolute top-1/3 -right-40 h-[400px] w-[400px] rounded-full opacity-[0.06] blur-3xl"
+          style={{ background: "radial-gradient(circle, rgba(245,158,11,1) 0%, transparent 70%)" }}
         />
       </div>
 
-      <div className="relative px-6 lg:px-10 py-10 lg:py-14 mx-auto max-w-6xl">
+      <div className="relative px-5 sm:px-6 lg:px-10 py-8 lg:py-14 mx-auto max-w-6xl">
 
         {/* ═══════════════════════════════════════════════════ */}
-        {/* HERO                                                */}
+        {/* HERO — deux colonnes desktop, pile mobile          */}
         {/* ═══════════════════════════════════════════════════ */}
-        <section className="flex flex-col items-center text-center pt-3 sm:pt-6 pb-10 sm:pb-16">
+        <section className="pt-2 sm:pt-6 pb-16 sm:pb-24">
 
-          {/* ─── LOGO BLOCK ─────────────────────────────── */}
-          <KyrivoLogo />
+          <div className="flex flex-col lg:flex-row lg:items-center lg:gap-14 lg:justify-between">
 
-          {/* Eyebrow — desktop uniquement (cible couverte par les lignes mobile ci-dessous) */}
-          <div className="hidden sm:inline-flex mt-8 items-center gap-2 rounded-full bg-amber-500/10 border border-amber-500/20 px-3 py-1">
-            <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
-            <span className="text-[11px] font-semibold text-amber-400 tracking-widest uppercase">
-              Pour revendeurs · France &amp; Belgique
-            </span>
-          </div>
+            {/* ── COLONNE GAUCHE : copy + CTA ─────────────── */}
+            <div className="flex flex-col items-center text-center lg:items-start lg:text-left lg:max-w-[520px]">
 
-          {/* H1 */}
-          <h1 className="mt-4 sm:mt-6 text-4xl sm:text-5xl lg:text-6xl font-bold text-white tracking-tight leading-[1.1] max-w-3xl">
-            Tu sais{" "}
-            <span
-              className="bg-clip-text text-transparent"
-              style={{
-                backgroundImage:
-                  "linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%)",
-              }}
-            >
-              vraiment
-            </span>
-            {" "}ce que tu gagnes&nbsp;?
-          </h1>
+              {/* Eyebrow TCG */}
+              <div className="inline-flex items-center gap-2 rounded-full bg-amber-500/10 border border-amber-500/25 px-3 py-1.5 mb-6">
+                <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse flex-shrink-0" />
+                <span className="text-[11px] font-semibold text-amber-400 tracking-widest uppercase">
+                  Pokémon · One Piece · Yu-Gi-Oh! · Magic
+                </span>
+              </div>
 
-          {/* Cible + bénéfice — MOBILE uniquement (2 lignes courtes, pas de scroll) */}
-          <div className="mt-3 sm:hidden space-y-1.5 max-w-[300px] mx-auto">
-            <p className="text-sm font-medium text-neutral-200 leading-snug">
-              Pour revendeurs TCG, seconde main, collection, Vinted et brocante
-            </p>
-            <p className="text-sm text-neutral-400 leading-snug">
-              Achats, ventes, stock, marges &amp; TVA — sans Excel compliqué.
-            </p>
-          </div>
+              {/* H1 */}
+              <h1 className="text-4xl sm:text-5xl lg:text-[54px] font-bold text-white tracking-tight leading-[1.12] mb-5">
+                Tu revends des cartes&nbsp;?{" "}
+                <span
+                  className="block bg-clip-text text-transparent pb-2"
+                  style={{ backgroundImage: "linear-gradient(135deg, #fcd34d 0%, #f59e0b 45%, #d97706 100%)" }}
+                >
+                  Tu sais vraiment ce que tu gagnes&nbsp;?
+                </span>
+              </h1>
 
-          {/* Subtitle + phrase d'action — DESKTOP uniquement */}
-          <div className="hidden sm:block">
-            <p className="mt-5 text-base sm:text-lg text-neutral-400 max-w-xl leading-relaxed mx-auto">
-              Quand tu revends régulièrement, Excel devient vite ingérable. Kyrivo centralise tes{" "}
-              <strong className="text-neutral-200">achats, ventes, stock, marges et TVA</strong>{" "}
-              dans un outil simple — pour la France et la Belgique.
-            </p>
-            <p className="mt-4 text-sm text-neutral-300 max-w-md mx-auto leading-relaxed">
-              Crée ton compte, encode quelques achats et ventes, et vois directement tes marges.
-            </p>
-          </div>
+              {/* Subtitle desktop */}
+              <p className="text-base sm:text-lg text-neutral-400 leading-relaxed mb-8 max-w-[440px]">
+                Kyrivo centralise tes{" "}
+                <strong className="text-neutral-200 font-semibold">achats, ventes, stock, marges et TVA</strong>{" "}
+                dans un seul outil — sans Excel compliqué.
+              </p>
 
-          {/* CTAs */}
-          <div className="mt-5 sm:mt-8 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-center w-full max-w-sm sm:max-w-none">
+              {/* CTA buttons */}
+              <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto mb-4">
+                {user ? (
+                  <Link
+                    href="/dashboard"
+                    className="group inline-flex items-center justify-center gap-2 rounded-xl px-7 py-4 bg-amber-500 text-neutral-950 text-sm font-bold hover:bg-amber-400 hover:-translate-y-0.5 active:scale-[0.97] transition-all duration-200 shadow-lg shadow-amber-500/25"
+                  >
+                    Accéder à mon espace
+                    <svg className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                    </svg>
+                  </Link>
+                ) : (
+                  <RegisterCTA
+                    label="Essai gratuit 7 jours"
+                    className="group inline-flex items-center justify-center gap-2 rounded-xl px-7 py-4 bg-amber-500 text-neutral-950 text-sm font-bold hover:bg-amber-400 hover:-translate-y-0.5 active:scale-[0.97] transition-all duration-200 shadow-lg shadow-amber-500/25"
+                  />
+                )}
+                <Link
+                  href="/abonnements"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl px-6 py-4 bg-neutral-900/60 text-neutral-200 text-sm font-semibold border border-neutral-700/60 hover:border-neutral-600 hover:bg-neutral-900 transition-all duration-200"
+                >
+                  Voir les tarifs
+                </Link>
+              </div>
 
-            {user ? (
-              <Link
-                href="/dashboard"
-                className="
-                  group inline-flex items-center justify-center gap-2
-                  rounded-lg px-6 py-3.5
-                  bg-amber-500 text-neutral-950
-                  text-sm font-semibold
-                  hover:bg-amber-400 active:scale-[0.98]
-                  transition-all duration-200
-                  shadow-lg shadow-amber-500/20
-                "
-              >
-                Accéder à mon espace
-                <svg className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-                </svg>
-              </Link>
-            ) : (
-              <RegisterCTA
-                label="Essayer gratuitement"
-                className="
-                  group inline-flex items-center justify-center gap-2
-                  rounded-lg px-6 py-4 sm:py-3.5
-                  bg-amber-500 text-neutral-950
-                  text-base sm:text-sm font-bold sm:font-semibold
-                  hover:bg-amber-400 hover:-translate-y-px active:scale-[0.98]
-                  transition-all duration-200
-                  shadow-lg shadow-amber-500/20
-                "
-              />
-            )}
+              {/* Reassurance */}
+              <p className="text-[12px] text-neutral-600 font-medium tracking-wide mb-8 lg:mb-0">
+                Sans carte bancaire · Sans engagement · Données exportables
+              </p>
 
-            {/* Voir les tarifs : bouton sur desktop, lien texte discret sur mobile */}
-            <Link
-              href="/abonnements"
-              className="
-                hidden sm:inline-flex items-center justify-center gap-2
-                rounded-lg px-6 py-3.5
-                bg-neutral-900/60 text-neutral-200
-                text-sm font-semibold
-                border border-neutral-800
-                hover:border-neutral-700 hover:bg-neutral-900
-                transition-all duration-200
-              "
-            >
-              Voir les tarifs
-            </Link>
-            <Link
-              href="/abonnements"
-              className="sm:hidden text-center text-xs text-neutral-500 hover:text-neutral-400 transition-colors py-1"
-            >
-              Voir les tarifs →
-            </Link>
+              {/* Badges fonctionnalités — desktop */}
+              <div className="hidden lg:flex flex-wrap gap-2 mt-6">
+                {["TVA sur marge FR", "TVA sur marge BE", "Factures PDF", "Export Excel", "Stock temps réel"].map((b) => (
+                  <span key={b} className="inline-flex items-center rounded-full bg-neutral-900/60 border border-neutral-800 px-3 py-1 text-[11px] font-medium text-neutral-400">
+                    {b}
+                  </span>
+                ))}
+              </div>
 
-          </div>
+            </div>
 
-          {/* Réassurance sous les CTA */}
-          <p className="mt-3 text-[12px] text-neutral-500 font-medium tracking-wide">
-            7 jours gratuits · Sans carte bancaire · Données exportables
-          </p>
+            {/* ── COLONNE DROITE : mockup produit ─────────── */}
+            <div className="mt-10 lg:mt-0 w-full max-w-sm sm:max-w-md mx-auto lg:mx-0 lg:max-w-[460px] flex-shrink-0">
+              <ProductMockup />
+            </div>
 
-          {/* Feature badges — desktop uniquement (ne pas bloquer le CTA sur mobile) */}
-          <div className="mt-8 hidden sm:flex flex-wrap gap-2 justify-center">
-            <FeatureBadge>
-              <img src="https://flagcdn.com/16x12/fr.png" srcSet="https://flagcdn.com/32x24/fr.png 2x" width={16} height={12} alt="France" className="inline-block flex-shrink-0" />
-              TVA marge française
-            </FeatureBadge>
-            <FeatureBadge>
-              <img src="https://flagcdn.com/16x12/be.png" srcSet="https://flagcdn.com/32x24/be.png 2x" width={16} height={12} alt="Belgique" className="inline-block flex-shrink-0" />
-              TVA marge belge
-            </FeatureBadge>
-            <FeatureBadge>Multi-plateforme</FeatureBadge>
-            <FeatureBadge>Factures PDF</FeatureBadge>
-            <FeatureBadge>Export Excel</FeatureBadge>
-            <FeatureBadge>Stock temps réel</FeatureBadge>
-          </div>
-
-          {/* App screenshot */}
-          <div className="mt-4 sm:mt-6 md:mt-10 mx-auto w-full max-w-full md:max-w-[900px] md:[transform:perspective(1000px)_rotateX(3deg)]">
-            <Image
-              src="/app-screenshot.png"
-              alt="Interface Kyrivo — Gestion des achats pour revendeurs"
-              width={900}
-              height={506}
-              className="w-full h-auto rounded-[12px]"
-              style={{
-                border: "1px solid rgba(212, 134, 42, 0.2)",
-                boxShadow: "0 0 60px rgba(212, 134, 42, 0.12), 0 20px 60px rgba(0,0,0,0.4)",
-              }}
-              priority
-            />
           </div>
 
         </section>
 
-        {/* ─── Mini CTA post-screenshot ────────────────────── */}
-        {!user && (
-          <div className="mb-20 max-w-lg mx-auto text-center">
-            <p className="text-base sm:text-lg font-semibold text-white mb-2">
-              Teste Kyrivo avec tes propres chiffres
-            </p>
-            <p className="text-sm text-neutral-400 leading-relaxed mb-5">
-              Ajoute quelques achats et ventes fictifs pour voir si l&apos;outil correspond à ta manière de vendre.
-            </p>
-            <RegisterCTA
-              label="Démarrer l'essai gratuit"
-              className="
-                group inline-flex items-center justify-center gap-2
-                w-full sm:w-auto
-                rounded-lg px-7 py-3.5
-                bg-amber-500 text-neutral-950
-                text-sm font-semibold
-                hover:bg-amber-400 hover:-translate-y-px active:scale-[0.98]
-                transition-all duration-200
-                shadow-lg shadow-amber-500/20
-              "
-            />
-            <p className="mt-2.5 text-xs text-neutral-600">
-              Sans carte bancaire. Sans engagement.
-            </p>
-          </div>
-        )}
-
         {/* ═══════════════════════════════════════════════════ */}
-        {/* STATS / VALUE PROPS                                 */}
+        {/* PREUVE SOCIALE / STATS                              */}
         {/* ═══════════════════════════════════════════════════ */}
-        <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-20 max-w-4xl mx-auto">
-
+        <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-24 max-w-4xl mx-auto">
           <StatBlock value="TVA marge" label="Intégrée nativement" accent />
           <StatBlock value="FR · BE" label="Conformité fiscale" />
           <StatBlock value="PDF" label="Factures auto" />
           <StatBlock value="Excel" label="Export comptable" accent />
-
         </section>
 
         {/* ═══════════════════════════════════════════════════ */}
-        {/* COMMENT KYRIVO T'AIDE                               */}
+        {/* PROBLÈME                                            */}
         {/* ═══════════════════════════════════════════════════ */}
         <section className="mb-24">
-
-          <SectionHeader
-            label="Comment ça marche"
-            title="Comment Kyrivo t'aide"
-            description="De l'achat à la marge — en trois étapes simples."
-          />
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-10 max-w-4xl mx-auto">
-
-            <HowItWorksCard
-              step="Étape 1"
-              icon={<CartIcon />}
-              title="Encode tes achats"
-              description="Produit, coût, fournisseur, TVA. Tu gardes une trace propre de chaque acquisition."
+          <div className="relative rounded-2xl overflow-hidden border border-neutral-800/50">
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{ background: "radial-gradient(ellipse 70% 80% at 50% 0%, rgba(239,68,68,0.06) 0%, transparent 60%)" }}
             />
 
-            <HowItWorksCard
-              step="Étape 2"
-              icon={<StockIcon />}
-              title="Suis ton stock et tes marges"
-              description="Kyrivo calcule tes quantités disponibles, tes coûts et tes marges en temps réel."
-            />
+            <div className="relative p-8 lg:p-12">
+              <div className="text-center mb-10 max-w-2xl mx-auto">
+                <div className="inline-flex items-center gap-2 rounded-full bg-red-500/8 border border-red-500/15 px-3 py-1.5 mb-4">
+                  <span className="h-1.5 w-1.5 rounded-full bg-red-400 flex-shrink-0" />
+                  <span className="text-[11px] font-semibold text-red-400/80 uppercase tracking-widest">Le problème</span>
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+                  Excel, c&apos;est bien pour débuter.<br className="hidden sm:block" /> Pas pour gérer une vraie activité.
+                </h2>
+                <p className="mt-3 text-neutral-500 text-sm leading-relaxed">
+                  La plupart des revendeurs TCG passent par le même chemin. Un fichier qui grossit, des erreurs qui s&apos;accumulent.
+                </p>
+              </div>
 
-            <HowItWorksCard
-              step="Étape 3"
-              icon={<ExportIcon />}
-              title="Prépare tes exports"
-              description="Achats, ventes, TVA et données utiles pour ton suivi ou ton comptable."
-            />
-
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-4xl mx-auto">
+                <ProblemCard
+                  icon={<CalcIcon />}
+                  title="Marges floues"
+                  description="Tu vends une carte 25 €. Tu l'as payée combien ? Tu calcules à la main, après coup. Si tu calcules."
+                />
+                <ProblemCard
+                  icon={<StockIcon />}
+                  title="Stock dispersé"
+                  description="Tes articles dans 3 fichiers différents. Retrouver ce qu'il te reste prend 10 minutes."
+                />
+                <ProblemCard
+                  icon={<InvoiceIcon />}
+                  title="Factures manuelles"
+                  description="Chaque facture à la main. TVA sur marge, mentions légales, numérotation séquentielle... risque d'erreur permanent."
+                />
+              </div>
+            </div>
           </div>
-
         </section>
 
         {/* ═══════════════════════════════════════════════════ */}
-        {/* FEATURES                                            */}
+        {/* FONCTIONNALITÉS                                      */}
         {/* ═══════════════════════════════════════════════════ */}
         <section className="mb-28">
 
           <SectionHeader
             label="Fonctionnalités"
-            title="Un outil de gestion pour revendeurs de biens physiques"
-            description="Conçu pour les revendeurs français et belges qui gèrent du stock, vendent sur plusieurs plateformes et veulent garder le contrôle de leurs marges."
+            title="Tout ce qu'il te faut pour gérer ta revente"
+            description="De l'achat au comptable, en passant par le stock, les marges et la facturation — un seul outil."
           />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-12">
-
-            <FeatureCard
-              icon={<CartIcon />}
-              title="Gestion achats"
-              description="Enregistre tes achats PRO et particuliers, joins les factures, suis l'historique complet."
-            />
-
-            <FeatureCard
-              icon={<SalesIcon />}
-              title="Gestion ventes"
-              description="Suis tes ventes par plateforme — Cardmarket, Vinted, Shopify — avec marge calculée automatiquement."
-            />
-
-            <FeatureCard
-              icon={<CalcIcon />}
-              title="TVA sur marge"
-              description="Régime des biens d'occasion intégré nativement. Conforme aux directives européennes — France 20 %, Belgique 21 %."
-            />
-
-            <FeatureCard
-              icon={<StockIcon />}
-              title="Stock intelligent"
-              description="Chaque article référencé automatiquement. Statuts en temps réel : en stock, réservé, vendu, retourné."
-            />
-
-            <FeatureCard
-              icon={<InvoiceIcon />}
-              title="Facturation"
-              description="Génération automatique de factures PDF conformes. Numérotation séquentielle, mentions légales incluses."
-            />
-
-            <FeatureCard
-              icon={<ExportIcon />}
-              title="Export comptable"
-              description="Exports Excel et CSV prêts pour ton comptable, en France comme en Belgique."
-            />
-
+            <FeatureCard icon={<CartIcon />} title="Gestion achats" description="Enregistre tes achats PRO et particuliers, joins les factures, suis l'historique complet." />
+            <FeatureCard icon={<SalesIcon />} title="Gestion ventes" description="Suis tes ventes par plateforme — Cardmarket, Vinted, Shopify — avec marge calculée automatiquement." />
+            <FeatureCard icon={<CalcIcon />} title="TVA sur marge" description="Régime des biens d'occasion intégré nativement. Conforme aux directives européennes — France 20 %, Belgique 21 %." />
+            <FeatureCard icon={<StockIcon />} title="Stock intelligent" description="Chaque article référencé automatiquement. Statuts en temps réel : en stock, réservé, vendu, retourné." />
+            <FeatureCard icon={<InvoiceIcon />} title="Facturation PDF" description="Génération automatique de factures conformes. Numérotation séquentielle, mentions légales incluses." />
+            <FeatureCard icon={<ExportIcon />} title="Export comptable" description="Exports Excel et CSV prêts pour ton comptable, en France comme en Belgique." />
           </div>
         </section>
 
@@ -435,10 +313,8 @@ export default async function HomePage() {
           />
 
           <div className="mt-12">
-
             {/* Pipeline desktop */}
             <div className="hidden lg:grid grid-cols-[1fr_auto_1fr_auto_1fr_auto_1fr] items-stretch gap-0 max-w-5xl mx-auto">
-
               <WorkflowStep step={1} icon={<CartIcon />} title="Achat" description="Tu enregistres un achat avec sa facture." state="completed" />
               <Arrow />
               <WorkflowStep step={2} icon={<StockIcon />} title="Stock" description="Référence générée, article ajouté au stock." state="active" />
@@ -446,7 +322,6 @@ export default async function HomePage() {
               <WorkflowStep step={3} icon={<SalesIcon />} title="Vente" description="L'article passe en vendu, lié à une vente." state="pending" />
               <Arrow />
               <WorkflowStep step={4} icon={<TrendIcon />} title="Marge" description="Marge nette calculée automatiquement." state="pending" />
-
             </div>
 
             {/* Pipeline mobile/tablet */}
@@ -456,7 +331,27 @@ export default async function HomePage() {
               <WorkflowStep step={3} icon={<SalesIcon />} title="Vente" description="L'article passe en vendu, lié à une vente." state="pending" />
               <WorkflowStep step={4} icon={<TrendIcon />} title="Marge" description="Marge nette calculée automatiquement." state="pending" />
             </div>
+          </div>
+        </section>
 
+        {/* ═══════════════════════════════════════════════════ */}
+        {/* POUR QUI — TCG & seconde main                       */}
+        {/* ═══════════════════════════════════════════════════ */}
+        <section className="mb-28">
+
+          <SectionHeader
+            label="Conçu pour"
+            title="Pensé par et pour les revendeurs TCG"
+            description="Kyrivo a été créé à l'origine pour les revendeurs de cartes. Il s'adapte à tous les revendeurs de biens physiques."
+          />
+
+          <div className="mt-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 max-w-5xl mx-auto">
+            <TCGCard name="Pokémon TCG" detail="Lots, singles, graded, tins" color="amber" />
+            <TCGCard name="One Piece TCG" detail="Boosters, displays, singles" color="red" />
+            <TCGCard name="Yu-Gi-Oh! TCG" detail="Cartes, OCG/TCG, graded" color="violet" />
+            <TCGCard name="Magic: TG" detail="Commander, Modern, Legacy" color="blue" />
+            <TCGCard name="Vinted" detail="Vêtements, objets, tech" color="teal" />
+            <TCGCard name="Brocante" detail="Collection, vintage, occasion" color="neutral" />
           </div>
         </section>
 
@@ -472,33 +367,11 @@ export default async function HomePage() {
           />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-12 max-w-4xl mx-auto">
-
-            <BenefitCard
-              icon={<ClockIcon />}
-              title="Temps gagné"
-              description="Plus besoin de jongler entre Excel, calculatrices et factures manuelles. Les opérations prennent quelques secondes."
-            />
-
-            <BenefitCard
-              icon={<LayersIcon />}
-              title="Centralisation"
-              description="Toutes tes plateformes, tous tes clients, tous tes articles — un seul endroit, une seule source de vérité."
-            />
-
-            <BenefitCard
-              icon={<TrendIcon />}
-              title="Suivi rentabilité"
-              description="Marge nette en temps réel sur chaque vente. Identifie tes meilleurs produits et plateformes en un coup d'œil."
-            />
-
-            <BenefitCard
-              icon={<ShieldIcon />}
-              title="Conformité fiscale"
-              description="TVA sur marge calculée selon les normes françaises et belges. Factures prêtes pour ton comptable."
-            />
-
+            <BenefitCard icon={<ClockIcon />} title="Temps gagné" description="Plus besoin de jongler entre Excel, calculatrices et factures manuelles. Les opérations prennent quelques secondes." />
+            <BenefitCard icon={<LayersIcon />} title="Centralisation" description="Toutes tes plateformes, tous tes clients, tous tes articles — un seul endroit, une seule source de vérité." />
+            <BenefitCard icon={<TrendIcon />} title="Suivi rentabilité" description="Marge nette en temps réel sur chaque vente. Identifie tes meilleurs produits et plateformes en un coup d'œil." />
+            <BenefitCard icon={<ShieldIcon />} title="Conformité fiscale" description="TVA sur marge calculée selon les normes françaises et belges. Factures prêtes pour ton comptable." />
           </div>
-
         </section>
 
         {/* ═══════════════════════════════════════════════════ */}
@@ -513,113 +386,49 @@ export default async function HomePage() {
           />
 
           <div className="mt-12 max-w-3xl mx-auto space-y-3">
-
-            <FAQItem
-              question="À qui s'adresse Kyrivo ?"
-              answer="Kyrivo s'adresse aux revendeurs de biens physiques : cartes Pokémon et TCG, Vinted, Lego, sneakers, figurines, mangas, brocante et autres objets de collection."
-            />
-
-            <FAQItem
-              question="Kyrivo remplace-t-il Excel ?"
-              answer="Kyrivo aide à remplacer les fichiers Excel compliqués en centralisant les achats, ventes, stock, marges, TVA et exports dans un seul outil."
-            />
-
-            <FAQItem
-              question="Kyrivo gère-t-il la TVA ?"
-              answer="Kyrivo permet de suivre la TVA standard et la TVA sur marge selon les informations encodées. L'outil aide au suivi, mais ne remplace pas un accompagnement comptable professionnel."
-            />
-
-            <FAQItem
-              question="Puis-je suivre mon stock avec Kyrivo ?"
-              answer="Oui. Les achats de stock créent des articles suivis avec quantités restantes, références et coûts d'achat."
-            />
-
-            <FAQItem
-              question="Kyrivo est-il adapté aux vendeurs de cartes Pokémon ?"
-              answer="Oui. Kyrivo a été pensé au départ pour des revendeurs TCG et cartes Pokémon, puis élargi aux autres revendeurs de biens physiques."
-            />
-
-            <FAQItem
-              question="Puis-je exporter mes données ?"
-              answer="Oui. Kyrivo permet d'exporter les achats et ventes pour faciliter le suivi et la préparation des informations utiles au comptable."
-            />
-
-            <FAQItem
-              question="Que puis-je encore faire après expiration de mon abonnement ?"
-              answer="Si vous ne souhaitez pas renouveler votre abonnement, vous conservez l'accès aux données déjà encodées. Vous pouvez toujours les consulter, les exporter vers Excel et générer les factures liées aux ventes déjà enregistrées. Les nouvelles créations peuvent toutefois nécessiter un abonnement actif."
-            />
-
+            <FAQItem question="À qui s'adresse Kyrivo ?" answer="Kyrivo s'adresse aux revendeurs de biens physiques : cartes Pokémon et TCG, Vinted, Lego, sneakers, figurines, mangas, brocante et autres objets de collection." />
+            <FAQItem question="Kyrivo remplace-t-il Excel ?" answer="Kyrivo aide à remplacer les fichiers Excel compliqués en centralisant les achats, ventes, stock, marges, TVA et exports dans un seul outil." />
+            <FAQItem question="Kyrivo gère-t-il la TVA ?" answer="Kyrivo permet de suivre la TVA standard et la TVA sur marge selon les informations encodées. L'outil aide au suivi, mais ne remplace pas un accompagnement comptable professionnel." />
+            <FAQItem question="Puis-je suivre mon stock avec Kyrivo ?" answer="Oui. Les achats de stock créent des articles suivis avec quantités restantes, références et coûts d'achat." />
+            <FAQItem question="Kyrivo est-il adapté aux vendeurs de cartes Pokémon ?" answer="Oui. Kyrivo a été pensé au départ pour des revendeurs TCG et cartes Pokémon, puis élargi aux autres revendeurs de biens physiques." />
+            <FAQItem question="Puis-je exporter mes données ?" answer="Oui. Kyrivo permet d'exporter les achats et ventes pour faciliter le suivi et la préparation des informations utiles au comptable." />
+            <FAQItem question="Que puis-je encore faire après expiration de mon abonnement ?" answer="Si vous ne souhaitez pas renouveler votre abonnement, vous conservez l'accès aux données déjà encodées. Vous pouvez toujours les consulter, les exporter vers Excel et générer les factures liées aux ventes déjà enregistrées. Les nouvelles créations peuvent toutefois nécessiter un abonnement actif." />
           </div>
-
         </section>
 
         {/* ═══════════════════════════════════════════════════ */}
         {/* FINAL CTA                                           */}
         {/* ═══════════════════════════════════════════════════ */}
         <section className="mb-10">
-
           <div
-            className="
-              relative rounded-2xl overflow-hidden
-              border border-amber-500/20
-              px-6 py-12 lg:px-12 lg:py-16
-              text-center
-            "
-            style={{
-              background:
-                "linear-gradient(135deg, rgba(245,158,11,0.08) 0%, rgba(23,23,23,0.4) 50%, rgba(245,158,11,0.05) 100%)",
-            }}
+            className="relative rounded-2xl overflow-hidden border border-amber-500/20 px-6 py-14 lg:px-12 lg:py-20 text-center"
+            style={{ background: "linear-gradient(135deg, rgba(245,158,11,0.08) 0%, rgba(10,10,10,0.5) 50%, rgba(245,158,11,0.05) 100%)" }}
           >
-
-            {/* Glow décoratifs */}
-            <div
-              className="absolute -top-24 -right-24 h-72 w-72 rounded-full opacity-30 blur-3xl pointer-events-none"
-              style={{
-                background: "radial-gradient(circle, rgba(245,158,11,0.6) 0%, transparent 70%)",
-              }}
-            />
-            <div
-              className="absolute -bottom-24 -left-24 h-72 w-72 rounded-full opacity-20 blur-3xl pointer-events-none"
-              style={{
-                background: "radial-gradient(circle, rgba(245,158,11,0.6) 0%, transparent 70%)",
-              }}
-            />
-
-            {/* Ligne dorée haut */}
+            <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full opacity-30 blur-3xl pointer-events-none" style={{ background: "radial-gradient(circle, rgba(245,158,11,0.6) 0%, transparent 70%)" }} />
+            <div className="absolute -bottom-24 -left-24 h-72 w-72 rounded-full opacity-20 blur-3xl pointer-events-none" style={{ background: "radial-gradient(circle, rgba(245,158,11,0.6) 0%, transparent 70%)" }} />
             <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
 
             <div className="relative flex flex-col items-center">
-
               <div className="inline-flex items-center gap-2 rounded-full bg-neutral-950/40 border border-neutral-700 px-3 py-1 mb-6 backdrop-blur-sm">
                 <SparkleIcon className="h-3 w-3 text-amber-400" />
-                <span className="text-[11px] font-semibold text-neutral-300 tracking-widest uppercase">
-                  Prêt à démarrer
-                </span>
+                <span className="text-[11px] font-semibold text-neutral-300 tracking-widest uppercase">Prêt à démarrer</span>
               </div>
 
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white tracking-tight max-w-2xl leading-tight">
-                Reprends le contrôle de ton activité.
+                Arrête de gérer ton stock au feeling.
               </h2>
-
-              <p className="mt-4 text-neutral-400 max-w-xl mx-auto">
-                7 jours gratuits pour voir si Kyrivo correspond à ta façon de vendre.
-                Sans carte bancaire. Sans engagement.
+              <p className="mt-4 text-lg font-semibold text-amber-400/80">
+                Teste Kyrivo gratuitement pendant 7 jours.
+              </p>
+              <p className="mt-2 text-neutral-400 max-w-xl mx-auto text-sm">
+                Sans carte bancaire. Sans engagement. Annulable à tout moment.
               </p>
 
               <div className="mt-8 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-center w-full max-w-sm sm:max-w-none">
-
                 {user ? (
                   <Link
                     href="/dashboard"
-                    className="
-                      group inline-flex items-center justify-center gap-2
-                      rounded-lg px-6 py-3.5
-                      bg-amber-500 text-neutral-950
-                      text-sm font-semibold
-                      hover:bg-amber-400 hover:-translate-y-px active:scale-[0.98]
-                      transition-all duration-200
-                      shadow-lg shadow-amber-500/30
-                    "
+                    className="group inline-flex items-center justify-center gap-2 rounded-xl px-7 py-4 bg-amber-500 text-neutral-950 text-sm font-bold hover:bg-amber-400 hover:-translate-y-px active:scale-[0.98] transition-all duration-200 shadow-lg shadow-amber-500/30"
                   >
                     Accéder à mon espace
                     <svg className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
@@ -629,43 +438,18 @@ export default async function HomePage() {
                 ) : (
                   <RegisterCTA
                     label="Essayer gratuitement"
-                    className="
-                      group inline-flex items-center justify-center gap-2
-                      rounded-lg px-6 py-3.5
-                      bg-amber-500 text-neutral-950
-                      text-sm font-semibold
-                      hover:bg-amber-400 hover:-translate-y-px active:scale-[0.98]
-                      transition-all duration-200
-                      shadow-lg shadow-amber-500/30
-                    "
+                    className="group inline-flex items-center justify-center gap-2 rounded-xl px-7 py-4 bg-amber-500 text-neutral-950 text-sm font-bold hover:bg-amber-400 hover:-translate-y-px active:scale-[0.98] transition-all duration-200 shadow-lg shadow-amber-500/30"
                   />
                 )}
-
                 <Link
                   href="/abonnements"
-                  className="
-                    inline-flex items-center justify-center gap-2
-                    rounded-lg px-6 py-3.5
-                    bg-neutral-900/60 text-neutral-200
-                    text-sm font-semibold
-                    border border-neutral-800
-                    hover:border-neutral-700 hover:bg-neutral-900
-                    transition-all duration-200
-                    backdrop-blur-sm
-                  "
+                  className="inline-flex items-center justify-center gap-2 rounded-xl px-6 py-4 bg-neutral-900/60 text-neutral-200 text-sm font-semibold border border-neutral-800 hover:border-neutral-700 hover:bg-neutral-900 transition-all duration-200 backdrop-blur-sm"
                 >
                   Voir les tarifs
                 </Link>
-
               </div>
-
-              <p className="mt-3.5 text-[12px] text-neutral-600">
-                Aucune carte bancaire requise · Sans engagement · Annulable à tout moment
-              </p>
-
             </div>
           </div>
-
         </section>
 
         {/* Footer mini */}
@@ -688,12 +472,7 @@ export default async function HomePage() {
               { href: "/cookies", label: "Cookies" },
               { href: "/donnees-personnelles", label: "Données personnelles" },
             ].map(({ href, label }) => (
-              <Link
-                key={href}
-                href={href}
-                prefetch={false}
-                className="text-[10px] text-neutral-600 hover:text-neutral-400 transition-colors"
-              >
+              <Link key={href} href={href} prefetch={false} className="text-[10px] text-neutral-600 hover:text-neutral-400 transition-colors">
                 {label}
               </Link>
             ))}
@@ -706,89 +485,215 @@ export default async function HomePage() {
 }
 
 // ═══════════════════════════════════════════════════════════
-// LOGO BLOCK — Kyrivo by Kartium TCG
+// PRODUCT MOCKUP — faux dashboard Kyrivo
 // ═══════════════════════════════════════════════════════════
 
-function KyrivoLogo() {
+function ProductMockup() {
   return (
-    <div className="flex flex-col items-center">
+    <div className="relative">
+      {/* Outer ambient glow */}
+      <div
+        className="absolute -inset-3 rounded-3xl opacity-40 blur-2xl pointer-events-none"
+        style={{ background: "radial-gradient(ellipse, rgba(245,158,11,0.25) 0%, transparent 70%)" }}
+      />
 
-      {/* Lockup principal */}
-      <div className="flex items-center gap-4">
+      <div
+        className="relative rounded-2xl overflow-hidden border shadow-2xl shadow-black/60"
+        style={{
+          background: "linear-gradient(160deg, #0d0d0f 0%, #090909 100%)",
+          borderColor: "rgba(245,158,11,0.18)",
+          boxShadow: "0 0 0 1px rgba(245,158,11,0.08), 0 24px 60px rgba(0,0,0,0.7)",
+        }}
+      >
+        {/* Amber top bar */}
+        <div className="h-0.5 w-full bg-gradient-to-r from-amber-500 via-amber-400/80 to-transparent" />
 
-        {/* Mark : K doré */}
-        <div className="relative">
-          {/* Glow derrière le K */}
-          <div
-            className="absolute inset-0 blur-2xl opacity-60"
-            style={{
-              background:
-                "radial-gradient(circle, rgba(245,158,11,0.7) 0%, transparent 70%)",
-            }}
-          />
-
-          <div
-            className="
-              relative flex items-center justify-center
-              h-14 w-14 sm:h-16 sm:w-16
-              rounded-2xl
-              border border-amber-400/40
-              shadow-2xl
-            "
-            style={{
-              background:
-                "linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%)",
-              boxShadow:
-                "0 10px 40px -10px rgba(245,158,11,0.5), inset 0 1px 0 rgba(255,255,255,0.2)",
-            }}
-          >
-            <span className="text-2xl sm:text-3xl font-black text-neutral-950 tracking-tighter">
-              K
-            </span>
+        {/* Topbar */}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-800/60">
+          <div className="flex items-center gap-2.5">
+            <div
+              className="h-6 w-6 rounded-lg flex items-center justify-center flex-shrink-0"
+              style={{ background: "linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%)" }}
+            >
+              <span className="text-[10px] font-black text-neutral-950">K</span>
+            </div>
+            <span className="text-xs font-bold text-white">Kyrivo</span>
+            <span className="text-[10px] text-neutral-600">/ Dashboard</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
+            <span className="text-[10px] text-neutral-500">En ligne</span>
           </div>
         </div>
 
-        {/* Wordmark */}
-        <div className="text-left">
-          <div className="flex items-baseline gap-2">
-            <span className="text-3xl sm:text-4xl font-black text-white tracking-tight">
-              Kyrivo
-            </span>
-            <span className="text-[10px] font-bold text-amber-400/80 uppercase tracking-[0.2em] hidden sm:inline">
-              SaaS
-            </span>
-          </div>
-          <p className="text-[11px] text-neutral-500 tracking-wider mt-0.5">
-            by{" "}
-            <span className="text-neutral-300 font-semibold">Kartium TCG</span>
+        {/* KPI cards */}
+        <div className="grid grid-cols-4 border-b border-neutral-800/50">
+          <KPICard label="Achats" value="872 €" sub="-" color="blue" />
+          <KPICard label="Ventes" value="1 240 €" sub="+30%" color="emerald" />
+          <KPICard label="Stock" value="58" sub="articles" color="amber" />
+          <KPICard label="Marge" value="+367 €" sub="net" color="green" positive />
+        </div>
+
+        {/* Activity feed */}
+        <div className="p-4">
+          <p className="text-[9px] font-bold text-neutral-600 uppercase tracking-widest mb-3">
+            Activité récente
           </p>
+          <div className="space-y-2">
+            <ActivityRow
+              type="vente"
+              label="Pokémon EX Lot 15 cartes"
+              amount="+48,00 €"
+              positive
+            />
+            <ActivityRow
+              type="achat"
+              label="One Piece Booster Box ×5"
+              amount="-120,00 €"
+              positive={false}
+            />
+            <ActivityRow
+              type="vente"
+              label="Magic: The Gathering Slab"
+              amount="+85,00 €"
+              positive
+            />
+          </div>
         </div>
 
+        {/* Mini progress bar / quota */}
+        <div className="px-4 pb-4">
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-[9px] text-neutral-600 uppercase tracking-widest font-semibold">Quota lignes</span>
+            <span className="text-[9px] text-neutral-500 tabular-nums">47 / 500</span>
+          </div>
+          <div className="h-1 rounded-full bg-neutral-800 overflow-hidden">
+            <div className="h-full rounded-full bg-amber-500 w-[9%]" />
+          </div>
+        </div>
       </div>
+    </div>
+  );
+}
 
+function KPICard({
+  label,
+  value,
+  sub,
+  color,
+  positive = false,
+}: {
+  label: string;
+  value: string;
+  sub: string;
+  color: "blue" | "emerald" | "amber" | "green";
+  positive?: boolean;
+}) {
+  const textColor =
+    color === "blue" ? "text-blue-400" :
+    color === "emerald" ? "text-emerald-400" :
+    color === "amber" ? "text-amber-400" :
+    positive ? "text-lime-400" : "text-white";
+
+  return (
+    <div className="flex flex-col items-center justify-center px-2 py-3 border-r border-neutral-800/50 last:border-r-0">
+      <span className="text-[8px] font-semibold text-neutral-600 uppercase tracking-widest mb-1">{label}</span>
+      <span className={`text-sm sm:text-base font-bold tabular-nums ${textColor}`}>{value}</span>
+      <span className="text-[8px] text-neutral-700 mt-0.5">{sub}</span>
+    </div>
+  );
+}
+
+function ActivityRow({
+  type,
+  label,
+  amount,
+  positive,
+}: {
+  type: "vente" | "achat";
+  label: string;
+  amount: string;
+  positive: boolean;
+}) {
+  return (
+    <div className="flex items-center gap-2.5">
+      <span
+        className={`inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-md text-[8px] font-bold uppercase ${
+          type === "vente"
+            ? "bg-emerald-500/12 text-emerald-400 border border-emerald-500/20"
+            : "bg-blue-500/12 text-blue-400 border border-blue-500/20"
+        }`}
+      >
+        {type === "vente" ? "V" : "A"}
+      </span>
+      <span className="flex-1 text-[10px] text-neutral-400 truncate">{label}</span>
+      <span className={`text-[10px] font-semibold tabular-nums flex-shrink-0 ${positive ? "text-emerald-400" : "text-blue-400"}`}>
+        {amount}
+      </span>
     </div>
   );
 }
 
 // ═══════════════════════════════════════════════════════════
-// SOUS-COMPOSANTS
+// PROBLEM CARD
 // ═══════════════════════════════════════════════════════════
 
-function FeatureBadge({ children }: { children: React.ReactNode }) {
+function ProblemCard({
+  icon,
+  title,
+  description,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+}) {
   return (
-    <span
-      className="
-        inline-flex items-center gap-1.5
-        rounded-full
-        bg-neutral-900/60 border border-neutral-800
-        px-3 py-1.5
-        text-[11px] font-medium text-neutral-400
-      "
-    >
-      {children}
-    </span>
+    <div className="rounded-xl border border-red-500/10 bg-red-500/[0.04] p-5 hover:border-red-500/20 transition-colors duration-200">
+      <span className="inline-flex items-center justify-center h-9 w-9 rounded-lg bg-red-500/10 border border-red-500/15 text-red-400 mb-3">
+        {icon}
+      </span>
+      <h3 className="text-sm font-semibold text-white mb-2">{title}</h3>
+      <p className="text-sm text-neutral-500 leading-relaxed">{description}</p>
+    </div>
   );
 }
+
+// ═══════════════════════════════════════════════════════════
+// TCG TARGET CARD
+// ═══════════════════════════════════════════════════════════
+
+function TCGCard({
+  name,
+  detail,
+  color,
+}: {
+  name: string;
+  detail: string;
+  color: "amber" | "red" | "violet" | "blue" | "teal" | "neutral";
+}) {
+  const styles: Record<typeof color, { dot: string; border: string; bg: string; text: string }> = {
+    amber:   { dot: "bg-amber-400",   border: "border-amber-500/20",   bg: "bg-amber-500/5",   text: "text-amber-400" },
+    red:     { dot: "bg-red-400",     border: "border-red-500/20",     bg: "bg-red-500/5",     text: "text-red-400" },
+    violet:  { dot: "bg-violet-400",  border: "border-violet-500/20",  bg: "bg-violet-500/5",  text: "text-violet-400" },
+    blue:    { dot: "bg-blue-400",    border: "border-blue-500/20",    bg: "bg-blue-500/5",    text: "text-blue-400" },
+    teal:    { dot: "bg-teal-400",    border: "border-teal-500/20",    bg: "bg-teal-500/5",    text: "text-teal-400" },
+    neutral: { dot: "bg-neutral-400", border: "border-neutral-700",    bg: "bg-neutral-900/40", text: "text-neutral-400" },
+  };
+
+  const s = styles[color];
+
+  return (
+    <div className={`rounded-xl border p-4 text-center hover:scale-[1.02] transition-transform duration-200 ${s.border} ${s.bg}`}>
+      <span className={`inline-block h-2 w-2 rounded-full ${s.dot} mb-2`} />
+      <p className={`text-xs font-semibold ${s.text}`}>{name}</p>
+      <p className="text-[10px] text-neutral-600 mt-1 leading-snug">{detail}</p>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════
+// SOUS-COMPOSANTS EXISTANTS
+// ═══════════════════════════════════════════════════════════
 
 function StatBlock({
   value,
@@ -801,21 +706,13 @@ function StatBlock({
 }) {
   return (
     <div
-      className={`
-        rounded-xl p-5 text-center
-        border transition-colors duration-200
-        ${
-          accent
-            ? "bg-amber-500/5 border-amber-500/20 hover:border-amber-500/40"
-            : "bg-neutral-900/40 border-neutral-800 hover:border-neutral-700"
-        }
-      `}
+      className={`rounded-xl p-5 text-center border transition-colors duration-200 ${
+        accent
+          ? "bg-amber-500/5 border-amber-500/20 hover:border-amber-500/40"
+          : "bg-neutral-900/40 border-neutral-800 hover:border-neutral-700"
+      }`}
     >
-      <p
-        className={`text-2xl sm:text-3xl font-bold tabular-nums ${
-          accent ? "text-amber-400" : "text-white"
-        }`}
-      >
+      <p className={`text-2xl sm:text-3xl font-bold tabular-nums ${accent ? "text-amber-400" : "text-white"}`}>
         {value}
       </p>
       <p className="mt-1 text-[10px] sm:text-xs text-neutral-500 uppercase tracking-wider font-medium">
@@ -838,46 +735,11 @@ function SectionHeader({
     <div className="text-center max-w-3xl mx-auto">
       <div className="inline-flex items-center gap-2 mb-3 justify-center">
         <span className="inline-block h-px w-6 bg-amber-500" />
-        <span className="text-[11px] font-semibold text-amber-400 uppercase tracking-widest">
-          {label}
-        </span>
+        <span className="text-[11px] font-semibold text-amber-400 uppercase tracking-widest">{label}</span>
         <span className="inline-block h-px w-6 bg-amber-500" />
       </div>
-      <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white tracking-tight">
-        {title}
-      </h2>
-      <p className="mt-4 text-neutral-400 leading-relaxed mx-auto">
-        {description}
-      </p>
-    </div>
-  );
-}
-
-function HowItWorksCard({
-  step,
-  icon,
-  title,
-  description,
-}: {
-  step: string;
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-}) {
-  return (
-    <div className="rounded-xl bg-neutral-900/40 border border-neutral-800 p-6 hover:border-amber-500/20 transition-colors duration-200">
-      <div className="flex items-start gap-4">
-        <span className="inline-flex items-center justify-center h-10 w-10 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 flex-shrink-0">
-          {icon}
-        </span>
-        <div>
-          <p className="text-[10px] font-bold text-amber-400/60 uppercase tracking-widest mb-1">
-            {step}
-          </p>
-          <h3 className="text-sm font-semibold text-white">{title}</h3>
-          <p className="mt-1.5 text-sm text-neutral-400 leading-relaxed">{description}</p>
-        </div>
-      </div>
+      <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white tracking-tight">{title}</h2>
+      <p className="mt-4 text-neutral-400 leading-relaxed mx-auto">{description}</p>
     </div>
   );
 }
@@ -892,54 +754,19 @@ function FeatureCard({
   description: string;
 }) {
   return (
-    <div
-      className="
-        group relative rounded-xl
-        bg-neutral-900/40 border border-neutral-800
-        p-6
-        hover:border-amber-500/30
-        transition-all duration-300
-        overflow-hidden
-        text-center
-      "
-    >
-      {/* Glow hover */}
+    <div className="group relative rounded-xl bg-neutral-900/40 border border-neutral-800 p-6 hover:border-amber-500/25 transition-all duration-300 overflow-hidden">
+      {/* Hover glow */}
       <div
-        className="
-          absolute -top-12 left-1/2 -translate-x-1/2 h-32 w-32 rounded-full
-          opacity-0 group-hover:opacity-100
-          blur-3xl transition-opacity duration-500
-          pointer-events-none
-        "
-        style={{
-          background:
-            "radial-gradient(circle, rgba(245,158,11,0.3) 0%, transparent 70%)",
-        }}
+        className="absolute -top-10 left-1/2 -translate-x-1/2 h-28 w-28 rounded-full opacity-0 group-hover:opacity-100 blur-3xl transition-opacity duration-500 pointer-events-none"
+        style={{ background: "radial-gradient(circle, rgba(245,158,11,0.25) 0%, transparent 70%)" }}
       />
 
-      <div className="relative flex flex-col items-center">
-
-        <span
-          className="
-            inline-flex items-center justify-center
-            h-11 w-11 rounded-lg
-            bg-amber-500/10 border border-amber-500/20
-            text-amber-400
-            group-hover:bg-amber-500/15 group-hover:border-amber-500/40
-            transition-colors duration-200
-          "
-        >
+      <div className="relative flex flex-col items-center text-center">
+        <span className="inline-flex items-center justify-center h-11 w-11 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 group-hover:bg-amber-500/15 group-hover:border-amber-500/35 transition-colors duration-200 mb-4">
           {icon}
         </span>
-
-        <h3 className="mt-4 text-base font-semibold text-white tracking-tight">
-          {title}
-        </h3>
-
-        <p className="mt-2 text-sm text-neutral-400 leading-relaxed">
-          {description}
-        </p>
-
+        <h3 className="text-sm font-semibold text-white tracking-tight">{title}</h3>
+        <p className="mt-2 text-sm text-neutral-400 leading-relaxed">{description}</p>
       </div>
     </div>
   );
@@ -960,54 +787,20 @@ function WorkflowStep({
 }) {
   const styles =
     state === "completed"
-      ? {
-          ring: "border-emerald-500/30",
-          bg: "bg-emerald-500/5",
-          iconBg: "bg-emerald-500/15 border-emerald-500/30 text-emerald-400",
-          stepText: "text-emerald-400",
-        }
+      ? { ring: "border-emerald-500/30", bg: "bg-emerald-500/5", iconBg: "bg-emerald-500/15 border-emerald-500/30 text-emerald-400", stepText: "text-emerald-400" }
       : state === "active"
-      ? {
-          ring: "border-amber-500/40",
-          bg: "bg-amber-500/5",
-          iconBg: "bg-amber-500/15 border-amber-500/30 text-amber-400",
-          stepText: "text-amber-400",
-        }
-      : {
-          ring: "border-neutral-800",
-          bg: "bg-neutral-900/40",
-          iconBg: "bg-neutral-800/60 border-neutral-700 text-neutral-500",
-          stepText: "text-neutral-600",
-        };
+      ? { ring: "border-amber-500/40", bg: "bg-amber-500/5", iconBg: "bg-amber-500/15 border-amber-500/30 text-amber-400", stepText: "text-amber-400" }
+      : { ring: "border-neutral-800", bg: "bg-neutral-900/40", iconBg: "bg-neutral-800/60 border-neutral-700 text-neutral-500", stepText: "text-neutral-600" };
 
   return (
-    <div
-      className={`
-        rounded-xl border p-5 text-center
-        ${styles.ring} ${styles.bg}
-        transition-all duration-200
-      `}
-    >
+    <div className={`rounded-xl border p-5 text-center ${styles.ring} ${styles.bg} transition-all duration-200`}>
       <div className="flex flex-col items-center">
-
-        <span
-          className={`inline-flex items-center justify-center h-11 w-11 rounded-lg border ${styles.iconBg}`}
-        >
+        <span className={`inline-flex items-center justify-center h-11 w-11 rounded-lg border ${styles.iconBg}`}>
           {icon}
         </span>
-
-        <span
-          className={`mt-3 text-[10px] font-bold uppercase tracking-widest ${styles.stepText}`}
-        >
-          Étape {step}
-        </span>
-
+        <span className={`mt-3 text-[10px] font-bold uppercase tracking-widest ${styles.stepText}`}>Étape {step}</span>
         <h3 className="mt-2 text-sm font-semibold text-white">{title}</h3>
-
-        <p className="mt-1.5 text-xs text-neutral-500 leading-relaxed">
-          {description}
-        </p>
-
+        <p className="mt-1.5 text-xs text-neutral-500 leading-relaxed">{description}</p>
       </div>
     </div>
   );
@@ -1016,13 +809,7 @@ function WorkflowStep({
 function Arrow() {
   return (
     <div className="flex items-center justify-center px-2">
-      <svg
-        className="h-4 w-4 text-neutral-700"
-        fill="none"
-        viewBox="0 0 24 24"
-        strokeWidth={2}
-        stroke="currentColor"
-      >
+      <svg className="h-4 w-4 text-neutral-700" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
       </svg>
     </div>
@@ -1039,37 +826,27 @@ function BenefitCard({
   description: string;
 }) {
   return (
-    <div
-      className="
-        flex flex-col items-center text-center
-        rounded-xl bg-neutral-900/40 border border-neutral-800
-        p-6
-        hover:border-neutral-700 hover:bg-neutral-900/60
-        transition-all duration-200
-      "
-    >
-      <span
-        className="
-          inline-flex items-center justify-center
-          h-11 w-11 rounded-lg flex-shrink-0
-          bg-amber-500/10 border border-amber-500/20
-          text-amber-400
-        "
-      >
+    <div className="flex flex-col items-center text-center rounded-xl bg-neutral-900/40 border border-neutral-800 p-6 hover:border-neutral-700 hover:bg-neutral-900/60 transition-all duration-200">
+      <span className="inline-flex items-center justify-center h-11 w-11 rounded-xl flex-shrink-0 bg-amber-500/10 border border-amber-500/20 text-amber-400 mb-4">
         {icon}
       </span>
+      <h3 className="text-sm font-semibold text-white">{title}</h3>
+      <p className="mt-2 text-sm text-neutral-400 leading-relaxed">{description}</p>
+    </div>
+  );
+}
 
-      <h3 className="mt-4 text-sm font-semibold text-white">{title}</h3>
-      <p className="mt-2 text-sm text-neutral-400 leading-relaxed">
-        {description}
-      </p>
-
+function FAQItem({ question, answer }: { question: string; answer: string }) {
+  return (
+    <div className="rounded-xl bg-neutral-900/40 border border-neutral-800 px-6 py-5 hover:border-neutral-700 transition-colors duration-200">
+      <h3 className="text-sm font-semibold text-white mb-2">{question}</h3>
+      <p className="text-sm text-neutral-400 leading-relaxed">{answer}</p>
     </div>
   );
 }
 
 // ═══════════════════════════════════════════════════════════
-// ICÔNES (Heroicons outline)
+// ICÔNES
 // ═══════════════════════════════════════════════════════════
 
 function CartIcon() {
@@ -1149,15 +926,6 @@ function ShieldIcon() {
     <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
     </svg>
-  );
-}
-
-function FAQItem({ question, answer }: { question: string; answer: string }) {
-  return (
-    <div className="rounded-xl bg-neutral-900/40 border border-neutral-800 px-6 py-5 hover:border-neutral-700 transition-colors duration-200">
-      <h3 className="text-sm font-semibold text-white mb-2">{question}</h3>
-      <p className="text-sm text-neutral-400 leading-relaxed">{answer}</p>
-    </div>
   );
 }
 

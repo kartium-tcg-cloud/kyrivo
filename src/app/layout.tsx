@@ -98,7 +98,7 @@ export default function RootLayout({
         {/* ── Barre d'annonce/support ── */}
         <div className="fixed top-0 left-0 right-0 z-[60] flex h-8 items-center justify-center border-b border-neutral-800/40 bg-neutral-950/98 px-4 backdrop-blur-sm">
           <p className="text-center text-[11px] text-neutral-500">
-            <span className="hidden sm:inline">Un problème avec Kyrivo ? Contactez-nous : </span>
+            <span className="hidden sm:inline">Besoin d&apos;aide ? Contactez-nous : </span>
             <span className="sm:hidden">Assistance : </span>
             <a
               href="mailto:contact@kartium-tcg.com"

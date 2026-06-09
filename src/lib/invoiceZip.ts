@@ -583,7 +583,11 @@ function drawItemsTable(doc: jsPDF, sale: Sale): number {
     }
 
     drawText(doc, String(line.quantity), colQty,  textY, { size: FONT.body, align: "right", color: COLORS.inkMid });
-    drawText(doc, euro(line.unitPrice),  colUnit,  textY, { size: FONT.body, align: "right", color: COLORS.inkMid });
+    // Prix unitaire affiché = total ligne ÷ quantité (fiable pour TVA standard ET TVA marge)
+    // Pour TVA marge, unit_price stocke le TTC total de la ligne, pas le prix unitaire réel.
+    const _qty = Math.max(Number(line.quantity) || 1, 1);
+    const displayUnitPrice = Math.round((Number(line.totalPrice) / _qty) * 100) / 100;
+    drawText(doc, euro(displayUnitPrice), colUnit,  textY, { size: FONT.body, align: "right", color: COLORS.inkMid });
     drawText(doc, euro(line.totalPrice), colTotal, textY, { size: FONT.body, bold: true, align: "right", color: COLORS.ink });
 
     if (i < lines.length - 1) {

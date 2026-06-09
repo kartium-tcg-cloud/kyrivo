@@ -66,37 +66,37 @@ export default function VentesTableau({
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-neutral-700/50">
-              <th className="px-4 py-3 text-left text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">
+              <th className="px-4 py-3.5 text-left text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">
                 Date
               </th>
-              <th className="px-4 py-3 text-left text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">
+              <th className="px-4 py-3.5 text-left text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">
                 N°
               </th>
-              <th className="px-4 py-3 text-left text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">
+              <th className="px-4 py-3.5 text-left text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">
                 Client
               </th>
-              <th className="px-4 py-3 text-left text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">
+              <th className="px-4 py-3.5 text-left text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">
                 Régime
               </th>
-              <th className="px-4 py-3 text-right text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">
+              <th className="px-4 py-3.5 text-right text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">
                 HT
               </th>
-              <th className="px-4 py-3 text-right text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">
+              <th className="px-4 py-3.5 text-right text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">
                 TVA
               </th>
-              <th className="px-4 py-3 text-right text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">
+              <th className="px-4 py-3.5 text-right text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">
                 TTC
               </th>
-              <th className="px-4 py-3 text-right text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">
+              <th className="px-4 py-3.5 text-right text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">
                 Marge
               </th>
-              <th className="px-4 py-3 text-center text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">
+              <th className="px-4 py-3.5 text-center text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
           </thead>
 
-          <tbody className="divide-y divide-neutral-800/40">
+          <tbody className="divide-y divide-neutral-800/60">
             {ventes.map((vente, index) => {
               const config = SALE_VAT_MODE_CONFIG[vente.vatMode];
 
@@ -112,15 +112,15 @@ export default function VentesTableau({
                   `}
                   onClick={() => toggleDetails(vente.id)}
                 >
-                  <td className="px-4 py-3 text-neutral-400 whitespace-nowrap">
+                  <td className="px-4 py-3.5 text-neutral-400 whitespace-nowrap">
                     {formatDate(vente.date)}
                   </td>
 
-                  <td className="px-4 py-3 font-mono text-xs text-neutral-600">
+                  <td className="px-4 py-3.5 font-mono text-xs text-neutral-600">
                     {vente.numInterne}
                   </td>
 
-                  <td className="px-4 py-3 font-medium max-w-[220px] truncate">
+                  <td className="px-4 py-3.5 font-medium max-w-[220px] truncate">
                     {vente.contactId ? (
                       <Link
                         href={`/contacts/${vente.contactId}`}
@@ -134,7 +134,7 @@ export default function VentesTableau({
                     )}
                   </td>
 
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3.5">
                     <span
                       className={`
                         inline-flex items-center rounded-full border
@@ -148,11 +148,11 @@ export default function VentesTableau({
                     </span>
                   </td>
 
-                  <td className="px-4 py-3 text-right text-neutral-300 whitespace-nowrap tabular-nums">
+                  <td className="px-4 py-3.5 text-right text-neutral-300 whitespace-nowrap tabular-nums">
                     {formatEuro(vente.subtotalHT)}
                   </td>
 
-                  <td className="px-4 py-3 text-right whitespace-nowrap tabular-nums">
+                  <td className="px-4 py-3.5 text-right whitespace-nowrap tabular-nums">
                     <span
                       className={
                         vente.vatAmount > 0
@@ -164,11 +164,11 @@ export default function VentesTableau({
                     </span>
                   </td>
 
-                  <td className="px-4 py-3 text-right text-white font-semibold whitespace-nowrap tabular-nums">
+                  <td className="px-4 py-3.5 text-right text-white font-semibold whitespace-nowrap tabular-nums">
                     {formatEuro(vente.totalTTC)}
                   </td>
 
-                  <td className="px-4 py-3 text-right whitespace-nowrap tabular-nums">
+                  <td className="px-4 py-3.5 text-right whitespace-nowrap tabular-nums">
                     <span
                       className={
                         vente.marginAmount !== 0
@@ -184,8 +184,8 @@ export default function VentesTableau({
                     </span>
                   </td>
 
-                  <td className="px-4 py-3">
-                    <div className="flex items-center justify-center gap-0.5 opacity-40 group-hover:opacity-100 transition-opacity duration-200">
+                  <td className="px-4 py-3.5">
+                    <div className="flex items-center justify-center gap-0.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-150">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -274,7 +274,7 @@ export default function VentesTableau({
                   <tr key={`${vente.id}-details`}>
                     <td
                       colSpan={9}
-                      className="px-4 py-4 bg-neutral-800/30 border-b border-amber-500/10"
+                      className="px-4 py-5 bg-neutral-900/60 border-b border-amber-500/10"
                     >
                       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 text-sm">
                         <div>
