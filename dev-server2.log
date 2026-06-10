@@ -1,0 +1,33 @@
+﻿
+> kyrivo@0.1.0 dev
+> next dev
+
+Ôû▓ Next.js 16.2.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.0.6:3000
+- Environments: .env.local
+Ô£ô Ready in 408ms
+
+ GET / 200 in 965ms (next.js: 148ms, proxy.ts: 162ms, application-code: 656ms)
+[cron/trial-emails] D├®marrage ÔÇö dryRun=true
+[cron/trial-emails] Candidats ÔÇö J0:0 J3:3 LastDay:0
+node.exe : [isAlreadySent] erreur byUserId: permission denied for table email_logs
+Au caractère Ligne:1 : 1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([isAlreadySent]...able email_logs:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[isAlreadySent] erreur byEmail: permission denied for table email_logs
+[isAlreadySent] userId=b2ef49c6-2541-4e4f-a8d4-43c07e8f7ccb email=contact@all-in-tcg.com type=trial_activation_j3 ÔåÆ byUserId=false byEmail=false
+[cron/trial-emails] trial_activation_j3 ÔåÆ contact@all-in-tcg.com : skipped (dry_run)
+[isAlreadySent] erreur byUserId: permission denied for table email_logs
+[isAlreadySent] erreur byEmail: permission denied for table email_logs
+[isAlreadySent] userId=9bccf9d6-a5c1-441c-b106-f1f1949b77c0 email=meersmantheo@hotmail.com type=trial_activation_j3 ÔåÆ byUserId=false byEmail=false
+[cron/trial-emails] trial_activation_j3 ÔåÆ meersmantheo@hotmail.com : skipped (dry_run)
+[isAlreadySent] erreur byUserId: permission denied for table email_logs
+[isAlreadySent] erreur byEmail: permission denied for table email_logs
+[isAlreadySent] userId=cbb9813a-41a5-42bf-a427-297b6c28dbbf email=jjgoldconseil@gmail.com type=trial_activation_j3 ÔåÆ byUserId=false byEmail=false
+[cron/trial-emails] trial_activation_j3 ÔåÆ jjgoldconseil@gmail.com : skipped (dry_run)
+ GET /api/cron/trial-emails?dryRun=true 200 in 1367ms (next.js: 95ms, proxy.ts: 5ms, application-code: 1267ms)
+[?25h

@@ -99,7 +99,7 @@ export default async function DashboardPage() {
       trialEndsAt !== null &&
       trialEndsAt > now;
     const isPaidActive =
-      subscription?.status === "active" &&
+      (subscription?.status === "active" || subscription?.status === "canceled") &&
       subscriptionEndsAt !== null &&
       subscriptionEndsAt > now;
     isPastDue = subscription?.status === "past_due";

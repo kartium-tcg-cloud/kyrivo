@@ -144,6 +144,8 @@ const [currentPlan, setCurrentPlan] = useState<CurrentPlan>(null);
 const [loadingPortal, setLoadingPortal] = useState(false);
 const [hasStripeCustomer, setHasStripeCustomer] = useState(false);
 const [isPastDue, setIsPastDue] = useState(false);
+const [isCanceled, setIsCanceled] = useState(false);
+const [canceledEndsAt, setCanceledEndsAt] = useState<string | null>(null);
 
   // ─── Meta Pixel — ViewContent ────────────────────────────
   useEffect(() => {
@@ -170,6 +172,8 @@ async function checkAuth() {
     if (!user) {
       setCurrentPlan(null);
       setHasStripeCustomer(false);
+      setIsCanceled(false);
+      setCanceledEndsAt(null);
       return;
     }
 
@@ -182,6 +186,8 @@ async function checkAuth() {
     if (!membership?.company_id) {
       setCurrentPlan(null);
       setHasStripeCustomer(false);
+      setIsCanceled(false);
+      setCanceledEndsAt(null);
       return;
     }
 
@@ -199,9 +205,12 @@ async function checkAuth() {
       new Date(subscription.trial_ends_at) > now;
 
     const isPaidActive =
-      subscription?.status === "active" &&
-      subscription.subscription_ends_at &&
+      (subscription?.status === "active" || subscription?.status === "canceled") &&
+      !!subscription?.subscription_ends_at &&
       new Date(subscription.subscription_ends_at) > now;
+
+    const isCanceledStillActive =
+      isPaidActive && subscription?.status === "canceled";
 
     const pastDue = subscription?.status === "past_due";
     setIsPastDue(pastDue);
@@ -209,9 +218,13 @@ async function checkAuth() {
     if (isTrialActive || isPaidActive || pastDue) {
       setCurrentPlan(subscription.plan as CurrentPlan);
       setHasStripeCustomer(!!subscription.stripe_customer_id);
+      setIsCanceled(isCanceledStillActive);
+      setCanceledEndsAt(isCanceledStillActive ? subscription.subscription_ends_at! : null);
     } else {
       setCurrentPlan(null);
       setHasStripeCustomer(false);
+      setIsCanceled(false);
+      setCanceledEndsAt(null);
     }
   } catch (error) {
     console.error(error);
@@ -305,6 +318,29 @@ const handlePortal = async () => {
 
   return (
     <div className="relative overflow-hidden">
+
+      {/* ═══ BANNIÈRE CANCELED ENCORE ACTIF ════════════════ */}
+      {isCanceled && canceledEndsAt && (
+        <div className="flex items-start gap-3 border-b border-amber-500/20 bg-amber-500/8 px-6 py-3.5 lg:px-10">
+          <svg className="h-4 w-4 text-amber-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9.303 3.376c.866 1.5-.217 3.374-1.948 3.374H2.645c-1.73 0-2.813-1.874-1.948-3.374L10.051 3.378c.866-1.5 3.032-1.5 3.898 0L21.303 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+          </svg>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-amber-300">Abonnement annulé</p>
+            <p className="text-xs text-neutral-400 mt-0.5 leading-relaxed">
+              Votre abonnement a été annulé, mais votre accès reste actif jusqu'au{" "}
+              <strong className="text-neutral-200">
+                {new Date(canceledEndsAt).toLocaleDateString("fr-BE", {
+                  day: "2-digit",
+                  month: "long",
+                  year: "numeric",
+                })}
+              </strong>
+              . Vous pouvez reprendre un abonnement à tout moment.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* ═══ BANNIÈRE PAST_DUE ══════════════════════════════ */}
       {isPastDue && (

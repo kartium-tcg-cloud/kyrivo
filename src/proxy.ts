@@ -12,6 +12,7 @@ const PUBLIC_PREFIXES = [
   "/mode-emploi",
   "/api/analytics",
   "/api/meta",
+  "/api/cron",
   "/auth",
   "/_next",
 ];
