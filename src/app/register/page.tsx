@@ -125,19 +125,12 @@ export default function RegisterPage() {
       <div className="relative w-full max-w-md">
 
         {/* Logo */}
-        <div className="mb-6 flex items-center justify-center gap-3">
-          <div
-            className="flex h-11 w-11 items-center justify-center rounded-xl border border-amber-400/40"
-            style={{
-              background: "linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%)",
-              boxShadow: "0 8px 28px -8px rgba(245,158,11,0.7), inset 0 1px 0 rgba(255,255,255,0.25)",
-            }}
-          >
-            <span className="text-lg font-black tracking-tighter text-neutral-950">K</span>
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-white">Kyrivo</h1>
-          </div>
+        <div className="mb-6 flex items-center justify-center">
+          <img
+            src="/brand/kyrivo-logo-primary-dark.svg"
+            alt="Kyrivo"
+            className="h-11"
+          />
         </div>
 
         <div className="overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900/70 shadow-2xl shadow-black/30 backdrop-blur">

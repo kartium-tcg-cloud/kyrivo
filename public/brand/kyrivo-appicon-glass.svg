@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 72" width="72" height="72" role="img" aria-label="Kyrivo verre">
+  <rect width="72" height="72" fill="#0B0D12"/>
+  <rect x="0.5" y="0.5" width="71" height="71" fill="none" stroke="#232833"/>
+  <circle cx="46" cy="20" r="17" fill="#FBBF24" opacity="0.10"/>
+  <circle cx="24" cy="50" r="15" fill="#F59E0B" opacity="0.07"/>
+  <g stroke="#FBBF24" stroke-opacity="0.9" stroke-width="1.2" stroke-linejoin="round">
+    <polygon points="17,10 29,10 29,62 17,62" fill="#F59E0B" fill-opacity="0.28"/>
+    <polygon points="29,28 47,10 58,10 29,39" fill="#FBBF24" fill-opacity="0.30"/>
+    <polygon points="29,33 58,62 47,62 29,44" fill="#D97706" fill-opacity="0.34"/>
+  </g>
+  <path d="M17.7 10.7 H28.3" stroke="#FFF6D8" stroke-width="1.4" stroke-linecap="round" opacity="0.85"/>
+  <path d="M29.7 28 L47.3 10.7" stroke="#FFF6D8" stroke-width="1.4" stroke-linecap="round" opacity="0.7"/>
+  <polygon points="12,32 60,8 66,13 18,37" fill="#FFFFFF" opacity="0.06"/>
+</svg>

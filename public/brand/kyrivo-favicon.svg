@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-label="Kyrivo">
+  <rect width="32" height="32" rx="7" fill="#111317"/>
+  <polygon points="5,3 12,3 12,29 5,29" fill="#F59E0B"/>
+  <polygon points="12,12 21,3 28,3 12,19" fill="#FBBF24"/>
+  <polygon points="12,13 28,29 21,29 12,20" fill="#D97706"/>
+</svg>

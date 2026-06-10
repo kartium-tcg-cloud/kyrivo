@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 252 64" width="252" height="64" role="img" aria-label="Kyrivo">
+  <polygon points="13,6 25,6 25,58 13,58" fill="#F59E0B"/>
+  <polygon points="25,24 43,6 54,6 25,35" fill="#FBBF24"/>
+  <polygon points="25,29 54,58 43,58 25,40" fill="#D97706"/>
+  <polygon points="25,27 25,37 20,32" fill="#B45309"/>
+  <g transform="translate(76,19) scale(1.083)" fill="none" stroke="#F8FAFC" stroke-width="5">
+    <path d="M2.5 0 V24"/><path d="M16 0 L5 12 L16 24"/>
+    <g transform="translate(27,0)"><path d="M2.5 0 L9 11.5 L15.5 0"/><path d="M9 11 V24"/></g>
+    <g transform="translate(54,0)"><path d="M2.5 0 V24"/><path d="M2.5 2.5 H9.5 A5.75 5.75 0 0 1 9.5 14 H2.5"/><path d="M9.5 14 L16 24"/></g>
+    <g transform="translate(81,0)"><path d="M2.5 0 V24"/></g>
+    <g transform="translate(95,0)"><path d="M2.5 0 L9 24 L15.5 0"/></g>
+    <g transform="translate(122,0)"><ellipse cx="11" cy="12" rx="8.5" ry="9.5"/></g>
+  </g>
+</svg>

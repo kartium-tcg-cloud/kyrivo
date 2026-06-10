@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 300" width="960" height="600" role="img" aria-label="Kyrivo — Gestion achat-revente">
+  <defs>
+    <linearGradient id="hS" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFDE8F"/><stop offset="0.45" stop-color="#F59E0B"/><stop offset="1" stop-color="#B96202"/></linearGradient>
+    <linearGradient id="hU" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#F5A623"/><stop offset="1" stop-color="#FFEDB3"/></linearGradient>
+    <linearGradient id="hL" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E08E06"/><stop offset="1" stop-color="#8F5403"/></linearGradient>
+    <linearGradient id="fR" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#050505" stop-opacity="0.35"/><stop offset="0.75" stop-color="#050505" stop-opacity="1"/></linearGradient>
+  </defs>
+
+  <rect width="480" height="300" rx="20" fill="#050505"/>
+  <rect x="0.5" y="0.5" width="479" height="299" rx="19.5" fill="none" stroke="#23262C"/>
+
+  <rect x="40" y="176" width="400" height="1" fill="#FBBF24" opacity="0.14"/>
+  <ellipse cx="165" cy="120" rx="120" ry="85" fill="#F59E0B" opacity="0.08"/>
+  <ellipse cx="180" cy="95" rx="55" ry="45" fill="#FBBF24" opacity="0.10"/>
+
+  <g transform="translate(110,292) scale(2,-2)" opacity="0.20">
+    <polygon points="13,6 25,6 25,58 13,58" fill="url(#hS)"/>
+    <polygon points="25,24 43,6 54,6 25,35" fill="url(#hU)"/>
+    <polygon points="25,29 54,58 43,58 25,40" fill="url(#hL)"/>
+  </g>
+  <rect x="100" y="176" width="140" height="124" fill="url(#fR)"/>
+
+  <g transform="translate(110,60) scale(2)">
+    <polygon points="13,6 25,6 25,58 13,58" fill="url(#hS)"/>
+    <polygon points="25,24 43,6 54,6 25,35" fill="url(#hU)"/>
+    <polygon points="25,29 54,58 43,58 25,40" fill="url(#hL)"/>
+    <polygon points="25,27 25,37 20,32" fill="#7C4A03"/>
+    <path d="M13.6 6.6 H24.4" stroke="#FFF6D8" stroke-width="0.9" stroke-linecap="round" opacity="0.85"/>
+    <path d="M25.6 24 L43.2 6.6" stroke="#FFF6D8" stroke-width="0.9" stroke-linecap="round" opacity="0.75"/>
+    <polygon points="10,30 50,10 55,14.5 15,34.5" fill="#FFFFFF" opacity="0.07"/>
+    <ellipse cx="47" cy="9.5" rx="2.4" ry="1.4" fill="#FFF6D8" opacity="0.75" transform="rotate(-45 47 9.5)"/>
+  </g>
+
+  <rect x="254" y="102" width="44" height="3" fill="#F59E0B"/>
+  <!-- Wordmark vectorisé, cap 30 -->
+  <g transform="translate(254,118) scale(1.25)" fill="none" stroke="#F8FAFC" stroke-width="5">
+    <path d="M2.5 0 V24"/><path d="M16 0 L5 12 L16 24"/>
+    <g transform="translate(27,0)"><path d="M2.5 0 L9 11.5 L15.5 0"/><path d="M9 11 V24"/></g>
+    <g transform="translate(54,0)"><path d="M2.5 0 V24"/><path d="M2.5 2.5 H9.5 A5.75 5.75 0 0 1 9.5 14 H2.5"/><path d="M9.5 14 L16 24"/></g>
+    <g transform="translate(81,0)"><path d="M2.5 0 V24"/></g>
+    <g transform="translate(95,0)"><path d="M2.5 0 L9 24 L15.5 0"/></g>
+    <g transform="translate(122,0)"><ellipse cx="11" cy="12" rx="8.5" ry="9.5"/></g>
+  </g>
+  <text x="255" y="178" font-family="Arial, 'Helvetica Neue', 'DejaVu Sans', sans-serif" font-size="11" font-weight="500" letter-spacing="3" fill="#94A3B8">GESTION ACHAT-REVENTE</text>
+</svg>

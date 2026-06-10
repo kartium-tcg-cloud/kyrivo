@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     title: "Mode d'emploi Kyrivo — Guide pour bien démarrer",
     description:
       "Apprenez à configurer Kyrivo, encoder vos achats et ventes, suivre votre stock, analyser vos marges, exporter vos données et générer vos factures.",
-    images: ['/og-kyrivo.png'],
+    images: ['/brand/kyrivo-hero-marketing-2400.png'],
   },
 }
 

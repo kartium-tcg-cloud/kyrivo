@@ -179,34 +179,12 @@ export default function LoginPage() {
       </div>
 
       <div className="relative w-full max-w-md">
-        <div className="mb-6 flex items-center justify-center gap-3">
-          <div
-            className="flex h-11 w-11 items-center justify-center rounded-xl border border-amber-400/40"
-            style={{
-              background:
-                "linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%)",
-              boxShadow:
-                "0 8px 28px -8px rgba(245,158,11,0.7), inset 0 1px 0 rgba(255,255,255,0.25)",
-            }}
-          >
-            <span className="text-lg font-black tracking-tighter text-neutral-950">
-              K
-            </span>
-          </div>
-
-          <div>
-            <div className="flex items-baseline gap-2">
-              <h1 className="text-2xl font-bold tracking-tight text-white">
-                Kyrivo
-              </h1>
-              <span className="text-[9px] font-bold uppercase tracking-[0.18em] text-amber-400">
-                SaaS
-              </span>
-            </div>
-            <p className="text-[11px] text-neutral-500">
-              by <span className="font-semibold text-neutral-400">Kartium TCG</span>
-            </p>
-          </div>
+        <div className="mb-6 flex items-center justify-center">
+          <img
+            src="/brand/kyrivo-logo-primary-dark.svg"
+            alt="Kyrivo"
+            className="h-11"
+          />
         </div>
 
         <Suspense

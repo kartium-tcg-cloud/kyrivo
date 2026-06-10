@@ -195,9 +195,11 @@ return (
   <>
     <header className="fixed top-8 left-0 right-0 z-40 flex h-16 items-center justify-between border-b border-neutral-800/60 bg-neutral-950/95 px-4 backdrop-blur lg:hidden">
       <Link href="/" className="flex items-center gap-3">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-amber-400/40 bg-amber-500">
-          <span className="text-base font-black text-neutral-950">K</span>
-        </div>
+        <img
+          src="/brand/kyrivo-symbol-dark.svg"
+          alt="Kyrivo"
+          className="h-9 w-9"
+        />
 
         <div>
           <div className="flex items-baseline gap-1.5">
@@ -255,26 +257,11 @@ className={`
                   "radial-gradient(circle, rgba(245,158,11,0.5) 0%, transparent 70%)",
               }}
             />
-
-            <div
-              className="
-                relative flex items-center justify-center
-                h-9 w-9 rounded-lg
-                border border-amber-400/40
-                transition-transform duration-200
-                group-hover:scale-105
-              "
-              style={{
-                background:
-                  "linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%)",
-                boxShadow:
-                  "0 4px 16px -4px rgba(245,158,11,0.5), inset 0 1px 0 rgba(255,255,255,0.2)",
-              }}
-            >
-              <span className="text-base font-black text-neutral-950 tracking-tighter">
-                K
-              </span>
-            </div>
+            <img
+              src="/brand/kyrivo-symbol-dark.svg"
+              alt="Kyrivo"
+              className="relative h-9 w-9 transition-transform duration-200 group-hover:scale-105"
+            />
           </div>
 
           <div className="flex-1 min-w-0">

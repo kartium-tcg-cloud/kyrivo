@@ -15,7 +15,6 @@ export default function Icon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          border: "1px solid rgba(245,180,0,0.25)",
         }}
       >
         <span

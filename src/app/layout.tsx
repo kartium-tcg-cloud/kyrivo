@@ -49,9 +49,9 @@ export const metadata: Metadata = {
       "Achats, ventes, stock, marges, TVA et exports dans un outil simple pour revendeurs de biens physiques.",
     images: [
       {
-        url: "/og-kyrivo.png",
-        width: 1200,
-        height: 630,
+        url: "/brand/kyrivo-hero-marketing-2400.png",
+        width: 2400,
+        height: 1260,
         alt: "Kyrivo — Outil de gestion pour revendeurs : achats, ventes, stock, marges et TVA",
         type: "image/png",
       },
@@ -63,7 +63,7 @@ export const metadata: Metadata = {
     title: "Kyrivo — Gestion achats, ventes et stock pour revendeurs",
     description:
       "Achats, ventes, stock, marges, TVA et exports dans un outil simple pour revendeurs de biens physiques.",
-    images: ["/og-kyrivo.png"],
+    images: ["/brand/kyrivo-hero-marketing-2400.png"],
   },
 
   robots: {
@@ -78,11 +78,14 @@ export const metadata: Metadata = {
 
   icons: {
     icon: [
-      { url: "/favicon.svg", type: "image/svg+xml" },
-      { url: "/icon.png", type: "image/png" },
+      { url: "/brand/kyrivo-favicon.svg", type: "image/svg+xml" },
+      { url: "/brand/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/brand/favicon-16.png", sizes: "16x16", type: "image/png" },
     ],
-    shortcut: "/favicon.svg",
-    apple: "/apple-icon.png",
+    shortcut: "/brand/kyrivo-favicon.svg",
+    apple: [
+      { url: "/brand/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
   },
 };
 
