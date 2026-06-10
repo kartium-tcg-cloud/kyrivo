@@ -61,7 +61,7 @@ export default async function HomePage() {
           name: "À qui s'adresse Kyrivo ?",
           acceptedAnswer: {
             "@type": "Answer",
-            text: "Kyrivo s'adresse aux revendeurs de biens physiques : Vinted, brocante, cartes Pokémon et TCG, objets de collection, Lego, figurines, mangas, lots d'occasion et autres articles revendables.",
+            text: "Kyrivo s'adresse aux revendeurs de biens physiques : Vinted, brocante, cartes Pokémon et TCG, objets de collection, LEGO, figurines, mangas, lots d'occasion et autres articles revendables.",
           },
         },
         {
@@ -230,7 +230,7 @@ export default async function HomePage() {
         {/* ═══════════════════════════════════════════════════ */}
         <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-24 max-w-4xl mx-auto">
           <StatBlock value="TVA marge" label="Intégrée nativement" accent />
-          <StatBlock value="FR · BE" label="Conformité fiscale" />
+          <StatBlock value="FR · BE" label="Suivi adapté" />
           <StatBlock value="PDF" label="Factures auto" />
           <StatBlock value="Excel" label="Export comptable" accent />
         </section>
@@ -386,7 +386,7 @@ export default async function HomePage() {
           />
 
           <div className="mt-12 max-w-3xl mx-auto space-y-3">
-            <FAQItem question="À qui s'adresse Kyrivo ?" answer="Kyrivo s'adresse aux revendeurs de biens physiques : Vinted, brocante, cartes Pokémon et TCG, objets de collection, Lego, figurines, mangas, lots d'occasion et autres articles revendables." />
+            <FAQItem question="À qui s'adresse Kyrivo ?" answer="Kyrivo s'adresse aux revendeurs de biens physiques : Vinted, brocante, cartes Pokémon et TCG, objets de collection, LEGO, figurines, mangas, lots d'occasion et autres articles revendables." />
             <FAQItem question="Kyrivo remplace-t-il Excel ?" answer="Kyrivo aide à remplacer les fichiers Excel compliqués en centralisant les achats, ventes, stock, marges, TVA et exports dans un seul outil." />
             <FAQItem question="Kyrivo gère-t-il la TVA ?" answer="Kyrivo permet de suivre la TVA standard et la TVA sur marge selon les informations encodées. L'outil aide au suivi, mais ne remplace pas un accompagnement comptable professionnel." />
             <FAQItem question="Puis-je suivre mon stock avec Kyrivo ?" answer="Oui. Les achats de stock créent des articles suivis avec quantités restantes, références et coûts d'achat." />
