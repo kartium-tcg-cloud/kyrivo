@@ -23,7 +23,7 @@ export default async function HomePage() {
       operatingSystem: "Web",
       url: "https://kyrivo.kartium-tcg.com",
       description:
-        "Outil de gestion des achats, ventes, stock, marges et TVA pour revendeurs de biens physiques en France et en Belgique.",
+        "Outil de gestion des achats, ventes, stock, marges, TVA et factures pour revendeurs de biens physiques en France et en Belgique.",
       inLanguage: "fr",
       featureList: [
         "Gestion des achats",
@@ -61,7 +61,7 @@ export default async function HomePage() {
           name: "À qui s'adresse Kyrivo ?",
           acceptedAnswer: {
             "@type": "Answer",
-            text: "Kyrivo s'adresse aux revendeurs de biens physiques : cartes Pokémon et TCG, Vinted, Lego, sneakers, figurines, mangas, brocante et autres objets de collection.",
+            text: "Kyrivo s'adresse aux revendeurs de biens physiques : Vinted, brocante, cartes Pokémon et TCG, objets de collection, Lego, figurines, mangas, lots d'occasion et autres articles revendables.",
           },
         },
         {
@@ -90,10 +90,10 @@ export default async function HomePage() {
         },
         {
           "@type": "Question",
-          name: "Kyrivo est-il adapté aux vendeurs de cartes Pokémon ?",
+          name: "Kyrivo est-il réservé aux cartes Pokémon ?",
           acceptedAnswer: {
             "@type": "Answer",
-            text: "Oui. Kyrivo a été pensé au départ pour des revendeurs TCG et cartes Pokémon, puis élargi aux autres revendeurs de biens physiques.",
+            text: "Non. Kyrivo a été pensé au départ pour des revendeurs de cartes et de TCG, mais l'outil convient aussi aux revendeurs Vinted, brocante, collection et seconde main.",
           },
         },
         {
@@ -148,17 +148,17 @@ export default async function HomePage() {
             {/* ── COLONNE GAUCHE : copy + CTA ─────────────── */}
             <div className="flex flex-col items-center text-center lg:items-start lg:text-left lg:max-w-[520px]">
 
-              {/* Eyebrow TCG */}
+              {/* Eyebrow */}
               <div className="inline-flex items-center gap-2 rounded-full bg-amber-500/10 border border-amber-500/25 px-3 py-1.5 mb-6">
                 <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse flex-shrink-0" />
                 <span className="text-[11px] font-semibold text-amber-400 tracking-widest uppercase">
-                  Pokémon · One Piece · Yu-Gi-Oh! · Magic
+                  Vinted · Brocante · TCG · Collection · Lots d’occasion
                 </span>
               </div>
 
               {/* H1 */}
               <h1 className="text-4xl sm:text-5xl lg:text-[54px] font-bold text-white tracking-tight leading-[1.12] mb-5">
-                Tu revends des cartes&nbsp;?{" "}
+                Tu fais de l’achat-revente&nbsp;?{" "}
                 <span
                   className="block bg-clip-text text-transparent pb-2"
                   style={{ backgroundImage: "linear-gradient(135deg, #fcd34d 0%, #f59e0b 45%, #d97706 100%)" }}
@@ -170,7 +170,7 @@ export default async function HomePage() {
               {/* Subtitle desktop */}
               <p className="text-base sm:text-lg text-neutral-400 leading-relaxed mb-8 max-w-[440px]">
                 Kyrivo centralise tes{" "}
-                <strong className="text-neutral-200 font-semibold">achats, ventes, stock, marges et TVA</strong>{" "}
+                <strong className="text-neutral-200 font-semibold">achats, ventes, stock, marges, TVA et factures</strong>{" "}
                 dans un seul outil — sans Excel compliqué.
               </p>
 
@@ -207,7 +207,7 @@ export default async function HomePage() {
 
               {/* Badges fonctionnalités — desktop */}
               <div className="hidden lg:flex flex-wrap gap-2 mt-6">
-                {["TVA sur marge FR", "TVA sur marge BE", "Factures PDF", "Export Excel", "Stock temps réel"].map((b) => (
+                {["Stock temps réel", "Factures PDF", "Export Excel", "TVA sur marge", "France · Belgique"].map((b) => (
                   <span key={b} className="inline-flex items-center rounded-full bg-neutral-900/60 border border-neutral-800 px-3 py-1 text-[11px] font-medium text-neutral-400">
                     {b}
                   </span>
@@ -255,7 +255,7 @@ export default async function HomePage() {
                   Excel, c&apos;est bien pour débuter.<br className="hidden sm:block" /> Pas pour gérer une vraie activité.
                 </h2>
                 <p className="mt-3 text-neutral-500 text-sm leading-relaxed">
-                  La plupart des revendeurs TCG passent par le même chemin. Un fichier qui grossit, des erreurs qui s&apos;accumulent.
+                  La plupart des revendeurs commencent avec un fichier simple. Puis les ventes se multiplient, le stock bouge, les marges deviennent floues et les erreurs s&apos;accumulent.
                 </p>
               </div>
 
@@ -263,17 +263,17 @@ export default async function HomePage() {
                 <ProblemCard
                   icon={<CalcIcon />}
                   title="Marges floues"
-                  description="Tu vends une carte 25 €. Tu l'as payée combien ? Tu calcules à la main, après coup. Si tu calcules."
+                  description="Tu revends un article 25 €. Tu l’avais payé combien ? Avec les frais, la marge réelle n’est pas toujours celle que tu imagines."
                 />
                 <ProblemCard
                   icon={<StockIcon />}
                   title="Stock dispersé"
-                  description="Tes articles dans 3 fichiers différents. Retrouver ce qu'il te reste prend 10 minutes."
+                  description="Tes articles sont sur Vinted, en brocante, en réserve ou dans plusieurs fichiers. Retrouver ce qu’il te reste prend trop de temps."
                 />
                 <ProblemCard
                   icon={<InvoiceIcon />}
                   title="Factures manuelles"
-                  description="Chaque facture à la main. TVA sur marge, mentions légales, numérotation séquentielle... risque d'erreur permanent."
+                  description="Chaque facture faite à la main augmente le risque d’erreur : numérotation, TVA, mentions, client, total à payer."
                 />
               </div>
             </div>
@@ -292,12 +292,12 @@ export default async function HomePage() {
           />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-12">
-            <FeatureCard icon={<CartIcon />} title="Gestion achats" description="Enregistre tes achats PRO et particuliers, joins les factures, suis l'historique complet." />
-            <FeatureCard icon={<SalesIcon />} title="Gestion ventes" description="Suis tes ventes par plateforme — Cardmarket, Vinted, Shopify — avec marge calculée automatiquement." />
-            <FeatureCard icon={<CalcIcon />} title="TVA sur marge" description="Régime des biens d'occasion intégré nativement. Conforme aux directives européennes — France 20 %, Belgique 21 %." />
-            <FeatureCard icon={<StockIcon />} title="Stock intelligent" description="Chaque article référencé automatiquement. Statuts en temps réel : en stock, réservé, vendu, retourné." />
-            <FeatureCard icon={<InvoiceIcon />} title="Facturation PDF" description="Génération automatique de factures conformes. Numérotation séquentielle, mentions légales incluses." />
-            <FeatureCard icon={<ExportIcon />} title="Export comptable" description="Exports Excel et CSV prêts pour ton comptable, en France comme en Belgique." />
+            <FeatureCard icon={<CartIcon />} title="Gestion achats" description="Enregistre tes achats professionnels ou particuliers, ajoute tes justificatifs et garde un historique clair." />
+            <FeatureCard icon={<SalesIcon />} title="Gestion ventes" description="Suis tes ventes par canal : Vinted, brocante, boutique, Cardmarket ou autre — avec marge calculée automatiquement." />
+            <FeatureCard icon={<CalcIcon />} title="TVA sur marge" description="Pensé pour les biens d'occasion avec suivi TVA standard et TVA sur marge. L'outil aide au suivi, sans remplacer ton comptable." />
+            <FeatureCard icon={<StockIcon />} title="Stock intelligent" description="Chaque article peut être suivi avec sa référence, sa quantité, son coût d'achat et son statut." />
+            <FeatureCard icon={<InvoiceIcon />} title="Facturation PDF" description="Génère des factures propres avec numérotation, coordonnées client et mentions utiles." />
+            <FeatureCard icon={<ExportIcon />} title="Export comptable" description="Exporte tes achats et ventes vers Excel pour ton suivi ou pour préparer les informations à transmettre à ton comptable." />
           </div>
         </section>
 
@@ -308,50 +308,50 @@ export default async function HomePage() {
 
           <SectionHeader
             label="Workflow"
-            title="Suis tes achats, ventes, stock et marges"
-            description="De l'achat à la marge nette, Kyrivo suit chaque étape automatiquement."
+            title="De l'achat à la marge, tout reste lié"
+            description="Tu encodes un achat, ton stock se met à jour, tu ajoutes une vente et Kyrivo t'aide à voir ta marge réelle."
           />
 
           <div className="mt-12">
             {/* Pipeline desktop */}
             <div className="hidden lg:grid grid-cols-[1fr_auto_1fr_auto_1fr_auto_1fr] items-stretch gap-0 max-w-5xl mx-auto">
-              <WorkflowStep step={1} icon={<CartIcon />} title="Achat" description="Tu enregistres un achat avec sa facture." state="completed" />
+              <WorkflowStep step={1} icon={<CartIcon />} title="Achat" description="Tu enregistres un achat avec son coût et son fournisseur." state="completed" />
               <Arrow />
-              <WorkflowStep step={2} icon={<StockIcon />} title="Stock" description="Référence générée, article ajouté au stock." state="active" />
+              <WorkflowStep step={2} icon={<StockIcon />} title="Stock" description="L'article rejoint ton stock avec une quantité et une référence." state="active" />
               <Arrow />
-              <WorkflowStep step={3} icon={<SalesIcon />} title="Vente" description="L'article passe en vendu, lié à une vente." state="pending" />
+              <WorkflowStep step={3} icon={<SalesIcon />} title="Vente" description="Tu enregistres la vente, liée à l'article vendu." state="pending" />
               <Arrow />
-              <WorkflowStep step={4} icon={<TrendIcon />} title="Marge" description="Marge nette calculée automatiquement." state="pending" />
+              <WorkflowStep step={4} icon={<TrendIcon />} title="Marge" description="Kyrivo t'aide à suivre le résultat réel de l'opération." state="pending" />
             </div>
 
             {/* Pipeline mobile/tablet */}
             <div className="lg:hidden space-y-3 max-w-md mx-auto">
-              <WorkflowStep step={1} icon={<CartIcon />} title="Achat" description="Tu enregistres un achat avec sa facture." state="completed" />
-              <WorkflowStep step={2} icon={<StockIcon />} title="Stock" description="Référence générée, article ajouté au stock." state="active" />
-              <WorkflowStep step={3} icon={<SalesIcon />} title="Vente" description="L'article passe en vendu, lié à une vente." state="pending" />
-              <WorkflowStep step={4} icon={<TrendIcon />} title="Marge" description="Marge nette calculée automatiquement." state="pending" />
+              <WorkflowStep step={1} icon={<CartIcon />} title="Achat" description="Tu enregistres un achat avec son coût et son fournisseur." state="completed" />
+              <WorkflowStep step={2} icon={<StockIcon />} title="Stock" description="L'article rejoint ton stock avec une quantité et une référence." state="active" />
+              <WorkflowStep step={3} icon={<SalesIcon />} title="Vente" description="Tu enregistres la vente, liée à l'article vendu." state="pending" />
+              <WorkflowStep step={4} icon={<TrendIcon />} title="Marge" description="Kyrivo t'aide à suivre le résultat réel de l'opération." state="pending" />
             </div>
           </div>
         </section>
 
         {/* ═══════════════════════════════════════════════════ */}
-        {/* POUR QUI — TCG & seconde main                       */}
+        {/* POUR QUI — achat-revente & seconde main             */}
         {/* ═══════════════════════════════════════════════════ */}
         <section className="mb-28">
 
           <SectionHeader
             label="Conçu pour"
-            title="Pensé par et pour les revendeurs TCG"
-            description="Kyrivo a été créé à l'origine pour les revendeurs de cartes. Il s'adapte à tous les revendeurs de biens physiques."
+            title="Pensé pour les revendeurs de biens physiques"
+            description="Kyrivo a été créé au départ pour l’achat-revente de cartes, puis élargi aux revendeurs Vinted, brocante, collection et seconde main."
           />
 
           <div className="mt-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 max-w-5xl mx-auto">
-            <TCGCard name="Pokémon TCG" detail="Lots, singles, graded, tins" color="amber" />
-            <TCGCard name="One Piece TCG" detail="Boosters, displays, singles" color="red" />
-            <TCGCard name="Yu-Gi-Oh! TCG" detail="Cartes, OCG/TCG, graded" color="violet" />
-            <TCGCard name="Magic: TG" detail="Commander, Modern, Legacy" color="blue" />
-            <TCGCard name="Vinted" detail="Vêtements, objets, tech" color="teal" />
-            <TCGCard name="Brocante" detail="Collection, vintage, occasion" color="neutral" />
+            <TCGCard name="Vinted" detail="Vêtements, objets, lots, seconde main" color="teal" />
+            <TCGCard name="Brocante" detail="Lots, vintage, occasion, revente" color="neutral" />
+            <TCGCard name="Cartes & TCG" detail="Pokémon, One Piece, Magic, Yu-Gi-Oh!" color="amber" />
+            <TCGCard name="Collection" detail="Figurines, mangas, objets rares" color="violet" />
+            <TCGCard name="Lego & jouets" detail="Sets, pièces, lots, revente" color="blue" />
+            <TCGCard name="Petits revendeurs" detail="Stock, marges, factures, exports" color="red" />
           </div>
         </section>
 
@@ -363,14 +363,14 @@ export default async function HomePage() {
           <SectionHeader
             label="Bénéfices"
             title="Remplace ton fichier Excel de revente"
-            description="Pensé pour les revendeurs qui veulent du temps, de la clarté et de la conformité fiscale."
+            description="Pensé pour les revendeurs qui veulent gagner du temps, suivre leurs chiffres et préparer des données propres."
           />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-12 max-w-4xl mx-auto">
-            <BenefitCard icon={<ClockIcon />} title="Temps gagné" description="Plus besoin de jongler entre Excel, calculatrices et factures manuelles. Les opérations prennent quelques secondes." />
-            <BenefitCard icon={<LayersIcon />} title="Centralisation" description="Toutes tes plateformes, tous tes clients, tous tes articles — un seul endroit, une seule source de vérité." />
-            <BenefitCard icon={<TrendIcon />} title="Suivi rentabilité" description="Marge nette en temps réel sur chaque vente. Identifie tes meilleurs produits et plateformes en un coup d'œil." />
-            <BenefitCard icon={<ShieldIcon />} title="Conformité fiscale" description="TVA sur marge calculée selon les normes françaises et belges. Factures prêtes pour ton comptable." />
+            <BenefitCard icon={<ClockIcon />} title="Temps gagné" description="Moins d’allers-retours entre Excel, messages, plateformes et factures. Tes opérations sont centralisées." />
+            <BenefitCard icon={<LayersIcon />} title="Centralisation" description="Achats, ventes, stock, contacts, marges et factures au même endroit." />
+            <BenefitCard icon={<TrendIcon />} title="Suivi rentabilité" description="Suis tes marges sur chaque vente et comprends ce qui te rapporte vraiment." />
+            <BenefitCard icon={<ShieldIcon />} title="Données propres" description="Exports, factures et historiques clairs pour ton suivi ou ton comptable." />
           </div>
         </section>
 
@@ -386,11 +386,11 @@ export default async function HomePage() {
           />
 
           <div className="mt-12 max-w-3xl mx-auto space-y-3">
-            <FAQItem question="À qui s'adresse Kyrivo ?" answer="Kyrivo s'adresse aux revendeurs de biens physiques : cartes Pokémon et TCG, Vinted, Lego, sneakers, figurines, mangas, brocante et autres objets de collection." />
+            <FAQItem question="À qui s'adresse Kyrivo ?" answer="Kyrivo s'adresse aux revendeurs de biens physiques : Vinted, brocante, cartes Pokémon et TCG, objets de collection, Lego, figurines, mangas, lots d'occasion et autres articles revendables." />
             <FAQItem question="Kyrivo remplace-t-il Excel ?" answer="Kyrivo aide à remplacer les fichiers Excel compliqués en centralisant les achats, ventes, stock, marges, TVA et exports dans un seul outil." />
             <FAQItem question="Kyrivo gère-t-il la TVA ?" answer="Kyrivo permet de suivre la TVA standard et la TVA sur marge selon les informations encodées. L'outil aide au suivi, mais ne remplace pas un accompagnement comptable professionnel." />
             <FAQItem question="Puis-je suivre mon stock avec Kyrivo ?" answer="Oui. Les achats de stock créent des articles suivis avec quantités restantes, références et coûts d'achat." />
-            <FAQItem question="Kyrivo est-il adapté aux vendeurs de cartes Pokémon ?" answer="Oui. Kyrivo a été pensé au départ pour des revendeurs TCG et cartes Pokémon, puis élargi aux autres revendeurs de biens physiques." />
+            <FAQItem question="Kyrivo est-il réservé aux cartes Pokémon ?" answer="Non. Kyrivo a été pensé au départ pour des revendeurs de cartes et de TCG, mais l'outil convient aussi aux revendeurs Vinted, brocante, collection et seconde main." />
             <FAQItem question="Puis-je exporter mes données ?" answer="Oui. Kyrivo permet d'exporter les achats et ventes pour faciliter le suivi et la préparation des informations utiles au comptable." />
             <FAQItem question="Que puis-je encore faire après expiration de mon abonnement ?" answer="Si vous ne souhaitez pas renouveler votre abonnement, vous conservez l'accès aux données déjà encodées. Vous pouvez toujours les consulter, les exporter vers Excel et générer les factures liées aux ventes déjà enregistrées. Les nouvelles créations peuvent toutefois nécessiter un abonnement actif." />
           </div>
@@ -415,13 +415,13 @@ export default async function HomePage() {
               </div>
 
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white tracking-tight max-w-2xl leading-tight">
-                Arrête de gérer ton stock au feeling.
+                Arrête de gérer ton activité au feeling.
               </h2>
               <p className="mt-4 text-lg font-semibold text-amber-400/80">
                 Teste Kyrivo gratuitement pendant 7 jours.
               </p>
               <p className="mt-2 text-neutral-400 max-w-xl mx-auto text-sm">
-                Sans carte bancaire. Sans engagement. Annulable à tout moment.
+                Sans carte bancaire. Sans engagement. Données exportables.
               </p>
 
               <div className="mt-8 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-center w-full max-w-sm sm:max-w-none">
@@ -456,7 +456,7 @@ export default async function HomePage() {
         <div className="pt-6 mt-6 border-t border-neutral-800/60">
           <div className="flex items-center justify-between mb-3">
             <p className="text-[11px] text-neutral-600 tracking-wider uppercase">
-              Kyrivo · Gestion &amp; facturation
+              Kyrivo · Gestion achat-revente
             </p>
             <p className="flex items-center gap-1.5 text-[11px] text-neutral-600">
               <img src="https://flagcdn.com/16x12/fr.png" srcSet="https://flagcdn.com/32x24/fr.png 2x" width={16} height={12} alt="France" />
@@ -542,19 +542,19 @@ function ProductMockup() {
           <div className="space-y-2">
             <ActivityRow
               type="vente"
-              label="Pokémon EX Lot 15 cartes"
+              label="Lot Vinted — vêtements"
               amount="+48,00 €"
               positive
             />
             <ActivityRow
               type="achat"
-              label="One Piece Booster Box ×5"
+              label="Lot brocante — objets vintage"
               amount="-120,00 €"
               positive={false}
             />
             <ActivityRow
               type="vente"
-              label="Magic: The Gathering Slab"
+              label="Cartes Pokémon — collection"
               amount="+85,00 €"
               positive
             />
