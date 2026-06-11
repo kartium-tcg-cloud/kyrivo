@@ -157,14 +157,22 @@ function verifyToken(
     .update(payload)
     .digest("hex");
 
+  let match = false;
   try {
     const tokenBuf = Buffer.from(token, "hex");
     const expectedBuf = Buffer.from(expected, "hex");
-    if (tokenBuf.length !== expectedBuf.length) return false;
-    return crypto.timingSafeEqual(tokenBuf, expectedBuf);
+    match = tokenBuf.length === expectedBuf.length && crypto.timingSafeEqual(tokenBuf, expectedBuf);
   } catch {
-    return false;
+    match = false;
   }
+
+  // TEMP DEBUG (non sensible, à retirer une fois le bug désinscription résolu)
+  const secretFingerprint = crypto.createHash("sha256").update(secret).digest("hex").slice(0, 8);
+  console.log(
+    `[unsubscribe][debug] verify — payload="${payload}" secretFingerprint=${secretFingerprint} receivedTokenPrefix=${token.slice(0, 8)} expectedTokenPrefix=${expected.slice(0, 8)} match=${match}`
+  );
+
+  return match;
 }
 
 export async function GET(request: NextRequest) {

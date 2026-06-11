@@ -18,6 +18,12 @@ export function createUnsubscribeUrl(
     .update(payload)
     .digest("hex");
 
+  // TEMP DEBUG (non sensible, à retirer une fois le bug désinscription résolu)
+  const secretFingerprint = crypto.createHash("sha256").update(secret).digest("hex").slice(0, 8);
+  console.log(
+    `[unsubscribe][debug] generate — payload="${payload}" secretFingerprint=${secretFingerprint} tokenPrefix=${token.slice(0, 8)}`
+  );
+
   const url = new URL("/api/unsubscribe", APP_URL);
   url.searchParams.set("email", normalizedEmail);
   url.searchParams.set("scope", scope);
