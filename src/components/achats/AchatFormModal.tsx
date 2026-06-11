@@ -100,9 +100,9 @@ export default function AchatFormModal({
 
   const inputClasses = `
     w-full rounded-lg px-3 py-2.5 text-sm
-    bg-neutral-900/60 text-neutral-200
-    border border-neutral-800
-    placeholder:text-neutral-600
+    bg-zinc-900/60 text-zinc-200
+    border border-zinc-800
+    placeholder:text-zinc-600
     focus:outline-none
     focus:border-amber-500/40
     focus:ring-1 focus:ring-amber-500/15
@@ -110,7 +110,7 @@ export default function AchatFormModal({
   `;
 
   const labelClasses =
-    "block text-[11px] font-semibold text-neutral-500 mb-2 uppercase tracking-wider";
+    "block text-[11px] font-semibold text-zinc-500 mb-2 uppercase tracking-wider";
 
   const erreurClasses = "text-red-400 text-[11px] mt-1.5";
 
@@ -480,6 +480,25 @@ const buildPayload = (): Achat => {
       ouvert={ouvert}
       onFermer={handleFermer}
       titre={isEditing ? "Modifier l'achat" : "Ajouter un achat"}
+      footer={
+        <div className="flex items-center justify-end gap-3">
+          <button
+            type="button"
+            onClick={handleFermer}
+            className="rounded-lg px-4 py-2 text-sm font-medium text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500/40"
+          >
+            Annuler
+          </button>
+
+          <button
+            type="button"
+            onClick={handleSubmit}
+            className="rounded-lg px-5 py-2 text-sm font-semibold bg-amber-500 text-zinc-950 hover:bg-amber-400 active:scale-[0.97] transition-all duration-200 shadow-lg shadow-amber-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
+          >
+            {isEditing ? "Enregistrer" : "Ajouter l'achat"}
+          </button>
+        </div>
+      }
     >
       <div className="flex flex-col gap-6">
         <div className="grid grid-cols-2 gap-4">
@@ -498,14 +517,14 @@ const buildPayload = (): Achat => {
 
           <div>
             <label className={labelClasses}>Type d&apos;achat</label>
-            <div className="grid grid-cols-2 gap-1.5 p-1 rounded-lg bg-neutral-900/60 border border-neutral-800">
+            <div className="grid grid-cols-2 gap-1.5 p-1 rounded-lg bg-zinc-900/60 border border-zinc-800">
               <button
                 type="button"
                 onClick={() => updateChamp("type", "pro")}
                 className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-all duration-150 ${
                   form.type === "pro"
                     ? "bg-amber-500/15 text-amber-400 shadow-sm"
-                    : "text-neutral-500 hover:text-neutral-300"
+                    : "text-zinc-500 hover:text-zinc-300"
                 }`}
               >
                 PRO
@@ -517,7 +536,7 @@ const buildPayload = (): Achat => {
                 className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-all duration-150 ${
                   form.type === "particulier"
                     ? "bg-amber-500/15 text-amber-400 shadow-sm"
-                    : "text-neutral-500 hover:text-neutral-300"
+                    : "text-zinc-500 hover:text-zinc-300"
                 }`}
               >
                 Particulier
@@ -556,7 +575,7 @@ const buildPayload = (): Achat => {
               )}
 
               {showSupplierDropdown && filteredSuppliers.length > 0 && (
-                <div className="absolute left-0 right-0 top-full z-[100] mt-1 max-h-48 overflow-y-auto rounded-lg border border-neutral-700 bg-neutral-900 shadow-xl">
+                <div className="absolute left-0 right-0 top-full z-[100] mt-1 max-h-48 overflow-y-auto rounded-lg border border-zinc-700 bg-zinc-900 shadow-xl">
                   {filteredSuppliers.map((contact) => (
                     <button
                       key={contact.id}
@@ -577,7 +596,7 @@ const buildPayload = (): Achat => {
                           });
                         }
                       }}
-                      className="w-full px-3 py-2.5 text-left text-sm text-neutral-200 transition-colors hover:bg-amber-500/5 hover:text-amber-400"
+                      className="w-full px-3 py-2.5 text-left text-sm text-zinc-200 transition-colors hover:bg-amber-500/5 hover:text-amber-400"
                     >
                       {contact.name}
                     </button>
@@ -610,18 +629,18 @@ const buildPayload = (): Achat => {
 
         <div>
           <div className="flex items-center justify-between mb-3">
-            <label className="text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">
+            <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">
               Montant total
             </label>
 
-            <div className="inline-flex p-0.5 rounded-md bg-neutral-900/60 border border-neutral-800">
+            <div className="inline-flex p-0.5 rounded-md bg-zinc-900/60 border border-zinc-800">
               <button
                 type="button"
                 onClick={() => { isDirtyRef.current = true; setModeMontant("ht"); }}
                 className={`rounded px-3 py-1 text-[11px] font-semibold transition-all duration-150 ${
                   modeMontant === "ht"
                     ? "bg-amber-500/15 text-amber-400"
-                    : "text-neutral-500 hover:text-neutral-300"
+                    : "text-zinc-500 hover:text-zinc-300"
                 }`}
               >
                 HT
@@ -633,7 +652,7 @@ const buildPayload = (): Achat => {
                 className={`rounded px-3 py-1 text-[11px] font-semibold transition-all duration-150 ${
                   modeMontant === "ttc"
                     ? "bg-amber-500/15 text-amber-400"
-                    : "text-neutral-500 hover:text-neutral-300"
+                    : "text-zinc-500 hover:text-zinc-300"
                 }`}
               >
                 TTC
@@ -656,7 +675,7 @@ const buildPayload = (): Achat => {
                   erreurs.prixHT ? "border-red-500/50" : ""
                 }`}
               />
-              <p className="text-[10px] text-neutral-600 mt-1.5 px-1">
+              <p className="text-[10px] text-zinc-600 mt-1.5 px-1">
                 Montant en {modeMontant === "ht" ? "HT" : "TTC"}
               </p>
               {erreurs.prixHT && (
@@ -679,12 +698,12 @@ const buildPayload = (): Achat => {
                     erreurs.tauxTVA ? "border-red-500/50" : ""
                   }`}
                 />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-neutral-500 pointer-events-none">
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-zinc-500 pointer-events-none">
                   %
                 </span>
               </div>
-              <p className="text-[10px] text-neutral-600 mt-1.5 px-1">
-                Taux TVA · <span className="text-neutral-700">modifiable dans les Préférences</span>
+              <p className="text-[10px] text-zinc-600 mt-1.5 px-1">
+                Taux TVA · <span className="text-zinc-700">modifiable dans les Préférences</span>
               </p>
               {erreurs.tauxTVA && (
                 <p className={erreurClasses}>{erreurs.tauxTVA}</p>
@@ -693,10 +712,10 @@ const buildPayload = (): Achat => {
           </div>
 
           {montant > 0 && (
-            <div className="mt-4 rounded-lg bg-neutral-900/40 border border-neutral-800 overflow-hidden">
+            <div className="mt-4 rounded-lg bg-zinc-900/40 border border-zinc-800 overflow-hidden">
               <div className="flex justify-between text-sm px-4 py-2.5">
-                <span className="text-neutral-500">HT</span>
-                <span className="text-neutral-300 tabular-nums font-medium">
+                <span className="text-zinc-500">HT</span>
+                <span className="text-zinc-300 tabular-nums font-medium">
                   {prixHT.toLocaleString("fr-BE", {
                     style: "currency",
                     currency: "EUR",
@@ -704,11 +723,11 @@ const buildPayload = (): Achat => {
                 </span>
               </div>
 
-              <div className="flex justify-between text-sm px-4 py-2.5 border-t border-neutral-800/60">
-                <span className="text-neutral-500">
+              <div className="flex justify-between text-sm px-4 py-2.5 border-t border-zinc-800/60">
+                <span className="text-zinc-500">
                   TVA ({tauxTVAEffectif}%)
                 </span>
-                <span className="text-amber-400 tabular-nums font-medium">
+                <span className="text-cyan-400 tabular-nums font-medium">
                   {montantTVA.toLocaleString("fr-BE", {
                     style: "currency",
                     currency: "EUR",
@@ -716,7 +735,7 @@ const buildPayload = (): Achat => {
                 </span>
               </div>
 
-              <div className="flex justify-between items-center px-4 py-3 border-t border-neutral-800/60 bg-neutral-900/60">
+              <div className="flex justify-between items-center px-4 py-3 border-t border-zinc-800/60 bg-zinc-900/60">
                 <span className="text-white font-semibold text-sm">TTC</span>
                 <span className="text-white font-bold text-base tabular-nums">
                   {prixTTC.toLocaleString("fr-BE", {
@@ -732,14 +751,14 @@ const buildPayload = (): Achat => {
         {/* ── Toggle Achat de stock / Dépense sans stock ──────── */}
         <div>
           <label className={labelClasses}>Type d&apos;achat</label>
-          <div className="grid grid-cols-2 gap-1.5 p-1 rounded-lg bg-neutral-900/60 border border-neutral-800">
+          <div className="grid grid-cols-2 gap-1.5 p-1 rounded-lg bg-zinc-900/60 border border-zinc-800">
             <button
               type="button"
               onClick={() => handleAvecStockChange(true)}
               className={`rounded-md px-3 py-2 text-xs font-semibold transition-all duration-150 text-left flex items-center gap-2 ${
                 avecStock
                   ? "bg-amber-500/15 text-amber-400 shadow-sm"
-                  : "text-neutral-500 hover:text-neutral-300"
+                  : "text-zinc-500 hover:text-zinc-300"
               }`}
             >
               <svg className="h-3.5 w-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
@@ -753,7 +772,7 @@ const buildPayload = (): Achat => {
               className={`rounded-md px-3 py-2 text-xs font-semibold transition-all duration-150 text-left flex items-center gap-2 ${
                 !avecStock
                   ? "bg-amber-500/15 text-amber-400 shadow-sm"
-                  : "text-neutral-500 hover:text-neutral-300"
+                  : "text-zinc-500 hover:text-zinc-300"
               }`}
             >
               <svg className="h-3.5 w-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
@@ -766,11 +785,11 @@ const buildPayload = (): Achat => {
 
         {/* ── Info : Dépense sans stock ────────────────────────── */}
         {!avecStock && (
-          <div className="flex items-start gap-2.5 rounded-lg border border-neutral-800/60 bg-neutral-900/20 px-4 py-3">
-            <svg className="h-4 w-4 text-neutral-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+          <div className="flex items-start gap-2.5 rounded-lg border border-zinc-800/60 bg-zinc-900/20 px-4 py-3">
+            <svg className="h-4 w-4 text-zinc-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="m11.25 11.25.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0Zm-9-3.75h.008v.008H12V8.25Z" />
             </svg>
-            <p className="text-[11px] text-neutral-500 leading-relaxed">
+            <p className="text-[11px] text-zinc-500 leading-relaxed">
               Cette dépense sera comptabilisée dans vos achats et votre TVA déductible, mais ne créera aucun article en stock.
             </p>
           </div>
@@ -778,16 +797,16 @@ const buildPayload = (): Achat => {
 
         {/* ── Section Articles en stock (conditionnelle) ─────── */}
         {avecStock && (
-        <div className="rounded-xl border border-neutral-800 bg-neutral-900/30 overflow-hidden">
-          <div className="flex items-center justify-between px-5 py-4 border-b border-neutral-800 bg-neutral-900/40">
+        <div className="rounded-xl border border-zinc-800 bg-zinc-900/30 overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-800 bg-zinc-900/40">
             <div>
               <h3 className="text-sm font-semibold text-white">
                 Articles en stock
               </h3>
-              <p className="text-[11px] text-neutral-500 mt-0.5">
+              <p className="text-[11px] text-zinc-500 mt-0.5">
                 Ajoutez les produits qui doivent entrer dans votre stock.
               </p>
-              <p className="text-[10px] text-neutral-700 mt-1 font-mono">
+              <p className="text-[10px] text-zinc-700 mt-1 font-mono">
                 Références : {form.date ? `${form.date.split("-")[0]}-0000001` : "AAAA-0000001"}, …
               </p>
               {erreurs["items"] && (
@@ -798,8 +817,11 @@ const buildPayload = (): Achat => {
             <button
               type="button"
               onClick={ajouterItem}
-              className="rounded-lg px-3.5 py-2 text-xs font-semibold bg-amber-500 text-neutral-950 hover:bg-amber-400 active:scale-[0.97] transition-all duration-150"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-700 px-3.5 py-2 text-xs font-semibold text-zinc-300 hover:bg-zinc-800 hover:text-white active:scale-[0.97] transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
             >
+              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
               Ajouter un article
             </button>
           </div>
@@ -808,20 +830,22 @@ const buildPayload = (): Achat => {
             {items.map((item, index) => (
               <div
                 key={item.id}
-                className="rounded-lg border border-neutral-800 bg-neutral-900/40 overflow-hidden"
+                className="rounded-lg border border-zinc-800 bg-zinc-900/40 overflow-hidden"
               >
-                <div className="flex items-center justify-between px-4 py-2.5 border-b border-neutral-800/80 bg-neutral-900/40">
-                  <span className="text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">
+                <div className="flex items-center justify-between px-4 py-2.5 border-b border-zinc-800/80 bg-zinc-900/40">
+                  <span className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">
                     Article #{index + 1}
                   </span>
 
                   <button
                     type="button"
                     onClick={() => supprimerItem(item.id)}
-                    className="inline-flex items-center justify-center h-7 w-7 rounded-md text-neutral-600 hover:bg-red-500/10 hover:text-red-400 transition-colors"
+                    className="inline-flex items-center justify-center h-7 w-7 rounded-md text-zinc-600 hover:bg-red-500/10 hover:text-red-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/40"
                     title="Supprimer cet article"
                   >
-                    ×
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                    </svg>
                   </button>
                 </div>
 
@@ -875,14 +899,14 @@ const buildPayload = (): Achat => {
                   </div>
 
                   <div className="grid grid-cols-[140px_1fr] gap-2">
-                    <div className="inline-flex p-0.5 rounded-lg bg-neutral-900/60 border border-neutral-800">
+                    <div className="inline-flex p-0.5 rounded-lg bg-zinc-900/60 border border-zinc-800">
                       <button
                         type="button"
                         onClick={() => updateItem(item.id, "modeMontant", "ht")}
                         className={`flex-1 rounded px-2 py-1.5 text-[11px] font-semibold transition-all duration-150 ${
                           item.modeMontant === "ht"
                             ? "bg-amber-500/15 text-amber-400"
-                            : "text-neutral-500 hover:text-neutral-300"
+                            : "text-zinc-500 hover:text-zinc-300"
                         }`}
                       >
                         HT
@@ -894,7 +918,7 @@ const buildPayload = (): Achat => {
                         className={`flex-1 rounded px-2 py-1.5 text-[11px] font-semibold transition-all duration-150 ${
                           item.modeMontant === "ttc"
                             ? "bg-amber-500/15 text-amber-400"
-                            : "text-neutral-500 hover:text-neutral-300"
+                            : "text-zinc-500 hover:text-zinc-300"
                         }`}
                       >
                         TTC
@@ -953,9 +977,9 @@ const buildPayload = (): Achat => {
             ))}
 
             {items.length > 0 && (
-              <div className="rounded-lg border border-neutral-800 bg-neutral-900/60 overflow-hidden mt-2">
+              <div className="rounded-lg border border-zinc-800 bg-zinc-900/60 overflow-hidden mt-2">
                 <div className="flex items-center justify-between px-4 py-3">
-                  <span className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">
+                  <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
                     Total réparti
                   </span>
                   <span className="text-sm font-bold text-white tabular-nums">
@@ -980,15 +1004,15 @@ const buildPayload = (): Achat => {
 
                   return (
                     <div
-                      className={`flex items-center justify-between px-4 py-3 border-t border-neutral-800 ${
+                      className={`flex items-center justify-between px-4 py-3 border-t border-zinc-800 ${
                         presqueZero
                           ? "bg-emerald-500/[0.03]"
                           : ecart > 0
-                          ? "bg-amber-500/[0.03]"
+                          ? "bg-cyan-500/[0.03]"
                           : "bg-red-500/[0.03]"
                       }`}
                     >
-                      <span className="text-xs text-neutral-500">
+                      <span className="text-xs text-zinc-500">
                         Écart vs montant total
                       </span>
                       <span
@@ -996,7 +1020,7 @@ const buildPayload = (): Achat => {
                           presqueZero
                             ? "text-emerald-400"
                             : ecart > 0
-                            ? "text-amber-400"
+                            ? "text-cyan-400"
                             : "text-red-400"
                         }`}
                       >
@@ -1033,7 +1057,7 @@ const buildPayload = (): Achat => {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm text-neutral-400">Facture / preuve</label>
+            <label className="text-sm text-zinc-400">Facture / preuve</label>
 
             <input
               type="file"
@@ -1050,15 +1074,15 @@ const buildPayload = (): Achat => {
                   });
                 }
               }}
-              className="block w-full text-sm text-neutral-400 file:mr-4 file:rounded-lg file:border-0 file:bg-amber-500 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-black hover:file:bg-amber-400"
+              className="block w-full text-sm text-zinc-400 file:mr-4 file:rounded-lg file:border-0 file:bg-amber-500 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-black hover:file:bg-amber-400"
             />
 
             {documentFile && (
-              <p className="text-xs text-neutral-500">{documentFile.name}</p>
+              <p className="text-xs text-zinc-500">{documentFile.name}</p>
             )}
 
             {!documentFile && isEditing && achatInitial?.documentUrl && (
-              <p className="text-xs text-neutral-500">
+              <p className="text-xs text-zinc-500">
                 Document actuel conservé si aucun nouveau fichier n’est choisi.
               </p>
             )}
@@ -1073,12 +1097,12 @@ const buildPayload = (): Achat => {
     <p className="text-sm font-medium text-emerald-400">
       Fournisseur lié à un contact existant
     </p>
-    <p className="text-xs text-neutral-500 mt-0.5">
+    <p className="text-xs text-zinc-500 mt-0.5">
       L’achat sera automatiquement relié à ce contact dans Kyrivo.
     </p>
   </div>
 ) : (
-  <div className="rounded-lg border border-neutral-800 bg-neutral-900/40 px-4 py-3">
+  <div className="rounded-lg border border-zinc-800 bg-zinc-900/40 px-4 py-3">
     <label className="flex items-start gap-3 cursor-pointer">
       <input
         type="checkbox"
@@ -1090,8 +1114,8 @@ const buildPayload = (): Achat => {
           }))
         }
         className="
-          mt-0.5 h-4 w-4 rounded border-neutral-700
-          bg-neutral-900 text-amber-500
+          mt-0.5 h-4 w-4 rounded border-zinc-700
+          bg-zinc-900 text-amber-500
           focus:ring-amber-500/20
         "
       />
@@ -1101,7 +1125,7 @@ const buildPayload = (): Achat => {
           Enregistrer ce fournisseur dans les contacts
         </p>
 
-        <p className="text-xs text-neutral-500 mt-0.5">
+        <p className="text-xs text-zinc-500 mt-0.5">
           Le fournisseur sera ajouté automatiquement dans l’onglet Contacts.
         </p>
       </div>
@@ -1112,7 +1136,7 @@ const buildPayload = (): Achat => {
           <div>
             <label className={labelClasses}>
               Commentaire{" "}
-              <span className="text-neutral-700 normal-case tracking-normal ml-1">
+              <span className="text-zinc-700 normal-case tracking-normal ml-1">
                 (facultatif)
               </span>
             </label>
@@ -1131,36 +1155,18 @@ const buildPayload = (): Achat => {
             )}
           </div>
         </div>
-
-        <div className="flex items-center justify-end gap-3 pt-4 border-t border-neutral-800">
-          <button
-            type="button"
-            onClick={handleFermer}
-            className="rounded-lg px-4 py-2 text-sm font-medium text-neutral-400 hover:bg-neutral-800/60 hover:text-neutral-200 transition-colors"
-          >
-            Annuler
-          </button>
-
-          <button
-            type="button"
-            onClick={handleSubmit}
-            className="rounded-lg px-5 py-2 text-sm font-semibold bg-amber-500 text-neutral-950 hover:bg-amber-400 active:scale-[0.97] transition-all duration-200 shadow-lg shadow-amber-500/10"
-          >
-            {isEditing ? "Enregistrer" : "Ajouter l'achat"}
-          </button>
-        </div>
       </div>
     </Modal>
 
     {showUnsavedModal && (
-      <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
-        <div className="w-full max-w-sm rounded-2xl border border-neutral-800 bg-neutral-950 shadow-2xl overflow-hidden">
+      <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 animate-overlay-fade">
+        <div className="w-full max-w-sm rounded-2xl border border-zinc-800 bg-zinc-950 shadow-2xl overflow-hidden animate-modal-pop">
           <div className="h-px w-full bg-gradient-to-r from-transparent via-amber-500/60 to-transparent" />
           <div className="p-6">
             <h2 className="text-base font-semibold text-white">
               Modifications non enregistrées
             </h2>
-            <p className="mt-2 text-sm text-neutral-400 leading-relaxed">
+            <p className="mt-2 text-sm text-zinc-400 leading-relaxed">
               Voulez-vous sauvegarder les modifications ?
             </p>
             <div className="mt-5 flex justify-end gap-3">
@@ -1172,7 +1178,7 @@ const buildPayload = (): Achat => {
                   resetForm();
                   onFermer();
                 }}
-                className="rounded-lg border border-neutral-800 bg-neutral-900 px-4 py-2 text-sm font-semibold text-neutral-300 hover:bg-neutral-800 transition-colors"
+                className="rounded-lg border border-zinc-800 bg-zinc-900 px-4 py-2 text-sm font-semibold text-zinc-300 hover:bg-zinc-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500/40"
               >
                 Non
               </button>
@@ -1182,7 +1188,7 @@ const buildPayload = (): Achat => {
                   setShowUnsavedModal(false);
                   handleSubmit();
                 }}
-                className="rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-neutral-950 hover:bg-amber-400 transition-colors shadow-lg shadow-amber-500/20"
+                className="rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-zinc-950 hover:bg-amber-400 transition-colors shadow-lg shadow-amber-500/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
               >
                 Oui
               </button>

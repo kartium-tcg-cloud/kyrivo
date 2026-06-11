@@ -184,7 +184,7 @@ export default function AchatsTableau({
                         e.stopPropagation();
                         toggleDetails(achat.id);
                       }}
-                      className="rounded-md p-2 hover:bg-zinc-800 hover:text-amber-400 text-zinc-500 transition-colors"
+                      className="rounded-md p-2 hover:bg-zinc-800 hover:text-amber-400 text-zinc-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
                       title="Détails"
                     >
                       <svg
@@ -212,7 +212,7 @@ export default function AchatsTableau({
                         e.stopPropagation();
                         onModifier(achat);
                       }}
-                      className="rounded-md p-2 hover:bg-zinc-800 hover:text-blue-400 text-zinc-500 transition-colors"
+                      className="rounded-md p-2 hover:bg-zinc-800 hover:text-blue-400 text-zinc-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
                       title="Modifier"
                     >
                       <svg
@@ -235,7 +235,7 @@ export default function AchatsTableau({
                         e.stopPropagation();
                         onSupprimer(achat.id);
                       }}
-                      className="rounded-md p-2 hover:bg-red-500/10 hover:text-red-400 text-zinc-500 transition-colors"
+                      className="rounded-md p-2 hover:bg-red-500/10 hover:text-red-400 text-zinc-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/40"
                       title="Supprimer"
                     >
                       <svg
@@ -262,15 +262,15 @@ export default function AchatsTableau({
                     colSpan={9}
                     className="px-4 py-5 bg-zinc-950/50 border-b border-zinc-800/60"
                   >
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 text-sm animate-detail-reveal">
-                      <div>
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 text-sm animate-detail-reveal">
+                      <div className="rounded-lg border border-zinc-800/60 bg-zinc-900/40 p-3">
                         <span className="text-[11px] text-zinc-500 uppercase tracking-wider font-medium">
                           Paiement
                         </span>
                         <p className="text-zinc-200 mt-1">{achat.paiement}</p>
                       </div>
 
-                      <div>
+                      <div className="rounded-lg border border-zinc-800/60 bg-zinc-900/40 p-3">
                         <span className="text-[11px] text-zinc-500 uppercase tracking-wider font-medium">
                           Réf. facture
                         </span>
@@ -279,7 +279,7 @@ export default function AchatsTableau({
                         </p>
                       </div>
 
-                      <div>
+                      <div className="rounded-lg border border-zinc-800/60 bg-zinc-900/40 p-3">
                         <span className="text-[11px] text-zinc-500 uppercase tracking-wider font-medium">
                           Document
                         </span>
@@ -292,8 +292,11 @@ export default function AchatsTableau({
                                 );
                               window.open(signedUrl, "_blank");
                             }}
-                            className="block mt-1 text-amber-400 hover:text-amber-300 text-sm font-medium transition-colors"
+                            className="mt-1 inline-flex items-center gap-1.5 text-amber-400 hover:text-amber-300 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40 rounded"
                           >
+                            <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m6 12.75-3-3m0 0-3 3m3-3v6m-1.5-15H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                            </svg>
                             Ouvrir / télécharger
                           </button>
                         ) : (
@@ -301,7 +304,7 @@ export default function AchatsTableau({
                         )}
                       </div>
 
-                      <div>
+                      <div className="rounded-lg border border-zinc-800/60 bg-zinc-900/40 p-3">
                         <span className="text-[11px] text-zinc-500 uppercase tracking-wider font-medium">
                           Régime TVA
                         </span>
@@ -313,7 +316,7 @@ export default function AchatsTableau({
                       </div>
 
                       {achat.commentaire && (
-                        <div className="sm:col-span-2 lg:col-span-4">
+                        <div className="sm:col-span-2 lg:col-span-4 rounded-lg border border-zinc-800/60 bg-zinc-900/40 p-3">
                           <span className="text-[11px] text-zinc-500 uppercase tracking-wider font-medium">
                             Commentaire
                           </span>
@@ -324,9 +327,9 @@ export default function AchatsTableau({
                       )}
 
                       {achat.articles && achat.articles.length > 0 && (
-                        <div className="sm:col-span-2 lg:col-span-4 mt-4 pt-4 border-t border-zinc-800/60">
+                        <div className="sm:col-span-2 lg:col-span-4 mt-1 pt-4 border-t border-zinc-800/60">
                           <div className="flex items-center justify-between mb-3">
-                            <span className="text-[11px] text-zinc-500 uppercase tracking-wider font-medium flex items-center gap-2">
+                            <span className="text-xs font-semibold text-zinc-300 uppercase tracking-wider flex items-center gap-2">
                               Articles détaillés
                               <span className="inline-flex items-center justify-center h-5 min-w-[1.25rem] rounded-full bg-zinc-800 text-zinc-300 text-[10px] font-bold px-1.5">
                                 {achat.articles.length}
@@ -346,10 +349,11 @@ export default function AchatsTableau({
                                   px-3 py-2.5 text-sm
                                   hover:border-amber-500/30 hover:bg-zinc-900/80
                                   transition-all duration-200 ease-out
+                                  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40
                                   group/article
                                 "
                               >
-                                <span className="font-mono text-xs text-amber-400/80 group-hover/article:text-amber-300 transition-colors">
+                                <span className="inline-flex items-center w-fit rounded-md border border-amber-500/20 bg-amber-500/5 px-1.5 py-0.5 font-mono text-[11px] text-amber-400/90 group-hover/article:text-amber-300 group-hover/article:border-amber-500/30 transition-colors">
                                   {article.reference}
                                 </span>
 

@@ -197,7 +197,7 @@ export default function VentesTableau({
                           e.stopPropagation();
                           toggleDetails(vente.id);
                         }}
-                        className="rounded-md p-2 hover:bg-zinc-800 hover:text-amber-400 text-zinc-500 transition-colors"
+                        className="rounded-md p-2 hover:bg-zinc-800 hover:text-amber-400 text-zinc-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
                         title="Détails"
                       >
                         <svg
@@ -225,7 +225,7 @@ export default function VentesTableau({
                           e.stopPropagation();
                           onModifier(vente);
                         }}
-                        className="rounded-md p-2 hover:bg-zinc-800 hover:text-blue-400 text-zinc-500 transition-colors"
+                        className="rounded-md p-2 hover:bg-zinc-800 hover:text-blue-400 text-zinc-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
                         title="Modifier"
                       >
                         <svg
@@ -255,7 +255,7 @@ export default function VentesTableau({
 
                           onSupprimer(vente.id);
                         }}
-                        className="rounded-md p-2 hover:bg-red-500/10 hover:text-red-400 text-zinc-500 transition-colors"
+                        className="rounded-md p-2 hover:bg-red-500/10 hover:text-red-400 text-zinc-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/40"
                         title="Supprimer"
                       >
                         <svg
@@ -282,8 +282,8 @@ export default function VentesTableau({
                       colSpan={9}
                       className="px-4 py-5 bg-zinc-950/50 border-b border-zinc-800/60"
                     >
-                      <div className="animate-detail-reveal grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 text-sm">
-                        <div>
+                      <div className="animate-detail-reveal grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 text-sm">
+                        <div className="rounded-lg border border-zinc-800/60 bg-zinc-900/40 p-3">
                           <span className="text-[11px] text-zinc-500 uppercase tracking-wider font-medium">
                             Client
                           </span>
@@ -301,7 +301,7 @@ export default function VentesTableau({
                           </p>
                         </div>
 
-                        <div>
+                        <div className="rounded-lg border border-zinc-800/60 bg-zinc-900/40 p-3">
                           <span className="text-[11px] text-zinc-500 uppercase tracking-wider font-medium">
                             Paiement
                           </span>
@@ -310,7 +310,7 @@ export default function VentesTableau({
                           </p>
                         </div>
 
-                        <div>
+                        <div className="rounded-lg border border-zinc-800/60 bg-zinc-900/40 p-3">
                           <span className="text-[11px] text-zinc-500 uppercase tracking-wider font-medium">
                             Régime TVA
                           </span>
@@ -319,7 +319,7 @@ export default function VentesTableau({
                           </p>
                         </div>
 
-                        <div>
+                        <div className="rounded-lg border border-zinc-800/60 bg-zinc-900/40 p-3">
                           <span className="text-[11px] text-zinc-500 uppercase tracking-wider font-medium">
                             Lignes
                           </span>
@@ -329,7 +329,7 @@ export default function VentesTableau({
                         </div>
 
                         {vente.notes && (
-                          <div className="sm:col-span-2 lg:col-span-4">
+                          <div className="sm:col-span-2 lg:col-span-4 rounded-lg border border-zinc-800/60 bg-zinc-900/40 p-3">
                             <span className="text-[11px] text-zinc-500 uppercase tracking-wider font-medium">
                               Notes
                             </span>
@@ -340,9 +340,9 @@ export default function VentesTableau({
                         )}
 
                         {vente.lines && vente.lines.length > 0 && (
-                          <div className="sm:col-span-2 lg:col-span-4 mt-4 pt-4 border-t border-zinc-800/60">
+                          <div className="sm:col-span-2 lg:col-span-4 mt-1 pt-4 border-t border-zinc-800/60">
                             <div className="flex items-center justify-between mb-3">
-                              <span className="text-[11px] text-zinc-500 uppercase tracking-wider font-medium flex items-center gap-2">
+                              <span className="text-xs font-semibold text-zinc-300 uppercase tracking-wider flex items-center gap-2">
                                 Lignes de vente
                                 <span className="inline-flex items-center justify-center h-5 min-w-[1.25rem] rounded-full bg-zinc-800 text-zinc-300 text-[10px] font-bold px-1.5">
                                   {vente.lines.length}
@@ -364,7 +364,7 @@ export default function VentesTableau({
                                   {line.purchaseItemId && line.itemReference ? (
                                     <Link
                                       href={`/items/${line.purchaseItemId}`}
-                                      className="font-mono text-xs text-amber-400/80 hover:text-amber-300 transition-colors"
+                                      className="inline-flex items-center w-fit rounded-md border border-amber-500/20 bg-amber-500/5 px-1.5 py-0.5 font-mono text-[11px] text-amber-400/90 hover:text-amber-300 hover:border-amber-500/30 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
                                     >
                                       {line.itemReference}
                                     </Link>

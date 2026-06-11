@@ -46,12 +46,13 @@ export default function VentesHeader({
         className="
           inline-flex items-center gap-2
           rounded-lg px-4 py-2
-          bg-amber-500 text-neutral-950
+          bg-amber-500 text-zinc-950
           text-sm font-semibold
           transition-all duration-200
           hover:bg-amber-400 hover:-translate-y-0.5 hover:shadow-amber-500/20
           active:scale-[0.97] active:translate-y-0
           shadow-lg shadow-amber-500/10
+          focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40
         "
       >
         <svg
