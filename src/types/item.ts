@@ -66,7 +66,7 @@ export function isItemStatus(value: unknown): value is ItemStatus {
 /** Structure typée d'un item côté front */
 export interface PurchaseItem {
   id: string;
-  reference: string; // PKM-000001 — toujours présent (DB garantie)
+  reference: string; // ex: 2026-0000001 — toujours présent (DB garantie)
   nom: string;
   quantite: number;
   coutHT: number;

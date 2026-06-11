@@ -70,8 +70,10 @@ function buildPurchaseItems(params: {
   achat: Achat;
   purchaseId: string;
   companyId: string;
+  purchaseYear: string;
+  startRef: number;
 }) {
-  const { achat, purchaseId, companyId } = params;
+  const { achat, purchaseId, companyId, purchaseYear, startRef } = params;
   const vatRate = calcVatRate(achat);
   const vatMultiplier = 1 + vatRate / 100;
 
@@ -88,7 +90,7 @@ function buildPurchaseItems(params: {
           },
         ];
 
-  return itemsToCreate.map((item) => {
+  return itemsToCreate.map((item, index) => {
     const quantity = Number(item.quantite) || 1;
 
     let unitCostHT = item.cout;
@@ -108,6 +110,7 @@ function buildPurchaseItems(params: {
     return {
       purchase_document_id: purchaseId,
       company_id: companyId,
+      item_reference: `${purchaseYear}-${String(startRef + index).padStart(7, "0")}`,
       item_name: item.nom,
       category: achat.produit,
       quantity,
@@ -338,22 +341,22 @@ toast.error(
           achat: nouvelAchat,
           purchaseId: created.id,
           companyId,
+          purchaseYear,
+          startRef,
         });
 
         const createdItems = await createPurchaseItems(baseItems);
 
-        // Mettre à jour les références avec le format YYYY-XXXXXXX
-        // (le trigger DB peut avoir généré un format PKM-..., on le remplace)
-        await Promise.all(
-          createdItems.map((item: any, i: number) =>
-            supabase
-              .from("purchase_items")
-              .update({
-                item_reference: `${purchaseYear}-${String(startRef + i).padStart(7, "0")}`,
-              })
-              .eq("id", item.id)
-          )
+        // Sécurité : une référence d'article ne doit jamais commencer par "PKM-"
+        const invalidItem = createdItems.find((item: any) =>
+          String(item.item_reference || "").startsWith("PKM-")
         );
+
+        if (invalidItem) {
+          throw new Error(
+            `Référence invalide générée pour l'article "${invalidItem.item_name}".`
+          );
+        }
       }
 
       const { error: usageError } = await supabase
