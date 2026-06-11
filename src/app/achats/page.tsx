@@ -533,33 +533,15 @@ const modifierAchat = async (achatModifie: Achat) => {
         onAjouter={ouvrirAjout}
       />
 
-   <div className="flex justify-end">
-    <button
-      type="button"
-      onClick={exporterAchats}
-      disabled={achatsFiltres.length === 0}
-      className="
-        rounded-lg border border-amber-500/30
-        bg-amber-500/10 px-4 py-2
-        text-sm font-semibold text-amber-400
-        hover:bg-amber-500/15
-        disabled:cursor-not-allowed disabled:opacity-40
-        transition-colors
-      "
-    >
-      Exporter les achats Excel
-    </button>
-  </div>
-
       {achats.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-neutral-800/60 bg-neutral-900/30 px-6 py-20 text-center">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-neutral-800 bg-neutral-900 mb-5">
-            <svg className="h-7 w-7 text-neutral-600" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+        <div className="flex flex-col items-center justify-center rounded-xl border border-zinc-800/60 bg-zinc-900/40 shadow-sm shadow-black/20 px-6 py-20 text-center">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-zinc-800/60 bg-zinc-900/60 mb-5">
+            <svg className="h-7 w-7 text-zinc-600" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
             </svg>
           </div>
           <h3 className="text-base font-semibold text-white mb-2">Aucun achat enregistré</h3>
-          <p className="text-sm text-neutral-500 max-w-sm leading-relaxed mb-6">
+          <p className="text-sm text-zinc-500 max-w-sm leading-relaxed mb-6">
             Commencez par enregistrer votre premier achat. Tous vos achats PRO et particuliers seront centralisés ici.
           </p>
           <button
@@ -575,7 +557,12 @@ const modifierAchat = async (achatModifie: Achat) => {
         </div>
       ) : (
         <>
-          <AchatsFiltres filtres={filtres} onChangeFiltres={setFiltres} />
+          <AchatsFiltres
+            filtres={filtres}
+            onChangeFiltres={setFiltres}
+            onExporter={exporterAchats}
+            exportDisabled={achatsFiltres.length === 0}
+          />
           <AchatsTableau
             achats={achatsFiltres}
             onModifier={ouvrirEdition}

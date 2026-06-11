@@ -24,9 +24,9 @@ export const SALE_VAT_MODE_CONFIG: Record<SaleVatMode, SaleVatModeConfig> = {
     label: "TVA sur marge",
     shortLabel: "Marge",
     description: "TVA calculée sur la marge bénéficiaire",
-    text: "text-amber-400",
-    bg: "bg-amber-500/10",
-    border: "border-amber-500/25",
+    text: "text-violet-400",
+    bg: "bg-violet-500/10",
+    border: "border-violet-500/25",
   },
 };
 
