@@ -70,13 +70,13 @@ export default function VentesTableau({
               <th className="px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
                 Date
               </th>
-              <th className="px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+              <th className="hidden sm:table-cell px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
                 N°
               </th>
               <th className="px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
                 Client
               </th>
-              <th className="px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+              <th className="hidden sm:table-cell px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
                 Régime
               </th>
               <th className="px-4 py-3.5 text-right text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
@@ -122,7 +122,7 @@ export default function VentesTableau({
                     {formatDate(vente.date)}
                   </td>
 
-                  <td className="px-4 py-3.5 font-mono text-xs text-zinc-500">
+                  <td className="hidden sm:table-cell px-4 py-3.5 font-mono text-xs text-zinc-500">
                     {vente.numInterne}
                   </td>
 
@@ -140,7 +140,7 @@ export default function VentesTableau({
                     )}
                   </td>
 
-                  <td className="px-4 py-3.5">
+                  <td className="hidden sm:table-cell px-4 py-3.5">
                     <span
                       className={`
                         inline-flex items-center rounded-full border
@@ -283,6 +283,15 @@ export default function VentesTableau({
                       className="px-4 py-5 bg-zinc-950/50 border-b border-zinc-800/60"
                     >
                       <div className="animate-detail-reveal grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 text-sm">
+                        <div className="sm:hidden rounded-lg border border-zinc-800/60 bg-zinc-900/40 p-3">
+                          <span className="text-[11px] text-zinc-500 uppercase tracking-wider font-medium">
+                            N° interne
+                          </span>
+                          <p className="text-zinc-200 mt-1 font-mono text-xs">
+                            {vente.numInterne}
+                          </p>
+                        </div>
+
                         <div className="rounded-lg border border-zinc-800/60 bg-zinc-900/40 p-3">
                           <span className="text-[11px] text-zinc-500 uppercase tracking-wider font-medium">
                             Client

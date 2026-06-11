@@ -72,7 +72,7 @@ export default function AchatsTableau({
               <th className="px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
                 Date
               </th>
-              <th className="px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+              <th className="hidden sm:table-cell px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
                 N°
               </th>
               <th className="px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
@@ -81,7 +81,7 @@ export default function AchatsTableau({
               <th className="px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
                 Produit
               </th>
-              <th className="px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+              <th className="hidden sm:table-cell px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
                 Type
               </th>
               <th className="px-4 py-3.5 text-right text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
@@ -121,7 +121,7 @@ export default function AchatsTableau({
                   {formatDate(achat.date)}
                 </td>
 
-                <td className="px-4 py-3.5 font-mono text-xs text-zinc-500">
+                <td className="hidden sm:table-cell px-4 py-3.5 font-mono text-xs text-zinc-500">
                   {achat.numInterne}
                 </td>
 
@@ -143,7 +143,7 @@ export default function AchatsTableau({
                   {achat.produit}
                 </td>
 
-                <td className="px-4 py-3.5">
+                <td className="hidden sm:table-cell px-4 py-3.5">
                   <span
                     className={`
                       inline-flex items-center rounded-full border
@@ -263,6 +263,15 @@ export default function AchatsTableau({
                     className="px-4 py-5 bg-zinc-950/50 border-b border-zinc-800/60"
                   >
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 text-sm animate-detail-reveal">
+                      <div className="sm:hidden rounded-lg border border-zinc-800/60 bg-zinc-900/40 p-3">
+                        <span className="text-[11px] text-zinc-500 uppercase tracking-wider font-medium">
+                          N° interne
+                        </span>
+                        <p className="text-zinc-200 mt-1 font-mono text-xs">
+                          {achat.numInterne}
+                        </p>
+                      </div>
+
                       <div className="rounded-lg border border-zinc-800/60 bg-zinc-900/40 p-3">
                         <span className="text-[11px] text-zinc-500 uppercase tracking-wider font-medium">
                           Paiement
@@ -292,7 +301,7 @@ export default function AchatsTableau({
                                 );
                               window.open(signedUrl, "_blank");
                             }}
-                            className="mt-1 inline-flex items-center gap-1.5 text-amber-400 hover:text-amber-300 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40 rounded"
+                            className="mt-1 flex w-fit items-center gap-1.5 text-amber-400 hover:text-amber-300 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40 rounded"
                           >
                             <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m6 12.75-3-3m0 0-3 3m3-3v6m-1.5-15H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />

@@ -521,7 +521,7 @@ const buildPayload = (): Achat => {
               <button
                 type="button"
                 onClick={() => updateChamp("type", "pro")}
-                className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-all duration-150 ${
+                className={`min-w-0 rounded-md px-2 sm:px-3 py-1.5 text-xs font-semibold transition-all duration-150 ${
                   form.type === "pro"
                     ? "bg-amber-500/15 text-amber-400 shadow-sm"
                     : "text-zinc-500 hover:text-zinc-300"
@@ -533,7 +533,7 @@ const buildPayload = (): Achat => {
               <button
                 type="button"
                 onClick={() => updateChamp("type", "particulier")}
-                className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-all duration-150 ${
+                className={`min-w-0 rounded-md px-2 sm:px-3 py-1.5 text-xs font-semibold transition-all duration-150 ${
                   form.type === "particulier"
                     ? "bg-amber-500/15 text-amber-400 shadow-sm"
                     : "text-zinc-500 hover:text-zinc-300"
