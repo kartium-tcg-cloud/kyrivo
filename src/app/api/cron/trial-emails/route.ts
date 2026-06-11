@@ -48,6 +48,8 @@ interface ProcessResult {
   status: "sent" | "skipped" | "failed";
   reason?: string;
   messageId?: string;
+  logStatus?: "created";
+  logError?: string;
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -96,30 +98,42 @@ async function isUnsubscribed(email: string): Promise<boolean> {
   return !!data;
 }
 
+// Insert (et non upsert) : la table email_logs a une contrainte unique sur
+// (user_id, email_type) que PostgREST ne sait pas résoudre via onConflict
+// (erreur 42P10), ce qui faisait échouer silencieusement l'upsert précédent.
+// L'anti-doublon est déjà garanti en amont par isAlreadySent().
 async function logEmail(params: {
   userId: string;
   companyId: string;
   email: string;
   emailType: EmailType;
-  status: "sent" | "skipped" | "failed";
+  status: "sent" | "failed";
   messageId?: string;
   errorMessage?: string;
-}) {
+}): Promise<{ ok: true } | { ok: false; error: string }> {
   const now = new Date().toISOString();
-  await supabaseAdmin.from("email_logs").upsert(
-    {
-      user_id: params.userId,
-      company_id: params.companyId,
-      email: params.email.trim().toLowerCase(),
-      email_type: params.emailType,
-      status: params.status,
-      provider_message_id: params.messageId ?? null,
-      error_message: params.errorMessage ?? null,
-      sent_at: params.status === "sent" ? now : null,
-      updated_at: now,
-    },
-    { onConflict: "user_id,email_type", ignoreDuplicates: false }
-  );
+  const { error } = await supabaseAdmin.from("email_logs").insert({
+    user_id: params.userId,
+    company_id: params.companyId,
+    email: params.email.trim().toLowerCase(),
+    email_type: params.emailType,
+    status: params.status,
+    provider: "smtp",
+    provider_message_id: params.messageId ?? null,
+    error_message: params.errorMessage ?? null,
+    sent_at: params.status === "sent" ? now : null,
+    updated_at: now,
+  });
+
+  if (error) {
+    console.error(
+      `[cron/trial-emails] Échec écriture email_logs (${params.emailType} / ${params.email}, status=${params.status}):`,
+      error
+    );
+    return { ok: false, error: `${error.code ? `${error.code}: ` : ""}${error.message}` };
+  }
+
+  return { ok: true };
 }
 
 // ─── Candidate finders ───────────────────────────────────────────────────────
@@ -302,14 +316,33 @@ async function processCandidate(
       unsubscribeUrl,
     });
 
-    await logEmail({ userId, companyId, email, emailType, status: "sent", messageId });
+    const logResult = await logEmail({ userId, companyId, email, emailType, status: "sent", messageId });
 
-    return { email, emailType, status: "sent", messageId };
+    if (!logResult.ok) {
+      // L'email est bien parti mais n'a pas pu être tracé : on ne peut pas
+      // garantir l'anti-doublon, donc on remonte ça en "failed" pour alerter.
+      return {
+        email,
+        emailType,
+        status: "failed",
+        reason: `Email envoyé (messageId: ${messageId}) mais échec de l'enregistrement email_logs`,
+        messageId,
+        logError: logResult.error,
+      };
+    }
+
+    return { email, emailType, status: "sent", messageId, logStatus: "created" };
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : "Erreur inconnue";
-    await logEmail({ userId, companyId, email, emailType, status: "failed", errorMessage });
+    const logResult = await logEmail({ userId, companyId, email, emailType, status: "failed", errorMessage });
 
-    return { email, emailType, status: "failed", reason: errorMessage };
+    return {
+      email,
+      emailType,
+      status: "failed",
+      reason: errorMessage,
+      ...(logResult.ok ? {} : { logError: logResult.error }),
+    };
   }
 }
 
@@ -367,7 +400,13 @@ export async function GET(request: NextRequest) {
       summary: { total: allCandidates.length, sent, skipped, failed },
       results: dryRun
         ? results.map((r) => ({ emailType: r.emailType, email: r.email.replace(/(.{2}).*@/, "$1…@"), reason: r.reason }))
-        : results.map((r) => ({ emailType: r.emailType, status: r.status, reason: r.reason })),
+        : results.map((r) => ({
+            emailType: r.emailType,
+            status: r.status,
+            reason: r.reason,
+            ...(r.logStatus ? { logStatus: r.logStatus } : {}),
+            ...(r.logError ? { logError: r.logError } : {}),
+          })),
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Erreur inconnue";
