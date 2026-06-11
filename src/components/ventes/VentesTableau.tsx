@@ -67,31 +67,31 @@ export default function VentesTableau({
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-zinc-800 bg-zinc-950/40">
-              <th className="px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+              <th className="px-2 sm:px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
                 Date
               </th>
-              <th className="hidden sm:table-cell px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+              <th className="hidden sm:table-cell px-2 sm:px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
                 N°
               </th>
-              <th className="px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+              <th className="px-2 sm:px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
                 Client
               </th>
-              <th className="hidden sm:table-cell px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+              <th className="hidden sm:table-cell px-2 sm:px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
                 Régime
               </th>
-              <th className="px-4 py-3.5 text-right text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+              <th className="px-2 sm:px-4 py-3.5 text-right text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
                 HT
               </th>
-              <th className="px-4 py-3.5 text-right text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+              <th className="px-2 sm:px-4 py-3.5 text-right text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
                 TVA
               </th>
-              <th className="px-4 py-3.5 text-right text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+              <th className="px-2 sm:px-4 py-3.5 text-right text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
                 TTC
               </th>
-              <th className="px-4 py-3.5 text-right text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+              <th className="px-2 sm:px-4 py-3.5 text-right text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
                 Marge
               </th>
-              <th className="px-4 py-3.5 text-center text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+              <th className="px-2 sm:px-4 py-3.5 text-center text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
@@ -113,7 +113,7 @@ export default function VentesTableau({
                   onClick={() => toggleDetails(vente.id)}
                 >
                   <td
-                    className={`px-4 py-3.5 text-zinc-400 whitespace-nowrap transition-shadow duration-200 ${
+                    className={`px-2 sm:px-4 py-3.5 text-zinc-400 whitespace-nowrap transition-shadow duration-200 ${
                       ligneOuverte === vente.id
                         ? "shadow-[inset_3px_0_0_0_rgba(251,191,36,0.7)]"
                         : ""
@@ -122,11 +122,11 @@ export default function VentesTableau({
                     {formatDate(vente.date)}
                   </td>
 
-                  <td className="hidden sm:table-cell px-4 py-3.5 font-mono text-xs text-zinc-500">
+                  <td className="hidden sm:table-cell px-2 sm:px-4 py-3.5 font-mono text-xs text-zinc-500">
                     {vente.numInterne}
                   </td>
 
-                  <td className="px-4 py-3.5 font-medium max-w-[220px] truncate">
+                  <td className="px-2 sm:px-4 py-3.5 font-medium max-w-[120px] sm:max-w-[220px] truncate">
                     {vente.contactId ? (
                       <Link
                         href={`/contacts/${vente.contactId}`}
@@ -140,7 +140,7 @@ export default function VentesTableau({
                     )}
                   </td>
 
-                  <td className="hidden sm:table-cell px-4 py-3.5">
+                  <td className="hidden sm:table-cell px-2 sm:px-4 py-3.5">
                     <span
                       className={`
                         inline-flex items-center rounded-full border
@@ -154,11 +154,11 @@ export default function VentesTableau({
                     </span>
                   </td>
 
-                  <td className="px-4 py-3.5 text-right text-zinc-300 whitespace-nowrap tabular-nums">
+                  <td className="px-2 sm:px-4 py-3.5 text-right text-zinc-300 whitespace-nowrap tabular-nums">
                     {formatEuro(vente.subtotalHT)}
                   </td>
 
-                  <td className="px-4 py-3.5 text-right whitespace-nowrap tabular-nums">
+                  <td className="px-2 sm:px-4 py-3.5 text-right whitespace-nowrap tabular-nums">
                     <span
                       className={
                         vente.vatAmount > 0
@@ -170,11 +170,11 @@ export default function VentesTableau({
                     </span>
                   </td>
 
-                  <td className="px-4 py-3.5 text-right text-white font-semibold whitespace-nowrap tabular-nums">
+                  <td className="px-2 sm:px-4 py-3.5 text-right text-white font-semibold whitespace-nowrap tabular-nums">
                     {formatEuro(vente.totalTTC)}
                   </td>
 
-                  <td className="px-4 py-3.5 text-right whitespace-nowrap tabular-nums">
+                  <td className="px-2 sm:px-4 py-3.5 text-right whitespace-nowrap tabular-nums">
                     <span
                       className={
                         vente.marginAmount !== 0
@@ -190,18 +190,18 @@ export default function VentesTableau({
                     </span>
                   </td>
 
-                  <td className="px-4 py-3.5">
+                  <td className="px-2 sm:px-4 py-3.5">
                     <div className="flex items-center justify-center gap-0.5 opacity-100 md:opacity-0 md:translate-x-1 md:group-hover:opacity-100 md:group-hover:translate-x-0 focus-within:opacity-100 focus-within:translate-x-0 transition-all duration-200 ease-out">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           toggleDetails(vente.id);
                         }}
-                        className="rounded-md p-2 hover:bg-zinc-800 hover:text-amber-400 text-zinc-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
+                        className="rounded-md p-1.5 sm:p-2 hover:bg-zinc-800 hover:text-amber-400 text-zinc-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
                         title="Détails"
                       >
                         <svg
-                          className="h-4 w-4"
+                          className="h-3.5 w-3.5 sm:h-4 sm:w-4"
                           fill="none"
                           viewBox="0 0 24 24"
                           strokeWidth={1.5}
@@ -225,11 +225,11 @@ export default function VentesTableau({
                           e.stopPropagation();
                           onModifier(vente);
                         }}
-                        className="rounded-md p-2 hover:bg-zinc-800 hover:text-blue-400 text-zinc-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
+                        className="rounded-md p-1.5 sm:p-2 hover:bg-zinc-800 hover:text-blue-400 text-zinc-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
                         title="Modifier"
                       >
                         <svg
-                          className="h-4 w-4"
+                          className="h-3.5 w-3.5 sm:h-4 sm:w-4"
                           fill="none"
                           viewBox="0 0 24 24"
                           strokeWidth={1.5}
@@ -255,11 +255,11 @@ export default function VentesTableau({
 
                           onSupprimer(vente.id);
                         }}
-                        className="rounded-md p-2 hover:bg-red-500/10 hover:text-red-400 text-zinc-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/40"
+                        className="rounded-md p-1.5 sm:p-2 hover:bg-red-500/10 hover:text-red-400 text-zinc-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/40"
                         title="Supprimer"
                       >
                         <svg
-                          className="h-4 w-4"
+                          className="h-3.5 w-3.5 sm:h-4 sm:w-4"
                           fill="none"
                           viewBox="0 0 24 24"
                           strokeWidth={1.5}
