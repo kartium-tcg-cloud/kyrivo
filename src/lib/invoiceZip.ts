@@ -9,8 +9,6 @@ import { saveAs } from "file-saver";
 import { CompanyPreferences } from "@/types/preferences";
 import { Sale } from "@/types/sale";
 
-import { upsertCompanyPreferences } from "@/lib/preferences";
-
 
 // ═══════════════════════════════════════════════════════════
 // SYSTÈME DE DESIGN
@@ -941,13 +939,6 @@ export async function generateInvoicesZip(params: {
     currentNumber++;
   }
 
-  const updatedPreferences =
-    await upsertCompanyPreferences({
-      ...preferences,
-      invoiceNextNumber:
-        startNumber + sales.length,
-    });
-
   const zipBlob = await zip.generateAsync({
     type: "blob",
   });
@@ -960,6 +951,4 @@ export async function generateInvoicesZip(params: {
     zipBlob,
     `kyrivo-factures-${today}.zip`
   );
-
-  return updatedPreferences;
 }

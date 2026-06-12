@@ -281,13 +281,13 @@ async function confirmGenerateZip() {
     const cleanPrefix = preferences.invoicePrefix || "F-";
     const firstInvoiceNumber = preferences.invoiceNextNumber || 1;
     const nextInvoiceNumber = firstInvoiceNumber + filteredSales.length;
+    const billedAt = new Date().toISOString();
 
-    const updatedPreferences = await generateInvoicesZip({
-      sales: filteredSales,
-      preferences,
-    });
-
-    await Promise.all(
+    // 1. Marquer chaque vente avec son numéro de facture / date de facturation.
+    //    On vérifie chaque résultat individuellement : si une seule vente
+    //    échoue, on annule (rollback best-effort) celles qui ont réussi dans
+    //    ce lot, et on n'avance jamais le compteur ni ne génère le ZIP.
+    const updateResults = await Promise.allSettled(
       filteredSales.map((sale, index) =>
         supabase
           .from("sales")
@@ -296,25 +296,103 @@ async function confirmGenerateZip() {
               cleanPrefix,
               firstInvoiceNumber + index
             ),
-            billed_at: new Date().toISOString(),
+            billed_at: billedAt,
           })
           .eq("id", sale.id)
+          .then(({ error }) => {
+            if (error) throw error;
+          })
       )
     );
 
-    await supabase.from("invoice_prefix_counters").upsert(
-      {
-        company_id: preferences.companyId,
-        prefix: cleanPrefix,
-        next_number: nextInvoiceNumber,
-        updated_at: new Date().toISOString(),
-      },
-      {
-        onConflict: "company_id,prefix",
-      }
-    );
+    const failedUpdates = updateResults.filter(
+      (result) => result.status === "rejected"
+    ) as PromiseRejectedResult[];
 
-    await supabase
+    if (failedUpdates.length > 0) {
+      console.error(
+        "Échec de la numérotation des factures pour",
+        failedUpdates.length,
+        "vente(s) :",
+        failedUpdates.map((result) => result.reason)
+      );
+
+      // Rollback best-effort des ventes qui ont été marquées avec succès
+      await Promise.all(
+        updateResults.map((result, index) => {
+          if (result.status !== "fulfilled") return Promise.resolve();
+
+          const sale = filteredSales[index];
+
+          return supabase
+            .from("sales")
+            .update({
+              invoice_number: sale.invoiceNumber ?? null,
+              billed_at: sale.billedAt ?? null,
+            })
+            .eq("id", sale.id)
+            .then(
+              () => undefined,
+              () => undefined
+            );
+        })
+      );
+
+      throw Object.assign(new Error("Échec de la numérotation des factures."), {
+        isInvoiceNumberingError: true,
+      });
+    }
+
+    // 2. Avancer le compteur de référence (source de vérité utilisée par
+    //    getPrefixNextNumber / getCompanyPreferences).
+    const { error: counterError } = await supabase
+      .from("invoice_prefix_counters")
+      .upsert(
+        {
+          company_id: preferences.companyId,
+          prefix: cleanPrefix,
+          next_number: nextInvoiceNumber,
+          updated_at: new Date().toISOString(),
+        },
+        {
+          onConflict: "company_id,prefix",
+        }
+      );
+
+    if (counterError) {
+      console.error(
+        "Échec de la mise à jour du compteur de factures :",
+        counterError
+      );
+
+      // Rollback best-effort de toutes les ventes marquées à l'étape 1
+      await Promise.all(
+        filteredSales.map((sale) =>
+          supabase
+            .from("sales")
+            .update({
+              invoice_number: sale.invoiceNumber ?? null,
+              billed_at: sale.billedAt ?? null,
+            })
+            .eq("id", sale.id)
+            .then(
+              () => undefined,
+              () => undefined
+            )
+        )
+      );
+
+      throw Object.assign(
+        new Error("Échec de la mise à jour du compteur de factures."),
+        { isInvoiceNumberingError: true }
+      );
+    }
+
+    // 3. Mettre à jour le cache local (company_preferences.invoice_next_number).
+    //    Non bloquant : invoice_prefix_counters (étape 2) reste la source de
+    //    vérité relue par getCompanyPreferences, donc un échec ici n'entraîne
+    //    aucune incohérence de numérotation.
+    const { error: preferencesError } = await supabase
       .from("company_preferences")
       .update({
         invoice_next_number: nextInvoiceNumber,
@@ -322,8 +400,22 @@ async function confirmGenerateZip() {
       })
       .eq("company_id", preferences.companyId);
 
+    if (preferencesError) {
+      console.error(
+        "Échec de la mise à jour du cache invoice_next_number (non bloquant, le compteur réel dans invoice_prefix_counters est correct) :",
+        preferencesError
+      );
+    }
+
+    // 4. Générer et télécharger le ZIP des PDF — uniquement maintenant que la
+    //    numérotation est sécurisée en base.
+    await generateInvoicesZip({
+      sales: filteredSales,
+      preferences,
+    });
+
     setPreferences({
-      ...updatedPreferences,
+      ...preferences,
       invoiceNextNumber: nextInvoiceNumber,
     });
 
@@ -332,9 +424,16 @@ async function confirmGenerateZip() {
       setSalesCount(0);
       setInvoiceCount(0);
     }
-  } catch (e) {
+  } catch (e: any) {
     console.error(e);
-    toast.error("Erreur lors de la génération des factures.");
+
+    if (e?.isInvoiceNumberingError) {
+      toast.error(
+        "Impossible de finaliser la numérotation des factures. Aucun export n'a été validé. Réessayez ou contactez le support."
+      );
+    } else {
+      toast.error("Erreur lors de la génération des factures.");
+    }
   } finally {
     setGeneratingZip(false);
   }
