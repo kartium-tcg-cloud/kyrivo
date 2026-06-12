@@ -1,7 +1,15 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PUBLIC_EXACT = ["/", "/dashboard", "/abonnements", "/login", "/register"];
+const PUBLIC_EXACT = [
+  "/",
+  "/dashboard",
+  "/abonnements",
+  "/login",
+  "/register",
+  "/forgot-password",
+  "/reset-password",
+];
 
 const PUBLIC_PREFIXES = [
   "/mentions-legales",

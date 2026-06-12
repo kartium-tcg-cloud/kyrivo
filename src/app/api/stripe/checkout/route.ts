@@ -83,11 +83,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { data: existingSubscription } = await supabase
+    const { data: existingSubscription, error: existingSubscriptionError } = await supabase
       .from("subscriptions")
       .select("plan, status, stripe_customer_id, billing_period, current_period_start, current_period_end, subscription_ends_at")
       .eq("company_id", membership.company_id)
       .maybeSingle();
+
+    if (existingSubscriptionError) {
+      console.error("[Stripe checkout] Erreur lecture abonnement existant:", existingSubscriptionError);
+      return NextResponse.json(
+        { ok: false, error: "Impossible de vérifier l'abonnement actuel." },
+        { status: 500 }
+      );
+    }
 
     const isActive =
       existingSubscription?.status === "active" ||

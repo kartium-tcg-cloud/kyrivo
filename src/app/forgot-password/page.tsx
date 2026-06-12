@@ -22,7 +22,10 @@ export default function ForgotPasswordPage() {
     });
 
     if (error) {
-      setError(error.message);
+      console.error("Erreur resetPasswordForEmail:", error);
+      setError(
+        "Impossible d'envoyer le lien de réinitialisation pour le moment. Réessayez dans quelques instants."
+      );
       setLoading(false);
       return;
     }

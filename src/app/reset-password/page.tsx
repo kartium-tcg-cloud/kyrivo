@@ -33,7 +33,8 @@ export default function ResetPasswordPage() {
     const { error } = await supabase.auth.updateUser({ password });
 
     if (error) {
-      setError(error.message);
+      console.error("Erreur updateUser (reset password):", error);
+      setError("Impossible de modifier le mot de passe. Le lien a peut-être expiré.");
       setLoading(false);
       return;
     }
@@ -83,7 +84,7 @@ export default function ResetPasswordPage() {
                 <div>
                   <h2 className="text-xl font-bold text-white">Mot de passe mis à jour</h2>
                   <p className="mt-2 text-sm text-neutral-400">
-                    Vous allez être redirigé vers la connexion...
+                    Votre mot de passe a bien été modifié. Vous pouvez maintenant vous connecter.
                   </p>
                 </div>
                 <Link

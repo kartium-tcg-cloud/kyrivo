@@ -30,11 +30,19 @@ export async function POST(_req: NextRequest) {
       );
     }
 
-    const { data: subscription } = await supabase
+    const { data: subscription, error: subscriptionError } = await supabase
       .from("subscriptions")
       .select("stripe_customer_id")
       .eq("company_id", membership.company_id)
       .maybeSingle();
+
+    if (subscriptionError) {
+      console.error("[Stripe portal] Erreur lecture abonnement:", subscriptionError);
+      return NextResponse.json(
+        { ok: false, error: "Impossible de récupérer les informations d'abonnement." },
+        { status: 500 }
+      );
+    }
 
     const stripeCustomerId = subscription?.stripe_customer_id ?? null;
 
