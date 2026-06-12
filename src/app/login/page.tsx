@@ -6,10 +6,15 @@ import { createClient } from "@/lib/supabase/client";
 import { useSearchParams } from "next/navigation";
 
 // ── Formulaire isolé pour useSearchParams (requis par Next.js Suspense) ──────
+const CONFIRMATION_ERROR_CODES = ["confirmation_failed", "missing_confirmation_code"];
+
 function LoginForm() {
   const supabase = createClient();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect");
+  const confirmationError = CONFIRMATION_ERROR_CODES.includes(
+    searchParams.get("error") ?? ""
+  );
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -67,6 +72,12 @@ function LoginForm() {
         </div>
 
         <form onSubmit={handleLogin} className="space-y-4">
+          {confirmationError && (
+            <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+              Le lien de confirmation est invalide ou a expiré. Demandez un nouveau lien.
+            </div>
+          )}
+
           <div>
             <label className="mb-2 block text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
               Adresse email
