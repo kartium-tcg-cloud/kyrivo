@@ -266,118 +266,19 @@ export default function VentesPage() {
       const companyId = await getCompanyId();
       if (!companyId) return;
 
-const usageCheck = await canCreateLines({
-  companyId,
-  linesToCreate: 1,
-});
-
-if (!usageCheck.allowed) {
-  toast.error(
-    `Limite mensuelle atteinte (${usageCheck.used}/${usageCheck.limit}).`
-  );
-  return;
-}
-
-const stockCheck = await checkStockAvailability(vente.lines);
-if (!stockCheck.ok) {
-  if (stockCheck.errors.length === 1) {
-    toast.error(
-      `Stock insuffisant pour cet article. Quantité disponible : ${stockCheck.errors[0].available}.`
-    );
-  } else {
-    toast.error("Stock insuffisant pour un ou plusieurs articles sélectionnés.");
-  }
-  return;
-}
-
-const supabase = createClient();
-
-      // Résolution du contact_id : priorité au saveClient, sinon contactId déjà connu
-      let resolvedContactId: string | null = vente.contactId ?? null;
-
-      if (vente.saveClient) {
-        const { data: existingClient } = await supabase
-          .from("contacts")
-          .select("id")
-          .eq("company_id", companyId)
-          .eq("type", "client")
-          .ilike("name", vente.customerName)
-          .maybeSingle();
-
-        if (existingClient) {
-          resolvedContactId = existingClient.id;
-        } else {
-          const { data: newContact } = await supabase
-            .from("contacts")
-            .insert({ company_id: companyId, type: "client", name: vente.customerName })
-            .select("id")
-            .single();
-          resolvedContactId = newContact?.id ?? null;
-        }
-      }
-
-      const createdSale = await createSale({
-        company_id: companyId,
-        sale_date: vente.date,
-        customer_name: vente.customerName,
-        vat_mode: vente.vatMode,
-        payment_method: vente.paymentMethod,
-        subtotal_ht: vente.subtotalHT,
-        vat_amount: vente.vatAmount,
-        total_ttc: vente.totalTTC,
-        margin_amount: vente.marginAmount,
-        notes: vente.notes,
-        contact_id: resolvedContactId,
+      const usageCheck = await canCreateLines({
+        companyId,
+        linesToCreate: 1,
       });
 
-      await createSaleLines(
-        vente.lines.map((line) =>
-          buildSaleLineInsert({
-            saleId: createdSale.id,
-            companyId,
-            vatMode: vente.vatMode,
-            line,
-          })
-        )
-      );
+      if (!usageCheck.allowed) {
+        toast.error(
+          `Limite mensuelle atteinte (${usageCheck.used}/${usageCheck.limit}).`
+        );
+        return;
+      }
 
-      await applySaleStockMovements(vente.lines);
-
-
-const { error: usageError } = await supabase
-  .from("usage_events")
-  .insert({
-    company_id: companyId,
-    source_type: "sale",
-    source_id: createdSale.id,
-    lines_used: 1,
-  });
-
-if (usageError) {
-  throw usageError;
-}
-
-      await refreshSales(companyId);
-      await refreshStock(companyId);
-
-      fermerModal();
-    } catch (error) {
-      console.error(error);
-      toast.error("Une erreur est survenue lors de la création de la vente.");
-    }
-  };
-
-  const modifierVente = async (vente: VentePayload) => {
-    if (!venteEnEdition) return;
-
-    try {
-      const companyId = await getCompanyId();
-      if (!companyId) return;
-
-      const stockCheck = await checkStockAvailability(
-        vente.lines,
-        venteEnEdition.lines || []
-      );
+      const stockCheck = await checkStockAvailability(vente.lines);
       if (!stockCheck.ok) {
         if (stockCheck.errors.length === 1) {
           toast.error(
@@ -389,43 +290,318 @@ if (usageError) {
         return;
       }
 
-      await rollbackSaleStockMovements(venteEnEdition.lines || []);
+      const supabase = createClient();
 
-      await updateSale(venteEnEdition.id, {
-        sale_date: vente.date,
-        customer_name: vente.customerName,
-        vat_mode: vente.vatMode,
-        payment_method: vente.paymentMethod,
-        subtotal_ht: vente.subtotalHT,
-        vat_amount: vente.vatAmount,
-        total_ttc: vente.totalTTC,
-        margin_amount: vente.marginAmount,
-        notes: vente.notes,
-        contact_id: vente.contactId ?? null,
-      });
+      // Résolution du contact_id : priorité au saveClient, sinon contactId déjà connu
+      let resolvedContactId: string | null = vente.contactId ?? null;
 
-      await deleteSaleLines(venteEnEdition.id);
+      if (vente.saveClient) {
+        const { data: existingClient, error: existingClientError } = await supabase
+          .from("contacts")
+          .select("id")
+          .eq("company_id", companyId)
+          .eq("type", "client")
+          .ilike("name", vente.customerName)
+          .maybeSingle();
 
-      await createSaleLines(
-        vente.lines.map((line) =>
-          buildSaleLineInsert({
-            saleId: venteEnEdition.id,
-            companyId,
-            vatMode: vente.vatMode,
-            line,
-          })
-        )
-      );
+        if (existingClientError) {
+          console.error("Erreur lors de la recherche du contact client :", existingClientError);
+          toast.error(
+            "Impossible d’enregistrer le client associé à cette vente. La vente n’a pas été créée."
+          );
+          return;
+        }
 
-      await applySaleStockMovements(vente.lines);
+        if (existingClient) {
+          resolvedContactId = existingClient.id;
+        } else {
+          const { data: newContact, error: newContactError } = await supabase
+            .from("contacts")
+            .insert({ company_id: companyId, type: "client", name: vente.customerName })
+            .select("id")
+            .single();
+
+          if (newContactError || !newContact) {
+            console.error("Erreur lors de la création du contact client :", newContactError);
+            toast.error(
+              "Impossible d’enregistrer le client associé à cette vente. La vente n’a pas été créée."
+            );
+            return;
+          }
+
+          resolvedContactId = newContact.id;
+        }
+      }
+
+      // Création de la vente : toute la suite doit réussir intégralement,
+      // sinon la vente, ses lignes et le mouvement de stock sont annulés
+      // en best-effort.
+      let createdSale: any = null;
+      let saleLinesCreated = false;
+      let stockApplied = false;
+
+      try {
+        createdSale = await createSale({
+          company_id: companyId,
+          sale_date: vente.date,
+          customer_name: vente.customerName,
+          vat_mode: vente.vatMode,
+          payment_method: vente.paymentMethod,
+          subtotal_ht: vente.subtotalHT,
+          vat_amount: vente.vatAmount,
+          total_ttc: vente.totalTTC,
+          margin_amount: vente.marginAmount,
+          notes: vente.notes,
+          contact_id: resolvedContactId,
+        });
+
+        await createSaleLines(
+          vente.lines.map((line) =>
+            buildSaleLineInsert({
+              saleId: createdSale.id,
+              companyId,
+              vatMode: vente.vatMode,
+              line,
+            })
+          )
+        );
+        saleLinesCreated = true;
+
+        await applySaleStockMovements(vente.lines);
+        stockApplied = true;
+
+        const { error: usageError } = await supabase
+          .from("usage_events")
+          .insert({
+            company_id: companyId,
+            source_type: "sale",
+            source_id: createdSale.id,
+            lines_used: 1,
+          });
+
+        if (usageError) {
+          throw usageError;
+        }
+      } catch (innerError) {
+        console.error(
+          "Échec de la création complète de la vente, annulation en cours :",
+          innerError
+        );
+
+        if (stockApplied) {
+          try {
+            await rollbackSaleStockMovements(vente.lines);
+          } catch (rollbackError) {
+            console.error(
+              "Échec de l'annulation du mouvement de stock après échec de création de vente :",
+              rollbackError
+            );
+          }
+        }
+
+        if (createdSale) {
+          if (saleLinesCreated) {
+            try {
+              await deleteSaleLines(createdSale.id);
+            } catch (rollbackError) {
+              console.error(
+                "Échec de la suppression des lignes de vente après échec de création :",
+                rollbackError
+              );
+            }
+          }
+
+          try {
+            await deleteSale(createdSale.id);
+          } catch (rollbackError) {
+            console.error(
+              "Échec de la suppression de la vente après échec de création :",
+              rollbackError
+            );
+          }
+        }
+
+        throw Object.assign(
+          new Error(
+            "Impossible d’enregistrer complètement la vente. Aucune vente n’a été créée."
+          ),
+          { isSaleCreationError: true }
+        );
+      }
 
       await refreshSales(companyId);
       await refreshStock(companyId);
 
       fermerModal();
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      toast.error("Une erreur est survenue lors de la modification de la vente.");
+      if (error?.isSaleCreationError) {
+        toast.error(error.message);
+      } else {
+        toast.error("Une erreur est survenue lors de la création de la vente.");
+      }
+    }
+  };
+
+  const modifierVente = async (vente: VentePayload) => {
+    if (!venteEnEdition) return;
+
+    try {
+      const companyId = await getCompanyId();
+      if (!companyId) return;
+
+      const oldLines = venteEnEdition.lines || [];
+
+      const stockCheck = await checkStockAvailability(vente.lines, oldLines);
+      if (!stockCheck.ok) {
+        if (stockCheck.errors.length === 1) {
+          toast.error(
+            `Stock insuffisant pour cet article. Quantité disponible : ${stockCheck.errors[0].available}.`
+          );
+        } else {
+          toast.error("Stock insuffisant pour un ou plusieurs articles sélectionnés.");
+        }
+        return;
+      }
+
+      const previousSalePayload = {
+        sale_date: venteEnEdition.date,
+        customer_name: venteEnEdition.customerName,
+        vat_mode: venteEnEdition.vatMode,
+        payment_method: venteEnEdition.paymentMethod,
+        subtotal_ht: venteEnEdition.subtotalHT,
+        vat_amount: venteEnEdition.vatAmount,
+        total_ttc: venteEnEdition.totalTTC,
+        margin_amount: venteEnEdition.marginAmount,
+        notes: venteEnEdition.notes,
+        contact_id: venteEnEdition.contactId ?? null,
+      };
+
+      // Modification de la vente : si une étape échoue, on restaure l'état
+      // précédent (stock, lignes, champs de la vente) en best-effort.
+      let stockRolledBack = false;
+      let saleUpdated = false;
+      let oldLinesDeleted = false;
+      let stockApplied = false;
+
+      try {
+        await rollbackSaleStockMovements(oldLines);
+        stockRolledBack = true;
+
+        await updateSale(venteEnEdition.id, {
+          sale_date: vente.date,
+          customer_name: vente.customerName,
+          vat_mode: vente.vatMode,
+          payment_method: vente.paymentMethod,
+          subtotal_ht: vente.subtotalHT,
+          vat_amount: vente.vatAmount,
+          total_ttc: vente.totalTTC,
+          margin_amount: vente.marginAmount,
+          notes: vente.notes,
+          contact_id: vente.contactId ?? null,
+        });
+        saleUpdated = true;
+
+        await deleteSaleLines(venteEnEdition.id);
+        oldLinesDeleted = true;
+
+        await createSaleLines(
+          vente.lines.map((line) =>
+            buildSaleLineInsert({
+              saleId: venteEnEdition.id,
+              companyId,
+              vatMode: vente.vatMode,
+              line,
+            })
+          )
+        );
+
+        await applySaleStockMovements(vente.lines);
+        stockApplied = true;
+      } catch (innerError) {
+        console.error(
+          "Échec de la modification de la vente, restauration de l'état précédent :",
+          innerError
+        );
+
+        if (stockApplied) {
+          try {
+            await rollbackSaleStockMovements(vente.lines);
+          } catch (rollbackError) {
+            console.error(
+              "Échec de l'annulation du nouveau mouvement de stock :",
+              rollbackError
+            );
+          }
+        }
+
+        if (oldLinesDeleted) {
+          try {
+            await createSaleLines(
+              oldLines.map((line) => ({
+                sale_id: venteEnEdition.id,
+                company_id: companyId,
+                purchase_item_id: line.purchaseItemId,
+                item_reference: line.itemReference,
+                item_name: line.itemName,
+                quantity: line.quantity,
+                unit_price: line.unitPrice,
+                total_price: line.totalPrice,
+                purchase_cost: line.purchaseCost,
+                margin_amount: line.marginAmount,
+                vat_rate: line.vatRate,
+                notes: line.notes,
+              }))
+            );
+          } catch (rollbackError) {
+            console.error(
+              "Échec de la restauration des anciennes lignes de vente :",
+              rollbackError
+            );
+          }
+        }
+
+        if (saleUpdated) {
+          try {
+            await updateSale(venteEnEdition.id, previousSalePayload);
+          } catch (rollbackError) {
+            console.error(
+              "Échec de la restauration des champs de la vente :",
+              rollbackError
+            );
+          }
+        }
+
+        if (stockRolledBack) {
+          try {
+            await applySaleStockMovements(oldLines);
+          } catch (rollbackError) {
+            console.error(
+              "Échec de la restauration du stock initial :",
+              rollbackError
+            );
+          }
+        }
+
+        throw Object.assign(
+          new Error(
+            "Impossible de modifier la vente. Les données précédentes ont été restaurées autant que possible."
+          ),
+          { isSaleUpdateError: true }
+        );
+      }
+
+      await refreshSales(companyId);
+      await refreshStock(companyId);
+
+      fermerModal();
+    } catch (error: any) {
+      console.error(error);
+      if (error?.isSaleUpdateError) {
+        toast.error(error.message);
+      } else {
+        toast.error("Une erreur est survenue lors de la modification de la vente.");
+      }
     }
   };
 
