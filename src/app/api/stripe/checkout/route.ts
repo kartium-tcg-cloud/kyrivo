@@ -251,7 +251,6 @@ const session = await stripe.checkout.sessions.create({
     ? { customer: existingStripeCustomerId }
     : { customer_email: user.email ?? undefined }),
   ...(discountsParam ? { discounts: discountsParam } : {}),
-  payment_method_types: ["card", "bancontact", "sepa_debit", "paypal"],
   payment_method_collection: "always",
   billing_address_collection: "required",
   line_items: [{ price: priceId, quantity: 1 }],
@@ -271,7 +270,6 @@ const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       customer_email: user.email ?? undefined,
       ...(discountsParam ? { discounts: discountsParam } : {}),
-      payment_method_types: ["card", "bancontact", "sepa_debit", "paypal"],
       payment_method_collection: "always",
       billing_address_collection: "required",
       line_items: [{ price: priceId, quantity: 1 }],
@@ -283,6 +281,13 @@ const session = await stripe.checkout.sessions.create({
   }
   throw err;
 });
+
+    console.log("[Stripe checkout] Session créée", {
+      sessionId: session.id,
+      mode: session.mode,
+      currency: session.currency,
+      paymentMethodTypes: session.payment_method_types,
+    });
 
     return NextResponse.json({
       ok: true,
