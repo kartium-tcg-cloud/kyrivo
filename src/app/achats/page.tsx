@@ -127,14 +127,21 @@ function buildPurchaseItems(params: {
 }
 
 // Calcule le prochain numéro de référence YYYY-XXXXXXX en se basant sur le
-// maximum global existant pour cette année (purchase_items_reference_unique
-// est une contrainte unique globale, pas par entreprise).
-async function getNextItemReferenceStart(purchaseYear: string): Promise<number> {
+// maximum existant pour cette entreprise et cette année. La génération est
+// scopée par company_id : la contrainte d'unicité doit être (company_id,
+// item_reference), pas globale sur item_reference seul (sinon le calcul
+// effectué depuis le client, soumis aux RLS, ne voit jamais les références
+// des autres entreprises et entre en collision avec elles).
+async function getNextItemReferenceStart(
+  companyId: string,
+  purchaseYear: string
+): Promise<number> {
   const supabase = createClient();
 
   const { data, error } = await supabase
     .from("purchase_items")
     .select("item_reference")
+    .eq("company_id", companyId)
     .like("item_reference", `${purchaseYear}-%`)
     .order("item_reference", { ascending: false })
     .limit(1);
@@ -148,9 +155,9 @@ async function getNextItemReferenceStart(purchaseYear: string): Promise<number> 
   return Number.isFinite(lastNumber) ? lastNumber + 1 : 1;
 }
 
-// Crée les purchase_items en générant des références YYYY-XXXXXXX uniques.
-// En cas de collision avec la contrainte unique globale (concurrence), on
-// recalcule la prochaine référence et on réessaie.
+// Crée les purchase_items en générant des références YYYY-XXXXXXX uniques
+// pour cette entreprise. En cas de collision (concurrence), on recalcule la
+// prochaine référence et on réessaie.
 async function createPurchaseItemsWithRetry(params: {
   achat: Achat;
   purchaseId: string;
@@ -160,7 +167,7 @@ async function createPurchaseItemsWithRetry(params: {
   const { achat, purchaseId, companyId, purchaseYear } = params;
 
   for (let attempt = 0; attempt < 3; attempt++) {
-    const startRef = await getNextItemReferenceStart(purchaseYear);
+    const startRef = await getNextItemReferenceStart(companyId, purchaseYear);
 
     const itemsToCreate = buildPurchaseItems({
       achat,
@@ -420,9 +427,10 @@ toast.error(
             purchaseYear,
           });
         }
-      } catch (itemError) {
+      } catch (itemError: any) {
         // Rollback best-effort : éviter un achat "fantôme" sans ses articles de stock
         await deletePurchase(created.id).catch(() => {});
+        itemError.isStockItemError = true;
         throw itemError;
       }
 
@@ -441,9 +449,15 @@ if (usageError) {
 
       await refreshPurchases(companyId);
       fermerModal();
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      toast.error("Une erreur est survenue lors de la création de l'achat.");
+      if (error?.isStockItemError) {
+        toast.error(
+          "Impossible d'enregistrer les articles de stock. Aucun achat n'a été créé. Réessayez ou contactez le support."
+        );
+      } else {
+        toast.error("Une erreur est survenue lors de la création de l'achat.");
+      }
     }
   };
 
@@ -579,19 +593,30 @@ const modifierAchat = async (achatModifie: Achat) => {
     if (achatModifie.avecStock !== false && newItems.length > 0) {
       const purchaseYear = achatModifie.date.split("-")[0];
 
-      await createPurchaseItemsWithRetry({
-        achat: { ...achatModifie, items: newItems },
-        purchaseId: achatEnEdition.id,
-        companyId,
-        purchaseYear,
-      });
+      try {
+        await createPurchaseItemsWithRetry({
+          achat: { ...achatModifie, items: newItems },
+          purchaseId: achatEnEdition.id,
+          companyId,
+          purchaseYear,
+        });
+      } catch (itemError: any) {
+        itemError.isStockItemError = true;
+        throw itemError;
+      }
     }
 
     await refreshPurchases(companyId);
     fermerModal();
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
-    toast.error("Une erreur est survenue lors de la modification de l'achat.");
+    if (error?.isStockItemError) {
+      toast.error(
+        "Impossible d'enregistrer les nouveaux articles de stock. Réessayez ou contactez le support."
+      );
+    } else {
+      toast.error("Une erreur est survenue lors de la modification de l'achat.");
+    }
   }
 };
 
