@@ -16,7 +16,7 @@ interface StockItem {
   status: string;
   notes: string | null;
   created_at: string;
-  purchases: { purchase_date: string }[] | null;
+  purchases: { purchase_date: string } | { purchase_date: string }[] | null;
 }
 
 function formatEuro(n: number) {
@@ -419,10 +419,11 @@ export default function StockPage() {
                           ) / 100
                         : Number(item.unit_cost ?? 0);
                     const valeurStock = stockQty * unitCostTTC;
+                    const purchaseRelation = Array.isArray(item.purchases)
+                      ? item.purchases[0]
+                      : item.purchases;
                     const purchaseDate =
-                      Array.isArray(item.purchases) && item.purchases.length > 0
-                        ? item.purchases[0].purchase_date
-                        : item.created_at;
+                      purchaseRelation?.purchase_date ?? item.created_at;
 
                     return (
                       <tr

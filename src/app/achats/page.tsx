@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Achat, AchatFiltres } from "@/types/achat";
+import { Achat, AchatFiltres, AchatItemInput } from "@/types/achat";
 import { ItemStatus, isItemStatus } from "@/types/item";
 import { createClient } from "@/lib/supabase/client";
 import { exportPurchasesToExcel } from "@/lib/exportPurchases";
@@ -124,6 +124,88 @@ function buildPurchaseItems(params: {
       notes: item.notes || "",
     };
   });
+}
+
+// Calcule le prochain numéro de référence YYYY-XXXXXXX en se basant sur le
+// maximum global existant pour cette année (purchase_items_reference_unique
+// est une contrainte unique globale, pas par entreprise).
+async function getNextItemReferenceStart(purchaseYear: string): Promise<number> {
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from("purchase_items")
+    .select("item_reference")
+    .like("item_reference", `${purchaseYear}-%`)
+    .order("item_reference", { ascending: false })
+    .limit(1);
+
+  if (error) throw error;
+
+  const lastRef = data?.[0]?.item_reference as string | undefined;
+  if (!lastRef) return 1;
+
+  const lastNumber = parseInt(lastRef.split("-")[1], 10);
+  return Number.isFinite(lastNumber) ? lastNumber + 1 : 1;
+}
+
+// Crée les purchase_items en générant des références YYYY-XXXXXXX uniques.
+// En cas de collision avec la contrainte unique globale (concurrence), on
+// recalcule la prochaine référence et on réessaie.
+async function createPurchaseItemsWithRetry(params: {
+  achat: Achat;
+  purchaseId: string;
+  companyId: string;
+  purchaseYear: string;
+}) {
+  const { achat, purchaseId, companyId, purchaseYear } = params;
+
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const startRef = await getNextItemReferenceStart(purchaseYear);
+
+    const itemsToCreate = buildPurchaseItems({
+      achat,
+      purchaseId,
+      companyId,
+      purchaseYear,
+      startRef,
+    });
+
+    try {
+      const createdItems = await createPurchaseItems(itemsToCreate);
+
+      // Un achat de stock doit obligatoirement repartir avec ses articles
+      if (createdItems.length !== itemsToCreate.length) {
+        throw new Error(
+          "Les articles de l'achat n'ont pas tous été enregistrés en stock."
+        );
+      }
+
+      // Sécurité : une référence d'article ne doit jamais commencer par "PKM-"
+      const invalidItem = createdItems.find((item: any) =>
+        String(item.item_reference || "").startsWith("PKM-")
+      );
+
+      if (invalidItem) {
+        throw new Error(
+          `Référence invalide générée pour l'article "${invalidItem.item_name}".`
+        );
+      }
+
+      return createdItems;
+    } catch (error: any) {
+      const isRefCollision =
+        error?.code === "23505" &&
+        String(error?.message || "").includes("item_reference");
+
+      if (isRefCollision && attempt < 2) {
+        continue;
+      }
+
+      throw error;
+    }
+  }
+
+  throw new Error("Impossible de générer une référence d'article unique.");
 }
 
 export default function AchatsPage() {
@@ -312,51 +394,36 @@ toast.error(
 
       let documentPath: string | undefined = undefined;
 
-      if (nouvelAchat.documentFile) {
-        documentPath = await uploadPurchaseDocument(
-          nouvelAchat.documentFile,
-          created.id
-        );
-
-        await supabase
-          .from("purchases")
-          .update({ document_url: documentPath })
-          .eq("id", created.id);
-      }
-
-      // Achat de stock : créer les purchase_items avec référence YYYY-XXXXXXX
-      if (nouvelAchat.avecStock !== false) {
-        const purchaseYear = nouvelAchat.date.split("-")[0];
-
-        // Compter les items existants avec le nouveau format pour cette année
-        const { count: existingYearCount } = await supabase
-          .from("purchase_items")
-          .select("id", { count: "exact", head: true })
-          .eq("company_id", companyId)
-          .like("item_reference", `${purchaseYear}-%`);
-
-        const startRef = (existingYearCount ?? 0) + 1;
-
-        const baseItems = buildPurchaseItems({
-          achat: nouvelAchat,
-          purchaseId: created.id,
-          companyId,
-          purchaseYear,
-          startRef,
-        });
-
-        const createdItems = await createPurchaseItems(baseItems);
-
-        // Sécurité : une référence d'article ne doit jamais commencer par "PKM-"
-        const invalidItem = createdItems.find((item: any) =>
-          String(item.item_reference || "").startsWith("PKM-")
-        );
-
-        if (invalidItem) {
-          throw new Error(
-            `Référence invalide générée pour l'article "${invalidItem.item_name}".`
+      try {
+        if (nouvelAchat.documentFile) {
+          documentPath = await uploadPurchaseDocument(
+            nouvelAchat.documentFile,
+            created.id
           );
+
+          const { error: docError } = await supabase
+            .from("purchases")
+            .update({ document_url: documentPath })
+            .eq("id", created.id);
+
+          if (docError) throw docError;
         }
+
+        // Achat de stock : créer les purchase_items avec référence YYYY-XXXXXXX
+        if (nouvelAchat.avecStock !== false) {
+          const purchaseYear = nouvelAchat.date.split("-")[0];
+
+          await createPurchaseItemsWithRetry({
+            achat: nouvelAchat,
+            purchaseId: created.id,
+            companyId,
+            purchaseYear,
+          });
+        }
+      } catch (itemError) {
+        // Rollback best-effort : éviter un achat "fantôme" sans ses articles de stock
+        await deletePurchase(created.id).catch(() => {});
+        throw itemError;
       }
 
       const { error: usageError } = await supabase
@@ -430,14 +497,27 @@ const modifierAchat = async (achatModifie: Achat) => {
       document_url: documentPath,
     });
 
+    // Sépare les articles déjà existants (à mettre à jour) des nouveaux
+    // articles ajoutés pendant la modification (à créer en base).
+    const existingItems: AchatItemInput[] = [];
+    const newItems: AchatItemInput[] = [];
+
     for (const item of achatModifie.items || []) {
-      if (!item.id) continue;
+      const oldArticle = item.id
+        ? achatEnEdition.articles?.find((article) => article.id === item.id)
+        : undefined;
 
-      const oldArticle = achatEnEdition.articles?.find(
+      if (oldArticle) {
+        existingItems.push(item);
+      } else {
+        newItems.push(item);
+      }
+    }
+
+    for (const item of existingItems) {
+      const oldArticle = achatEnEdition.articles!.find(
         (article) => article.id === item.id
-      );
-
-      if (!oldArticle) continue;
+      )!;
 
       const oldQuantity = oldArticle.quantite;
       const oldStock = oldArticle.stockRestant;
@@ -494,10 +574,24 @@ const modifierAchat = async (achatModifie: Achat) => {
       if (saleLineUpdateError) throw saleLineUpdateError;
     }
 
+    // Articles ajoutés pendant la modification : ils n'existent pas encore
+    // en base, il faut les créer comme à la création d'un achat de stock.
+    if (achatModifie.avecStock !== false && newItems.length > 0) {
+      const purchaseYear = achatModifie.date.split("-")[0];
+
+      await createPurchaseItemsWithRetry({
+        achat: { ...achatModifie, items: newItems },
+        purchaseId: achatEnEdition.id,
+        companyId,
+        purchaseYear,
+      });
+    }
+
     await refreshPurchases(companyId);
     fermerModal();
   } catch (error) {
     console.error(error);
+    toast.error("Une erreur est survenue lors de la modification de l'achat.");
   }
 };
 
