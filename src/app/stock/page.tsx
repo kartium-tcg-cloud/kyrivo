@@ -3,6 +3,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import {
+  SortConfig,
+  SortableTh,
+  dateSortValue,
+  sortRows,
+  toggleSort,
+} from "@/lib/tableSort";
 
 interface StockItem {
   id: string;
@@ -34,6 +41,53 @@ function formatDate(iso: string) {
   });
 }
 
+type StockSortKey =
+  | "item_reference"
+  | "item_name"
+  | "category"
+  | "stock_quantity"
+  | "unit_cost_ttc"
+  | "valeur_stock"
+  | "status"
+  | "purchase_date";
+
+function getStockUnitCostTTC(item: StockItem): number {
+  const qty = Number(item.quantity);
+  return qty > 0
+    ? Math.round((Number(item.total_cost) / qty) * 100) / 100
+    : Number(item.unit_cost ?? 0);
+}
+
+function getStockPurchaseDate(item: StockItem): string {
+  const purchaseRelation = Array.isArray(item.purchases)
+    ? item.purchases[0]
+    : item.purchases;
+  return purchaseRelation?.purchase_date ?? item.created_at;
+}
+
+function getStockSortValue(item: StockItem, key: StockSortKey) {
+  switch (key) {
+    case "item_reference":
+      return item.item_reference;
+    case "item_name":
+      return item.item_name;
+    case "category":
+      return item.category;
+    case "stock_quantity":
+      return Number(item.stock_quantity ?? 0);
+    case "unit_cost_ttc":
+      return getStockUnitCostTTC(item);
+    case "valeur_stock":
+      return Number(item.stock_quantity ?? 0) * getStockUnitCostTTC(item);
+    case "status":
+      return Number(item.stock_quantity ?? 0) > 0 ? 1 : 0;
+    case "purchase_date":
+      return dateSortValue(getStockPurchaseDate(item));
+    default:
+      return null;
+  }
+}
+
 export default function StockPage() {
   const [items, setItems] = useState<StockItem[]>([]);
   const [companyId, setCompanyId] = useState<string | null>(null);
@@ -44,6 +98,12 @@ export default function StockPage() {
   const [showInStockOnly, setShowInStockOnly] = useState(true);
   const [search, setSearch] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
+
+  // Tri d'affichage du tableau
+  const [sortConfig, setSortConfig] = useState<SortConfig<StockSortKey>>({
+    key: "item_reference",
+    direction: "desc",
+  });
 
   // Modal modification stock
   const [editingItem, setEditingItem] = useState<StockItem | null>(null);
@@ -133,6 +193,15 @@ export default function StockPage() {
 
     return result;
   }, [items, showInStockOnly, search, filterCategory]);
+
+  const sortedItems = useMemo(
+    () => sortRows(filteredItems, sortConfig, getStockSortValue),
+    [filteredItems, sortConfig]
+  );
+
+  const handleSort = (key: StockSortKey) => {
+    setSortConfig((current) => toggleSort(current, key));
+  };
 
   const stats = useMemo(() => {
     const articlesEnStock = items.filter(
@@ -378,30 +447,65 @@ export default function StockPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-neutral-700/50">
-                    <th className="px-4 py-3.5 text-left text-[11px] font-semibold text-neutral-500 uppercase tracking-wider whitespace-nowrap">
-                      Référence
-                    </th>
-                    <th className="px-4 py-3.5 text-left text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">
-                      Article
-                    </th>
-                    <th className="px-4 py-3.5 text-left text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">
-                      Catégorie
-                    </th>
-                    <th className="px-4 py-3.5 text-right text-[11px] font-semibold text-neutral-500 uppercase tracking-wider whitespace-nowrap">
-                      Stock
-                    </th>
-                    <th className="px-4 py-3.5 text-right text-[11px] font-semibold text-neutral-500 uppercase tracking-wider whitespace-nowrap">
-                      Coût unit. TTC
-                    </th>
-                    <th className="px-4 py-3.5 text-right text-[11px] font-semibold text-neutral-500 uppercase tracking-wider whitespace-nowrap">
-                      Valeur stock TTC
-                    </th>
-                    <th className="px-4 py-3.5 text-left text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">
-                      Statut
-                    </th>
-                    <th className="px-4 py-3.5 text-left text-[11px] font-semibold text-neutral-500 uppercase tracking-wider whitespace-nowrap">
-                      Date achat
-                    </th>
+                    <SortableTh
+                      label="Référence"
+                      sortKey="item_reference"
+                      sortConfig={sortConfig}
+                      onSort={handleSort}
+                      className="px-4 py-3.5 text-left text-[11px] font-semibold text-neutral-500 uppercase tracking-wider whitespace-nowrap"
+                    />
+                    <SortableTh
+                      label="Article"
+                      sortKey="item_name"
+                      sortConfig={sortConfig}
+                      onSort={handleSort}
+                      className="px-4 py-3.5 text-left text-[11px] font-semibold text-neutral-500 uppercase tracking-wider"
+                    />
+                    <SortableTh
+                      label="Catégorie"
+                      sortKey="category"
+                      sortConfig={sortConfig}
+                      onSort={handleSort}
+                      className="px-4 py-3.5 text-left text-[11px] font-semibold text-neutral-500 uppercase tracking-wider"
+                    />
+                    <SortableTh
+                      label="Stock"
+                      sortKey="stock_quantity"
+                      sortConfig={sortConfig}
+                      onSort={handleSort}
+                      align="right"
+                      className="px-4 py-3.5 text-right text-[11px] font-semibold text-neutral-500 uppercase tracking-wider whitespace-nowrap"
+                    />
+                    <SortableTh
+                      label="Coût unit. TTC"
+                      sortKey="unit_cost_ttc"
+                      sortConfig={sortConfig}
+                      onSort={handleSort}
+                      align="right"
+                      className="px-4 py-3.5 text-right text-[11px] font-semibold text-neutral-500 uppercase tracking-wider whitespace-nowrap"
+                    />
+                    <SortableTh
+                      label="Valeur stock TTC"
+                      sortKey="valeur_stock"
+                      sortConfig={sortConfig}
+                      onSort={handleSort}
+                      align="right"
+                      className="px-4 py-3.5 text-right text-[11px] font-semibold text-neutral-500 uppercase tracking-wider whitespace-nowrap"
+                    />
+                    <SortableTh
+                      label="Statut"
+                      sortKey="status"
+                      sortConfig={sortConfig}
+                      onSort={handleSort}
+                      className="px-4 py-3.5 text-left text-[11px] font-semibold text-neutral-500 uppercase tracking-wider"
+                    />
+                    <SortableTh
+                      label="Date achat"
+                      sortKey="purchase_date"
+                      sortConfig={sortConfig}
+                      onSort={handleSort}
+                      className="px-4 py-3.5 text-left text-[11px] font-semibold text-neutral-500 uppercase tracking-wider whitespace-nowrap"
+                    />
                     <th className="px-4 py-3.5 text-center text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">
                       Actions
                     </th>
@@ -409,7 +513,7 @@ export default function StockPage() {
                 </thead>
 
                 <tbody className="divide-y divide-neutral-800/40">
-                  {filteredItems.map((item, index) => {
+                  {sortedItems.map((item, index) => {
                     const stockQty = Number(item.stock_quantity ?? 0);
                     const unitCostTTC =
                       Number(item.quantity) > 0

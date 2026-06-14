@@ -6,6 +6,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import {
+  SortConfig,
+  SortableTh,
+  sortRows,
+  toggleSort,
+} from "@/lib/tableSort";
 
 type ContactType = "client" | "supplier";
 type FilterType = "all" | ContactType;
@@ -42,6 +48,25 @@ const emptyForm = (type: ContactType): ContactFormData => ({
   vat_number: "",
   notes: "",
 });
+
+type ContactSortKey = "type" | "name" | "email" | "phone" | "vat_number";
+
+function getContactSortValue(contact: Contact, key: ContactSortKey) {
+  switch (key) {
+    case "type":
+      return contact.type;
+    case "name":
+      return contact.name;
+    case "email":
+      return contact.email;
+    case "phone":
+      return contact.phone;
+    case "vat_number":
+      return contact.vat_number;
+    default:
+      return null;
+  }
+}
 
 export default function ContactsPage() {
   const [contacts, setContacts] = useState<Contact[]>([]);
@@ -611,6 +636,20 @@ function ContactsTable({
   onCreateClient: () => void;
   onCreateSupplier: () => void;
 }) {
+  const [sortConfig, setSortConfig] = useState<SortConfig<ContactSortKey>>({
+    key: "name",
+    direction: "asc",
+  });
+
+  const handleSort = (key: ContactSortKey) => {
+    setSortConfig((current) => toggleSort(current, key));
+  };
+
+  const sortedContacts = useMemo(
+    () => sortRows(contacts, sortConfig, getContactSortValue),
+    [contacts, sortConfig]
+  );
+
   if (totalContacts === 0) {
     return (
       <div className="rounded-xl border border-neutral-800/60 bg-neutral-800/20 p-16 text-center">
@@ -662,17 +701,47 @@ function ContactsTable({
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-neutral-700/50">
-              <TableHead>Type</TableHead>
-              <TableHead>Nom</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Téléphone</TableHead>
-              <TableHead>N° TVA</TableHead>
+              <SortableTh
+                label="Type"
+                sortKey="type"
+                sortConfig={sortConfig}
+                onSort={handleSort}
+                className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-neutral-500"
+              />
+              <SortableTh
+                label="Nom"
+                sortKey="name"
+                sortConfig={sortConfig}
+                onSort={handleSort}
+                className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-neutral-500"
+              />
+              <SortableTh
+                label="Email"
+                sortKey="email"
+                sortConfig={sortConfig}
+                onSort={handleSort}
+                className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-neutral-500"
+              />
+              <SortableTh
+                label="Téléphone"
+                sortKey="phone"
+                sortConfig={sortConfig}
+                onSort={handleSort}
+                className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-neutral-500"
+              />
+              <SortableTh
+                label="N° TVA"
+                sortKey="vat_number"
+                sortConfig={sortConfig}
+                onSort={handleSort}
+                className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-neutral-500"
+              />
               <TableHead align="center">Actions</TableHead>
             </tr>
           </thead>
 
           <tbody className="divide-y divide-neutral-800/40">
-            {contacts.map((contact, index) => (
+            {sortedContacts.map((contact, index) => (
               <tr
                 key={contact.id}
                 className={`

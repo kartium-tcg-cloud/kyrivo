@@ -1,10 +1,50 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Achat } from "@/types/achat";
 import { getPurchaseDocumentSignedUrl } from "@/lib/purchases";
 import ItemStatusBadge from "@/components/items/ItemStatusBadge";
+import {
+  SortConfig,
+  SortableTh,
+  dateSortValue,
+  sortRows,
+  toggleSort,
+} from "@/lib/tableSort";
+
+type AchatSortKey =
+  | "date"
+  | "numInterne"
+  | "fournisseur"
+  | "produit"
+  | "type"
+  | "prixHT"
+  | "prixTVA"
+  | "prixTTC";
+
+function getAchatSortValue(achat: Achat, key: AchatSortKey) {
+  switch (key) {
+    case "date":
+      return dateSortValue(achat.date);
+    case "numInterne":
+      return achat.numInterne;
+    case "fournisseur":
+      return achat.fournisseur;
+    case "produit":
+      return achat.produit;
+    case "type":
+      return achat.type;
+    case "prixHT":
+      return achat.prixHT;
+    case "prixTVA":
+      return achat.prixTVA;
+    case "prixTTC":
+      return achat.prixTTC;
+    default:
+      return null;
+  }
+}
 
 interface AchatsTableauProps {
   achats: Achat[];
@@ -33,10 +73,23 @@ export default function AchatsTableau({
   onSupprimer,
 }: AchatsTableauProps) {
   const [ligneOuverte, setLigneOuverte] = useState<string | null>(null);
+  const [sortConfig, setSortConfig] = useState<SortConfig<AchatSortKey>>({
+    key: "date",
+    direction: "desc",
+  });
 
   const toggleDetails = (id: string) => {
     setLigneOuverte(ligneOuverte === id ? null : id);
   };
+
+  const handleSort = (key: AchatSortKey) => {
+    setSortConfig((current) => toggleSort(current, key));
+  };
+
+  const achatsTries = useMemo(
+    () => sortRows(achats, sortConfig, getAchatSortValue),
+    [achats, sortConfig]
+  );
 
   if (achats.length === 0) {
     return (
@@ -69,30 +122,65 @@ export default function AchatsTableau({
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-zinc-800 bg-zinc-950/40">
-              <th className="px-2 sm:px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
-                Date
-              </th>
-              <th className="hidden sm:table-cell px-2 sm:px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
-                N°
-              </th>
-              <th className="px-2 sm:px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
-                Fournisseur
-              </th>
-              <th className="px-2 sm:px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
-                Produit
-              </th>
-              <th className="hidden sm:table-cell px-2 sm:px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
-                Type
-              </th>
-              <th className="px-2 sm:px-4 py-3.5 text-right text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
-                HT
-              </th>
-              <th className="px-2 sm:px-4 py-3.5 text-right text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
-                TVA
-              </th>
-              <th className="px-2 sm:px-4 py-3.5 text-right text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
-                TTC
-              </th>
+              <SortableTh
+                label="Date"
+                sortKey="date"
+                sortConfig={sortConfig}
+                onSort={handleSort}
+                className="px-2 sm:px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider"
+              />
+              <SortableTh
+                label="N°"
+                sortKey="numInterne"
+                sortConfig={sortConfig}
+                onSort={handleSort}
+                className="hidden sm:table-cell px-2 sm:px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider"
+              />
+              <SortableTh
+                label="Fournisseur"
+                sortKey="fournisseur"
+                sortConfig={sortConfig}
+                onSort={handleSort}
+                className="px-2 sm:px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider"
+              />
+              <SortableTh
+                label="Produit"
+                sortKey="produit"
+                sortConfig={sortConfig}
+                onSort={handleSort}
+                className="px-2 sm:px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider"
+              />
+              <SortableTh
+                label="Type"
+                sortKey="type"
+                sortConfig={sortConfig}
+                onSort={handleSort}
+                className="hidden sm:table-cell px-2 sm:px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider"
+              />
+              <SortableTh
+                label="HT"
+                sortKey="prixHT"
+                sortConfig={sortConfig}
+                onSort={handleSort}
+                align="right"
+                className="px-2 sm:px-4 py-3.5 text-right text-[11px] font-semibold text-zinc-400 uppercase tracking-wider"
+              />
+              <SortableTh
+                label="TVA"
+                sortKey="prixTVA"
+                sortConfig={sortConfig}
+                onSort={handleSort}
+                align="right"
+                className="px-2 sm:px-4 py-3.5 text-right text-[11px] font-semibold text-zinc-400 uppercase tracking-wider"
+              />
+              <SortableTh
+                label="TTC"
+                sortKey="prixTTC"
+                sortConfig={sortConfig}
+                onSort={handleSort}
+                align="right"
+                className="px-2 sm:px-4 py-3.5 text-right text-[11px] font-semibold text-zinc-400 uppercase tracking-wider"
+              />
               <th className="px-2 sm:px-4 py-3.5 text-center text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
                 Actions
               </th>
@@ -100,7 +188,7 @@ export default function AchatsTableau({
           </thead>
 
           <tbody className="divide-y divide-zinc-800/60">
-            {achats.map((achat) => [
+            {achatsTries.map((achat) => [
               <tr
                 key={achat.id}
                 className={`

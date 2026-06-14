@@ -1,8 +1,48 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Sale, SALE_VAT_MODE_CONFIG } from "@/types/sale";
+import {
+  SortConfig,
+  SortableTh,
+  dateSortValue,
+  sortRows,
+  toggleSort,
+} from "@/lib/tableSort";
+
+type VenteSortKey =
+  | "date"
+  | "numInterne"
+  | "customerName"
+  | "vatMode"
+  | "subtotalHT"
+  | "vatAmount"
+  | "totalTTC"
+  | "marginAmount";
+
+function getVenteSortValue(vente: Sale, key: VenteSortKey) {
+  switch (key) {
+    case "date":
+      return dateSortValue(vente.date);
+    case "numInterne":
+      return vente.numInterne;
+    case "customerName":
+      return vente.customerName;
+    case "vatMode":
+      return SALE_VAT_MODE_CONFIG[vente.vatMode].shortLabel;
+    case "subtotalHT":
+      return vente.subtotalHT;
+    case "vatAmount":
+      return vente.vatAmount;
+    case "totalTTC":
+      return vente.totalTTC;
+    case "marginAmount":
+      return vente.marginAmount;
+    default:
+      return null;
+  }
+}
 
 interface VentesTableauProps {
   ventes: Sale[];
@@ -31,10 +71,23 @@ export default function VentesTableau({
   onSupprimer,
 }: VentesTableauProps) {
   const [ligneOuverte, setLigneOuverte] = useState<string | null>(null);
+  const [sortConfig, setSortConfig] = useState<SortConfig<VenteSortKey>>({
+    key: "date",
+    direction: "desc",
+  });
 
   const toggleDetails = (id: string) => {
     setLigneOuverte(ligneOuverte === id ? null : id);
   };
+
+  const handleSort = (key: VenteSortKey) => {
+    setSortConfig((current) => toggleSort(current, key));
+  };
+
+  const ventesTriees = useMemo(
+    () => sortRows(ventes, sortConfig, getVenteSortValue),
+    [ventes, sortConfig]
+  );
 
   if (ventes.length === 0) {
     return (
@@ -67,30 +120,66 @@ export default function VentesTableau({
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-zinc-800 bg-zinc-950/40">
-              <th className="px-2 sm:px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
-                Date
-              </th>
-              <th className="hidden sm:table-cell px-2 sm:px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
-                N°
-              </th>
-              <th className="px-2 sm:px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
-                Client
-              </th>
-              <th className="hidden sm:table-cell px-2 sm:px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
-                Régime
-              </th>
-              <th className="px-2 sm:px-4 py-3.5 text-right text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
-                HT
-              </th>
-              <th className="px-2 sm:px-4 py-3.5 text-right text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
-                TVA
-              </th>
-              <th className="px-2 sm:px-4 py-3.5 text-right text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
-                TTC
-              </th>
-              <th className="px-2 sm:px-4 py-3.5 text-right text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
-                Marge
-              </th>
+              <SortableTh
+                label="Date"
+                sortKey="date"
+                sortConfig={sortConfig}
+                onSort={handleSort}
+                className="px-2 sm:px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider"
+              />
+              <SortableTh
+                label="N°"
+                sortKey="numInterne"
+                sortConfig={sortConfig}
+                onSort={handleSort}
+                className="hidden sm:table-cell px-2 sm:px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider"
+              />
+              <SortableTh
+                label="Client"
+                sortKey="customerName"
+                sortConfig={sortConfig}
+                onSort={handleSort}
+                className="px-2 sm:px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider"
+              />
+              <SortableTh
+                label="Régime"
+                sortKey="vatMode"
+                sortConfig={sortConfig}
+                onSort={handleSort}
+                className="hidden sm:table-cell px-2 sm:px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider"
+              />
+              <SortableTh
+                label="HT"
+                sortKey="subtotalHT"
+                sortConfig={sortConfig}
+                onSort={handleSort}
+                align="right"
+                className="px-2 sm:px-4 py-3.5 text-right text-[11px] font-semibold text-zinc-400 uppercase tracking-wider"
+              />
+              <SortableTh
+                label="TVA"
+                sortKey="vatAmount"
+                sortConfig={sortConfig}
+                onSort={handleSort}
+                align="right"
+                className="px-2 sm:px-4 py-3.5 text-right text-[11px] font-semibold text-zinc-400 uppercase tracking-wider"
+              />
+              <SortableTh
+                label="TTC"
+                sortKey="totalTTC"
+                sortConfig={sortConfig}
+                onSort={handleSort}
+                align="right"
+                className="px-2 sm:px-4 py-3.5 text-right text-[11px] font-semibold text-zinc-400 uppercase tracking-wider"
+              />
+              <SortableTh
+                label="Marge"
+                sortKey="marginAmount"
+                sortConfig={sortConfig}
+                onSort={handleSort}
+                align="right"
+                className="px-2 sm:px-4 py-3.5 text-right text-[11px] font-semibold text-zinc-400 uppercase tracking-wider"
+              />
               <th className="px-2 sm:px-4 py-3.5 text-center text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
                 Actions
               </th>
@@ -98,7 +187,7 @@ export default function VentesTableau({
           </thead>
 
           <tbody className="divide-y divide-zinc-800/60">
-            {ventes.map((vente) => {
+            {ventesTriees.map((vente) => {
               const config = SALE_VAT_MODE_CONFIG[vente.vatMode];
 
               return [
