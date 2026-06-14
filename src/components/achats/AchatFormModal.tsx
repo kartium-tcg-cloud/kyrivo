@@ -99,6 +99,7 @@ export default function AchatFormModal({
   const [showUnsavedModal, setShowUnsavedModal] = useState(false);
   const [supplierContactId, setSupplierContactId] = useState<string | null>(null);
   const [showSupplierDropdown, setShowSupplierDropdown] = useState(false);
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
 
   const inputClasses = `
     w-full rounded-lg px-3 py-2.5 text-sm
@@ -276,6 +277,14 @@ setForm({
     if (!q) return supplierContacts.slice(0, 10);
     return supplierContacts.filter((c) => c.name.toLowerCase().includes(q)).slice(0, 10);
   }, [form.fournisseur, supplierContacts]);
+
+  const filteredCategories = useMemo(() => {
+    const q = form.produit.toLowerCase().trim();
+    if (!q) return existingCategories.slice(0, 10);
+    return existingCategories
+      .filter((c) => c.toLowerCase().includes(q))
+      .slice(0, 10);
+  }, [form.produit, existingCategories]);
 
   const totalItems = useMemo(() => {
     let totalHT = 0;
@@ -613,24 +622,54 @@ const buildPayload = (): Achat => {
 
           <div>
             <label className={labelClasses}>Produit / Catégorie</label>
-            <input
-              type="text"
-              placeholder="Ex. Carte Pokémon, Lego, Sneakers…"
-              value={form.produit}
-              onChange={(e) => updateChamp("produit", e.target.value)}
-              maxLength={MAX_TEXT.produit}
-              list="achat-categories-suggestions"
-              className={`${inputClasses} ${
-                erreurs.produit ? "border-red-500/50" : ""
-              }`}
-            />
-            {existingCategories.length > 0 && (
-              <datalist id="achat-categories-suggestions">
-                {existingCategories.map((categorie) => (
-                  <option key={categorie} value={categorie} />
-                ))}
-              </datalist>
-            )}
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Ex. Carte Pokémon, Lego, Sneakers…"
+                value={form.produit}
+                onChange={(e) => {
+                  updateChamp("produit", e.target.value);
+                  setShowCategoryDropdown(true);
+                }}
+                onFocus={() => setShowCategoryDropdown(true)}
+                onBlur={() =>
+                  setTimeout(() => setShowCategoryDropdown(false), 150)
+                }
+                maxLength={MAX_TEXT.produit}
+                className={`${inputClasses} ${
+                  erreurs.produit ? "border-red-500/50" : ""
+                }`}
+              />
+
+              {showCategoryDropdown && filteredCategories.length > 0 && (
+                <div className="absolute left-0 right-0 top-full z-[100] mt-1 max-h-48 overflow-y-auto rounded-lg border border-zinc-700 bg-zinc-900 shadow-xl">
+                  {filteredCategories.map((categorie) => (
+                    <button
+                      key={categorie}
+                      type="button"
+                      onMouseDown={() => {
+                        isDirtyRef.current = true;
+                        setForm((prev) => ({
+                          ...prev,
+                          produit: categorie,
+                        }));
+                        setShowCategoryDropdown(false);
+                        if (erreurs.produit) {
+                          setErreurs((prev) => {
+                            const copy = { ...prev };
+                            delete copy.produit;
+                            return copy;
+                          });
+                        }
+                      }}
+                      className="w-full px-3 py-2.5 text-left text-sm text-zinc-200 transition-colors hover:bg-amber-500/5 hover:text-amber-400"
+                    >
+                      {categorie}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             {erreurs.produit ? (
               <p className={erreurClasses}>{erreurs.produit}</p>
             ) : (
