@@ -24,6 +24,33 @@ import AchatsFiltres from "@/components/achats/AchatsFiltres";
 import AchatsTableau from "@/components/achats/AchatsTableau";
 import AchatFormModal from "@/components/achats/AchatFormModal";
 
+function normalizeCategory(value: string): string {
+  return value.trim().replace(/\s+/g, " ");
+}
+
+function getCategoryKey(value: string): string {
+  return normalizeCategory(value).toLocaleLowerCase("fr");
+}
+
+function dedupeCategories(values: Array<string | null | undefined>): string[] {
+  const map = new Map<string, string>();
+
+  for (const value of values) {
+    const normalized = normalizeCategory(value ?? "");
+    if (!normalized) continue;
+
+    const key = getCategoryKey(normalized);
+
+    if (!map.has(key)) {
+      map.set(key, normalized);
+    }
+  }
+
+  return Array.from(map.values()).sort((a, b) =>
+    a.localeCompare(b, "fr", { sensitivity: "base" })
+  );
+}
+
 function mapPurchase(p: any, itemsByPurchaseId: Map<string, any[]>): Achat {
   const articles = (itemsByPurchaseId.get(p.id) || []).map((item: any) => ({
     id: item.id,
@@ -112,7 +139,7 @@ function buildPurchaseItems(params: {
       company_id: companyId,
       item_reference: `${purchaseYear}-${String(startRef + index).padStart(7, "0")}`,
       item_name: item.nom,
-      category: achat.produit,
+      category: normalizeCategory(achat.produit),
       quantity,
       stock_quantity: quantity,
       unit_cost: unitCostHT,
@@ -220,6 +247,7 @@ export default function AchatsPage() {
   const [modalOuverte, setModalOuverte] = useState(false);
   const [achatEnEdition, setAchatEnEdition] = useState<Achat | null>(null);
   const [supplierContacts, setSupplierContacts] = useState<Array<{ id: string; name: string }>>([]);
+  const [existingCategories, setExistingCategories] = useState<string[]>([]);
 
   const [filtres, setFiltres] = useState<AchatFiltres>({
     recherche: "",
@@ -257,6 +285,19 @@ export default function AchatsPage() {
       .order("name", { ascending: true });
 
     setSupplierContacts(contacts ?? []);
+
+    const { data: categoryRows } = await createClient()
+      .from("purchase_items")
+      .select("category")
+      .eq("company_id", companyId)
+      .not("category", "is", null);
+
+    setExistingCategories(
+      dedupeCategories(
+        (categoryRows ?? []).map((row: { category: string | null }) => row.category)
+      )
+    );
+
     const purchases = await getPurchases(companyId);
     const purchaseIds = purchases.map((p: any) => p.id);
     const purchaseItems = await getPurchaseItems(purchaseIds);
@@ -561,7 +602,7 @@ const modifierAchat = async (achatModifie: Achat) => {
         .from("purchase_items")
         .update({
           item_name: item.nom,
-          category: achatModifie.produit,
+          category: normalizeCategory(achatModifie.produit),
           quantity: newQuantity,
           stock_quantity: newStock,
           unit_cost: unitCostHT,
@@ -697,6 +738,7 @@ const modifierAchat = async (achatModifie: Achat) => {
         onModifier={modifierAchat}
         achatInitial={achatEnEdition}
         supplierContacts={supplierContacts}
+        existingCategories={existingCategories}
       />
     </div>
   );

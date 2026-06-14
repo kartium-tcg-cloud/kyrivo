@@ -13,6 +13,7 @@ interface AchatFormModalProps {
   onModifier?: (achat: Achat) => void;
   achatInitial?: Achat | null;
   supplierContacts?: Array<{ id: string; name: string }>;
+  existingCategories?: string[];
 }
 
 interface AchatItem {
@@ -66,6 +67,7 @@ export default function AchatFormModal({
   onModifier,
   achatInitial = null,
   supplierContacts = [],
+  existingCategories = [],
 }: AchatFormModalProps) {
   const isEditing = Boolean(achatInitial);
 
@@ -613,16 +615,28 @@ const buildPayload = (): Achat => {
             <label className={labelClasses}>Produit / Catégorie</label>
             <input
               type="text"
-              placeholder="Ex : Lot Pokémon"
+              placeholder="Ex. Carte Pokémon, Lego, Sneakers…"
               value={form.produit}
               onChange={(e) => updateChamp("produit", e.target.value)}
               maxLength={MAX_TEXT.produit}
+              list="achat-categories-suggestions"
               className={`${inputClasses} ${
                 erreurs.produit ? "border-red-500/50" : ""
               }`}
             />
-            {erreurs.produit && (
+            {existingCategories.length > 0 && (
+              <datalist id="achat-categories-suggestions">
+                {existingCategories.map((categorie) => (
+                  <option key={categorie} value={categorie} />
+                ))}
+              </datalist>
+            )}
+            {erreurs.produit ? (
               <p className={erreurClasses}>{erreurs.produit}</p>
+            ) : (
+              <p className="text-[10px] text-zinc-600 mt-1.5 px-1">
+                Les catégories déjà utilisées seront proposées automatiquement.
+              </p>
             )}
           </div>
         </div>
