@@ -3,6 +3,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import LandingAnalytics from "@/components/LandingAnalytics";
 import RegisterCTA from "@/components/RegisterCTA";
+import Reveal from "@/components/ui/Reveal";
 
 export const metadata: Metadata = {
   alternates: {
@@ -122,6 +123,9 @@ export default async function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
+      <noscript>
+        <style>{`.reveal { opacity: 1 !important; transform: none !important; }`}</style>
+      </noscript>
       <LandingAnalytics />
 
       {/* ── Background ambient ─────────────────────────── */}
@@ -149,33 +153,37 @@ export default async function HomePage() {
             <div className="flex flex-col items-center text-center lg:items-start lg:text-left lg:max-w-[520px]">
 
               {/* Eyebrow */}
-              <div className="inline-flex items-center gap-2 rounded-full bg-amber-500/10 border border-amber-500/25 px-3 py-1.5 mb-6">
+              <Reveal delay={0} className="inline-flex items-center gap-2 rounded-full bg-amber-500/10 border border-amber-500/25 px-3 py-1.5 mb-6">
                 <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse flex-shrink-0" />
                 <span className="text-[11px] font-semibold text-amber-400 tracking-widest uppercase">
                   Vinted · Brocante · TCG · Collection · Lots d’occasion
                 </span>
-              </div>
+              </Reveal>
 
               {/* H1 */}
-              <h1 className="text-4xl sm:text-5xl lg:text-[54px] font-bold text-white tracking-tight leading-[1.12] mb-5">
-                Tu fais de l’achat-revente&nbsp;?{" "}
-                <span
-                  className="block bg-clip-text text-transparent pb-2"
-                  style={{ backgroundImage: "linear-gradient(135deg, #fcd34d 0%, #f59e0b 45%, #d97706 100%)" }}
-                >
-                  Tu sais vraiment ce que tu gagnes&nbsp;?
-                </span>
-              </h1>
+              <Reveal delay={80} className="w-full">
+                <h1 className="text-4xl sm:text-5xl lg:text-[54px] font-bold text-white tracking-tight leading-[1.12] mb-5">
+                  Tu fais de l’achat-revente&nbsp;?{" "}
+                  <span
+                    className="block bg-clip-text text-transparent pb-2"
+                    style={{ backgroundImage: "linear-gradient(135deg, #fcd34d 0%, #f59e0b 45%, #d97706 100%)" }}
+                  >
+                    Tu sais vraiment ce que tu gagnes&nbsp;?
+                  </span>
+                </h1>
+              </Reveal>
 
               {/* Subtitle desktop */}
-              <p className="text-base sm:text-lg text-neutral-400 leading-relaxed mb-8 max-w-[440px]">
-                Kyrivo centralise tes{" "}
-                <strong className="text-neutral-200 font-semibold">achats, ventes, stock, marges, TVA et factures</strong>{" "}
-                dans un seul outil — sans Excel compliqué.
-              </p>
+              <Reveal delay={160} className="w-full">
+                <p className="text-base sm:text-lg text-neutral-400 leading-relaxed mb-8 max-w-[440px] mx-auto lg:mx-0">
+                  Kyrivo centralise tes{" "}
+                  <strong className="text-neutral-200 font-semibold">achats, ventes, stock, marges, TVA et factures</strong>{" "}
+                  dans un seul outil — sans Excel compliqué.
+                </p>
+              </Reveal>
 
               {/* CTA buttons */}
-              <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto mb-4">
+              <Reveal delay={240} className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto mb-4">
                 {user ? (
                   <Link
                     href="/dashboard"
@@ -198,28 +206,34 @@ export default async function HomePage() {
                 >
                   Voir les tarifs
                 </Link>
-              </div>
+              </Reveal>
 
               {/* Reassurance */}
-              <p className="text-[12px] text-neutral-600 font-medium tracking-wide mb-8 lg:mb-0">
-                Sans carte bancaire · Sans engagement · Données exportables
-              </p>
+              <Reveal delay={320} className="w-full">
+                <p className="text-[12px] text-neutral-600 font-medium tracking-wide mb-8 lg:mb-0">
+                  Sans carte bancaire · Sans engagement · Données exportables
+                </p>
+              </Reveal>
 
               {/* Badges fonctionnalités — desktop */}
-              <div className="hidden lg:flex flex-wrap gap-2 mt-6">
+              <Reveal delay={400} className="hidden lg:flex flex-wrap gap-2 mt-6">
                 {["Stock temps réel", "Factures PDF", "Export Excel", "TVA sur marge", "France · Belgique"].map((b) => (
                   <span key={b} className="inline-flex items-center rounded-full bg-neutral-900/60 border border-neutral-800 px-3 py-1 text-[11px] font-medium text-neutral-400">
                     {b}
                   </span>
                 ))}
-              </div>
+              </Reveal>
 
             </div>
 
             {/* ── COLONNE DROITE : mockup produit ─────────── */}
-            <div className="mt-10 lg:mt-0 w-full max-w-sm sm:max-w-md mx-auto lg:mx-0 lg:max-w-[460px] flex-shrink-0">
+            <Reveal
+              delay={200}
+              direction="right"
+              className="mt-10 lg:mt-0 w-full max-w-sm sm:max-w-md mx-auto lg:mx-0 lg:max-w-[460px] flex-shrink-0"
+            >
               <ProductMockup />
-            </div>
+            </Reveal>
 
           </div>
 
@@ -229,10 +243,10 @@ export default async function HomePage() {
         {/* PREUVE SOCIALE / STATS                              */}
         {/* ═══════════════════════════════════════════════════ */}
         <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-24 max-w-4xl mx-auto">
-          <StatBlock value="TVA marge" label="Intégrée nativement" accent />
-          <StatBlock value="FR · BE" label="Suivi adapté" />
-          <StatBlock value="PDF" label="Factures auto" />
-          <StatBlock value="Excel" label="Export comptable" accent />
+          <Reveal delay={0}><StatBlock value="TVA marge" label="Intégrée nativement" accent /></Reveal>
+          <Reveal delay={80}><StatBlock value="FR · BE" label="Suivi adapté" /></Reveal>
+          <Reveal delay={160}><StatBlock value="PDF" label="Factures auto" /></Reveal>
+          <Reveal delay={240}><StatBlock value="Excel" label="Export comptable" accent /></Reveal>
         </section>
 
         {/* ═══════════════════════════════════════════════════ */}
@@ -246,7 +260,7 @@ export default async function HomePage() {
             />
 
             <div className="relative p-8 lg:p-12">
-              <div className="text-center mb-10 max-w-2xl mx-auto">
+              <Reveal delay={0} className="text-center mb-10 max-w-2xl mx-auto">
                 <div className="inline-flex items-center gap-2 rounded-full bg-red-500/8 border border-red-500/15 px-3 py-1.5 mb-4">
                   <span className="h-1.5 w-1.5 rounded-full bg-red-400 flex-shrink-0" />
                   <span className="text-[11px] font-semibold text-red-400/80 uppercase tracking-widest">Le problème</span>
@@ -257,24 +271,30 @@ export default async function HomePage() {
                 <p className="mt-3 text-neutral-500 text-sm leading-relaxed">
                   La plupart des revendeurs commencent avec un fichier simple. Puis les ventes se multiplient, le stock bouge, les marges deviennent floues et les erreurs s&apos;accumulent.
                 </p>
-              </div>
+              </Reveal>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-4xl mx-auto">
-                <ProblemCard
-                  icon={<CalcIcon />}
-                  title="Marges floues"
-                  description="Tu revends un article 25 €. Tu l’avais payé combien ? Avec les frais, la marge réelle n’est pas toujours celle que tu imagines."
-                />
-                <ProblemCard
-                  icon={<StockIcon />}
-                  title="Stock dispersé"
-                  description="Tes articles sont sur Vinted, en brocante, en réserve ou dans plusieurs fichiers. Retrouver ce qu’il te reste prend trop de temps."
-                />
-                <ProblemCard
-                  icon={<InvoiceIcon />}
-                  title="Factures manuelles"
-                  description="Chaque facture faite à la main augmente le risque d’erreur : numérotation, TVA, mentions, client, total à payer."
-                />
+                <Reveal delay={0}>
+                  <ProblemCard
+                    icon={<CalcIcon />}
+                    title="Marges floues"
+                    description="Tu revends un article 25 €. Tu l’avais payé combien ? Avec les frais, la marge réelle n’est pas toujours celle que tu imagines."
+                  />
+                </Reveal>
+                <Reveal delay={100}>
+                  <ProblemCard
+                    icon={<StockIcon />}
+                    title="Stock dispersé"
+                    description="Tes articles sont sur Vinted, en brocante, en réserve ou dans plusieurs fichiers. Retrouver ce qu’il te reste prend trop de temps."
+                  />
+                </Reveal>
+                <Reveal delay={200}>
+                  <ProblemCard
+                    icon={<InvoiceIcon />}
+                    title="Factures manuelles"
+                    description="Chaque facture faite à la main augmente le risque d’erreur : numérotation, TVA, mentions, client, total à payer."
+                  />
+                </Reveal>
               </div>
             </div>
           </div>
@@ -285,19 +305,21 @@ export default async function HomePage() {
         {/* ═══════════════════════════════════════════════════ */}
         <section className="mb-28">
 
-          <SectionHeader
-            label="Fonctionnalités"
-            title="Tout ce qu'il te faut pour gérer ta revente"
-            description="De l'achat au comptable, en passant par le stock, les marges et la facturation — un seul outil."
-          />
+          <Reveal delay={0}>
+            <SectionHeader
+              label="Fonctionnalités"
+              title="Tout ce qu'il te faut pour gérer ta revente"
+              description="De l'achat au comptable, en passant par le stock, les marges et la facturation — un seul outil."
+            />
+          </Reveal>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-12">
-            <FeatureCard icon={<CartIcon />} title="Gestion achats" description="Enregistre tes achats professionnels ou particuliers, ajoute tes justificatifs et garde un historique clair." />
-            <FeatureCard icon={<SalesIcon />} title="Gestion ventes" description="Suis tes ventes par canal : Vinted, brocante, boutique, Cardmarket ou autre — avec marge calculée automatiquement." />
-            <FeatureCard icon={<CalcIcon />} title="TVA sur marge" description="Pensé pour les biens d'occasion avec suivi TVA standard et TVA sur marge. L'outil aide au suivi, sans remplacer ton comptable." />
-            <FeatureCard icon={<StockIcon />} title="Stock intelligent" description="Chaque article peut être suivi avec sa référence, sa quantité, son coût d'achat et son statut." />
-            <FeatureCard icon={<InvoiceIcon />} title="Facturation PDF" description="Génère des factures propres avec numérotation, coordonnées client et mentions utiles." />
-            <FeatureCard icon={<ExportIcon />} title="Export comptable" description="Exporte tes achats et ventes vers Excel pour ton suivi ou pour préparer les informations à transmettre à ton comptable." />
+            <Reveal delay={0}><FeatureCard icon={<CartIcon />} title="Gestion achats" description="Enregistre tes achats professionnels ou particuliers, ajoute tes justificatifs et garde un historique clair." /></Reveal>
+            <Reveal delay={70}><FeatureCard icon={<SalesIcon />} title="Gestion ventes" description="Suis tes ventes par canal : Vinted, brocante, boutique, Cardmarket ou autre — avec marge calculée automatiquement." /></Reveal>
+            <Reveal delay={140}><FeatureCard icon={<CalcIcon />} title="TVA sur marge" description="Pensé pour les biens d'occasion avec suivi TVA standard et TVA sur marge. L'outil aide au suivi, sans remplacer ton comptable." /></Reveal>
+            <Reveal delay={210}><FeatureCard icon={<StockIcon />} title="Stock intelligent" description="Chaque article peut être suivi avec sa référence, sa quantité, son coût d'achat et son statut." /></Reveal>
+            <Reveal delay={280}><FeatureCard icon={<InvoiceIcon />} title="Facturation PDF" description="Génère des factures propres avec numérotation, coordonnées client et mentions utiles." /></Reveal>
+            <Reveal delay={350}><FeatureCard icon={<ExportIcon />} title="Export comptable" description="Exporte tes achats et ventes vers Excel pour ton suivi ou pour préparer les informations à transmettre à ton comptable." /></Reveal>
           </div>
         </section>
 
@@ -306,30 +328,32 @@ export default async function HomePage() {
         {/* ═══════════════════════════════════════════════════ */}
         <section className="mb-28">
 
-          <SectionHeader
-            label="Workflow"
-            title="De l'achat à la marge, tout reste lié"
-            description="Tu encodes un achat, ton stock se met à jour, tu ajoutes une vente et Kyrivo t'aide à voir ta marge réelle."
-          />
+          <Reveal delay={0}>
+            <SectionHeader
+              label="Workflow"
+              title="De l'achat à la marge, tout reste lié"
+              description="Tu encodes un achat, ton stock se met à jour, tu ajoutes une vente et Kyrivo t'aide à voir ta marge réelle."
+            />
+          </Reveal>
 
           <div className="mt-12">
             {/* Pipeline desktop */}
             <div className="hidden lg:grid grid-cols-[1fr_auto_1fr_auto_1fr_auto_1fr] items-stretch gap-0 max-w-5xl mx-auto">
-              <WorkflowStep step={1} icon={<CartIcon />} title="Achat" description="Tu enregistres un achat avec son coût et son fournisseur." state="completed" />
+              <Reveal delay={0} direction="left" className="h-full"><WorkflowStep step={1} icon={<CartIcon />} title="Achat" description="Tu enregistres un achat avec son coût et son fournisseur." state="completed" /></Reveal>
               <Arrow />
-              <WorkflowStep step={2} icon={<StockIcon />} title="Stock" description="L'article rejoint ton stock avec une quantité et une référence." state="active" />
+              <Reveal delay={120} direction="left" className="h-full"><WorkflowStep step={2} icon={<StockIcon />} title="Stock" description="L'article rejoint ton stock avec une quantité et une référence." state="active" /></Reveal>
               <Arrow />
-              <WorkflowStep step={3} icon={<SalesIcon />} title="Vente" description="Tu enregistres la vente, liée à l'article vendu." state="pending" />
+              <Reveal delay={240} direction="left" className="h-full"><WorkflowStep step={3} icon={<SalesIcon />} title="Vente" description="Tu enregistres la vente, liée à l'article vendu." state="pending" /></Reveal>
               <Arrow />
-              <WorkflowStep step={4} icon={<TrendIcon />} title="Marge" description="Kyrivo t'aide à suivre le résultat réel de l'opération." state="pending" />
+              <Reveal delay={360} direction="left" className="h-full"><WorkflowStep step={4} icon={<TrendIcon />} title="Marge" description="Kyrivo t'aide à suivre le résultat réel de l'opération." state="pending" /></Reveal>
             </div>
 
             {/* Pipeline mobile/tablet */}
             <div className="lg:hidden space-y-3 max-w-md mx-auto">
-              <WorkflowStep step={1} icon={<CartIcon />} title="Achat" description="Tu enregistres un achat avec son coût et son fournisseur." state="completed" />
-              <WorkflowStep step={2} icon={<StockIcon />} title="Stock" description="L'article rejoint ton stock avec une quantité et une référence." state="active" />
-              <WorkflowStep step={3} icon={<SalesIcon />} title="Vente" description="Tu enregistres la vente, liée à l'article vendu." state="pending" />
-              <WorkflowStep step={4} icon={<TrendIcon />} title="Marge" description="Kyrivo t'aide à suivre le résultat réel de l'opération." state="pending" />
+              <Reveal delay={0}><WorkflowStep step={1} icon={<CartIcon />} title="Achat" description="Tu enregistres un achat avec son coût et son fournisseur." state="completed" /></Reveal>
+              <Reveal delay={80}><WorkflowStep step={2} icon={<StockIcon />} title="Stock" description="L'article rejoint ton stock avec une quantité et une référence." state="active" /></Reveal>
+              <Reveal delay={160}><WorkflowStep step={3} icon={<SalesIcon />} title="Vente" description="Tu enregistres la vente, liée à l'article vendu." state="pending" /></Reveal>
+              <Reveal delay={240}><WorkflowStep step={4} icon={<TrendIcon />} title="Marge" description="Kyrivo t'aide à suivre le résultat réel de l'opération." state="pending" /></Reveal>
             </div>
           </div>
         </section>
@@ -339,19 +363,21 @@ export default async function HomePage() {
         {/* ═══════════════════════════════════════════════════ */}
         <section className="mb-28">
 
-          <SectionHeader
-            label="Conçu pour"
-            title="Pensé pour les revendeurs de biens physiques"
-            description="Kyrivo a été créé au départ pour l’achat-revente de cartes, puis élargi aux revendeurs Vinted, brocante, collection et seconde main."
-          />
+          <Reveal delay={0}>
+            <SectionHeader
+              label="Conçu pour"
+              title="Pensé pour les revendeurs de biens physiques"
+              description="Kyrivo a été créé au départ pour l’achat-revente de cartes, puis élargi aux revendeurs Vinted, brocante, collection et seconde main."
+            />
+          </Reveal>
 
           <div className="mt-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 max-w-5xl mx-auto">
-            <TCGCard name="Vinted" detail="Vêtements, objets, lots, seconde main" color="teal" />
-            <TCGCard name="Brocante" detail="Lots, vintage, occasion, revente" color="neutral" />
-            <TCGCard name="Cartes & TCG" detail="Pokémon, One Piece, Magic, Yu-Gi-Oh!" color="amber" />
-            <TCGCard name="Collection" detail="Figurines, mangas, objets rares" color="violet" />
-            <TCGCard name="Lego & jouets" detail="Sets, pièces, lots, revente" color="blue" />
-            <TCGCard name="Petits revendeurs" detail="Stock, marges, factures, exports" color="red" />
+            <Reveal delay={0} direction="scale"><TCGCard name="Vinted" detail="Vêtements, objets, lots, seconde main" color="teal" /></Reveal>
+            <Reveal delay={60} direction="scale"><TCGCard name="Brocante" detail="Lots, vintage, occasion, revente" color="neutral" /></Reveal>
+            <Reveal delay={120} direction="scale"><TCGCard name="Cartes & TCG" detail="Pokémon, One Piece, Magic, Yu-Gi-Oh!" color="amber" /></Reveal>
+            <Reveal delay={180} direction="scale"><TCGCard name="Collection" detail="Figurines, mangas, objets rares" color="violet" /></Reveal>
+            <Reveal delay={240} direction="scale"><TCGCard name="Lego & jouets" detail="Sets, pièces, lots, revente" color="blue" /></Reveal>
+            <Reveal delay={300} direction="scale"><TCGCard name="Petits revendeurs" detail="Stock, marges, factures, exports" color="red" /></Reveal>
           </div>
         </section>
 
@@ -360,17 +386,19 @@ export default async function HomePage() {
         {/* ═══════════════════════════════════════════════════ */}
         <section className="mb-28">
 
-          <SectionHeader
-            label="Bénéfices"
-            title="Remplace ton fichier Excel de revente"
-            description="Pensé pour les revendeurs qui veulent gagner du temps, suivre leurs chiffres et préparer des données propres."
-          />
+          <Reveal delay={0}>
+            <SectionHeader
+              label="Bénéfices"
+              title="Remplace ton fichier Excel de revente"
+              description="Pensé pour les revendeurs qui veulent gagner du temps, suivre leurs chiffres et préparer des données propres."
+            />
+          </Reveal>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-12 max-w-4xl mx-auto">
-            <BenefitCard icon={<ClockIcon />} title="Temps gagné" description="Moins d’allers-retours entre Excel, messages, plateformes et factures. Tes opérations sont centralisées." />
-            <BenefitCard icon={<LayersIcon />} title="Centralisation" description="Achats, ventes, stock, contacts, marges et factures au même endroit." />
-            <BenefitCard icon={<TrendIcon />} title="Suivi rentabilité" description="Suis tes marges sur chaque vente et comprends ce qui te rapporte vraiment." />
-            <BenefitCard icon={<ShieldIcon />} title="Données propres" description="Exports, factures et historiques clairs pour ton suivi ou ton comptable." />
+            <Reveal delay={0}><BenefitCard icon={<ClockIcon />} title="Temps gagné" description="Moins d’allers-retours entre Excel, messages, plateformes et factures. Tes opérations sont centralisées." /></Reveal>
+            <Reveal delay={80}><BenefitCard icon={<LayersIcon />} title="Centralisation" description="Achats, ventes, stock, contacts, marges et factures au même endroit." /></Reveal>
+            <Reveal delay={160}><BenefitCard icon={<TrendIcon />} title="Suivi rentabilité" description="Suis tes marges sur chaque vente et comprends ce qui te rapporte vraiment." /></Reveal>
+            <Reveal delay={240}><BenefitCard icon={<ShieldIcon />} title="Données propres" description="Exports, factures et historiques clairs pour ton suivi ou ton comptable." /></Reveal>
           </div>
         </section>
 
@@ -379,20 +407,22 @@ export default async function HomePage() {
         {/* ═══════════════════════════════════════════════════ */}
         <section className="mb-28" aria-labelledby="faq-heading">
 
-          <SectionHeader
-            label="FAQ"
-            title="Questions fréquentes"
-            description="Tout ce que tu veux savoir sur Kyrivo avant de commencer."
-          />
+          <Reveal delay={0}>
+            <SectionHeader
+              label="FAQ"
+              title="Questions fréquentes"
+              description="Tout ce que tu veux savoir sur Kyrivo avant de commencer."
+            />
+          </Reveal>
 
           <div className="mt-12 max-w-3xl mx-auto space-y-3">
-            <FAQItem question="À qui s'adresse Kyrivo ?" answer="Kyrivo s'adresse aux revendeurs de biens physiques : Vinted, brocante, cartes Pokémon et TCG, objets de collection, LEGO, figurines, mangas, lots d'occasion et autres articles revendables." />
-            <FAQItem question="Kyrivo remplace-t-il Excel ?" answer="Kyrivo aide à remplacer les fichiers Excel compliqués en centralisant les achats, ventes, stock, marges, TVA et exports dans un seul outil." />
-            <FAQItem question="Kyrivo gère-t-il la TVA ?" answer="Kyrivo permet de suivre la TVA standard et la TVA sur marge selon les informations encodées. L'outil aide au suivi, mais ne remplace pas un accompagnement comptable professionnel." />
-            <FAQItem question="Puis-je suivre mon stock avec Kyrivo ?" answer="Oui. Les achats de stock créent des articles suivis avec quantités restantes, références et coûts d'achat." />
-            <FAQItem question="Kyrivo est-il réservé aux cartes Pokémon ?" answer="Non. Kyrivo a été pensé au départ pour des revendeurs de cartes et de TCG, mais l'outil convient aussi aux revendeurs Vinted, brocante, collection et seconde main." />
-            <FAQItem question="Puis-je exporter mes données ?" answer="Oui. Kyrivo permet d'exporter les achats et ventes pour faciliter le suivi et la préparation des informations utiles au comptable." />
-            <FAQItem question="Que puis-je encore faire après expiration de mon abonnement ?" answer="Si vous ne souhaitez pas renouveler votre abonnement, vous conservez l'accès aux données déjà encodées. Vous pouvez toujours les consulter, les exporter vers Excel et générer les factures liées aux ventes déjà enregistrées. Les nouvelles créations peuvent toutefois nécessiter un abonnement actif." />
+            <Reveal delay={0}><FAQItem question="À qui s'adresse Kyrivo ?" answer="Kyrivo s'adresse aux revendeurs de biens physiques : Vinted, brocante, cartes Pokémon et TCG, objets de collection, LEGO, figurines, mangas, lots d'occasion et autres articles revendables." /></Reveal>
+            <Reveal delay={50}><FAQItem question="Kyrivo remplace-t-il Excel ?" answer="Kyrivo aide à remplacer les fichiers Excel compliqués en centralisant les achats, ventes, stock, marges, TVA et exports dans un seul outil." /></Reveal>
+            <Reveal delay={100}><FAQItem question="Kyrivo gère-t-il la TVA ?" answer="Kyrivo permet de suivre la TVA standard et la TVA sur marge selon les informations encodées. L'outil aide au suivi, mais ne remplace pas un accompagnement comptable professionnel." /></Reveal>
+            <Reveal delay={150}><FAQItem question="Puis-je suivre mon stock avec Kyrivo ?" answer="Oui. Les achats de stock créent des articles suivis avec quantités restantes, références et coûts d'achat." /></Reveal>
+            <Reveal delay={200}><FAQItem question="Kyrivo est-il réservé aux cartes Pokémon ?" answer="Non. Kyrivo a été pensé au départ pour des revendeurs de cartes et de TCG, mais l'outil convient aussi aux revendeurs Vinted, brocante, collection et seconde main." /></Reveal>
+            <Reveal delay={250}><FAQItem question="Puis-je exporter mes données ?" answer="Oui. Kyrivo permet d'exporter les achats et ventes pour faciliter le suivi et la préparation des informations utiles au comptable." /></Reveal>
+            <Reveal delay={300}><FAQItem question="Que puis-je encore faire après expiration de mon abonnement ?" answer="Si vous ne souhaitez pas renouveler votre abonnement, vous conservez l'accès aux données déjà encodées. Vous pouvez toujours les consulter, les exporter vers Excel et générer les factures liées aux ventes déjà enregistrées. Les nouvelles créations peuvent toutefois nécessiter un abonnement actif." /></Reveal>
           </div>
         </section>
 
@@ -400,6 +430,7 @@ export default async function HomePage() {
         {/* FINAL CTA                                           */}
         {/* ═══════════════════════════════════════════════════ */}
         <section className="mb-10">
+          <Reveal delay={0} direction="scale" className="block">
           <div
             className="relative rounded-2xl overflow-hidden border border-amber-500/20 px-6 py-14 lg:px-12 lg:py-20 text-center"
             style={{ background: "linear-gradient(135deg, rgba(245,158,11,0.08) 0%, rgba(10,10,10,0.5) 50%, rgba(245,158,11,0.05) 100%)" }}
@@ -450,7 +481,34 @@ export default async function HomePage() {
               </div>
             </div>
           </div>
+          </Reveal>
         </section>
+
+        {/* Crédibilité — Kartium TCG */}
+        <Reveal delay={0} direction="up" className="mb-10 text-center">
+          <p className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-white leading-snug">
+            Développé par <span className="text-amber-400">Kartium TCG</span>, boutique e-commerce professionnelle
+          </p>
+
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
+            <span className="inline-flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/5 px-4 py-1.5 text-xs sm:text-sm text-neutral-300">
+              <ReviewStars />
+              <span className="font-semibold text-neutral-200">Vinted</span>
+              <span className="text-neutral-600">·</span>
+              24 avis
+            </span>
+            <span className="inline-flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/5 px-4 py-1.5 text-xs sm:text-sm text-neutral-300">
+              <ReviewStars />
+              <span className="font-semibold text-neutral-200">Google</span>
+              <span className="text-neutral-600">·</span>
+              7 avis
+            </span>
+          </div>
+
+          <p className="mt-6 text-sm text-neutral-500 italic max-w-md mx-auto leading-relaxed">
+            « Une expérience réelle de l’achat-revente derrière Kyrivo »
+          </p>
+        </Reveal>
 
         {/* Footer mini */}
         <div className="pt-6 mt-6 border-t border-neutral-800/60">
@@ -793,7 +851,7 @@ function WorkflowStep({
       : { ring: "border-neutral-800", bg: "bg-neutral-900/40", iconBg: "bg-neutral-800/60 border-neutral-700 text-neutral-500", stepText: "text-neutral-600" };
 
   return (
-    <div className={`rounded-xl border p-5 text-center ${styles.ring} ${styles.bg} transition-all duration-200`}>
+    <div className={`h-full rounded-xl border p-5 text-center ${styles.ring} ${styles.bg} transition-all duration-200`}>
       <div className="flex flex-col items-center">
         <span className={`inline-flex items-center justify-center h-11 w-11 rounded-lg border ${styles.iconBg}`}>
           {icon}
@@ -934,5 +992,17 @@ function SparkleIcon({ className }: { className?: string }) {
     <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z" />
     </svg>
+  );
+}
+
+function ReviewStars() {
+  return (
+    <span className="flex items-center gap-0.5" aria-hidden="true">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <svg key={i} viewBox="0 0 20 20" fill="currentColor" className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-amber-400">
+          <path d="M10 1.5l2.6 5.27 5.82.85-4.21 4.1.99 5.78L10 14.9l-5.2 2.6.99-5.78-4.21-4.1 5.82-.85L10 1.5z" />
+        </svg>
+      ))}
+    </span>
   );
 }
