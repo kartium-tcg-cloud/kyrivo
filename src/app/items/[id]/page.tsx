@@ -152,6 +152,51 @@ export default async function ItemDetailPage({ params }: PageProps) {
             </p>
           </div>
         </div>
+
+        <div className="border-t border-neutral-800 px-6 py-4">
+          {stockQuantity > 0 ? (
+            <Link
+              href={`/ventes?itemId=${item.id}`}
+              className="
+                inline-flex w-full sm:w-auto items-center justify-center gap-2
+                rounded-lg px-5 py-2.5
+                text-sm font-semibold
+                bg-amber-500 text-neutral-950
+                hover:bg-amber-400
+                transition-colors
+              "
+            >
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M21 12.75V12a2.25 2.25 0 0 0-2.25-2.25H15a3 3 0 1 1-6 0H5.25A2.25 2.25 0 0 0 3 12v.75m18 0v6a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 18.75v-6m18 0-2.51-5.022a1.875 1.875 0 0 0-1.677-1.038H5.187a1.875 1.875 0 0 0-1.677 1.038L1 12.75"
+                />
+              </svg>
+              Vendre cet article
+            </Link>
+          ) : (
+            <button
+              type="button"
+              disabled
+              className="
+                inline-flex w-full sm:w-auto items-center justify-center gap-2
+                rounded-lg px-5 py-2.5
+                text-sm font-semibold
+                bg-neutral-800 text-neutral-500
+                cursor-not-allowed
+              "
+            >
+              Stock épuisé
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

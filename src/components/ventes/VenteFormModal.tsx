@@ -29,6 +29,7 @@ interface VenteFormModalProps {
   venteInitiale: Sale | null;
   stockItems: AvailableStockItem[];
   clients?: { id: string; name: string }[];
+  prefillItem?: AvailableStockItem | null;
 }
 
 type VentePayload = {
@@ -92,6 +93,7 @@ export default function VenteFormModal({
   venteInitiale,
 stockItems,
 clients = [],
+prefillItem = null,
 }: VenteFormModalProps) {
   const isEditing = Boolean(venteInitiale);
 
@@ -181,7 +183,38 @@ useEffect(() => {
     setShowUnsavedModal(false);
 
     if (!venteInitiale) {
-      resetForm(defaultVatRate);
+      if (prefillItem) {
+        const vatMode: SaleVatMode = prefillItem.marginEligible
+          ? "margin_vat"
+          : "standard_vat";
+
+        setForm({
+          date: dateAujourdhui(),
+          customerName: "",
+          contactId: null,
+          vatMode,
+          paymentMethod: "Virement",
+          notes: "",
+          saveClient: false,
+        });
+        setModeMontantStandard("ttc");
+        setLines([
+          {
+            id: genId(),
+            purchaseItemId: prefillItem.id,
+            itemReference: prefillItem.itemReference,
+            itemName: prefillItem.itemName,
+            quantity: "1",
+            unitPrice: "",
+            purchaseCost: String(prefillItem.unitCost),
+            vatRate: String(defaultVatRate),
+            notes: "",
+          },
+        ]);
+        setErreurs([]);
+      } else {
+        resetForm(defaultVatRate);
+      }
       return;
     }
 
@@ -215,7 +248,8 @@ setForm({
     );
 
     setErreurs([]);
-  }, [ouvert, venteInitiale]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ouvert, venteInitiale, prefillItem]);
 
   const stockItemsFiltres = useMemo(() => {
     return stockItems.filter((item) =>

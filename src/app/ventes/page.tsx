@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { exportSalesToExcel } from "@/lib/exportSales";
 
@@ -55,6 +56,12 @@ type VentePayload = {
   lines: SaleLineInput[];
   saveClient?: boolean;
 };
+
+function formatDateFr(value: string): string {
+  const [year, month, day] = value.split("-");
+  if (!year || !month || !day) return value;
+  return `${day}/${month}/${year}`;
+}
 
 function mapSaleLine(line: any): SaleLine {
   return {
@@ -130,12 +137,21 @@ function buildSaleLineInsert(params: {
   };
 }
 
-export default function VentesPage() {
+function VentesContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const itemIdParam = searchParams.get("itemId");
+  const itemIdHandledRef = useRef(false);
+
   const [ventes, setVentes] = useState<Sale[]>([]);
   const [stockItems, setStockItems] = useState<AvailableStockItem[]>([]);
+  const [stockLoaded, setStockLoaded] = useState(false);
   const [modalOuverte, setModalOuverte] = useState(false);
   const [venteEnEdition, setVenteEnEdition] = useState<Sale | null>(null);
+  const [prefillItem, setPrefillItem] = useState<AvailableStockItem | null>(null);
   const [clients, setClients] = useState<{ id: string; name: string }[]>([]);
+  const [exportConfirmOpen, setExportConfirmOpen] = useState(false);
+  const [exportingExcel, setExportingExcel] = useState(false);
 
   const [filtres, setFiltres] = useState<SaleFiltres>({
     recherche: "",
@@ -197,11 +213,37 @@ export default function VentesPage() {
         );
       } catch (error) {
         console.error(error);
+      } finally {
+        setStockLoaded(true);
       }
     }
 
     loadData();
   }, []);
+
+  // Préselection d'un article depuis le stock / la fiche article via ?itemId=
+  useEffect(() => {
+    if (!stockLoaded) return;
+    if (!itemIdParam) return;
+    if (itemIdHandledRef.current) return;
+    itemIdHandledRef.current = true;
+
+    const item = stockItems.find((stockItem) => stockItem.id === itemIdParam);
+
+    router.replace("/ventes");
+
+    if (item) {
+      // Ouverture ponctuelle de la modale suite à ?itemId=, gardée par
+      // itemIdHandledRef (ne s'exécute qu'une fois) : pas une synchronisation
+      // d'état dérivé, donc pas de cascade de rendus à éviter ici.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setPrefillItem(item);
+      setVenteEnEdition(null);
+      setModalOuverte(true);
+    } else {
+      toast.error("Article introuvable ou indisponible à la vente.");
+    }
+  }, [stockLoaded, itemIdParam, stockItems, router]);
 
   const ventesFiltrees = useMemo(() => {
     return ventes.filter((vente) => {
@@ -237,14 +279,24 @@ export default function VentesPage() {
     return ventesFiltrees.reduce((sum, vente) => sum + vente.totalTTC, 0);
   }, [ventesFiltrees]);
 
-  const exporterVentes = async () => {
-  try {
-    await exportSalesToExcel(ventesFiltrees);
-  } catch (error) {
-    console.error(error);
-    alert("Erreur lors de l'export Excel des ventes.");
-  }
-};
+  const ouvrirConfirmationExport = () => {
+    setExportConfirmOpen(true);
+  };
+
+  const confirmerExportVentes = async () => {
+    if (exportingExcel) return;
+
+    setExportingExcel(true);
+    try {
+      await exportSalesToExcel(ventesFiltrees);
+      setExportConfirmOpen(false);
+    } catch (error) {
+      console.error(error);
+      toast.error("Erreur lors de l'export Excel des ventes.");
+    } finally {
+      setExportingExcel(false);
+    }
+  };
 
   const ouvrirAjout = () => {
     setVenteEnEdition(null);
@@ -259,6 +311,7 @@ export default function VentesPage() {
   const fermerModal = () => {
     setModalOuverte(false);
     setVenteEnEdition(null);
+    setPrefillItem(null);
   };
 
   const ajouterVente = async (vente: VentePayload) => {
@@ -657,7 +710,7 @@ export default function VentesPage() {
           <VentesFiltres
             filtres={filtres}
             onChangeFiltres={setFiltres}
-            onExporter={exporterVentes}
+            onExporter={ouvrirConfirmationExport}
             exportDisabled={ventesFiltrees.length === 0}
           />
           <VentesTableau
@@ -676,7 +729,79 @@ export default function VentesPage() {
         venteInitiale={venteEnEdition}
 stockItems={stockItems}
 clients={clients}
+prefillItem={prefillItem}
       />
+
+      {exportConfirmOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
+          <div className="w-full max-w-md rounded-2xl border border-amber-500/25 bg-zinc-950 shadow-2xl shadow-amber-500/10 overflow-hidden">
+            <div className="h-px w-full bg-gradient-to-r from-transparent via-amber-500/60 to-transparent" />
+
+            <div className="p-6">
+              <div className="flex items-start gap-3">
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-amber-500/25 bg-amber-500/10 text-amber-400">
+                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                  </svg>
+                </span>
+
+                <div>
+                  <h2 className="text-lg font-semibold text-white">
+                    Exporter en Excel
+                  </h2>
+
+                  <p className="mt-2 text-sm leading-relaxed text-zinc-400">
+                    Souhaitez-vous générer un fichier Excel qui reprend vos ventes{" "}
+                    {filtres.dateDebut && filtres.dateFin ? (
+                      <>
+                        pour la période du{" "}
+                        <span className="font-semibold text-amber-400">
+                          {formatDateFr(filtres.dateDebut)}
+                        </span>{" "}
+                        au{" "}
+                        <span className="font-semibold text-amber-400">
+                          {formatDateFr(filtres.dateFin)}
+                        </span>
+                      </>
+                    ) : (
+                      "pour la période sélectionnée"
+                    )}{" "}
+                    ?
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-6 flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setExportConfirmOpen(false)}
+                  disabled={exportingExcel}
+                  className="rounded-lg border border-zinc-800 bg-zinc-900 px-4 py-2 text-sm font-semibold text-zinc-300 hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-40 transition-colors"
+                >
+                  Annuler
+                </button>
+
+                <button
+                  type="button"
+                  onClick={confirmerExportVentes}
+                  disabled={exportingExcel}
+                  className="rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-neutral-950 hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-lg shadow-amber-500/20"
+                >
+                  {exportingExcel ? "Génération..." : "Générer le fichier Excel"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
+  );
+}
+
+export default function VentesPage() {
+  return (
+    <Suspense fallback={null}>
+      <VentesContent />
+    </Suspense>
   );
 }

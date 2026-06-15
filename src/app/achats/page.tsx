@@ -24,6 +24,12 @@ import AchatsFiltres from "@/components/achats/AchatsFiltres";
 import AchatsTableau from "@/components/achats/AchatsTableau";
 import AchatFormModal from "@/components/achats/AchatFormModal";
 
+function formatDateFr(value: string): string {
+  const [year, month, day] = value.split("-");
+  if (!year || !month || !day) return value;
+  return `${day}/${month}/${year}`;
+}
+
 function normalizeCategory(value: string): string {
   return value.trim().replace(/\s+/g, " ");
 }
@@ -248,6 +254,8 @@ export default function AchatsPage() {
   const [achatEnEdition, setAchatEnEdition] = useState<Achat | null>(null);
   const [supplierContacts, setSupplierContacts] = useState<Array<{ id: string; name: string }>>([]);
   const [existingCategories, setExistingCategories] = useState<string[]>([]);
+  const [exportConfirmOpen, setExportConfirmOpen] = useState(false);
+  const [exportingExcel, setExportingExcel] = useState(false);
 
   const [filtres, setFiltres] = useState<AchatFiltres>({
     recherche: "",
@@ -363,14 +371,24 @@ export default function AchatsPage() {
     return achatsFiltres.reduce((sum, a) => sum + a.prixTTC, 0);
   }, [achatsFiltres]);
 
-  const exporterAchats = async () => {
-  try {
-    await exportPurchasesToExcel(achatsFiltres);
-  } catch (error) {
-    console.error(error);
-    toast.error("Erreur lors de l'export Excel des achats.");
-  }
-};
+  const ouvrirConfirmationExport = () => {
+    setExportConfirmOpen(true);
+  };
+
+  const confirmerExportAchats = async () => {
+    if (exportingExcel) return;
+
+    setExportingExcel(true);
+    try {
+      await exportPurchasesToExcel(achatsFiltres);
+      setExportConfirmOpen(false);
+    } catch (error) {
+      console.error(error);
+      toast.error("Erreur lors de l'export Excel des achats.");
+    } finally {
+      setExportingExcel(false);
+    }
+  };
 
   const ouvrirAjout = () => {
     setAchatEnEdition(null);
@@ -720,7 +738,7 @@ const modifierAchat = async (achatModifie: Achat) => {
           <AchatsFiltres
             filtres={filtres}
             onChangeFiltres={setFiltres}
-            onExporter={exporterAchats}
+            onExporter={ouvrirConfirmationExport}
             exportDisabled={achatsFiltres.length === 0}
           />
           <AchatsTableau
@@ -740,6 +758,69 @@ const modifierAchat = async (achatModifie: Achat) => {
         supplierContacts={supplierContacts}
         existingCategories={existingCategories}
       />
+
+      {exportConfirmOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
+          <div className="w-full max-w-md rounded-2xl border border-amber-500/25 bg-zinc-950 shadow-2xl shadow-amber-500/10 overflow-hidden">
+            <div className="h-px w-full bg-gradient-to-r from-transparent via-amber-500/60 to-transparent" />
+
+            <div className="p-6">
+              <div className="flex items-start gap-3">
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-amber-500/25 bg-amber-500/10 text-amber-400">
+                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                  </svg>
+                </span>
+
+                <div>
+                  <h2 className="text-lg font-semibold text-white">
+                    Exporter en Excel
+                  </h2>
+
+                  <p className="mt-2 text-sm leading-relaxed text-zinc-400">
+                    Souhaitez-vous générer un fichier Excel qui reprend vos achats{" "}
+                    {filtres.dateDebut && filtres.dateFin ? (
+                      <>
+                        pour la période du{" "}
+                        <span className="font-semibold text-amber-400">
+                          {formatDateFr(filtres.dateDebut)}
+                        </span>{" "}
+                        au{" "}
+                        <span className="font-semibold text-amber-400">
+                          {formatDateFr(filtres.dateFin)}
+                        </span>
+                      </>
+                    ) : (
+                      "pour la période sélectionnée"
+                    )}{" "}
+                    ?
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-6 flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setExportConfirmOpen(false)}
+                  disabled={exportingExcel}
+                  className="rounded-lg border border-zinc-800 bg-zinc-900 px-4 py-2 text-sm font-semibold text-zinc-300 hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-40 transition-colors"
+                >
+                  Annuler
+                </button>
+
+                <button
+                  type="button"
+                  onClick={confirmerExportAchats}
+                  disabled={exportingExcel}
+                  className="rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-neutral-950 hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-lg shadow-amber-500/20"
+                >
+                  {exportingExcel ? "Génération..." : "Générer le fichier Excel"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

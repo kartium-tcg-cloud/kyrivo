@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import {
   SortConfig,
@@ -89,6 +90,7 @@ function getStockSortValue(item: StockItem, key: StockSortKey) {
 }
 
 export default function StockPage() {
+  const router = useRouter();
   const [items, setItems] = useState<StockItem[]>([]);
   const [companyId, setCompanyId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -585,7 +587,29 @@ export default function StockPage() {
                         </td>
 
                         <td className="px-4 py-3.5">
-                          <div className="flex items-center justify-center opacity-100 md:opacity-40 md:group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-200">
+                          <div className="flex items-center justify-center gap-1 opacity-100 md:opacity-40 md:group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-200">
+                            {stockQty > 0 ? (
+                              <button
+                                type="button"
+                                onClick={() => router.push(`/ventes?itemId=${item.id}`)}
+                                className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold text-neutral-400 transition-colors hover:bg-emerald-500/10 hover:text-emerald-400"
+                                title="Vendre cet article"
+                              >
+                                <SellIcon className="h-3.5 w-3.5" />
+                                <span className="hidden sm:inline">Vendre</span>
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                disabled
+                                className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold text-neutral-600 cursor-not-allowed"
+                                title="Stock épuisé"
+                              >
+                                <SellIcon className="h-3.5 w-3.5" />
+                                <span className="hidden sm:inline">Stock épuisé</span>
+                              </button>
+                            )}
+
                             <button
                               type="button"
                               onClick={() => setEditingItem(item)}
@@ -925,6 +949,14 @@ function EuroIcon({ className = "h-5 w-5" }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" d="M14.25 7.756a4.5 4.5 0 100 8.488M7.5 10.5h5.25m-5.25 3h5.25M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+  );
+}
+
+function SellIcon({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M21 12.75V12a2.25 2.25 0 0 0-2.25-2.25H15a3 3 0 1 1-6 0H5.25A2.25 2.25 0 0 0 3 12v.75m18 0v6a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 18.75v-6m18 0-2.51-5.022a1.875 1.875 0 0 0-1.677-1.038H5.187a1.875 1.875 0 0 0-1.677 1.038L1 12.75" />
     </svg>
   );
 }
