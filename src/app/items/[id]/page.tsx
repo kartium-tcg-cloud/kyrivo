@@ -1,8 +1,10 @@
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
+import QRCode from "qrcode";
 import { createClient } from "@/lib/supabase/server";
 import { isItemStatus } from "@/types/item";
 import ItemStatusBadge from "@/components/items/ItemStatusBadge";
+import CopyLinkButton from "@/components/items/CopyLinkButton";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -66,6 +68,15 @@ export default async function ItemDetailPage({ params }: PageProps) {
 
     if (signed) signedDocumentUrl = signed.signedUrl;
   }
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://kyrivo.kartium-tcg.com";
+  const itemUrl = `${appUrl}/items/${item.id}`;
+  const qrCodeSvg = await QRCode.toString(itemUrl, {
+    type: "svg",
+    width: 200,
+    margin: 1,
+    color: { dark: "#18181b", light: "#ffffff" },
+  });
 
   return (
     <div className="p-6 lg:p-8 max-w-4xl">
@@ -253,6 +264,31 @@ export default async function ItemDetailPage({ params }: PageProps) {
               />
             </svg>
           </Link>
+        </div>
+      </div>
+
+      <div className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-5 mt-4">
+        <SectionTitle>QR code de l&apos;article</SectionTitle>
+
+        <div className="mt-4 flex flex-col sm:flex-row items-center sm:items-start gap-5">
+          <div
+            className="flex-shrink-0 rounded-xl bg-white p-3 [&>svg]:h-auto [&>svg]:w-full [&>svg]:max-w-[160px]"
+            dangerouslySetInnerHTML={{ __html: qrCodeSvg }}
+          />
+
+          <div className="flex-1 text-center sm:text-left">
+            <p className="text-sm text-neutral-400 leading-relaxed">
+              Scannez ce QR code pour ouvrir directement cette fiche article.
+            </p>
+
+            <p className="mt-2 font-mono text-xs text-neutral-500 tracking-wider">
+              {item.item_reference}
+            </p>
+
+            <div className="mt-4 flex justify-center sm:justify-start">
+              <CopyLinkButton url={itemUrl} />
+            </div>
+          </div>
         </div>
       </div>
 

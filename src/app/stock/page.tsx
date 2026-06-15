@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { saveAs } from "file-saver";
+import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import {
   SortConfig,
@@ -110,6 +112,11 @@ export default function StockPage() {
   // Modal modification stock
   const [editingItem, setEditingItem] = useState<StockItem | null>(null);
 
+  // Modal génération PDF QR codes
+  const [qrModalOpen, setQrModalOpen] = useState(false);
+  const [selectedQrIds, setSelectedQrIds] = useState<Set<string>>(new Set());
+  const [generatingQrPdf, setGeneratingQrPdf] = useState(false);
+
   useEffect(() => {
     async function loadStock() {
       try {
@@ -172,6 +179,12 @@ export default function StockPage() {
       .filter((c): c is string => Boolean(c));
     return [...new Set(cats)].sort();
   }, [items]);
+
+  // Articles en stock — base pour la génération des QR codes à imprimer
+  const inStockItems = useMemo(
+    () => items.filter((item) => Number(item.stock_quantity) > 0),
+    [items]
+  );
 
   const filteredItems = useMemo(() => {
     let result = items;
@@ -238,6 +251,65 @@ export default function StockPage() {
           : item
       )
     );
+  }
+
+  // ── Génération PDF QR codes ──────────────────────────────
+  function openQrModal() {
+    if (generatingQrPdf) return;
+    setSelectedQrIds(new Set(inStockItems.map((item) => item.id)));
+    setQrModalOpen(true);
+  }
+
+  function toggleQrSelection(itemId: string) {
+    setSelectedQrIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(itemId)) {
+        next.delete(itemId);
+      } else {
+        next.add(itemId);
+      }
+      return next;
+    });
+  }
+
+  function toggleSelectAllQr() {
+    setSelectedQrIds((prev) =>
+      prev.size === inStockItems.length
+        ? new Set()
+        : new Set(inStockItems.map((item) => item.id))
+    );
+  }
+
+  async function confirmGenerateQrPdf() {
+    if (generatingQrPdf || selectedQrIds.size === 0) return;
+
+    try {
+      setGeneratingQrPdf(true);
+
+      const response = await fetch("/api/stock/qr-pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ itemIds: [...selectedQrIds] }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => null);
+        throw new Error(data?.error || "Erreur lors de la génération du PDF.");
+      }
+
+      const blob = await response.blob();
+      const today = new Date();
+      const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+      saveAs(blob, `kyrivo-qr-stock-${dateStr}.pdf`);
+
+      setQrModalOpen(false);
+    } catch (e) {
+      toast.error(
+        e instanceof Error ? e.message : "Erreur lors de la génération du PDF."
+      );
+    } finally {
+      setGeneratingQrPdf(false);
+    }
   }
 
   // ── Loading ─────────────────────────────────────────────
@@ -311,16 +383,40 @@ export default function StockPage() {
     <>
       <div className="p-6 lg:p-8 max-w-[1440px] flex flex-col gap-6">
         {/* Header */}
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-white">
-            Stock
-          </h1>
-          <p className="mt-2 text-sm text-neutral-500">
-            {stats.articlesEnStock} article
-            {stats.articlesEnStock !== 1 ? "s" : ""} en stock &middot;{" "}
-            {stats.quantiteTotale} unité
-            {stats.quantiteTotale !== 1 ? "s" : ""} au total
-          </p>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight text-white">
+              Stock
+            </h1>
+            <p className="mt-2 text-sm text-neutral-500">
+              {stats.articlesEnStock} article
+              {stats.articlesEnStock !== 1 ? "s" : ""} en stock &middot;{" "}
+              {stats.quantiteTotale} unité
+              {stats.quantiteTotale !== 1 ? "s" : ""} au total
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={openQrModal}
+            disabled={inStockItems.length === 0}
+            title={
+              inStockItems.length === 0
+                ? "Aucun article en stock à imprimer."
+                : undefined
+            }
+            className="
+              inline-flex items-center justify-center gap-2 self-start
+              rounded-lg border border-neutral-800 bg-neutral-900
+              px-4 py-2.5 text-sm font-semibold text-neutral-300
+              hover:bg-neutral-800 hover:text-amber-400
+              transition-colors
+              disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-neutral-900 disabled:hover:text-neutral-300
+            "
+          >
+            <QrIcon className="h-4 w-4" />
+            Imprimer les QR
+          </button>
         </div>
 
         {/* Cartes résumé */}
@@ -640,6 +736,19 @@ export default function StockPage() {
           onSuccess={handleStockUpdated}
         />
       )}
+
+      {/* Modal génération PDF QR codes */}
+      {qrModalOpen && (
+        <QrPrintModal
+          items={inStockItems}
+          selectedIds={selectedQrIds}
+          generating={generatingQrPdf}
+          onToggle={toggleQrSelection}
+          onToggleAll={toggleSelectAllQr}
+          onCancel={() => setQrModalOpen(false)}
+          onConfirm={confirmGenerateQrPdf}
+        />
+      )}
     </>
   );
 }
@@ -864,6 +973,150 @@ function StockEditModal({
   );
 }
 
+// ── Modal génération PDF QR codes ───────────────────────────
+
+function QrPrintModal({
+  items,
+  selectedIds,
+  generating,
+  onToggle,
+  onToggleAll,
+  onCancel,
+  onConfirm,
+}: {
+  items: StockItem[];
+  selectedIds: Set<string>;
+  generating: boolean;
+  onToggle: (itemId: string) => void;
+  onToggleAll: () => void;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  useEffect(() => {
+    function handleEscape(e: KeyboardEvent) {
+      if (e.key === "Escape" && !generating) onCancel();
+    }
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
+  }, [generating, onCancel]);
+
+  const allSelected = selectedIds.size === items.length && items.length > 0;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
+      <div className="w-full max-w-lg rounded-2xl border border-neutral-800 bg-neutral-950 shadow-2xl shadow-black/50 overflow-hidden flex flex-col max-h-[85vh]">
+        <div className="h-0.5 w-full bg-gradient-to-r from-amber-500 via-amber-400 to-transparent" />
+
+        {/* Header */}
+        <div className="flex items-start gap-3 border-b border-neutral-800 px-6 py-4">
+          <span className="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-amber-500/25 bg-amber-500/10 text-amber-400">
+            <QrIcon className="h-4 w-4" />
+          </span>
+          <div>
+            <h2 className="text-base font-bold tracking-tight text-white">
+              Générer les QR codes du stock
+            </h2>
+            <p className="mt-1 text-xs text-neutral-500 leading-relaxed">
+              Tous les articles actuellement en stock sont sélectionnés par défaut.
+            </p>
+          </div>
+        </div>
+
+        {/* Compteur + sélection */}
+        <div className="flex items-center justify-between gap-3 border-b border-neutral-800 px-6 py-3">
+          <span className="text-xs font-semibold text-neutral-300">
+            {selectedIds.size} article{selectedIds.size !== 1 ? "s" : ""} sélectionné
+            {selectedIds.size !== 1 ? "s" : ""}
+          </span>
+          <button
+            type="button"
+            onClick={onToggleAll}
+            disabled={generating}
+            className="text-xs font-semibold text-amber-400 hover:text-amber-300 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {allSelected ? "Tout désélectionner" : "Tout sélectionner"}
+          </button>
+        </div>
+
+        {/* Liste des articles */}
+        <div className="flex-1 overflow-y-auto px-6 py-3 space-y-1.5">
+          {items.map((item) => {
+            const checked = selectedIds.has(item.id);
+            return (
+              <label
+                key={item.id}
+                className={`
+                  flex items-center gap-3 rounded-lg border px-3 py-2.5 cursor-pointer transition-colors
+                  ${
+                    checked
+                      ? "border-amber-500/25 bg-amber-500/[0.04]"
+                      : "border-neutral-800 bg-neutral-900/40 hover:border-neutral-700"
+                  }
+                `}
+              >
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  onChange={() => onToggle(item.id)}
+                  disabled={generating}
+                  className="h-4 w-4 flex-shrink-0 rounded border-neutral-700 bg-neutral-900 text-amber-500 focus:ring-amber-500/30"
+                />
+                <span className="font-mono text-xs text-neutral-400 flex-shrink-0">
+                  {item.item_reference}
+                </span>
+                <span className="flex-1 truncate text-sm text-neutral-200">
+                  {item.item_name}
+                </span>
+                <span className="flex-shrink-0 text-xs font-semibold tabular-nums text-emerald-400">
+                  {Number(item.stock_quantity)}
+                </span>
+              </label>
+            );
+          })}
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-end gap-3 border-t border-neutral-800 bg-neutral-950 px-6 py-4">
+          <button
+            type="button"
+            onClick={onCancel}
+            disabled={generating}
+            className="
+              rounded-lg px-4 py-2 text-sm font-medium text-neutral-400
+              transition-colors hover:bg-neutral-800/60 hover:text-neutral-200
+              disabled:opacity-50
+            "
+          >
+            Annuler
+          </button>
+
+          <button
+            type="button"
+            onClick={onConfirm}
+            disabled={generating || selectedIds.size === 0}
+            className="
+              inline-flex items-center gap-2 rounded-lg bg-amber-500 px-5 py-2
+              text-sm font-semibold text-neutral-950
+              hover:bg-amber-400 active:scale-[0.97]
+              transition-all duration-200 shadow-lg shadow-amber-500/10
+              disabled:cursor-not-allowed disabled:opacity-60
+            "
+          >
+            {generating ? (
+              <>
+                <SpinnerIcon className="h-3.5 w-3.5 animate-spin" />
+                Génération...
+              </>
+            ) : (
+              "Générer le PDF"
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Composants locaux ──────────────────────────────────────
 
 function StatCard({
@@ -957,6 +1210,15 @@ function SellIcon({ className = "h-4 w-4" }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" d="M21 12.75V12a2.25 2.25 0 0 0-2.25-2.25H15a3 3 0 1 1-6 0H5.25A2.25 2.25 0 0 0 3 12v.75m18 0v6a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 18.75v-6m18 0-2.51-5.022a1.875 1.875 0 0 0-1.677-1.038H5.187a1.875 1.875 0 0 0-1.677 1.038L1 12.75" />
+    </svg>
+  );
+}
+
+function QrIcon({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 3.75 9.375v-4.5ZM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 0 1-1.125-1.125v-4.5ZM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 13.5 9.375v-4.5Z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 6.75h.75v.75h-.75v-.75ZM6.75 16.5h.75v.75h-.75v-.75ZM16.5 6.75h.75v.75h-.75v-.75ZM13.5 13.5h1.5v1.5h-1.5v-1.5ZM13.5 19.5h1.5v1.5h-1.5v-1.5ZM19.5 13.5h1.5v1.5h-1.5v-1.5ZM19.5 19.5h1.5v1.5h-1.5v-1.5ZM16.5 16.5h1.5v1.5h-1.5v-1.5Z" />
     </svg>
   );
 }
