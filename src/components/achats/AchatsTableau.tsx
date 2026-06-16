@@ -440,7 +440,7 @@ export default function AchatsTableau({
                                 key={article.id}
                                 href={`/items/${article.id}`}
                                 className="
-                                  flex flex-col gap-1.5
+                                  flex flex-col items-start gap-1.5
                                   sm:grid sm:grid-cols-[120px_1fr_90px_100px_100px] sm:items-center sm:gap-3
                                   rounded-lg bg-zinc-950/60 border border-zinc-800/60
                                   px-3 py-2.5 text-sm

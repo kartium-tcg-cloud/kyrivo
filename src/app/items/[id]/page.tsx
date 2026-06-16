@@ -128,7 +128,7 @@ export default async function ItemDetailPage({ params }: PageProps) {
       <div className="rounded-2xl border border-neutral-800 bg-neutral-900/40 overflow-hidden mb-6">
         <div className="h-1 w-full bg-gradient-to-r from-amber-500 via-amber-400 to-transparent" />
 
-        <div className="p-6 flex items-start justify-between gap-6">
+        <div className="p-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
           <div className="space-y-3 min-w-0">
             <div className="flex items-center gap-3 flex-wrap">
               <span className="font-mono text-sm text-neutral-500 tracking-wider">

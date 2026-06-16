@@ -516,7 +516,7 @@ setForm({
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className={labelClasses}>Date</label>
             <input
@@ -658,8 +658,8 @@ setForm({
         )}
 
         <div className="rounded-xl border border-zinc-800 bg-zinc-900/30 overflow-hidden">
-          <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-800 bg-zinc-900/40">
-            <div>
+          <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-zinc-800 bg-zinc-900/40">
+            <div className="min-w-0 flex-1">
               <h3 className="text-sm font-semibold text-white">
                 Lignes de vente
               </h3>
@@ -676,7 +676,7 @@ setForm({
             <button
               type="button"
               onClick={ajouterLigne}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-700 px-3.5 py-2 text-xs font-semibold text-zinc-300 hover:bg-zinc-800 hover:text-white active:scale-[0.97] transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
+              className="flex-shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 rounded-lg border border-zinc-700 px-3.5 py-2 text-xs font-semibold text-zinc-300 hover:bg-zinc-800 hover:text-white active:scale-[0.97] transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
             >
               <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -747,8 +747,8 @@ setForm({
                       />
                     </div>
 
-                    <div className="grid grid-cols-[90px_1fr_100px] gap-3">
-                      <div>
+                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-[90px_1fr_100px]">
+                      <div className="order-1">
                         <label className={labelClasses}>Qté</label>
                         <input
                           type="number"
@@ -763,7 +763,7 @@ setForm({
                         />
                       </div>
 
-                      <div>
+                      <div className="col-span-2 sm:col-span-1 order-3 sm:order-2">
                         <label className={labelClasses}>
                           {form.vatMode === "margin_vat"
                             ? "Prix vente total "
@@ -787,7 +787,7 @@ setForm({
                         />
                       </div>
 
-                      <div>
+                      <div className="order-2 sm:order-3">
                         <label className={labelClasses}>TVA %</label>
                         <input
                           type="number"
