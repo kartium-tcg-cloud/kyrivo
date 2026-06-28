@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   description:
     "Découvrez les plans Kyrivo pour suivre achats, ventes, stock, marges, TVA et exports selon votre volume de revente.",
   alternates: {
-    canonical: 'https://kyrivo.kartium-tcg.com/abonnements',
+    canonical: 'https://kyrivo.fr/abonnements',
   },
 }
 

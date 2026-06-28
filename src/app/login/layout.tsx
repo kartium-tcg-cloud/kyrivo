@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   description:
     'Connectez-vous à Kyrivo pour gérer vos achats, ventes, stock, marges et TVA.',
   alternates: {
-    canonical: 'https://kyrivo.kartium-tcg.com/login',
+    canonical: 'https://kyrivo.fr/login',
   },
 }
 

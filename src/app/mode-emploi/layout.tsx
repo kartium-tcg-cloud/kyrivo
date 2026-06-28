@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   description:
     "Apprenez à configurer Kyrivo, encoder vos achats et ventes, suivre votre stock, analyser vos marges, exporter vos données et générer vos factures.",
   alternates: {
-    canonical: 'https://kyrivo.kartium-tcg.com/mode-emploi',
+    canonical: 'https://kyrivo.fr/mode-emploi',
   },
   openGraph: {
     title: "Mode d'emploi Kyrivo — Guide pour bien démarrer",

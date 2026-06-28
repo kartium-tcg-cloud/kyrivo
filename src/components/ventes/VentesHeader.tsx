@@ -41,36 +41,64 @@ export default function VentesHeader({
         </div>
       </div>
 
-      <button
-        onClick={onAjouter}
-        className="
-          inline-flex items-center gap-2
-          rounded-lg px-4 py-2
-          bg-amber-500 text-zinc-950
-          text-sm font-semibold
-          transition-all duration-200
-          hover:bg-amber-400 hover:-translate-y-0.5 hover:shadow-amber-500/20
-          active:scale-[0.97] active:translate-y-0
-          shadow-lg shadow-amber-500/10
-          focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40
-        "
-      >
-        <svg
-          className="h-4 w-4"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth={2.5}
-          stroke="currentColor"
+      <div className="flex items-center gap-2">
+        <button
+          disabled
+          title="Bientôt disponible"
+          className="
+            inline-flex items-center gap-2
+            rounded-lg px-4 py-2
+            border border-zinc-800 bg-zinc-900/40 text-zinc-600
+            text-sm font-semibold
+            cursor-not-allowed opacity-50
+          "
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M12 4.5v15m7.5-7.5h-15"
-          />
-        </svg>
+          <svg
+            className="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.8}
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"
+            />
+          </svg>
+          Importer depuis Vinted
+        </button>
 
-        Ajouter une vente
-      </button>
+        <button
+          onClick={onAjouter}
+          className="
+            inline-flex items-center gap-2
+            rounded-lg px-4 py-2
+            bg-amber-500 text-zinc-950
+            text-sm font-semibold
+            transition-all duration-200
+            hover:bg-amber-400 hover:-translate-y-0.5 hover:shadow-amber-500/20
+            active:scale-[0.97] active:translate-y-0
+            shadow-lg shadow-amber-500/10
+            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40
+          "
+        >
+          <svg
+            className="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={2.5}
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 4.5v15m7.5-7.5h-15"
+            />
+          </svg>
+          Ajouter une vente
+        </button>
+      </div>
     </div>
   );
 }

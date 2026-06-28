@@ -43,7 +43,12 @@ export async function POST(req: NextRequest) {
   const body = await req.text();
   const signature = req.headers.get("stripe-signature");
 
-  if (!signature || !process.env.STRIPE_WEBHOOK_SECRET) {
+  const primarySecret = process.env.STRIPE_WEBHOOK_SECRET;
+  // Migration de domaine : secret de l'ancien endpoint kyrivo.kartium-tcg.com.
+  // À supprimer une fois l'endpoint kyrivo.fr actif et l'ancien désactivé dans Stripe.
+  const legacySecret = process.env.STRIPE_WEBHOOK_SECRET_LEGACY;
+
+  if (!signature || !primarySecret) {
     return NextResponse.json(
       { error: "Webhook Stripe invalide" },
       { status: 400 }
@@ -53,18 +58,24 @@ export async function POST(req: NextRequest) {
   let event: Stripe.Event;
 
   try {
-    event = stripe.webhooks.constructEvent(
-      body,
-      signature,
-      process.env.STRIPE_WEBHOOK_SECRET
-    );
-  } catch (error: any) {
-    console.error("Erreur signature webhook Stripe:", error.message);
-
-    return NextResponse.json(
-      { error: "Signature webhook invalide" },
-      { status: 400 }
-    );
+    event = stripe.webhooks.constructEvent(body, signature, primarySecret);
+  } catch (primaryError: any) {
+    if (!legacySecret) {
+      console.error("Erreur signature webhook Stripe:", primaryError.message);
+      return NextResponse.json(
+        { error: "Signature webhook invalide" },
+        { status: 400 }
+      );
+    }
+    try {
+      event = stripe.webhooks.constructEvent(body, signature, legacySecret);
+    } catch {
+      console.error("Erreur signature webhook Stripe:", primaryError.message);
+      return NextResponse.json(
+        { error: "Signature webhook invalide" },
+        { status: 400 }
+      );
+    }
   }
 
   try {
@@ -92,7 +103,8 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ received: true });
       }
 
-      // SDK v17+ : subscription peut être dans parent.subscription_details.subscription
+      // SDK v22 : subscription dans parent.subscription_details.subscription
+      // Legacy : directement dans invoice.subscription
       const invoiceRaw = invoice as any;
       const stripeSubId: string | null =
         typeof invoiceRaw.subscription === "string"
@@ -105,7 +117,7 @@ export async function POST(req: NextRequest) {
 
       const { data: sub, error: subError } = await supabaseAdmin
         .from("subscriptions")
-        .select("*")
+        .select("stripe_subscription_id, status")
         .eq("stripe_subscription_id", stripeSubId)
         .maybeSingle();
 
@@ -113,28 +125,50 @@ export async function POST(req: NextRequest) {
       // Abonnement introuvable ou déjà annulé : on ne prolonge pas
       if (!sub || sub.status === "canceled") return NextResponse.json({ received: true });
 
-      const renewalNow = new Date();
-      const renewalDurationMonths = sub.billing_period === "quarterly" ? 3 : 1;
+      // ── Source de vérité : lignes de cette facture précise ───────────────
+      // Toutes les dates sont lues depuis invoice.id, immuable après finalisation.
+      // Rejouer cet événement à n'importe quelle date produit toujours les mêmes
+      // valeurs — la subscription n'est jamais consultée.
 
-      const existingSubEnd = sub.subscription_ends_at
-        ? new Date(sub.subscription_ends_at)
-        : null;
+      // Prédicat : ligne d'abonnement non-proration
+      const isRenewalLine = (l: Stripe.InvoiceLineItem) =>
+        l.parent?.type === "subscription_item_details" &&
+        l.parent.subscription_item_details?.proration !== true;
 
-      const renewalBase =
-        existingSubEnd && existingSubEnd > renewalNow ? existingSubEnd : renewalNow;
+      // Étape 1 : lignes embarquées dans le payload webhook
+      let renewalLine = invoice.lines.data.find(isRenewalLine);
 
-      const newSubscriptionEndsAt = addMonths(renewalBase, renewalDurationMonths);
-      const newPeriodStart = renewalBase;
-      const newPeriodEnd = addMonths(renewalBase, 1);
+      // Étape 2 : si la liste est incomplète, récupérer les lignes via l'API
+      // de cette facture (invoice.id) — pas l'état courant de la subscription
+      if (!renewalLine && invoice.lines.has_more) {
+        const allLines = await stripe.invoices.listLineItems(invoice.id, { limit: 100 });
+        renewalLine = allLines.data.find(isRenewalLine);
+      }
 
+      // Étape 3 : sans ligne fiable, échec → Stripe réessaiera
+      if (!renewalLine) {
+        console.error("[invoice.paid] Ligne d'abonnement introuvable:", {
+          invoiceId: invoice.id,
+          stripeSubId,
+        });
+        return NextResponse.json(
+          { error: "Ligne d'abonnement introuvable" },
+          { status: 500 }
+        );
+      }
+
+      const periodStart = new Date(renewalLine.period.start * 1000);
+      const periodEnd = new Date(renewalLine.period.end * 1000);
+
+      // Écriture déterministe — les dates viennent de invoice.id, fixe et immuable
       const { error: renewalError } = await supabaseAdmin
         .from("subscriptions")
         .update({
-          subscription_ends_at: newSubscriptionEndsAt.toISOString(),
-          current_period_start: newPeriodStart.toISOString(),
-          current_period_end: newPeriodEnd.toISOString(),
+          subscription_ends_at: periodEnd.toISOString(),
+          current_period_start: periodStart.toISOString(),
+          current_period_end: periodEnd.toISOString(),
           status: "active",
-          updated_at: renewalNow.toISOString(),
+          updated_at: new Date().toISOString(),
         })
         .eq("stripe_subscription_id", stripeSubId);
 

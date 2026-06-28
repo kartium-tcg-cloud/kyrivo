@@ -3,7 +3,7 @@ import nodemailer from "nodemailer";
 export const APP_URL =
   process.env.APP_URL ||
   process.env.NEXT_PUBLIC_APP_URL ||
-  "https://kyrivo.kartium-tcg.com";
+  "https://kyrivo.fr";
 
 function createTransporter() {
   const host = process.env.SMTP_HOST;

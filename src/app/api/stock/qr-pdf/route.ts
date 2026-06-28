@@ -8,7 +8,7 @@ import jsPDF from "jspdf";
 import QRCode from "qrcode";
 import { createClient } from "@/lib/supabase/server";
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://kyrivo.kartium-tcg.com";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://kyrivo.fr";
 
 // ─── Layout A4 portrait (mm) ──────────────────────────────────
 const PAGE_WIDTH = 210;

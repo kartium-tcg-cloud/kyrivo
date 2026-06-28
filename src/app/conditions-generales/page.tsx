@@ -26,7 +26,7 @@ export default function ConditionsGeneralesPage() {
         <LegalSection title="1. Objet et nature du service">
           <p>
             <strong className="text-neutral-100">Kyrivo</strong> est un logiciel de gestion en ligne (SaaS) destiné aux revendeurs de biens,
-            accessible via <span className="text-neutral-200">kyrivo.kartium-tcg.com</span>.
+            accessible via <span className="text-neutral-200">kyrivo.fr</span>.
             Il propose des fonctionnalités de suivi des achats, des ventes, du stock, de la facturation et du calcul de marges.
           </p>
           <p>

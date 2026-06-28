@@ -69,7 +69,7 @@ export default async function ItemDetailPage({ params }: PageProps) {
     if (signed) signedDocumentUrl = signed.signedUrl;
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://kyrivo.kartium-tcg.com";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://kyrivo.fr";
   const itemUrl = `${appUrl}/items/${item.id}`;
   const qrCodeSvg = await QRCode.toString(itemUrl, {
     type: "svg",

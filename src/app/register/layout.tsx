@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   description:
     'Créez votre compte Kyrivo et démarrez votre essai gratuit pour suivre vos achats, ventes, stock et marges.',
   alternates: {
-    canonical: 'https://kyrivo.kartium-tcg.com/register',
+    canonical: 'https://kyrivo.fr/register',
   },
 }
 

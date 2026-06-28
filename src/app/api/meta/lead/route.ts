@@ -80,7 +80,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   const sourceUrl =
     trimStr(body.source_url, 500) ??
     process.env.NEXT_PUBLIC_APP_URL ??
-    "https://kyrivo.com";
+    "https://kyrivo.fr";
 
   const capiPayload: Record<string, unknown> = {
     data: [

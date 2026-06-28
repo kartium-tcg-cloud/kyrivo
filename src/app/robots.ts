@@ -18,6 +18,6 @@ export default function robots(): MetadataRoute.Robots {
         ],
       },
     ],
-    sitemap: 'https://kyrivo.kartium-tcg.com/sitemap.xml',
+    sitemap: 'https://kyrivo.fr/sitemap.xml',
   }
 }

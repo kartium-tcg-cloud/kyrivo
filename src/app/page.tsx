@@ -7,7 +7,7 @@ import Reveal from "@/components/ui/Reveal";
 
 export const metadata: Metadata = {
   alternates: {
-    canonical: "https://kyrivo.kartium-tcg.com/",
+    canonical: "https://kyrivo.fr/",
   },
 };
 
@@ -22,7 +22,7 @@ export default async function HomePage() {
       name: "Kyrivo",
       applicationCategory: "BusinessApplication",
       operatingSystem: "Web",
-      url: "https://kyrivo.kartium-tcg.com",
+      url: "https://kyrivo.fr",
       description:
         "Outil de gestion des achats, ventes, stock, marges, TVA et factures pour revendeurs de biens physiques en France et en Belgique.",
       inLanguage: "fr",
@@ -50,7 +50,7 @@ export default async function HomePage() {
       "@context": "https://schema.org",
       "@type": "Organization",
       name: "Kartium TCG",
-      url: "https://kyrivo.kartium-tcg.com",
+      url: "https://kyrivo.fr",
       brand: { "@type": "Brand", name: "Kyrivo" },
     },
     {

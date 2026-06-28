@@ -75,7 +75,7 @@ function htmlSuccess(): string {
     <h1>Désinscription confirmée</h1>
     <p>Tu ne recevras plus les emails de suivi Kyrivo pour cette adresse.</p>
     <p class="subtext">Ton compte Kyrivo reste actif. Tu peux toujours te connecter et utiliser le service normalement.</p>
-    <a href="https://kyrivo.kartium-tcg.com" class="btn">Retourner sur Kyrivo</a>
+    <a href="https://kyrivo.fr" class="btn">Retourner sur Kyrivo</a>
   </div>
 </body>
 </html>`;

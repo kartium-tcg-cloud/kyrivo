@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next'
 
-const BASE = 'https://kyrivo.kartium-tcg.com'
+const BASE = 'https://kyrivo.fr'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [

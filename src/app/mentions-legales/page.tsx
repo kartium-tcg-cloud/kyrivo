@@ -37,7 +37,7 @@ export default function MentionsLegalesPage() {
 
         <LegalSection title="2. Responsable de publication">
           <p>
-            Le responsable de la publication du site <strong className="text-neutral-100">kyrivo.kartium-tcg.com</strong> est Pierre Higny, exploitant du service Kyrivo.
+            Le responsable de la publication du site <strong className="text-neutral-100">kyrivo.fr</strong> est Pierre Higny, exploitant du service Kyrivo.
           </p>
           <InfoCard>
             <p>Pierre Higny — contact@kartium-tcg.com</p>

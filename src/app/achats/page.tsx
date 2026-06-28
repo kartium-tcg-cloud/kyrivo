@@ -23,6 +23,7 @@ import AchatsHeader from "@/components/achats/AchatsHeader";
 import AchatsFiltres from "@/components/achats/AchatsFiltres";
 import AchatsTableau from "@/components/achats/AchatsTableau";
 import AchatFormModal from "@/components/achats/AchatFormModal";
+import VintedImportModal from "@/components/achats/VintedImportModal";
 
 function formatDateFr(value: string): string {
   const [year, month, day] = value.split("-");
@@ -252,6 +253,7 @@ export default function AchatsPage() {
   const [achats, setAchats] = useState<Achat[]>([]);
   const [modalOuverte, setModalOuverte] = useState(false);
   const [achatEnEdition, setAchatEnEdition] = useState<Achat | null>(null);
+  const [vintedModalOuverte, setVintedModalOuverte] = useState(false);
   const [supplierContacts, setSupplierContacts] = useState<Array<{ id: string; name: string }>>([]);
   const [existingCategories, setExistingCategories] = useState<string[]>([]);
   const [exportConfirmOpen, setExportConfirmOpen] = useState(false);
@@ -394,6 +396,9 @@ export default function AchatsPage() {
     setAchatEnEdition(null);
     setModalOuverte(true);
   };
+
+  const ouvrirImportVinted = () => setVintedModalOuverte(true);
+  const fermerVintedModal = () => setVintedModalOuverte(false);
 
   const ouvrirEdition = (achat: Achat) => {
     setAchatEnEdition(achat);
@@ -709,6 +714,7 @@ const modifierAchat = async (achatModifie: Achat) => {
         totalAchats={achatsFiltres.length}
         totalMontant={totalMontant}
         onAjouter={ouvrirAjout}
+        onImporterVinted={ouvrirImportVinted}
       />
 
       {achats.length === 0 ? (
@@ -722,16 +728,29 @@ const modifierAchat = async (achatModifie: Achat) => {
           <p className="text-sm text-zinc-500 max-w-sm leading-relaxed mb-6">
             Commencez par enregistrer votre premier achat. Tous vos achats PRO et particuliers seront centralisés ici.
           </p>
-          <button
-            type="button"
-            onClick={ouvrirAjout}
-            className="inline-flex items-center gap-2 rounded-lg bg-amber-500 px-5 py-2.5 text-sm font-semibold text-neutral-950 hover:bg-amber-400 transition-colors shadow-lg shadow-amber-500/10"
-          >
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-            </svg>
-            Ajouter un achat
-          </button>
+          <div className="flex flex-col sm:flex-row items-center gap-3">
+            <button
+              type="button"
+              disabled
+              title="Bientôt disponible"
+              className="inline-flex items-center gap-2 rounded-lg border border-zinc-800 bg-zinc-900/40 px-5 py-2.5 text-sm font-semibold text-zinc-600 cursor-not-allowed opacity-50"
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+              </svg>
+              Importer depuis Vinted
+            </button>
+            <button
+              type="button"
+              onClick={ouvrirAjout}
+              className="inline-flex items-center gap-2 rounded-lg bg-amber-500 px-5 py-2.5 text-sm font-semibold text-neutral-950 hover:bg-amber-400 transition-colors shadow-lg shadow-amber-500/10"
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+              Ajouter un achat
+            </button>
+          </div>
         </div>
       ) : (
         <>
@@ -756,6 +775,13 @@ const modifierAchat = async (achatModifie: Achat) => {
         onModifier={modifierAchat}
         achatInitial={achatEnEdition}
         supplierContacts={supplierContacts}
+        existingCategories={existingCategories}
+      />
+
+      <VintedImportModal
+        ouvert={vintedModalOuverte}
+        onFermer={fermerVintedModal}
+        onCreer={ajouterAchat}
         existingCategories={existingCategories}
       />
 

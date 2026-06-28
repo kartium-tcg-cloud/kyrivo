@@ -13,7 +13,7 @@ import { Toaster } from "sonner";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://kyrivo.kartium-tcg.com"),
+  metadataBase: new URL("https://kyrivo.fr"),
   title: {
     default: "Kyrivo — Gestion achats, ventes et stock pour revendeurs",
     template: "%s | Kyrivo",
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "fr_FR",
     alternateLocale: ["fr_BE"],
-    url: "https://kyrivo.kartium-tcg.com",
+    url: "https://kyrivo.fr",
     siteName: "Kyrivo",
     title: "Kyrivo — Gestion achats, ventes et stock pour revendeurs",
     description:
