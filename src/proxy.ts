@@ -75,6 +75,11 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
+  const guestOnlyRoutes = ["/login", "/register", "/forgot-password"];
+  if (user && guestOnlyRoutes.includes(pathname)) {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
+
   return response;
 }
 
