@@ -50,6 +50,7 @@ export interface SaleLineInput {
   itemName: string;
   quantity: number;
   unitPrice: number;
+  isTTC?: boolean; // true when unitPrice is TTC (standard VAT + TTC input mode)
   purchaseCost?: number;
   marginAmount?: number;
   vatRate: number;

@@ -17,7 +17,6 @@ import {
 import {
   calculateMarginSale,
   calculateStandardSale,
-  convertTTCtoHT,
 } from "@/lib/saleCalculations";
 
 
@@ -352,10 +351,11 @@ setForm({
       const vatRate = Number(line.vatRate) || 0;
       const rawUnitPrice = Number(line.unitPrice) || 0;
 
-      const unitPrice =
-        form.vatMode === "standard_vat" && modeMontantStandard === "ttc"
-          ? convertTTCtoHT(rawUnitPrice, vatRate)
-          : rawUnitPrice;
+      // When the user enters TTC prices in standard VAT mode, keep unitPrice as TTC
+      // and mark isTTC = true so calculations use the TTC-first formula.
+      // Rounding TTC→HT per unit before summing loses precision across quantities.
+      const isTTC = form.vatMode === "standard_vat" && modeMontantStandard === "ttc";
+      const unitPrice = rawUnitPrice;
 
       return {
         purchaseItemId: line.purchaseItemId,
@@ -363,6 +363,7 @@ setForm({
         itemName: line.itemName.trim(),
         quantity,
         unitPrice,
+        isTTC,
         purchaseCost:
           line.purchaseCost.trim() !== "" ? Number(line.purchaseCost) : undefined,
         vatRate,
@@ -389,6 +390,7 @@ setForm({
           unitPrice: line.unitPrice,
           quantity: line.quantity,
           vatRate: line.vatRate,
+          isTTC: line.isTTC,
         })),
       }),
       marginAmount: 0,

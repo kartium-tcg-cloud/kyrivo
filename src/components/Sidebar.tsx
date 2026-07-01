@@ -119,7 +119,12 @@ export default function Sidebar() {
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [planInfo, setPlanInfo] = useState<
-    { plan: string; status: string } | null | undefined
+    {
+      plan: string;
+      status: string;
+      subscription_ends_at?: string | null;
+      trial_ends_at?: string | null;
+    } | null | undefined
   >(undefined);
 
   // ─── Récupération état auth + abonnement ───────────────
@@ -144,7 +149,7 @@ export default function Sidebar() {
         if (membership?.company_id) {
           const { data: sub } = await supabase
             .from("subscriptions")
-            .select("plan,status")
+            .select("plan,status,subscription_ends_at,trial_ends_at")
             .eq("company_id", membership.company_id)
             .maybeSingle();
 
@@ -588,30 +593,48 @@ className={`
 function PlanBadge({
   info,
 }: {
-  info: { plan: string; status: string } | null;
+  info: {
+    plan: string;
+    status: string;
+    subscription_ends_at?: string | null;
+    trial_ends_at?: string | null;
+  } | null;
 }) {
   let label: string;
   let cls: string;
 
-  if (
-    !info ||
-    info.status === "inactive" ||
-    info.status === "past_due"
-  ) {
+  if (!info || info.status === "inactive" || info.status === "past_due") {
     label = "Inactif";
     cls = "bg-red-500/10 border-red-500/20 text-red-400/80";
-  } else if (info.status === "trialing") {
-    label = "Essai";
-    cls = "bg-sky-500/10 border-sky-500/20 text-sky-400/80";
-  } else if (info.plan === "business") {
-    label = "Business";
-    cls = "bg-violet-500/10 border-violet-500/20 text-violet-400/80";
-  } else if (info.plan === "entreprise") {
-    label = "Entreprise";
-    cls = "bg-emerald-500/10 border-emerald-500/20 text-emerald-400/80";
   } else {
-    label = "Pro";
-    cls = "bg-amber-500/10 border-amber-500/20 text-amber-400/80";
+    const now = new Date();
+
+    const isTrialActive =
+      info.status === "trialing" &&
+      !!info.trial_ends_at &&
+      new Date(info.trial_ends_at) > now;
+
+    const isPaidActive =
+      (info.status === "active" || info.status === "canceled") &&
+      !!info.subscription_ends_at &&
+      new Date(info.subscription_ends_at) > now;
+
+    if (isTrialActive) {
+      label = "Essai";
+      cls = "bg-sky-500/10 border-sky-500/20 text-sky-400/80";
+    } else if (isPaidActive && info.plan === "business") {
+      label = "Business";
+      cls = "bg-violet-500/10 border-violet-500/20 text-violet-400/80";
+    } else if (isPaidActive && info.plan === "entreprise") {
+      label = "Entreprise";
+      cls = "bg-emerald-500/10 border-emerald-500/20 text-emerald-400/80";
+    } else if (isPaidActive) {
+      label = "Pro";
+      cls = "bg-amber-500/10 border-amber-500/20 text-amber-400/80";
+    } else {
+      label = "Inactif";
+      cls = "bg-red-500/10 border-red-500/20 text-red-400/80";
+    }
   }
 
   return (

@@ -118,6 +118,28 @@ function buildSaleLineInsert(params: {
 }) {
   const { saleId, companyId, vatMode, line } = params;
 
+  // When input is TTC (standard VAT + TTC mode), derive HT from the line TTC total
+  // so that stored HT is correct and invoice/export re-computations are accurate.
+  let unitPriceStored = line.unitPrice;
+  let totalPriceStored: number;
+
+  if (vatMode === "margin_vat") {
+    totalPriceStored = line.unitPrice;
+  } else if (line.isTTC) {
+    const lineTTC = Math.round(line.unitPrice * line.quantity * 100) / 100;
+    const lineHT =
+      line.vatRate > 0
+        ? Math.round((lineTTC / (1 + line.vatRate / 100)) * 100) / 100
+        : lineTTC;
+    totalPriceStored = lineHT;
+    unitPriceStored =
+      line.quantity > 0
+        ? Math.round((lineHT / line.quantity) * 100) / 100
+        : lineHT;
+  } else {
+    totalPriceStored = line.unitPrice * line.quantity;
+  }
+
   return {
     sale_id: saleId,
     company_id: companyId,
@@ -125,11 +147,8 @@ function buildSaleLineInsert(params: {
     item_reference: line.itemReference,
     item_name: line.itemName,
     quantity: line.quantity,
-    unit_price: line.unitPrice,
-    total_price:
-      vatMode === "margin_vat"
-        ? line.unitPrice
-        : line.unitPrice * line.quantity,
+    unit_price: unitPriceStored,
+    total_price: totalPriceStored,
     purchase_cost: line.purchaseCost,
     margin_amount: line.marginAmount,
     vat_rate: line.vatRate,

@@ -27,6 +27,27 @@ export function calculateStandardVAT(params: {
   return { subtotalHT, vatAmount, totalTTC };
 }
 
+// When the user enters TTC prices, TTC is the source of truth.
+// totalTTC = unitPriceTTC × qty, then HT = round(TTC÷(1+rate)), VAT = TTC − HT.
+// This guarantees HT + VAT = TTC exactly.
+export function calculateStandardVATfromTTC(params: {
+  unitPriceTTC: number;
+  quantity: number;
+  vatRate: number;
+}): {
+  subtotalHT: number;
+  vatAmount: number;
+  totalTTC: number;
+} {
+  const totalTTC = round2(params.unitPriceTTC * params.quantity);
+  const subtotalHT =
+    params.vatRate > 0
+      ? round2(totalTTC / (1 + params.vatRate / 100))
+      : totalTTC;
+  const vatAmount = round2(totalTTC - subtotalHT);
+  return { subtotalHT, vatAmount, totalTTC };
+}
+
 export function calculateMarginVAT(params: {
   salePriceTTC: number;
   purchaseCost: number;
@@ -95,9 +116,10 @@ export function calculateMarginSale(params: {
 
 export function calculateStandardSale(params: {
   lines: {
-    unitPrice: number; // HT unitaire
+    unitPrice: number; // HT unitaire, ou TTC si isTTC = true
     quantity: number;
     vatRate: number;
+    isTTC?: boolean;
   }[];
 }): {
   totalTTC: number;
@@ -109,11 +131,17 @@ export function calculateStandardSale(params: {
   let totalTTC = 0;
 
   params.lines.forEach((line) => {
-    const calc = calculateStandardVAT({
-      unitPriceHT: line.unitPrice,
-      quantity: line.quantity,
-      vatRate: line.vatRate,
-    });
+    const calc = line.isTTC
+      ? calculateStandardVATfromTTC({
+          unitPriceTTC: line.unitPrice,
+          quantity: line.quantity,
+          vatRate: line.vatRate,
+        })
+      : calculateStandardVAT({
+          unitPriceHT: line.unitPrice,
+          quantity: line.quantity,
+          vatRate: line.vatRate,
+        });
 
     subtotalHT = round2(subtotalHT + calc.subtotalHT);
     vatAmount = round2(vatAmount + calc.vatAmount);
