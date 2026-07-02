@@ -43,25 +43,34 @@ export async function getAvailableStockItems(
   const { data, error } = await supabase
     .from("purchase_items")
     .select(
-      "id, item_reference, item_name, unit_cost, total_cost, quantity, stock_quantity, status, margin_eligible"
+      "id, item_reference, item_name, unit_cost, total_cost, quantity, stock_quantity, status, margin_eligible, category"
     )
     .eq("company_id", companyId)
     .eq("status", "in_stock")
     .gt("stock_quantity", 0)
-    .order("created_at", { ascending: false });
+    .order("item_reference", { ascending: true });
 
   if (error) throw error;
 
-  return (data ?? []).map((d) => ({
-    id: d.id as string,
-    itemReference: d.item_reference as string,
-    itemName: d.item_name as string,
-    quantity: Number(d.quantity),
-    stockQuantity: Number(d.stock_quantity ?? d.quantity),
-    unitCost: Number(d.unit_cost),
-    status: d.status as ItemStatus,
-    marginEligible: Boolean(d.margin_eligible),
-  }));
+  return (data ?? [])
+    .map((d) => ({
+      id: d.id as string,
+      itemReference: d.item_reference as string,
+      itemName: d.item_name as string,
+      quantity: Number(d.quantity),
+      stockQuantity: Number(d.stock_quantity ?? d.quantity),
+      unitCost: Number(d.unit_cost),
+      status: d.status as ItemStatus,
+      marginEligible: Boolean(d.margin_eligible),
+      category: (d.category as string) || undefined,
+    }))
+    .sort((a, b) =>
+      String(a.itemReference ?? "").localeCompare(
+        String(b.itemReference ?? ""),
+        "fr",
+        { numeric: true, sensitivity: "base" }
+      )
+    );
 }
 
 // ═══════════════════════════════════════════════════════════

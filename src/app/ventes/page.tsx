@@ -132,10 +132,9 @@ function buildSaleLineInsert(params: {
         ? Math.round((lineTTC / (1 + line.vatRate / 100)) * 100) / 100
         : lineTTC;
     totalPriceStored = lineHT;
-    unitPriceStored =
-      line.quantity > 0
-        ? Math.round((lineHT / line.quantity) * 100) / 100
-        : lineHT;
+    // Store unrounded HT per unit so that unit_price × quantity = total_price exactly.
+    // Rounding here (e.g. 16.53/2 → 8.27) would cause 8.27 × 2 = 16.54, recreating drift.
+    unitPriceStored = line.quantity > 0 ? lineHT / line.quantity : lineHT;
   } else {
     totalPriceStored = line.unitPrice * line.quantity;
   }

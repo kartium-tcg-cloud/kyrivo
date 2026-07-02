@@ -119,6 +119,8 @@ prefillItem = null,
   "Cash",
 ]);
   const [contactDropdownOpen, setContactDropdownOpen] = useState(false);
+  const [lineSearchQueries, setLineSearchQueries] = useState<Record<string, string>>({});
+  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
   const isDirtyRef = useRef(false);
   const [showUnsavedModal, setShowUnsavedModal] = useState(false);
 
@@ -175,6 +177,12 @@ useEffect(() => {
 
   loadPaymentMethods();
 }, []);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setLineSearchQueries({});
+    setOpenDropdownId(null);
+  }, [ouvert]);
 
   useEffect(() => {
     if (!ouvert) return;
@@ -714,24 +722,141 @@ setForm({
                   <div>
                     <label className={labelClasses}>Article en stock</label>
 
-                    <select
-                      value={line.purchaseItemId || ""}
-                      onChange={(e) => choisirItemStock(line.id, e.target.value)}
-                      className={inputClasses}
-                    >
-                      <option value="">— Ligne manuelle / aucun item lié —</option>
+                    {line.purchaseItemId ? (
+                      <div className="flex items-center gap-2 rounded-lg border border-zinc-700 bg-zinc-900/60 px-3 py-2.5">
+                        <div className="flex-1 min-w-0 flex items-baseline gap-1.5">
+                          <span className="font-mono text-sm font-semibold text-amber-400 shrink-0">
+                            {line.itemReference}
+                          </span>
+                          <span className="text-zinc-500 text-sm">·</span>
+                          <span className="text-sm text-zinc-200 truncate">
+                            {line.itemName}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            choisirItemStock(line.id, "");
+                            setLineSearchQueries((prev) => ({ ...prev, [line.id]: "" }));
+                            setOpenDropdownId(line.id);
+                          }}
+                          className="shrink-0 rounded px-2 py-1 text-[11px] font-semibold text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition-colors"
+                        >
+                          Changer
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={lineSearchQueries[line.id] || ""}
+                          onChange={(e) =>
+                            setLineSearchQueries((prev) => ({
+                              ...prev,
+                              [line.id]: e.target.value,
+                            }))
+                          }
+                          onFocus={() => setOpenDropdownId(line.id)}
+                          onBlur={() =>
+                            setTimeout(() => setOpenDropdownId(null), 150)
+                          }
+                          placeholder="Rechercher par référence, nom ou catégorie…"
+                          className={inputClasses}
+                          autoComplete="off"
+                        />
 
-                      {stockItemsFiltres.map((item) => (
-                        <option key={item.id} value={item.id}>
-                          {item.itemReference} · {item.itemName} · stock{" "}
-                          {item.stockQuantity}/{item.quantity} · coût{" "}
-                          {item.unitCost.toLocaleString("fr-BE", {
-                            style: "currency",
-                            currency: "EUR",
-                          })}
-                        </option>
-                      ))}
-                    </select>
+                        {openDropdownId === line.id && (() => {
+                          const q = (lineSearchQueries[line.id] || "").toLowerCase().trim();
+                          const filtered = q
+                            ? stockItemsFiltres.filter(
+                                (item) =>
+                                  (item.itemReference || "").toLowerCase().includes(q) ||
+                                  (item.itemName || "").toLowerCase().includes(q) ||
+                                  (item.category || "").toLowerCase().includes(q)
+                              )
+                            : stockItemsFiltres;
+                          const visible = filtered.slice(0, 50);
+
+                          return (
+                            <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-72 overflow-y-auto rounded-lg border border-zinc-700 bg-zinc-900 shadow-2xl">
+                              {stockItemsFiltres.length === 0 ? (
+                                <div className="px-4 py-6 text-center text-sm text-zinc-500">
+                                  Aucun article en stock disponible.
+                                </div>
+                              ) : visible.length === 0 ? (
+                                <div className="px-4 py-6 text-center text-sm text-zinc-500">
+                                  Aucun résultat pour cette recherche.
+                                </div>
+                              ) : (
+                                <>
+                                  <button
+                                    type="button"
+                                    onMouseDown={(e) => {
+                                      e.preventDefault();
+                                      choisirItemStock(line.id, "");
+                                      setLineSearchQueries((prev) => ({ ...prev, [line.id]: "" }));
+                                      setOpenDropdownId(null);
+                                    }}
+                                    className="w-full px-4 py-2.5 text-left text-sm text-zinc-500 hover:bg-zinc-800/60 transition-colors border-b border-zinc-800"
+                                  >
+                                    — Ligne manuelle / aucun item lié —
+                                  </button>
+
+                                  {visible.map((item) => (
+                                    <button
+                                      key={item.id}
+                                      type="button"
+                                      onMouseDown={(e) => {
+                                        e.preventDefault();
+                                        choisirItemStock(line.id, item.id);
+                                        setLineSearchQueries((prev) => ({ ...prev, [line.id]: "" }));
+                                        setOpenDropdownId(null);
+                                      }}
+                                      className="w-full px-4 py-3 text-left hover:bg-amber-500/10 transition-colors border-b border-zinc-800/50 last:border-0"
+                                    >
+                                      <div className="flex items-baseline gap-1.5">
+                                        <span className="font-mono text-sm font-semibold text-amber-400">
+                                          {item.itemReference}
+                                        </span>
+                                        <span className="text-zinc-500 text-sm">·</span>
+                                        <span className="text-sm text-zinc-200 truncate">
+                                          {item.itemName}
+                                        </span>
+                                      </div>
+                                      <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-zinc-500">
+                                        {item.category && (
+                                          <>
+                                            <span>{item.category}</span>
+                                            <span>·</span>
+                                          </>
+                                        )}
+                                        <span>Stock : {item.stockQuantity}</span>
+                                        <span>·</span>
+                                        <span>
+                                          Coût :{" "}
+                                          {item.unitCost.toLocaleString("fr-BE", {
+                                            style: "currency",
+                                            currency: "EUR",
+                                          })}
+                                        </span>
+                                        <span>·</span>
+                                        <span>TVA marge : {item.marginEligible ? "oui" : "non"}</span>
+                                      </div>
+                                    </button>
+                                  ))}
+
+                                  {filtered.length > 50 && (
+                                    <div className="px-4 py-2.5 text-center text-[11px] text-zinc-500 border-t border-zinc-800">
+                                      Affinez la recherche pour voir plus de résultats.
+                                    </div>
+                                  )}
+                                </>
+                              )}
+                            </div>
+                          );
+                        })()}
+                      </div>
+                    )}
                   </div>
 
                   <div className="space-y-3">

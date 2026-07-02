@@ -115,6 +115,7 @@ export interface AvailableStockItem {
   marginEligible: boolean;
   quantity: number;
   stockQuantity: number;
+  category?: string;
 }
 
 export interface SaleValidationResult {

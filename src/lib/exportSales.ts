@@ -3,8 +3,10 @@ import { Sale } from "@/types/sale";
 // ── Colonnes ──────────────────────────────────────────────────────────────────
 //
 // Règles de stockage dans sale_lines (confirmées dans saleCalculations.ts) :
-//   TVA standard → line.totalPrice = unitPriceHT × quantity  (= HT subtotal)
+//   TVA standard + entrée HT  → line.totalPrice = unitPriceHT × quantity  (= HT subtotal)
+//   TVA standard + entrée TTC → line.totalPrice = round(lineTTC / (1+taux))  (= HT subtotal, TTC-first)
 //   TVA sur marge → line.totalPrice = prix TTC total de la ligne (lump sum)
+//   Dans tous les cas, line.totalPrice est la source de vérité fiscale pour la ligne.
 //
 // Les montants de niveau vente (HT total, TVA collectée, TTC total) n'apparaissent
 // QUE sur la première ligne de chaque vente pour éviter les doublons en cas de
