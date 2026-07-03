@@ -32,6 +32,28 @@ function firstOfMonthISO(): string {
   return new Date(d.getFullYear(), d.getMonth(), 1).toISOString().split("T")[0];
 }
 
+function daysAgoISO(n: number): string {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+  return d.toISOString().split("T")[0];
+}
+
+function firstOfYearISO(): string {
+  const d = new Date();
+  return new Date(d.getFullYear(), 0, 1).toISOString().split("T")[0];
+}
+
+// Raccourcis de période — ne font qu'appeler les mêmes setters que la
+// saisie manuelle des dates, aucune requête ni calcul supplémentaire.
+function periodPresets() {
+  return [
+    { label: "Ce mois-ci", debut: firstOfMonthISO(), fin: todayISO() },
+    { label: "7 derniers jours", debut: daysAgoISO(6), fin: todayISO() },
+    { label: "30 derniers jours", debut: daysAgoISO(29), fin: todayISO() },
+    { label: "Cette année", debut: firstOfYearISO(), fin: todayISO() },
+  ];
+}
+
 function round2(n: number): number {
   return Math.round(n * 100) / 100;
 }
@@ -222,24 +244,41 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
     return () => { cancelled = true; };
   }, [companyId, dateDebut, dateFin, rangeInvalid]);
 
+  const presets = periodPresets();
+  const activePreset = presets.find((p) => p.debut === dateDebut && p.fin === dateFin)?.label ?? null;
+
   return (
     <section className="space-y-5 pt-2">
 
       {/* ── Titre de section ─────────────────────────────────── */}
       <div className="flex items-center gap-3">
-        <div className="h-px flex-1 bg-zinc-800/60" />
-        <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-600">
+        <div className="h-px flex-1 bg-gradient-to-r from-transparent to-zinc-800" />
+        <span className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
+          <span className="h-1 w-1 rounded-full bg-amber-500" />
           Analyse par période
         </span>
-        <div className="h-px flex-1 bg-zinc-800/60" />
+        <div className="h-px flex-1 bg-gradient-to-l from-transparent to-zinc-800" />
       </div>
 
       {/* ── Sélecteurs de dates ──────────────────────────────── */}
-      <div className="surface space-y-2.5 rounded-xl border border-zinc-800 bg-zinc-900/30 p-3 sm:p-4">
-        <p className="text-xs text-zinc-400">
-          Choisissez une période pour générer automatiquement les statistiques et graphiques ci-dessous.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-3">
+      <div className="surface space-y-3 rounded-xl border border-zinc-800 bg-zinc-900/30 p-3 sm:p-4">
+        <div className="flex flex-wrap gap-1.5">
+          {presets.map((p) => (
+            <button
+              key={p.label}
+              type="button"
+              onClick={() => { setDateDebut(p.debut); setDateFin(p.fin); }}
+              className={`rounded-full border px-3 py-1.5 text-[11px] font-semibold transition-colors ${
+                activePreset === p.label
+                  ? "border-amber-500/40 bg-amber-500/10 text-amber-400"
+                  : "border-zinc-800 bg-zinc-900/60 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200"
+              }`}
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
+        <div className="flex flex-col sm:flex-row gap-3 sm:items-end">
           <div className="flex-1">
             <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
               Du
@@ -274,6 +313,12 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
               "
             />
           </div>
+          {loading && (
+            <span className="hidden sm:inline-flex items-center gap-1.5 pb-2.5 text-[11px] text-zinc-500">
+              <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
+              Mise à jour…
+            </span>
+          )}
         </div>
       </div>
 
@@ -289,8 +334,8 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
         <p className="text-center text-sm text-red-400">{error}</p>
       )}
 
-      {/* ── Squelette chargement ─────────────────────────────── */}
-      {loading && (
+      {/* ── Squelette chargement (premier chargement uniquement) ── */}
+      {loading && !stats && (
         <>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             {[...Array(4)].map((_, i) => (
@@ -311,39 +356,42 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
         </>
       )}
 
-      {/* ── Cartes statistiques ──────────────────────────────── */}
-      {stats && !loading && (
-        <>
+      {/* ── Cartes statistiques ── on garde le rendu précédent, estompé, ─
+             pendant un rafraîchissement plutôt qu'un flash de squelette ── */}
+      {stats && (
+        <div className={`space-y-5 transition-opacity duration-200 ${loading ? "opacity-50" : "opacity-100"}`}>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
 
             {/* Argent dépensé */}
             <div className="surface rounded-xl border border-zinc-800 bg-zinc-900/40 p-4 flex flex-col gap-3 transition-colors hover:border-zinc-700">
               <div className="flex items-center gap-2">
-                <span className="inline-flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg border border-red-500/20 bg-red-500/10 text-red-400">
+                <span className="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border border-rose-500/20 bg-rose-500/10 text-rose-400">
                   <ArrowDownIcon />
                 </span>
                 <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500 leading-tight">
                   Argent dépensé
                 </p>
               </div>
-              <p className="text-xl font-bold tabular-nums text-red-400 leading-none">
+              <p className="text-2xl font-bold tabular-nums text-rose-400 leading-none">
                 {fmt(stats.depenses)}
               </p>
+              <p className="text-[10px] text-zinc-600">Ce que ça t&apos;a coûté</p>
             </div>
 
             {/* Argent rentré */}
             <div className="surface rounded-xl border border-zinc-800 bg-zinc-900/40 p-4 flex flex-col gap-3 transition-colors hover:border-zinc-700">
               <div className="flex items-center gap-2">
-                <span className="inline-flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg border border-emerald-500/20 bg-emerald-500/10 text-emerald-400">
+                <span className="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border border-emerald-500/20 bg-emerald-500/10 text-emerald-400">
                   <ArrowUpIcon />
                 </span>
                 <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500 leading-tight">
                   Argent rentré
                 </p>
               </div>
-              <p className="text-xl font-bold tabular-nums text-emerald-400 leading-none">
+              <p className="text-2xl font-bold tabular-nums text-emerald-400 leading-none">
                 {fmt(stats.recettes)}
               </p>
+              <p className="text-[10px] text-zinc-600">Ce que ça t&apos;a rapporté</p>
             </div>
 
             {/* Solde TVA */}
@@ -355,7 +403,7 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
             `}>
               <div className="flex items-center gap-2">
                 <span className={`
-                  inline-flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg border
+                  inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border
                   ${stats.soldeTva >= 0
                     ? "border-cyan-500/20 bg-cyan-500/10 text-cyan-400"
                     : "border-violet-500/20 bg-violet-500/10 text-violet-400"}
@@ -366,29 +414,25 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
                   {stats.soldeTva >= 0 ? "TVA estimée à payer" : "Crédit TVA estimé"}
                 </p>
               </div>
-              <p className={`text-xl font-bold tabular-nums leading-none ${stats.soldeTva >= 0 ? "text-cyan-400" : "text-violet-400"}`}>
+              <p className={`text-2xl font-bold tabular-nums leading-none ${stats.soldeTva >= 0 ? "text-cyan-400" : "text-violet-400"}`}>
                 {fmt(Math.abs(stats.soldeTva))}
               </p>
-              <div className="space-y-0.5 border-t border-zinc-800/60 pt-2">
-                <p className="text-[10px] text-zinc-600">
-                  Collectée&nbsp;: <span className="text-zinc-500 tabular-nums">{fmt(stats.tvaCollectee)}</span>
-                </p>
-                <p className="text-[10px] text-zinc-600">
-                  Déductible&nbsp;: <span className="text-zinc-500 tabular-nums">{fmt(stats.tvaDeductible)}</span>
-                </p>
+              <div className="flex items-center justify-between gap-2 border-t border-zinc-800/60 pt-2 text-[10px] text-zinc-600">
+                <span>Collectée <span className="text-zinc-400 tabular-nums">{fmt(stats.tvaCollectee)}</span></span>
+                <span>Déductible <span className="text-zinc-400 tabular-nums">{fmt(stats.tvaDeductible)}</span></span>
               </div>
             </div>
 
             {/* Résultat net */}
             <div className={`
-              surface rounded-xl border p-4 flex flex-col gap-3 transition-colors
+              surface card-amber-glow rounded-xl border p-4 flex flex-col gap-3 transition-colors
               ${stats.resultatNet >= 0
                 ? "border-emerald-500/25 bg-emerald-500/5 hover:border-emerald-500/35"
                 : "border-red-500/20 bg-red-500/5 hover:border-red-500/30"}
             `}>
               <div className="flex items-center gap-2">
                 <span className={`
-                  inline-flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg border
+                  inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border
                   ${stats.resultatNet >= 0
                     ? "border-emerald-500/25 bg-emerald-500/10 text-emerald-400"
                     : "border-red-500/20 bg-red-500/10 text-red-400"}
@@ -399,28 +443,27 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
                   Résultat net estimé
                 </p>
               </div>
-              <p className={`text-xl font-bold tabular-nums leading-none ${stats.resultatNet >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+              <p className={`text-2xl font-bold tabular-nums leading-none ${stats.resultatNet >= 0 ? "text-emerald-400" : "text-red-400"}`}>
                 {fmt(stats.resultatNet)}
               </p>
+              <p className="text-[10px] text-zinc-600">Ce qu&apos;il te reste réellement</p>
             </div>
 
           </div>
 
-          {/* Phrase d'aide */}
-          <p className="text-xs text-zinc-400">
-            Visualisez l’évolution de votre activité et la composition de votre rentabilité sur la période sélectionnée.
-          </p>
-
           {/* ── Graphiques ──────────────────────────────────────── */}
           <div
             key={`${dateDebut}_${dateFin}`}
-            className="animate-chart-fade grid grid-cols-1 lg:grid-cols-2 gap-3"
+            className="animate-chart-fade grid grid-cols-1 xl:grid-cols-[1.4fr_1fr] gap-4"
           >
             {/* Graphique 1 — Évolution de la période */}
-            <div className="surface rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
-              <div className="mb-3 flex items-center justify-between gap-2">
-                <h3 className="text-sm font-semibold text-zinc-200">Évolution de la période</h3>
-                <span className="rounded-full border border-zinc-800 bg-zinc-900/60 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
+            <div className="surface rounded-xl border border-zinc-700/60 bg-gradient-to-b from-zinc-800/50 to-zinc-900/50 p-4 sm:p-6">
+              <div className="mb-5 flex items-center justify-between gap-2">
+                <div>
+                  <h3 className="text-base font-semibold text-zinc-100">Évolution de la période</h3>
+                  <p className="text-[11px] text-zinc-500 mt-0.5">Ventes, achats et bénéfice net</p>
+                </div>
+                <span className="rounded-full border border-zinc-700 bg-zinc-900/60 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
                   {granularityLabel(granularity)}
                 </span>
               </div>
@@ -428,8 +471,11 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
             </div>
 
             {/* Graphique 2 — Pont de rentabilité */}
-            <div className="surface rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
-              <h3 className="mb-4 text-sm font-semibold text-zinc-200">Pont de rentabilité</h3>
+            <div className="surface rounded-xl border border-zinc-700/60 bg-gradient-to-b from-zinc-800/50 to-zinc-900/50 p-4 sm:p-6">
+              <div className="mb-5">
+                <h3 className="text-base font-semibold text-zinc-100">Pont de rentabilité</h3>
+                <p className="text-[11px] text-zinc-500 mt-0.5">Décomposition du résultat de la période</p>
+              </div>
               <ProfitBridge
                 recettes={stats.recettes}
                 depenses={stats.depenses}
@@ -443,7 +489,7 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
           <p className="text-center text-[10px] text-zinc-700">
             Montants estimatifs basés sur les achats et ventes enregistrés dans Kyrivo. Non certifiés comptablement.
           </p>
-        </>
+        </div>
       )}
 
     </section>

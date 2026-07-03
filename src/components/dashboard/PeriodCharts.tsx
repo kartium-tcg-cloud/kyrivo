@@ -20,10 +20,23 @@ function signedFmt(n: number): string {
   return fmt(0);
 }
 
-const W = 600;
-const H = 150;
-const PAD_TOP = 10;
-const PAD_BOTTOM = 24;
+// Couleurs explicites (hex constants), appliquées via style inline plutôt que
+// des classes Tailwind — évite tout décalage fill/bg/stroke selon qu'un
+// élément est un span HTML ou une forme SVG. Validées daltonisme + bande de
+// luminosité "dark" (skill dataviz) : lightness 0.48–0.67, CVD ΔE > 12.
+const CHART_COLORS = {
+  ventes: "#059669",
+  achats: "#f43f5e",
+  netPos: "#d97706",
+  netNeg: "#dc2626",
+  tvaDue: "#0891b2",
+  tvaCredit: "#7c3aed",
+};
+
+const W = 640;
+const H = 220;
+const PAD_TOP = 20;
+const PAD_BOTTOM = 28;
 const VIEW_H = PAD_TOP + H + PAD_BOTTOM;
 
 // Lissage Catmull-Rom -> Bézier cubique (aucune dépendance externe)
@@ -46,12 +59,25 @@ function smoothPath(pts: { x: number; y: number }[]): string {
   return d;
 }
 
-function LegendBadge({ dotClass, label }: { dotClass: string; label: string }) {
+function LegendKey({ color, label }: { color: string; label: string }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-zinc-800 bg-zinc-900/60 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-zinc-300">
-      <span className={`h-1.5 w-1.5 rounded-full ${dotClass}`} />
+    <span className="inline-flex items-center gap-2 rounded-full border border-zinc-700 bg-zinc-900/70 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-zinc-200">
+      <span className="h-[3px] w-5 flex-shrink-0 rounded-full" style={{ backgroundColor: color }} />
       {label}
     </span>
+  );
+}
+
+// La couleur porte l'identité via la puce ; le texte reste sur des tokens
+// neutres pour garantir le contraste quel que soit le hue (ex. violet/rouge
+// sont trop proches de 4.5:1 pour être lisibles en texte coloré à cette taille).
+function TooltipRow({ color, label, value }: { color: string; label: string; value: string }) {
+  return (
+    <p className="flex items-center gap-2.5">
+      <span className="h-[3px] w-3.5 flex-shrink-0 rounded-full" style={{ backgroundColor: color }} />
+      <span className="flex-1 text-zinc-400">{label}</span>
+      <span className="tabular-nums font-semibold text-zinc-100">{value}</span>
+    </p>
   );
 }
 
@@ -71,8 +97,8 @@ export function EvolutionChart({ data }: { data: EvolutionPoint[] }) {
   if (data.length <= 1) {
     const single = data[0];
     return (
-      <div className="flex h-44 flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-zinc-800 bg-zinc-950/30 px-4 py-6 text-center">
-        <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-zinc-800 bg-zinc-900/60 text-zinc-500">
+      <div className="flex h-52 flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-zinc-700 bg-zinc-900/30 px-4 py-6 text-center">
+        <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900/60 text-zinc-500">
           <ChartIcon />
         </span>
         <div className="space-y-1">
@@ -82,15 +108,18 @@ export function EvolutionChart({ data }: { data: EvolutionPoint[] }) {
           </p>
         </div>
         {single && (
-          <div className="mt-1 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-xs">
-            <span className="text-emerald-400">
-              Ventes&nbsp;: <span className="font-semibold tabular-nums">{fmt(single.ventes)}</span>
+          <div className="mt-1 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-xs text-zinc-300">
+            <span className="inline-flex items-center gap-1.5">
+              <span className="h-[3px] w-3 rounded-full" style={{ backgroundColor: CHART_COLORS.ventes }} />
+              Ventes&nbsp;: <span className="font-semibold tabular-nums text-zinc-100">{fmt(single.ventes)}</span>
             </span>
-            <span className="text-rose-400">
-              Achats&nbsp;: <span className="font-semibold tabular-nums">{fmt(single.achats)}</span>
+            <span className="inline-flex items-center gap-1.5">
+              <span className="h-[3px] w-3 rounded-full" style={{ backgroundColor: CHART_COLORS.achats }} />
+              Achats&nbsp;: <span className="font-semibold tabular-nums text-zinc-100">{fmt(single.achats)}</span>
             </span>
-            <span className={single.net < 0 ? "text-red-400" : "text-amber-400"}>
-              Bénéfice net&nbsp;: <span className="font-semibold tabular-nums">{fmt(single.net)}</span>
+            <span className="inline-flex items-center gap-1.5">
+              <span className="h-[3px] w-3 rounded-full" style={{ backgroundColor: single.net < 0 ? CHART_COLORS.netNeg : CHART_COLORS.netPos }} />
+              Bénéfice net&nbsp;: <span className="font-semibold tabular-nums text-zinc-100">{fmt(single.net)}</span>
             </span>
           </div>
         )}
@@ -106,7 +135,7 @@ export function EvolutionChart({ data }: { data: EvolutionPoint[] }) {
     yMax += 1;
   }
   const range = yMax - yMin;
-  const pad = range * 0.1;
+  const pad = range * 0.12;
   yMin -= pad;
   yMax += pad;
 
@@ -141,17 +170,17 @@ export function EvolutionChart({ data }: { data: EvolutionPoint[] }) {
       <div className="relative">
         <svg
           viewBox={`0 0 ${W} ${VIEW_H}`}
-          className="h-44 w-full overflow-visible"
+          className="h-56 sm:h-64 lg:h-72 w-full overflow-visible"
           preserveAspectRatio="xMidYMid meet"
         >
           <defs>
             <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#fbbf24" stopOpacity="0.18" />
-              <stop offset="100%" stopColor="#fbbf24" stopOpacity="0" />
+              <stop offset="0%" stopColor={CHART_COLORS.netPos} stopOpacity="0.2" />
+              <stop offset="100%" stopColor={CHART_COLORS.netPos} stopOpacity="0" />
             </linearGradient>
           </defs>
 
-          {/* Grille discrète */}
+          {/* Grille discrète — hairline pleine, jamais pointillée */}
           {[0.25, 0.5, 0.75].map((f) => (
             <line
               key={f}
@@ -159,51 +188,56 @@ export function EvolutionChart({ data }: { data: EvolutionPoint[] }) {
               x2={W}
               y1={PAD_TOP + H * f}
               y2={PAD_TOP + H * f}
-              className="stroke-zinc-800/50"
+              stroke="#3f3f46"
+              strokeOpacity={0.5}
               strokeWidth={1}
-              strokeDasharray="4 4"
             />
           ))}
 
           {/* Ligne zéro */}
-          <line x1={0} x2={W} y1={zeroY} y2={zeroY} className="stroke-zinc-700/60" strokeWidth={1} />
+          <line x1={0} x2={W} y1={zeroY} y2={zeroY} stroke="#71717a" strokeOpacity={0.8} strokeWidth={1} />
 
-          {/* Zone bénéfice net (subtile) */}
+          {/* Repères d'échelle */}
+          <text x={4} y={PAD_TOP + 10} fill="#a1a1aa" fontSize={11}>{fmt(yMax).replace(/\s?€/, "")}</text>
+          <text x={4} y={zeroY - 5} fill="#a1a1aa" fontSize={11}>0</text>
+
+          {/* Zone bénéfice net (wash) */}
           {netAreaPath && <path d={netAreaPath} fill={`url(#${gradientId})`} stroke="none" />}
 
-          {/* Repère au survol */}
+          {/* Repère au survol (le lecteur vise une date, jamais un trait 2px) */}
           {hover !== null && (
             <line
               x1={xPos(hover)}
               x2={xPos(hover)}
               y1={PAD_TOP}
               y2={PAD_TOP + H}
-              className="stroke-zinc-600"
+              stroke="#71717a"
               strokeWidth={1}
-              strokeDasharray="3 3"
             />
           )}
 
-          {/* Courbes */}
-          <path d={smoothPath(achatsPts)} fill="none" className="stroke-rose-400" strokeWidth={2} strokeLinecap="round" />
-          <path d={smoothPath(ventesPts)} fill="none" className="stroke-emerald-400" strokeWidth={2} strokeLinecap="round" />
-          <path d={smoothPath(netPts)} fill="none" className="stroke-amber-400" strokeWidth={2} strokeLinecap="round" />
+          {/* Courbes — 2.5px, jonctions arrondies */}
+          <path d={smoothPath(achatsPts)} fill="none" stroke={CHART_COLORS.achats} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+          <path d={smoothPath(ventesPts)} fill="none" stroke={CHART_COLORS.ventes} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+          <path d={smoothPath(netPts)} fill="none" stroke={CHART_COLORS.netPos} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
 
-          {/* Points */}
-          {data.map((d, i) => (
-            <g key={d.key}>
-              <circle cx={xPos(i)} cy={yPos(d.achats)} r={hover === i ? 4 : 2.5} className="fill-rose-400 transition-all" />
-              <circle cx={xPos(i)} cy={yPos(d.ventes)} r={hover === i ? 4 : 2.5} className="fill-emerald-400 transition-all" />
+          {/* Points — uniquement au survol (≥8px, anneau surface) pour rester sobre au repos */}
+          {hover !== null && (
+            <g>
+              <circle cx={xPos(hover)} cy={yPos(data[hover].achats)} r={5} fill={CHART_COLORS.achats} stroke="#18181b" strokeWidth={2} />
+              <circle cx={xPos(hover)} cy={yPos(data[hover].ventes)} r={5} fill={CHART_COLORS.ventes} stroke="#18181b" strokeWidth={2} />
               <circle
-                cx={xPos(i)}
-                cy={yPos(d.net)}
-                r={hover === i ? 4 : 2.5}
-                className={`transition-all ${d.net < 0 ? "fill-red-400" : "fill-amber-400"}`}
+                cx={xPos(hover)}
+                cy={yPos(data[hover].net)}
+                r={5}
+                fill={data[hover].net < 0 ? CHART_COLORS.netNeg : CHART_COLORS.netPos}
+                stroke="#18181b"
+                strokeWidth={2}
               />
             </g>
-          ))}
+          )}
 
-          {/* Zones de survol */}
+          {/* Zones de survol (bande = cible de hover, plus grande que le trait) */}
           {data.map((d, i) => {
             const bandW = data.length > 1 ? W / data.length : W;
             const x = data.length > 1 ? xPos(i) - bandW / 2 : 0;
@@ -221,52 +255,49 @@ export function EvolutionChart({ data }: { data: EvolutionPoint[] }) {
             );
           })}
 
-          {/* Labels axe X */}
+          {/* Labels axe X — sélectifs, jamais un par point */}
           {data.map(
             (d, i) =>
               (i % step === 0 || i === data.length - 1) && (
-                <text key={`lbl-${d.key}`} x={xPos(i)} y={VIEW_H - 6} textAnchor="middle" className="fill-zinc-500 text-[10px]">
+                <text key={`lbl-${d.key}`} x={xPos(i)} y={VIEW_H - 8} textAnchor="middle" fill="#a1a1aa" fontSize={11}>
                   {d.label}
                 </text>
               )
           )}
         </svg>
 
-        {/* Tooltip */}
+        {/* Tooltip premium */}
         {hover !== null && (
           <div
-            className={`pointer-events-none absolute z-10 ${tooltipVerticalClass} ${tooltipAlign} min-w-[130px] sm:min-w-[150px] max-w-[80vw] rounded-lg border border-zinc-700 bg-zinc-950/95 px-2.5 py-1.5 sm:px-3 sm:py-2 text-[11px] sm:text-xs shadow-xl shadow-black/40`}
+            className={`pointer-events-none absolute z-10 ${tooltipVerticalClass} ${tooltipAlign} min-w-[160px] sm:min-w-[180px] max-w-[80vw] rounded-xl border border-zinc-600 bg-zinc-950/95 backdrop-blur-sm px-3.5 py-3 text-xs shadow-2xl shadow-black/50`}
             style={{ left: `${hoverPct}%` }}
           >
-            <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-zinc-400">{data[hover].label}</p>
-            <div className="space-y-1">
-              <p className="flex items-center justify-between gap-3 text-emerald-400">
-                <span>Ventes</span>
-                <span className="tabular-nums font-semibold">{fmt(data[hover].ventes)}</span>
-              </p>
-              <p className="flex items-center justify-between gap-3 text-rose-400">
-                <span>Achats</span>
-                <span className="tabular-nums font-semibold">{fmt(data[hover].achats)}</span>
-              </p>
-              <p className={`flex items-center justify-between gap-3 ${data[hover].net < 0 ? "text-red-400" : "text-amber-400"}`}>
-                <span>Bénéfice net</span>
-                <span className="tabular-nums font-semibold">{fmt(data[hover].net)}</span>
-              </p>
+            <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-zinc-400">{data[hover].label}</p>
+            <div className="space-y-1.5">
+              <TooltipRow color={CHART_COLORS.ventes} label="Ventes" value={fmt(data[hover].ventes)} />
+              <TooltipRow color={CHART_COLORS.achats} label="Achats" value={fmt(data[hover].achats)} />
+              <div className="border-t border-zinc-700 pt-1.5">
+                <TooltipRow
+                  color={data[hover].net < 0 ? CHART_COLORS.netNeg : CHART_COLORS.netPos}
+                  label="Bénéfice net"
+                  value={fmt(data[hover].net)}
+                />
+              </div>
             </div>
           </div>
         )}
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center gap-2">
-        <LegendBadge dotClass="bg-emerald-400" label="Ventes" />
-        <LegendBadge dotClass="bg-rose-400" label="Achats" />
-        <LegendBadge dotClass="bg-amber-400" label="Bénéfice net" />
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        <LegendKey color={CHART_COLORS.ventes} label="Ventes" />
+        <LegendKey color={CHART_COLORS.achats} label="Achats" />
+        <LegendKey color={CHART_COLORS.netPos} label="Bénéfice net" />
       </div>
     </div>
   );
 }
 
-// ── Graphique 2 : pont de rentabilité ───────────────────────────────────────
+// ── Graphique 2 : pont de rentabilité (waterfall) ───────────────────────────
 export function ProfitBridge({
   recettes,
   depenses,
@@ -278,51 +309,150 @@ export function ProfitBridge({
   soldeTva: number;
   resultatNet: number;
 }) {
-  const maxAbs = Math.max(recettes, depenses, Math.abs(soldeTva), Math.abs(resultatNet), 1);
-  const pct = (v: number) => Math.min(100, (Math.abs(v) / maxAbs) * 100);
+  const afterAchats = recettes - depenses;
 
-  const tvaLabel = soldeTva > 0 ? "− TVA à payer" : soldeTva < 0 ? "+ Crédit TVA" : "TVA (solde nul)";
-  const tvaValue = soldeTva > 0 ? -soldeTva : soldeTva < 0 ? Math.abs(soldeTva) : 0;
-  const netPositive = resultatNet >= 0;
+  const tvaColor = soldeTva > 0 ? CHART_COLORS.tvaDue : soldeTva < 0 ? CHART_COLORS.tvaCredit : CHART_COLORS.achats;
+  const tvaLabel = soldeTva > 0 ? "TVA à payer" : soldeTva < 0 ? "Crédit TVA" : "TVA neutre";
+  const netColor = resultatNet >= 0 ? CHART_COLORS.netPos : CHART_COLORS.netNeg;
 
-  const rows = [
-    { label: "Ventes encaissées", value: recettes, pct: pct(recettes), barClass: "bg-emerald-500/70" },
-    { label: "− Achats / dépenses", value: -depenses, pct: pct(depenses), barClass: "bg-rose-500/60" },
-    { label: tvaLabel, value: tvaValue, pct: pct(soldeTva), barClass: "bg-cyan-500/60" },
+  const steps: { key: string; label: string; from: number; to: number; color: string }[] = [
+    { key: "ventes", label: "Ventes", from: 0, to: recettes, color: CHART_COLORS.ventes },
+    { key: "achats", label: "Achats", from: recettes, to: afterAchats, color: CHART_COLORS.achats },
+    { key: "tva", label: tvaLabel, from: afterAchats, to: resultatNet, color: tvaColor },
+  ];
+
+  const allBounds = [0, recettes, afterAchats, resultatNet];
+  let yMin = Math.min(...allBounds);
+  let yMax = Math.max(...allBounds);
+  if (yMin === yMax) {
+    yMin -= 1;
+    yMax += 1;
+  }
+  const span = yMax - yMin;
+  const pad = span * 0.22;
+  yMin -= pad;
+  yMax += pad;
+
+  const CW = 420;
+  const CH = 210;
+  const TOP = 16;
+  const AXIS_Y = TOP + CH;
+  const yPos = (v: number) => TOP + CH - ((v - yMin) / (yMax - yMin)) * CH;
+  const zeroY = yPos(0);
+
+  const cols = 4;
+  const slot = CW / cols;
+  const barW = Math.min(46, slot * 0.42);
+
+  const bars = [
+    ...steps.map((s, i) => ({
+      key: s.key,
+      label: s.label,
+      x: slot * i + slot / 2,
+      yTop: yPos(Math.max(s.from, s.to)),
+      yBottom: yPos(Math.min(s.from, s.to)),
+      value: s.to - s.from,
+      color: s.color,
+    })),
+    {
+      key: "net",
+      label: "Résultat net",
+      x: slot * 3 + slot / 2,
+      yTop: yPos(Math.max(0, resultatNet)),
+      yBottom: yPos(Math.min(0, resultatNet)),
+      value: resultatNet,
+      color: netColor,
+    },
   ];
 
   return (
-    <div className="space-y-4">
-      {rows.map((row) => (
-        <div key={row.label}>
-          <div className="mb-1.5 flex items-center justify-between gap-3 text-xs">
-            <span className="text-zinc-400">{row.label}</span>
-            <span className="tabular-nums font-semibold text-zinc-200">{signedFmt(row.value)}</span>
-          </div>
-          <div className="h-2.5 overflow-hidden rounded-full bg-zinc-800/60">
-            <div
-              className={`h-full rounded-full transition-all duration-700 ease-out motion-reduce:transition-none ${row.barClass}`}
-              style={{ width: `${row.pct}%` }}
-            />
-          </div>
-        </div>
-      ))}
+    <div>
+      <svg viewBox={`0 0 ${CW} ${AXIS_Y + 40}`} className="h-64 sm:h-72 lg:h-80 w-full overflow-visible" preserveAspectRatio="xMidYMid meet">
+        {/* Ligne zéro — bien visible, sert de repère pour les barres flottantes */}
+        <line x1={0} x2={CW} y1={zeroY} y2={zeroY} stroke="#a1a1aa" strokeOpacity={0.6} strokeWidth={1.5} />
+        <text x={CW} y={zeroY - 5} textAnchor="end" fill="#71717a" fontSize={10}>0 €</text>
 
-      <div className="border-t border-zinc-800/60 pt-3.5">
-        <div className="mb-1.5 flex items-center justify-between gap-3">
-          <span className="text-xs font-semibold uppercase tracking-wider text-zinc-300">= Bénéfice net</span>
-          <span className={`text-base font-bold tabular-nums leading-none ${netPositive ? "text-emerald-400" : "text-red-400"}`}>
-            {fmt(resultatNet)}
-          </span>
-        </div>
-        <div className="h-3 overflow-hidden rounded-full bg-zinc-800/60">
-          <div
-            className={`h-full rounded-full transition-all duration-700 ease-out motion-reduce:transition-none ${
-              netPositive ? "bg-gradient-to-r from-amber-500/70 to-amber-400" : "bg-red-500/60"
-            }`}
-            style={{ width: `${pct(resultatNet)}%` }}
-          />
-        </div>
+        {/* Repères verticaux discrets ancrant chaque barre flottante à la ligne zéro */}
+        {bars.slice(0, 3).map((b) => {
+          if (Math.abs(b.yBottom - zeroY) < 1 && Math.abs(b.yTop - zeroY) < 1) return null;
+          const anchorY = Math.abs(b.yBottom - zeroY) < Math.abs(b.yTop - zeroY) ? b.yTop : b.yBottom;
+          return (
+            <line
+              key={`drop-${b.key}`}
+              x1={b.x}
+              x2={b.x}
+              y1={Math.min(anchorY, zeroY)}
+              y2={Math.max(anchorY, zeroY)}
+              stroke="#3f3f46"
+              strokeOpacity={0.5}
+              strokeWidth={1}
+              strokeDasharray="2 3"
+            />
+          );
+        })}
+
+        {/* Connecteurs entre les marches (continuité de la cascade) */}
+        {steps.map((s, i) => {
+          if (i === steps.length - 1) return null;
+          const x1 = slot * i + slot / 2 + barW / 2;
+          const x2 = slot * (i + 1) + slot / 2 - barW / 2;
+          const y = yPos(s.to);
+          return <line key={`conn-${s.key}`} x1={x1} x2={x2} y1={y} y2={y} stroke="#71717a" strokeOpacity={0.6} strokeWidth={1.25} />;
+        })}
+        {/* Connecteur vers la barre finale */}
+        <line
+          x1={slot * 2 + slot / 2 + barW / 2}
+          x2={slot * 3 + slot / 2 - barW / 2}
+          y1={yPos(resultatNet)}
+          y2={yPos(resultatNet)}
+          stroke="#71717a"
+          strokeOpacity={0.6}
+          strokeWidth={1.25}
+        />
+
+        {/* Barres — data-end arrondi, jonction carrée côté connecteur */}
+        {bars.map((b) => {
+          const height = Math.max(3, b.yBottom - b.yTop);
+          const isFinal = b.key === "net";
+          const labelAbove = b.yTop - 14 >= TOP;
+          return (
+            <g key={b.key}>
+              <rect
+                x={b.x - barW / 2}
+                y={b.yTop}
+                width={barW}
+                height={height}
+                rx={5}
+                fill={b.color}
+                opacity={isFinal ? 1 : 0.9}
+                stroke={isFinal ? b.color : "none"}
+                strokeWidth={isFinal ? 1.5 : 0}
+              />
+              {/* Valeur — grande, contrastée, jamais collée au bord */}
+              <text
+                x={b.x}
+                y={labelAbove ? b.yTop - 10 : b.yBottom + 20}
+                textAnchor="middle"
+                fill="#f4f4f5"
+                fontSize={14}
+                fontWeight={700}
+              >
+                {signedFmt(b.value)}
+              </text>
+              {/* Libellé sous la barre */}
+              <text x={b.x} y={AXIS_Y + 24} textAnchor="middle" fill="#a1a1aa" fontSize={11} fontWeight={600} letterSpacing={0.3}>
+                {b.label}
+              </text>
+            </g>
+          );
+        })}
+      </svg>
+
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        <LegendKey color={CHART_COLORS.ventes} label="Ventes" />
+        <LegendKey color={CHART_COLORS.achats} label="Achats" />
+        <LegendKey color={tvaColor} label={tvaLabel} />
+        <LegendKey color={netColor} label="Résultat net" />
       </div>
     </div>
   );

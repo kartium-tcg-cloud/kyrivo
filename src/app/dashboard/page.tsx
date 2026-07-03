@@ -242,11 +242,12 @@ export default async function DashboardPage() {
 
   // ── Rendu ─────────────────────────────────────────────────────
   return (
-    <div className="relative w-full max-w-5xl p-4 sm:p-6 lg:p-8 space-y-8 overflow-hidden">
+    <div className="relative w-full max-w-[1500px] p-4 sm:p-6 lg:p-8 xl:p-10 space-y-8 overflow-hidden">
 
       {/* ── Halos d'ambiance (purement décoratifs) ───────────── */}
-      <div aria-hidden className="pointer-events-none absolute -top-32 right-[-10%] h-80 w-80 rounded-full bg-amber-500/[0.06] blur-3xl" />
-      <div aria-hidden className="pointer-events-none absolute top-1/2 left-[-15%] h-96 w-96 rounded-full bg-cyan-500/[0.04] blur-3xl" />
+      <div aria-hidden className="pointer-events-none absolute -top-32 right-[-10%] h-80 w-80 rounded-full bg-amber-500/[0.07] blur-3xl" />
+      <div aria-hidden className="pointer-events-none absolute top-1/3 left-[-15%] h-96 w-96 rounded-full bg-indigo-500/[0.05] blur-3xl" />
+      <div aria-hidden className="pointer-events-none absolute bottom-0 right-1/4 h-72 w-72 rounded-full bg-cyan-500/[0.035] blur-3xl" />
 
       {/* ── BANNIÈRE PAST_DUE ────────────────────────────────── */}
       {isPastDue && (
@@ -257,7 +258,7 @@ export default async function DashboardPage() {
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-red-300">Paiement échoué</p>
             <p className="text-xs text-zinc-400 mt-0.5 leading-relaxed">
-              Votre paiement a échoué. Mettez à jour votre moyen de paiement pour éviter l'interruption de votre accès.
+              Votre paiement a échoué. Mettez à jour votre moyen de paiement pour éviter l&apos;interruption de votre accès.
             </p>
           </div>
           <Link
@@ -270,12 +271,16 @@ export default async function DashboardPage() {
       )}
 
       {/* ── HEADER ──────────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-zinc-800">
-        <div className="flex items-center gap-4">
-          <div className="h-11 w-11 rounded-xl flex items-center justify-center text-sm font-black text-zinc-950 flex-shrink-0 shadow-lg shadow-amber-500/20"
-            style={{ background: "linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%)" }}
-          >
-            {initiales}
+      <div className="surface flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl border border-zinc-800/80 bg-zinc-900/30 p-5">
+        <div className="flex items-center gap-4 min-w-0">
+          <div className="relative h-12 w-12 flex-shrink-0">
+            <div className="absolute -inset-1.5 rounded-2xl bg-amber-500/20 blur-md" />
+            <div
+              className="relative h-12 w-12 rounded-xl flex items-center justify-center text-base font-black text-zinc-950 shadow-lg shadow-amber-500/20"
+              style={{ background: "linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%)" }}
+            >
+              {initiales}
+            </div>
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2.5 flex-wrap">
@@ -301,13 +306,13 @@ export default async function DashboardPage() {
       </div>
 
       {/* ── STATS ───────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 xl:gap-4">
 
         <StatTile
           label="Achats ce mois"
           value={String(purchasesCount)}
           icon={<CartIcon />}
-          accent="blue"
+          accent="rose"
         />
 
         <StatTile
@@ -327,14 +332,14 @@ export default async function DashboardPage() {
         {/* Quota avec progress bar */}
         <div className="surface group rounded-xl border border-zinc-800 bg-zinc-900/40 p-4 transition-all duration-200 hover:border-zinc-700 hover:bg-zinc-900/60">
           <div className="flex items-center gap-3 mb-3">
-            <span className="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border bg-zinc-800/60 border-zinc-700 text-zinc-400 transition-transform duration-200 group-hover:scale-110">
+            <span className="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border bg-gradient-to-br from-zinc-800 to-zinc-800/40 border-zinc-700 text-zinc-400 transition-transform duration-200 group-hover:scale-110">
               <QuotaIcon />
             </span>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500 leading-tight">
               Quota lignes
             </p>
           </div>
-          <p className={`text-2xl font-bold tabular-nums leading-none mb-1 ${
+          <p className={`text-3xl font-bold tabular-nums leading-none mb-1 ${
             monthlyLimit > 0 && usagePercent >= 90
               ? "text-red-400"
               : monthlyLimit > 0 && usagePercent >= 70
@@ -345,19 +350,19 @@ export default async function DashboardPage() {
           </p>
           {monthlyLimit > 0 && (
             <p className="text-xs text-zinc-600 mb-3">
-              sur {monthlyLimit} ce mois
+              sur {monthlyLimit} ce mois · {usagePercent}%
             </p>
           )}
           {monthlyLimit > 0 ? (
             <>
-              <div className="h-1 rounded-full bg-zinc-800 overflow-hidden">
+              <div className="h-1.5 rounded-full bg-zinc-800 overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all duration-500 ease-out ${
                     usagePercent >= 90
                       ? "bg-red-500"
                       : usagePercent >= 70
-                      ? "bg-amber-400"
-                      : "bg-amber-500"
+                      ? "bg-gradient-to-r from-amber-500 to-amber-400"
+                      : "bg-gradient-to-r from-amber-600 to-amber-400"
                   }`}
                   style={{ width: `${usagePercent}%` }}
                 />
@@ -374,35 +379,39 @@ export default async function DashboardPage() {
       </div>
 
       {/* ── Stock immobilisé ────────────────────────────────── */}
-      <div className="card-amber-glow rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-4 flex items-center justify-between gap-4 transition-colors hover:border-amber-500/20">
-        <div className="flex items-center gap-3 min-w-0">
-          <span className="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-amber-500/20 bg-amber-500/10 text-amber-400">
+      <div className="card-amber-glow surface relative overflow-hidden rounded-2xl border border-amber-500/15 bg-gradient-to-br from-amber-500/[0.06] via-zinc-900/40 to-zinc-900/40 p-5 flex items-center justify-between gap-4 transition-colors hover:border-amber-500/25">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-amber-500/10 blur-3xl"
+        />
+        <div className="relative flex items-center gap-4 min-w-0">
+          <span className="inline-flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl border border-amber-500/25 bg-amber-500/10 text-amber-400">
             <LockStockIcon />
           </span>
           <div className="min-w-0">
             <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
               Argent immobilisé en stock
             </p>
-            <p className="text-[10px] text-zinc-700 mt-0.5">
-              Valeur d'achat des articles encore en stock
+            <p className="text-[11px] text-zinc-600 mt-0.5">
+              Valeur d&apos;achat des articles encore en stock
             </p>
           </div>
         </div>
-        <p className="text-lg font-bold tabular-nums text-white flex-shrink-0">
+        <p className="relative text-2xl sm:text-3xl font-bold tabular-nums text-amber-400 flex-shrink-0">
           {formatEuro(stockImmobilise)}
         </p>
       </div>
 
       {/* ── Lien vers analyse ───────────────────────────────── */}
       <p className="text-[11px] text-zinc-600 text-right -mt-4">
-        Besoin d'une période précise ?{" "}
+        Besoin d&apos;une période précise ?{" "}
         <a href="#analyse-periode" className="text-zinc-500 hover:text-amber-400 transition-colors underline-offset-2 underline decoration-zinc-700 hover:decoration-amber-400 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40">
-          Accéder à l'analyse
+          Accéder à l&apos;analyse
         </a>
       </p>
 
       {/* ── MAIN GRID ───────────────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_260px] gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] xl:grid-cols-[1fr_320px] gap-6">
 
         {/* Activité récente */}
         <div className="surface rounded-xl border border-zinc-800 bg-zinc-900/40 overflow-hidden transition-colors hover:border-zinc-700/80">
@@ -439,15 +448,15 @@ export default async function DashboardPage() {
           ) : (
             <div className="divide-y divide-zinc-800/50">
               {recentActivity.map((item, i) => (
-                <div key={i} className="flex items-center gap-4 px-5 py-3.5 transition-colors hover:bg-zinc-800/30">
+                <div key={i} className="flex items-center gap-3.5 px-5 py-3.5 transition-colors hover:bg-zinc-800/30">
                   <span className={`
-                    inline-flex h-7 w-7 flex-shrink-0 items-center justify-center
-                    rounded-lg text-[10px] font-bold uppercase tracking-wider
+                    inline-flex h-9 w-9 flex-shrink-0 items-center justify-center
+                    rounded-lg border
                     ${item.type === "achat"
-                      ? "bg-blue-500/10 text-blue-400 border border-blue-500/20"
-                      : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"}
+                      ? "bg-rose-500/10 text-rose-400 border-rose-500/20"
+                      : "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"}
                   `}>
-                    {item.type === "achat" ? "A" : "V"}
+                    {item.type === "achat" ? <CartIcon /> : <SalesIcon />}
                   </span>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-zinc-200 truncate font-medium">
@@ -457,8 +466,10 @@ export default async function DashboardPage() {
                       {item.type === "achat" ? "Achat" : "Vente"} · {formatDateFr(item.date)}
                     </p>
                   </div>
-                  <p className="text-sm font-semibold tabular-nums text-zinc-300 flex-shrink-0">
-                    {formatEuro(item.amount)}
+                  <p className={`text-sm font-semibold tabular-nums flex-shrink-0 ${
+                    item.type === "achat" ? "text-rose-400/90" : "text-emerald-400/90"
+                  }`}>
+                    {item.type === "achat" ? "−" : "+"}{formatEuro(item.amount)}
                   </p>
                 </div>
               ))}
@@ -489,38 +500,46 @@ export default async function DashboardPage() {
             <div className="px-5 py-4 border-b border-zinc-800">
               <h2 className="text-sm font-semibold text-white">Accès rapide</h2>
             </div>
-            <div className="p-3 space-y-1">
-              <QuickLink href="/achats" label="Achats" icon={<CartIcon />} />
-              <QuickLink href="/ventes" label="Ventes" icon={<SalesIcon />} />
-              <QuickLink href="/contacts" label="Contacts" icon={<ContactsIcon />} />
-              <QuickLink href="/factures" label="Factures" icon={<InvoiceIcon />} />
-              <QuickLink href="/preferences" label="Préférences" icon={<SettingsIcon />} />
+            <div className="p-3 grid grid-cols-2 gap-2">
+              <QuickTile href="/achats" label="Achats" icon={<CartIcon />} />
+              <QuickTile href="/ventes" label="Ventes" icon={<SalesIcon />} />
+              <QuickTile href="/contacts" label="Contacts" icon={<ContactsIcon />} />
+              <QuickTile href="/factures" label="Factures" icon={<InvoiceIcon />} />
+              <QuickTile href="/preferences" label="Préférences" icon={<SettingsIcon />} wide />
             </div>
           </div>
 
           {/* Abonnement */}
-          <div className="surface rounded-xl border border-zinc-800 bg-zinc-900/40 overflow-hidden transition-colors hover:border-zinc-700/80">
-            <div className="px-5 py-4 border-b border-zinc-800">
+          <div className="surface card-amber-glow rounded-xl border border-amber-500/15 bg-gradient-to-b from-amber-500/[0.04] to-zinc-900/40 overflow-hidden transition-colors">
+            <div className="px-5 py-4 border-b border-zinc-800/80">
               <h2 className="text-sm font-semibold text-white">Abonnement</h2>
             </div>
-            <div className="p-5 space-y-3">
-              <div>
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-600 mb-1">Plan</p>
-                <p className="text-sm text-zinc-200 font-medium">{planLabel}</p>
+            <div className="p-5 space-y-4">
+              <div className="flex items-center justify-between">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-600">Plan actuel</p>
+                <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider border ${
+                  planStatus === "trial"
+                    ? "bg-blue-500/10 border-blue-500/25 text-blue-400"
+                    : planStatus === "active"
+                    ? "bg-amber-500/10 border-amber-500/25 text-amber-400"
+                    : "bg-zinc-800/60 border-zinc-700 text-zinc-500"
+                }`}>
+                  {planLabel}
+                </span>
               </div>
               {subscriptionEndText !== "—" && (
-                <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-600 mb-1">
+                <div className="flex items-center justify-between border-t border-zinc-800/60 pt-3">
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-600">
                     {planStatus === "trial" ? "Fin de l'essai" : "Accès jusqu'au"}
                   </p>
-                  <p className="text-sm text-zinc-200 font-medium">{subscriptionEndText}</p>
+                  <p className="text-sm text-zinc-200 font-semibold">{subscriptionEndText}</p>
                 </div>
               )}
               <Link
                 href="/abonnements"
-                className="mt-1 flex items-center justify-between w-full rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2.5 text-xs font-semibold text-zinc-400 transition-colors hover:border-amber-500/30 hover:text-amber-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
+                className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-amber-500 px-3 py-2.5 text-xs font-bold text-zinc-950 transition-all duration-200 hover:bg-amber-400 hover:-translate-y-0.5 active:scale-[0.97] active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
               >
-                <span>{planStatus === "none" ? "Souscrire un abonnement" : "Gérer l'abonnement"}</span>
+                {planStatus === "none" ? "Souscrire un abonnement" : "Gérer l'abonnement"}
                 <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
                 </svg>
@@ -534,7 +553,7 @@ export default async function DashboardPage() {
               <MailIcon />
             </span>
             <div className="min-w-0">
-              <p className="text-xs font-semibold text-zinc-400">Besoin d'aide ?</p>
+              <p className="text-xs font-semibold text-zinc-400">Besoin d&apos;aide ?</p>
               <a
                 href="mailto:contact@kartium-tcg.com"
                 className="text-[11px] text-zinc-600 hover:text-amber-400 transition-colors truncate block rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
@@ -570,22 +589,22 @@ function StatTile({
   label: string;
   value: string;
   icon: React.ReactNode;
-  accent?: "amber" | "emerald" | "blue";
+  accent?: "amber" | "emerald" | "rose";
 }) {
   const styles =
     accent === "amber"
       ? { icon: "bg-amber-500/10 border-amber-500/20 text-amber-400", value: "text-amber-400" }
       : accent === "emerald"
         ? { icon: "bg-emerald-500/10 border-emerald-500/20 text-emerald-400", value: "text-emerald-400" }
-        : accent === "blue"
-          ? { icon: "bg-blue-500/10 border-blue-500/20 text-blue-400", value: "text-blue-400" }
+        : accent === "rose"
+          ? { icon: "bg-rose-500/10 border-rose-500/20 text-rose-400", value: "text-rose-400" }
           : { icon: "bg-zinc-800/60 border-zinc-700 text-zinc-400", value: "text-white" };
 
   return (
     <div className="surface group rounded-xl border border-zinc-800 bg-zinc-900/40 p-4 transition-all duration-200 hover:border-zinc-700 hover:bg-zinc-900/60">
       <div className="flex items-center gap-3 mb-3">
         <span
-          className={`inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border transition-transform duration-200 group-hover:scale-110 ${styles.icon}`}
+          className={`inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border transition-transform duration-200 group-hover:scale-110 ${styles.icon}`}
         >
           {icon}
         </span>
@@ -593,34 +612,37 @@ function StatTile({
           {label}
         </p>
       </div>
-      <p className={`text-2xl font-bold tabular-nums leading-none ${styles.value}`}>
+      <p className={`text-3xl font-bold tabular-nums leading-none ${styles.value}`}>
         {value}
       </p>
     </div>
   );
 }
 
-function QuickLink({
+function QuickTile({
   href,
   label,
   icon,
+  wide,
 }: {
   href: string;
   label: string;
   icon: React.ReactNode;
+  wide?: boolean;
 }) {
   return (
     <Link
       href={href}
-      className="
-        flex items-center gap-3 rounded-lg px-3 py-2.5
-        text-sm font-medium text-zinc-400
-        hover:bg-zinc-800/60 hover:text-zinc-200
-        transition-colors group
+      className={`
+        group flex items-center gap-2.5 rounded-lg border border-transparent px-3 py-3
+        text-xs font-semibold text-zinc-400
+        hover:border-zinc-700 hover:bg-zinc-800/60 hover:text-zinc-200
+        transition-colors
         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40
-      "
+        ${wide ? "col-span-2" : ""}
+      `}
     >
-      <span className="text-zinc-600 group-hover:text-amber-400/80 transition-colors flex-shrink-0">
+      <span className="inline-flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md bg-zinc-800/60 text-zinc-500 group-hover:bg-amber-500/10 group-hover:text-amber-400 transition-colors">
         {icon}
       </span>
       {label}
