@@ -216,7 +216,9 @@ async function checkAuth() {
     setIsPastDue(pastDue);
 
     if (isTrialActive || isPaidActive || pastDue) {
-      setCurrentPlan(subscription.plan as CurrentPlan);
+      const normalizedPlan =
+        subscription.plan === "enterprise" ? "entreprise" : subscription.plan;
+      setCurrentPlan(normalizedPlan as CurrentPlan);
       setHasStripeCustomer(!!subscription.stripe_customer_id);
       setIsCanceled(isCanceledStillActive);
       setCanceledEndsAt(isCanceledStillActive ? subscription.subscription_ends_at! : null);

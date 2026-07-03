@@ -153,7 +153,10 @@ export default function Sidebar() {
             .eq("company_id", membership.company_id)
             .maybeSingle();
 
-          setPlanInfo(sub ?? null);
+          const normalizedSub = sub
+            ? { ...sub, plan: sub.plan === "enterprise" ? "entreprise" : sub.plan }
+            : null;
+          setPlanInfo(normalizedSub);
         } else {
           setPlanInfo(null);
         }
