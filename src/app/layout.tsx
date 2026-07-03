@@ -15,22 +15,25 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   metadataBase: new URL("https://kyrivo.fr"),
   title: {
-    default: "Kyrivo — Gestion achats, ventes et stock pour revendeurs",
+    default: "Kyrivo — Logiciel de gestion achat-revente, stock, TVA et marges",
     template: "%s | Kyrivo",
   },
   description:
-    "Suivez vos achats, ventes, stock, marges, TVA et exports sans fichier Excel compliqué. Kyrivo est un outil de gestion pour revendeurs de biens physiques en France et Belgique.",
+    "Gérez vos achats, ventes, stock, marges, TVA et factures avec Kyrivo. Un outil simple pour revendeurs Vinted, brocante, TCG, collection et petits e-commerçants.",
   keywords: [
     "Kyrivo",
+    "logiciel achat revente",
+    "logiciel gestion achat revente",
     "logiciel gestion revendeur",
-    "outil gestion revente",
+    "gestion stock revendeur",
     "gestion achats ventes stock",
     "gestion stock cartes Pokémon",
-    "logiciel revente Vinted",
+    "logiciel revendeur Vinted",
     "gestion TCG",
-    "suivi marges revente",
-    "TVA sur marge",
-    "alternative Excel revente",
+    "suivi marge achat revente",
+    "TVA sur marge achat revente",
+    "logiciel facturation revendeur",
+    "alternative Excel achat revente",
     "gestion stock brocante",
     "revendeur France Belgique",
   ],
@@ -44,9 +47,9 @@ export const metadata: Metadata = {
     alternateLocale: ["fr_BE"],
     url: "https://kyrivo.fr",
     siteName: "Kyrivo",
-    title: "Kyrivo — Gestion achats, ventes et stock pour revendeurs",
+    title: "Kyrivo — Logiciel de gestion achat-revente, stock, TVA et marges",
     description:
-      "Achats, ventes, stock, marges, TVA et exports dans un outil simple pour revendeurs de biens physiques.",
+      "Gérez vos achats, ventes, stock, marges, TVA et factures avec Kyrivo. Un outil simple pour revendeurs Vinted, brocante, TCG, collection et petits e-commerçants.",
     images: [
       {
         url: "/brand/kyrivo-hero-marketing-2400.png",
@@ -60,9 +63,9 @@ export const metadata: Metadata = {
 
   twitter: {
     card: "summary_large_image",
-    title: "Kyrivo — Gestion achats, ventes et stock pour revendeurs",
+    title: "Kyrivo — Logiciel de gestion achat-revente, stock, TVA et marges",
     description:
-      "Achats, ventes, stock, marges, TVA et exports dans un outil simple pour revendeurs de biens physiques.",
+      "Gérez vos achats, ventes, stock, marges, TVA et factures avec Kyrivo. Un outil simple pour revendeurs Vinted, brocante, TCG, collection et petits e-commerçants.",
     images: ["/brand/kyrivo-hero-marketing-2400.png"],
   },
 
