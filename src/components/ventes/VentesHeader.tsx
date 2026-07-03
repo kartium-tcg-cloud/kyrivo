@@ -1,12 +1,16 @@
 interface VentesHeaderProps {
   totalVentes: number;
   totalMontant: number;
+  totalTVA?: number;
+  totalMarge?: number;
   onAjouter: () => void;
 }
 
 export default function VentesHeader({
   totalVentes,
   totalMontant,
+  totalTVA,
+  totalMarge,
   onAjouter,
 }: VentesHeaderProps) {
   return (
@@ -16,7 +20,7 @@ export default function VentesHeader({
           Ventes
         </h1>
 
-        <div className="mt-2 flex items-center gap-4">
+        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center justify-center h-6 min-w-[1.5rem] rounded-md bg-zinc-800/70 border border-zinc-700/40 px-2 text-xs font-medium text-zinc-300">
               {totalVentes}
@@ -30,7 +34,7 @@ export default function VentesHeader({
           <span className="text-zinc-700">·</span>
 
           <span className="text-sm text-zinc-400">
-            Total{" "}
+            Total TTC{" "}
             <span className="text-amber-400 font-semibold">
               {totalMontant.toLocaleString("fr-BE", {
                 style: "currency",
@@ -38,37 +42,40 @@ export default function VentesHeader({
               })}
             </span>
           </span>
+
+          {typeof totalTVA === "number" && totalTVA > 0 && (
+            <>
+              <span className="text-zinc-700">·</span>
+              <span className="text-sm text-zinc-400">
+                TVA collectée{" "}
+                <span className="text-cyan-400 font-semibold">
+                  {totalTVA.toLocaleString("fr-BE", {
+                    style: "currency",
+                    currency: "EUR",
+                  })}
+                </span>
+              </span>
+            </>
+          )}
+
+          {typeof totalMarge === "number" && totalMarge !== 0 && (
+            <>
+              <span className="text-zinc-700">·</span>
+              <span className="text-sm text-zinc-400">
+                Marge{" "}
+                <span className="text-emerald-400 font-semibold">
+                  {totalMarge.toLocaleString("fr-BE", {
+                    style: "currency",
+                    currency: "EUR",
+                  })}
+                </span>
+              </span>
+            </>
+          )}
         </div>
       </div>
 
       <div className="flex items-center gap-2">
-        <button
-          disabled
-          title="Bientôt disponible"
-          className="
-            inline-flex items-center gap-2
-            rounded-lg px-4 py-2
-            border border-zinc-800 bg-zinc-900/40 text-zinc-600
-            text-sm font-semibold
-            cursor-not-allowed opacity-50
-          "
-        >
-          <svg
-            className="h-4 w-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.8}
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"
-            />
-          </svg>
-          Importer depuis Vinted
-        </button>
-
         <button
           onClick={onAjouter}
           className="

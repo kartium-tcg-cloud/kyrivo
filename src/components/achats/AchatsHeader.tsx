@@ -5,6 +5,7 @@
 interface AchatsHeaderProps {
   totalAchats: number;
   totalMontant: number;
+  totalTVA?: number;
   onAjouter: () => void;
   onImporterVinted?: () => void;
 }
@@ -12,6 +13,7 @@ interface AchatsHeaderProps {
 export default function AchatsHeader({
   totalAchats,
   totalMontant,
+  totalTVA,
   onAjouter,
   onImporterVinted,
 }: AchatsHeaderProps) {
@@ -22,7 +24,7 @@ export default function AchatsHeader({
         <h1 className="text-2xl font-semibold text-white tracking-tight">
           Achats
         </h1>
-        <div className="mt-2 flex items-center gap-4">
+        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center justify-center h-6 min-w-[1.5rem] rounded-md bg-zinc-800/70 border border-zinc-700/40 px-2 text-xs font-medium text-zinc-300">
               {totalAchats}
@@ -33,7 +35,7 @@ export default function AchatsHeader({
           </div>
           <span className="text-zinc-700">·</span>
           <span className="text-sm text-zinc-400">
-            Total{" "}
+            Total TTC{" "}
             <span className="text-amber-400 font-semibold">
               {totalMontant.toLocaleString("fr-BE", {
                 style: "currency",
@@ -41,19 +43,33 @@ export default function AchatsHeader({
               })}
             </span>
           </span>
+          {typeof totalTVA === "number" && totalTVA > 0 && (
+            <>
+              <span className="text-zinc-700">·</span>
+              <span className="text-sm text-zinc-400">
+                TVA déductible{" "}
+                <span className="text-cyan-400 font-semibold">
+                  {totalTVA.toLocaleString("fr-BE", {
+                    style: "currency",
+                    currency: "EUR",
+                  })}
+                </span>
+              </span>
+            </>
+          )}
         </div>
       </div>
 
       <div className="flex items-center gap-2">
         <button
           disabled
-          title="Bientôt disponible"
+          title="Import Vinted bientôt disponible"
           className="
             inline-flex items-center gap-2
-            rounded-lg px-4 py-2
-            border border-zinc-800 bg-zinc-900/40 text-zinc-600
+            rounded-lg pl-4 pr-2.5 py-2
+            border border-zinc-800 bg-zinc-900/40 text-zinc-500
             text-sm font-semibold
-            cursor-not-allowed opacity-50
+            cursor-not-allowed
           "
         >
           <svg
@@ -70,6 +86,9 @@ export default function AchatsHeader({
             />
           </svg>
           Importer depuis Vinted
+          <span className="rounded-full bg-zinc-800 px-2 py-0.5 text-[10px] font-semibold text-zinc-400">
+            Bientôt
+          </span>
         </button>
 
         <button

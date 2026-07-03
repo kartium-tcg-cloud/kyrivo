@@ -491,6 +491,7 @@ const buildPayload = (): Achat => {
       ouvert={ouvert}
       onFermer={handleFermer}
       titre={isEditing ? "Modifier l'achat" : "Ajouter un achat"}
+      maxWidthClassName="max-w-[1100px]"
       footer={
         <div className="flex items-center justify-end gap-3">
           <button
@@ -511,7 +512,8 @@ const buildPayload = (): Achat => {
         </div>
       }
     >
-      <div className="flex flex-col gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_340px] gap-5 items-start">
+        <div className="min-w-0 flex flex-col gap-5">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className={labelClasses}>Date</label>
@@ -765,8 +767,8 @@ const buildPayload = (): Achat => {
           </div>
 
           {montant > 0 && (
-            <div className="mt-4 rounded-lg bg-zinc-900/40 border border-zinc-800 overflow-hidden">
-              <div className="flex justify-between text-sm px-4 py-2.5">
+            <div className="mt-3 rounded-lg bg-zinc-900/40 border border-zinc-800 overflow-hidden">
+              <div className="flex justify-between text-sm px-4 py-2">
                 <span className="text-zinc-500">HT</span>
                 <span className="text-zinc-300 tabular-nums font-medium">
                   {prixHT.toLocaleString("fr-BE", {
@@ -776,7 +778,7 @@ const buildPayload = (): Achat => {
                 </span>
               </div>
 
-              <div className="flex justify-between text-sm px-4 py-2.5 border-t border-zinc-800/60">
+              <div className="flex justify-between text-sm px-4 py-2 border-t border-zinc-800/60">
                 <span className="text-zinc-500">
                   TVA ({tauxTVAEffectif}%)
                 </span>
@@ -788,7 +790,7 @@ const buildPayload = (): Achat => {
                 </span>
               </div>
 
-              <div className="flex justify-between items-center px-4 py-3 border-t border-zinc-800/60 bg-zinc-900/60">
+              <div className="flex justify-between items-center px-4 py-2.5 border-t border-zinc-800/60 bg-zinc-900/60">
                 <span className="text-white font-semibold text-sm">TTC</span>
                 <span className="text-white font-bold text-base tabular-nums">
                   {prixTTC.toLocaleString("fr-BE", {
@@ -851,16 +853,13 @@ const buildPayload = (): Achat => {
         {/* ── Section Articles en stock (conditionnelle) ─────── */}
         {avecStock && (
         <div className="rounded-xl border border-zinc-800 bg-zinc-900/30 overflow-hidden">
-          <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-zinc-800 bg-zinc-900/40">
+          <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-zinc-800 bg-zinc-900/40">
             <div className="min-w-0 flex-1">
               <h3 className="text-sm font-semibold text-white">
                 Articles en stock
               </h3>
               <p className="text-[11px] text-zinc-500 mt-0.5">
                 Ajoutez les produits qui doivent entrer dans votre stock.
-              </p>
-              <p className="text-[10px] text-zinc-700 mt-1 font-mono">
-                Références : {form.date ? `${form.date.split("-")[0]}-0000001` : "AAAA-0000001"}, …
               </p>
               {erreurs["items"] && (
                 <p className="text-red-400 text-[11px] mt-1">{erreurs["items"]}</p>
@@ -870,7 +869,7 @@ const buildPayload = (): Achat => {
             <button
               type="button"
               onClick={ajouterItem}
-              className="flex-shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 rounded-lg border border-zinc-700 px-3.5 py-2 text-xs font-semibold text-zinc-300 hover:bg-zinc-800 hover:text-white active:scale-[0.97] transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
+              className="flex-shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 rounded-lg border border-zinc-700 px-3 py-1.5 text-xs font-semibold text-zinc-300 hover:bg-zinc-800 hover:text-white active:scale-[0.97] transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
             >
               <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -879,31 +878,46 @@ const buildPayload = (): Achat => {
             </button>
           </div>
 
-          <div className="p-5 space-y-4">
-            {items.map((item, index) => (
+          <div className="p-3 space-y-2.5">
+            {items.map((item, index) => {
+              const itemQuantite = Number(item.quantite) || 1;
+              const itemMontantUnitaire = parseFloat(item.cout) || 0;
+              const itemMontant = itemMontantUnitaire * itemQuantite;
+              const itemTotalHT =
+                item.modeMontant === "ht"
+                  ? itemMontant
+                  : tauxTVA > 0
+                  ? itemMontant / (1 + tauxTVA / 100)
+                  : itemMontant;
+              const itemTotalTTC =
+                item.modeMontant === "ht"
+                  ? itemMontant * (1 + tauxTVA / 100)
+                  : itemMontant;
+
+              return (
               <div
                 key={item.id}
                 className="rounded-lg border border-zinc-800 bg-zinc-900/40 overflow-hidden"
               >
-                <div className="flex items-center justify-between px-4 py-2.5 border-b border-zinc-800/80 bg-zinc-900/40">
-                  <span className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">
+                <div className="flex items-center justify-between px-3 py-1.5 border-b border-zinc-800/80 bg-zinc-900/40">
+                  <span className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">
                     Article #{index + 1}
                   </span>
 
                   <button
                     type="button"
                     onClick={() => supprimerItem(item.id)}
-                    className="inline-flex items-center justify-center h-7 w-7 rounded-md text-zinc-600 hover:bg-red-500/10 hover:text-red-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/40"
+                    className="inline-flex items-center justify-center h-6 w-6 rounded-md text-zinc-600 hover:bg-red-500/10 hover:text-red-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/40"
                     title="Supprimer cet article"
                   >
-                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                    <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
                     </svg>
                   </button>
                 </div>
 
-                <div className="p-4 space-y-3">
-                  <div className="grid grid-cols-[90px_1fr] gap-2">
+                <div className="p-3 space-y-2">
+                  <div className="grid grid-cols-[64px_1fr] gap-2">
                     <div>
                       <input
                         type="number"
@@ -951,7 +965,7 @@ const buildPayload = (): Achat => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-[140px_1fr]">
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-[110px_1fr_100px]">
                     <div className="inline-flex p-0.5 rounded-lg bg-zinc-900/60 border border-zinc-800">
                       <button
                         type="button"
@@ -988,7 +1002,7 @@ const buildPayload = (): Achat => {
                         onChange={(e) =>
                           updateItem(item.id, "cout", e.target.value)
                         }
-                        placeholder="0.00 €"
+                        placeholder="Prix unitaire"
                         className={`${inputClasses} ${
                           erreurs[`item-${item.id}-cout`]
                             ? "border-red-500/50"
@@ -1002,18 +1016,28 @@ const buildPayload = (): Achat => {
                         </p>
                       )}
                     </div>
+
+                    <div className="rounded-lg border border-zinc-800/60 bg-zinc-900/30 px-2.5 py-2.5 text-sm text-zinc-200 font-medium tabular-nums text-right truncate">
+                      {(item.modeMontant === "ht" ? itemTotalTTC : itemTotalHT).toLocaleString("fr-BE", {
+                        style: "currency",
+                        currency: "EUR",
+                      })}
+                      <span className="ml-1 text-[10px] text-zinc-600">
+                        {item.modeMontant === "ht" ? "TTC" : "HT"}
+                      </span>
+                    </div>
                   </div>
 
                   <div>
                     <textarea
-                      rows={2}
+                      rows={1}
                       value={item.notes}
                       onChange={(e) =>
                         updateItem(item.id, "notes", e.target.value)
                       }
                       placeholder="Notes (facultatif)"
                       maxLength={MAX_TEXT.notes}
-                      className={`${inputClasses} resize-none ${
+                      className={`${inputClasses} resize-y ${
                         erreurs[`item-${item.id}-notes`]
                           ? "border-red-500/50"
                           : ""
@@ -1027,73 +1051,75 @@ const buildPayload = (): Achat => {
                   </div>
                 </div>
               </div>
-            ))}
-
-            {items.length > 0 && (
-              <div className="rounded-lg border border-zinc-800 bg-zinc-900/60 overflow-hidden mt-2">
-                <div className="flex items-center justify-between px-4 py-3">
-                  <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
-                    Total réparti
-                  </span>
-                  <span className="text-sm font-bold text-white tabular-nums">
-                    {(modeMontant === "ht"
-                      ? totalItems.ht
-                      : totalItems.ttc
-                    ).toLocaleString("fr-BE", {
-                      style: "currency",
-                      currency: "EUR",
-                    })}
-                  </span>
-                </div>
-
-                {(() => {
-                  const montantReference =
-                    modeMontant === "ht" ? prixHT : prixTTC;
-                  const totalReference =
-                    modeMontant === "ht" ? totalItems.ht : totalItems.ttc;
-                  const ecart =
-                    Math.round((montantReference - totalReference) * 100) / 100;
-                  const presqueZero = Math.abs(ecart) < 0.01;
-
-                  return (
-                    <div
-                      className={`flex items-center justify-between px-4 py-3 border-t border-zinc-800 ${
-                        presqueZero
-                          ? "bg-emerald-500/[0.03]"
-                          : ecart > 0
-                          ? "bg-cyan-500/[0.03]"
-                          : "bg-red-500/[0.03]"
-                      }`}
-                    >
-                      <span className="text-xs text-zinc-500">
-                        Écart vs montant total
-                      </span>
-                      <span
-                        className={`text-sm font-semibold tabular-nums ${
-                          presqueZero
-                            ? "text-emerald-400"
-                            : ecart > 0
-                            ? "text-cyan-400"
-                            : "text-red-400"
-                        }`}
-                      >
-                        {presqueZero
-                          ? "Équilibré"
-                          : ecart.toLocaleString("fr-BE", {
-                              style: "currency",
-                              currency: "EUR",
-                            })}
-                      </span>
-                    </div>
-                  );
-                })()}
-              </div>
-            )}
+              );
+            })}
           </div>
         </div>
         )}
+        </div>
 
-        <div className="grid grid-cols-1 gap-4">
+        <div className="flex flex-col gap-4 md:sticky md:top-0 md:self-start">
+          {avecStock && items.length > 0 && (
+            <div className="rounded-lg border border-zinc-800 bg-zinc-900/60 overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-3">
+                <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+                  Total réparti
+                </span>
+                <span className="text-sm font-bold text-white tabular-nums">
+                  {(modeMontant === "ht"
+                    ? totalItems.ht
+                    : totalItems.ttc
+                  ).toLocaleString("fr-BE", {
+                    style: "currency",
+                    currency: "EUR",
+                  })}
+                </span>
+              </div>
+
+              {(() => {
+                const montantReference =
+                  modeMontant === "ht" ? prixHT : prixTTC;
+                const totalReference =
+                  modeMontant === "ht" ? totalItems.ht : totalItems.ttc;
+                const ecart =
+                  Math.round((montantReference - totalReference) * 100) / 100;
+                const presqueZero = Math.abs(ecart) < 0.01;
+
+                return (
+                  <div
+                    className={`flex items-center justify-between px-4 py-3 border-t border-zinc-800 ${
+                      presqueZero
+                        ? "bg-emerald-500/[0.03]"
+                        : ecart > 0
+                        ? "bg-cyan-500/[0.03]"
+                        : "bg-red-500/[0.03]"
+                    }`}
+                  >
+                    <span className="text-xs text-zinc-500">
+                      Écart vs montant total
+                    </span>
+                    <span
+                      className={`text-sm font-semibold tabular-nums ${
+                        presqueZero
+                          ? "text-emerald-400"
+                          : ecart > 0
+                          ? "text-cyan-400"
+                          : "text-red-400"
+                      }`}
+                    >
+                      {presqueZero
+                        ? "Équilibré"
+                        : ecart.toLocaleString("fr-BE", {
+                            style: "currency",
+                            currency: "EUR",
+                          })}
+                    </span>
+                  </div>
+                );
+              })()}
+            </div>
+          )}
+
           <div>
             <label className={labelClasses}>Mode de paiement</label>
             <select
@@ -1109,8 +1135,8 @@ const buildPayload = (): Achat => {
             </select>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm text-zinc-400">Facture / preuve</label>
+          <div className="space-y-1.5">
+            <label className="text-xs text-zinc-500">Facture / preuve</label>
 
             <input
               type="file"
@@ -1127,15 +1153,15 @@ const buildPayload = (): Achat => {
                   });
                 }
               }}
-              className="block w-full text-sm text-zinc-400 file:mr-4 file:rounded-lg file:border-0 file:bg-amber-500 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-black hover:file:bg-amber-400"
+              className="block w-full text-xs text-zinc-400 file:mr-3 file:rounded-lg file:border-0 file:bg-amber-500 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-black hover:file:bg-amber-400"
             />
 
             {documentFile && (
-              <p className="text-xs text-zinc-500">{documentFile.name}</p>
+              <p className="text-xs text-zinc-500 truncate">{documentFile.name}</p>
             )}
 
             {!documentFile && isEditing && achatInitial?.documentUrl && (
-              <p className="text-xs text-zinc-500">
+              <p className="text-[11px] text-zinc-600">
                 Document actuel conservé si aucun nouveau fichier n’est choisi.
               </p>
             )}
@@ -1145,46 +1171,46 @@ const buildPayload = (): Achat => {
             )}
           </div>
 
-{supplierContactId ? (
-  <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-4 py-3">
-    <p className="text-sm font-medium text-emerald-400">
-      Fournisseur lié à un contact existant
-    </p>
-    <p className="text-xs text-zinc-500 mt-0.5">
-      L’achat sera automatiquement relié à ce contact dans Kyrivo.
-    </p>
-  </div>
-) : (
-  <div className="rounded-lg border border-zinc-800 bg-zinc-900/40 px-4 py-3">
-    <label className="flex items-start gap-3 cursor-pointer">
-      <input
-        type="checkbox"
-        checked={form.saveSupplier}
-        onChange={(e) =>
-          setForm((prev) => ({
-            ...prev,
-            saveSupplier: e.target.checked,
-          }))
-        }
-        className="
-          mt-0.5 h-4 w-4 rounded border-zinc-700
-          bg-zinc-900 text-amber-500
-          focus:ring-amber-500/20
-        "
-      />
+          {supplierContactId ? (
+            <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-4 py-3">
+              <p className="text-sm font-medium text-emerald-400">
+                Fournisseur lié à un contact existant
+              </p>
+              <p className="text-xs text-zinc-500 mt-0.5">
+                L’achat sera automatiquement relié à ce contact dans Kyrivo.
+              </p>
+            </div>
+          ) : (
+            <div className="rounded-lg border border-zinc-800 bg-zinc-900/40 px-4 py-3">
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={form.saveSupplier}
+                  onChange={(e) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      saveSupplier: e.target.checked,
+                    }))
+                  }
+                  className="
+                    mt-0.5 h-4 w-4 rounded border-zinc-700
+                    bg-zinc-900 text-amber-500
+                    focus:ring-amber-500/20
+                  "
+                />
 
-      <div>
-        <p className="text-sm font-medium text-white">
-          Enregistrer ce fournisseur dans les contacts
-        </p>
+                <div>
+                  <p className="text-sm font-medium text-white">
+                    Enregistrer ce fournisseur dans les contacts
+                  </p>
 
-        <p className="text-xs text-zinc-500 mt-0.5">
-          Le fournisseur sera ajouté automatiquement dans l’onglet Contacts.
-        </p>
-      </div>
-    </label>
-  </div>
-)}
+                  <p className="text-xs text-zinc-500 mt-0.5">
+                    Le fournisseur sera ajouté automatiquement dans l’onglet Contacts.
+                  </p>
+                </div>
+              </label>
+            </div>
+          )}
 
           <div>
             <label className={labelClasses}>

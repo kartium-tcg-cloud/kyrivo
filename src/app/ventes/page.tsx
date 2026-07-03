@@ -297,6 +297,14 @@ function VentesContent() {
     return ventesFiltrees.reduce((sum, vente) => sum + vente.totalTTC, 0);
   }, [ventesFiltrees]);
 
+  const totalTVA = useMemo(() => {
+    return ventesFiltrees.reduce((sum, vente) => sum + vente.vatAmount, 0);
+  }, [ventesFiltrees]);
+
+  const totalMarge = useMemo(() => {
+    return ventesFiltrees.reduce((sum, vente) => sum + vente.marginAmount, 0);
+  }, [ventesFiltrees]);
+
   const ouvrirConfirmationExport = () => {
     setExportConfirmOpen(true);
   };
@@ -698,6 +706,8 @@ function VentesContent() {
       <VentesHeader
         totalVentes={ventesFiltrees.length}
         totalMontant={totalMontant}
+        totalTVA={totalTVA}
+        totalMarge={totalMarge}
         onAjouter={ouvrirAjout}
       />
 

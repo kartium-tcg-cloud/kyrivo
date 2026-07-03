@@ -18,7 +18,7 @@ export default function VentesFiltres({
   };
 
   const inputBase = `
-    w-full rounded-lg px-3 py-2 text-sm
+    w-full rounded-lg px-3 py-1.5 text-sm
     bg-zinc-900/60 text-zinc-200
     border border-zinc-800
     placeholder:text-zinc-500
@@ -27,9 +27,9 @@ export default function VentesFiltres({
   `;
 
   return (
-    <div className="rounded-xl border border-zinc-800/60 bg-zinc-900/40 shadow-sm shadow-black/20 p-4 space-y-3">
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="relative">
+    <div className="rounded-xl border border-zinc-800/60 bg-zinc-900/40 shadow-sm shadow-black/20 p-3">
+      <div className="flex flex-col gap-2 lg:flex-row lg:flex-wrap lg:items-center">
+        <div className="relative flex-1 lg:min-w-[180px]">
           <svg
             className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500 pointer-events-none"
             fill="none"
@@ -60,50 +60,50 @@ export default function VentesFiltres({
               vatMode: e.target.value as SaleFiltres["vatMode"],
             })
           }
-          className={inputBase}
+          className={`${inputBase} lg:w-44`}
         >
           <option value="tous">Tous les régimes</option>
           <option value="standard_vat">TVA standard</option>
           <option value="margin_vat">TVA sur marge</option>
         </select>
 
-        <div className="relative">
-          <label className="absolute -top-2 left-2.5 px-1 text-[10px] text-zinc-500 bg-zinc-950 rounded">
-            Du
-          </label>
+        <div className="flex gap-2">
+          <div className="relative flex-1 lg:w-36 lg:flex-none">
+            <label className="absolute -top-2 left-2.5 px-1 text-[10px] text-zinc-500 bg-zinc-950 rounded">
+              Du
+            </label>
 
-          <input
-            type="date"
-            value={filtres.dateDebut}
-            onChange={(e) => update({ dateDebut: e.target.value })}
-            className={inputBase}
-          />
+            <input
+              type="date"
+              value={filtres.dateDebut}
+              onChange={(e) => update({ dateDebut: e.target.value })}
+              className={inputBase}
+            />
+          </div>
+
+          <div className="relative flex-1 lg:w-36 lg:flex-none">
+            <label className="absolute -top-2 left-2.5 px-1 text-[10px] text-zinc-500 bg-zinc-950 rounded">
+              Au
+            </label>
+
+            <input
+              type="date"
+              value={filtres.dateFin}
+              onChange={(e) => update({ dateFin: e.target.value })}
+              className={inputBase}
+            />
+          </div>
         </div>
 
-        <div className="relative">
-          <label className="absolute -top-2 left-2.5 px-1 text-[10px] text-zinc-500 bg-zinc-950 rounded">
-            Au
-          </label>
-
-          <input
-            type="date"
-            value={filtres.dateFin}
-            onChange={(e) => update({ dateFin: e.target.value })}
-            className={inputBase}
-          />
-        </div>
-      </div>
-
-      {onExporter && (
-        <div className="flex justify-end border-t border-zinc-800/60 pt-3">
+        {onExporter && (
           <button
             type="button"
             onClick={onExporter}
             disabled={exportDisabled}
             className="
-              inline-flex items-center gap-2 rounded-lg border border-amber-500/30
-              bg-amber-500/10 px-4 py-2
-              text-sm font-semibold text-amber-400
+              inline-flex items-center justify-center gap-2 rounded-lg border border-amber-500/30
+              bg-amber-500/10 px-4 py-1.5 lg:ml-auto
+              text-sm font-semibold text-amber-400 whitespace-nowrap
               transition-all duration-200
               hover:bg-amber-500/15 hover:border-amber-500/40
               disabled:cursor-not-allowed disabled:opacity-40
@@ -114,8 +114,8 @@ export default function VentesFiltres({
             </svg>
             Exporter en Excel
           </button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

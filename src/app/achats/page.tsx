@@ -373,6 +373,10 @@ export default function AchatsPage() {
     return achatsFiltres.reduce((sum, a) => sum + a.prixTTC, 0);
   }, [achatsFiltres]);
 
+  const totalTVA = useMemo(() => {
+    return achatsFiltres.reduce((sum, a) => sum + a.prixTVA, 0);
+  }, [achatsFiltres]);
+
   const ouvrirConfirmationExport = () => {
     setExportConfirmOpen(true);
   };
@@ -713,6 +717,7 @@ const modifierAchat = async (achatModifie: Achat) => {
       <AchatsHeader
         totalAchats={achatsFiltres.length}
         totalMontant={totalMontant}
+        totalTVA={totalTVA}
         onAjouter={ouvrirAjout}
         onImporterVinted={ouvrirImportVinted}
       />
@@ -732,13 +737,16 @@ const modifierAchat = async (achatModifie: Achat) => {
             <button
               type="button"
               disabled
-              title="Bientôt disponible"
-              className="inline-flex items-center gap-2 rounded-lg border border-zinc-800 bg-zinc-900/40 px-5 py-2.5 text-sm font-semibold text-zinc-600 cursor-not-allowed opacity-50"
+              title="Import Vinted bientôt disponible"
+              className="inline-flex items-center gap-2 rounded-lg border border-zinc-800 bg-zinc-900/40 pl-5 pr-3 py-2.5 text-sm font-semibold text-zinc-500 cursor-not-allowed"
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
               </svg>
               Importer depuis Vinted
+              <span className="rounded-full bg-zinc-800 px-2 py-0.5 text-[10px] font-semibold text-zinc-400">
+                Bientôt
+              </span>
             </button>
             <button
               type="button"

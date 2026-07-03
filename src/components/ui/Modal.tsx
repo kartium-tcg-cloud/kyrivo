@@ -11,9 +11,17 @@ interface ModalProps {
   titre: string;
   children: React.ReactNode;
   footer?: React.ReactNode;
+  maxWidthClassName?: string;
 }
 
-export default function Modal({ ouvert, onFermer, titre, children, footer }: ModalProps) {
+export default function Modal({
+  ouvert,
+  onFermer,
+  titre,
+  children,
+  footer,
+  maxWidthClassName = "max-w-xl",
+}: ModalProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
 
   // Fermeture avec Escape
@@ -46,7 +54,7 @@ export default function Modal({ ouvert, onFermer, titre, children, footer }: Mod
       <div className="absolute inset-0 bg-black/75 backdrop-blur-sm animate-overlay-fade" />
 
       {/* Contenu de la modal */}
-      <div className="relative z-10 flex max-h-[90vh] w-full max-w-xl flex-col rounded-2xl bg-zinc-950 border border-zinc-800/80 shadow-2xl shadow-black/60 overflow-hidden animate-modal-pop">
+      <div className={`relative z-10 flex max-h-[90vh] w-full ${maxWidthClassName} flex-col rounded-2xl bg-zinc-950 border border-zinc-800/80 shadow-2xl shadow-black/60 overflow-hidden animate-modal-pop`}>
 
         {/* Ligne amber signature */}
         <div className="h-0.5 w-full shrink-0 bg-gradient-to-r from-amber-500 via-amber-400 to-transparent" />

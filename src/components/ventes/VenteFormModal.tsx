@@ -17,6 +17,9 @@ import {
 import {
   calculateMarginSale,
   calculateStandardSale,
+  calculateStandardVAT,
+  calculateStandardVATfromTTC,
+  calculateMarginVAT,
 } from "@/lib/saleCalculations";
 
 
@@ -498,6 +501,7 @@ setForm({
       ouvert={ouvert}
       onFermer={handleFermer}
       titre={isEditing ? "Modifier la vente" : "Ajouter une vente"}
+      maxWidthClassName="max-w-[1100px]"
       footer={
         <div className="flex items-center justify-end gap-3">
           <button
@@ -518,364 +522,388 @@ setForm({
         </div>
       }
     >
-      <div className="flex flex-col gap-6">
-        <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 px-4 py-3">
-          <p className="text-sm text-blue-200/80 leading-relaxed">
-            Une vente ne peut contenir qu’un seul régime TVA. Pour mélanger TVA
-            standard et TVA sur marge, créez deux ventes/factures séparées.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className={labelClasses}>Date</label>
-            <input
-              type="date"
-              value={form.date}
-              onChange={(e) => updateForm("date", e.target.value)}
-              className={inputClasses}
-            />
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_340px] gap-5 items-start">
+        <div className="min-w-0 flex flex-col gap-5">
+          <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 px-4 py-3">
+            <p className="text-sm text-blue-200/80 leading-relaxed">
+              Une vente ne peut contenir qu’un seul régime TVA. Pour mélanger TVA
+              standard et TVA sur marge, créez deux ventes/factures séparées.
+            </p>
           </div>
 
-          <div>
-            <label className={labelClasses}>Client</label>
-            <div className="relative">
-              <input
-                type="text"
-                value={form.customerName}
-                maxLength={MAX_TEXT.customerName}
-                onChange={(e) => handleCustomerNameChange(e.target.value)}
-                onFocus={() => { if (clients.length > 0) setContactDropdownOpen(true); }}
-                onBlur={() => setTimeout(() => setContactDropdownOpen(false), 150)}
-                placeholder="Ex : Client comptoir"
-                className={`${inputClasses} ${form.contactId ? "pr-14" : ""}`}
-                autoComplete="off"
-              />
-
-              {form.contactId && (
-                <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 rounded bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-400">
-                  ✓ lié
-                </span>
-              )}
-
-              {contactDropdownOpen && filteredContacts.length > 0 && (
-                <ul className="absolute left-0 right-0 top-full z-50 mt-1 max-h-48 overflow-y-auto rounded-lg border border-zinc-700 bg-zinc-900 shadow-2xl">
-                  {filteredContacts.map((contact) => (
-                    <li key={contact.id}>
-                      <button
-                        type="button"
-                        onMouseDown={(e) => { e.preventDefault(); handleSelectContact(contact); }}
-                        className={`w-full px-3 py-2.5 text-left text-sm transition-colors hover:bg-amber-500/10 ${
-                          form.contactId === contact.id
-                            ? "text-emerald-400 font-semibold"
-                            : "text-zinc-200"
-                        }`}
-                      >
-                        {contact.name}
-                        {form.contactId === contact.id && (
-                          <span className="ml-2 text-[10px] text-emerald-400">✓</span>
-                        )}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <label className={labelClasses}>Régime TVA</label>
-
-          <div className="grid grid-cols-2 gap-2">
-            {(["standard_vat", "margin_vat"] as SaleVatMode[]).map((mode) => {
-              const config = SALE_VAT_MODE_CONFIG[mode];
-              const active = form.vatMode === mode;
-
-              return (
-                <button
-                  key={mode}
-                  type="button"
-                  onClick={() => updateForm("vatMode", mode)}
-                  className={`
-                    rounded-lg px-4 py-3 text-sm border text-left
-                    transition-all duration-150
-                    ${
-                      active
-                        ? `${config.bg} ${config.text} ${config.border}`
-                        : "bg-zinc-900/40 text-zinc-500 border-zinc-800 hover:border-zinc-700"
-                    }
-                  `}
-                >
-                  <div className="font-semibold">{config.label}</div>
-                  <div className="text-xs opacity-70 mt-0.5">
-                    {config.description}
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-
-          {form.vatMode === "margin_vat" && (
-            <div className="mt-2 flex items-start gap-2.5 rounded-lg border border-blue-500/20 bg-blue-500/5 px-3 py-2.5">
-              <svg className="h-3.5 w-3.5 text-blue-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
-              </svg>
-              <p className="text-[11px] text-zinc-400 leading-relaxed">
-                Le régime de TVA sur marge s'applique uniquement aux biens achetés sans TVA déductible (ex. achat à un particulier). Vérifiez avec votre comptable avant utilisation.
-              </p>
-            </div>
-          )}
-        </div>
-
-        {form.vatMode === "standard_vat" && (
-          <div className="flex items-center justify-between rounded-lg border border-zinc-800 bg-zinc-900/40 px-4 py-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <p className="text-sm font-semibold text-white">
-                Saisie des prix
-              </p>
-              <p className="text-xs text-zinc-500 mt-0.5">
-                En TVA standard, les prix peuvent être encodés en HT ou TTC.
-              </p>
+              <label className={labelClasses}>Date</label>
+              <input
+                type="date"
+                value={form.date}
+                onChange={(e) => updateForm("date", e.target.value)}
+                className={inputClasses}
+              />
             </div>
 
-            <div className="inline-flex p-0.5 rounded-md bg-zinc-900/60 border border-zinc-800">
-              <button
-                type="button"
-                onClick={() => setModeMontantStandard("ht")}
-                className={`rounded px-3 py-1 text-[11px] font-semibold transition-all duration-150 ${
-                  modeMontantStandard === "ht"
-                    ? "bg-amber-500/15 text-amber-400"
-                    : "text-zinc-500 hover:text-zinc-300"
-                }`}
-              >
-                HT
-              </button>
+            <div>
+              <label className={labelClasses}>Client</label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={form.customerName}
+                  maxLength={MAX_TEXT.customerName}
+                  onChange={(e) => handleCustomerNameChange(e.target.value)}
+                  onFocus={() => { if (clients.length > 0) setContactDropdownOpen(true); }}
+                  onBlur={() => setTimeout(() => setContactDropdownOpen(false), 150)}
+                  placeholder="Ex : Client comptoir"
+                  className={`${inputClasses} ${form.contactId ? "pr-14" : ""}`}
+                  autoComplete="off"
+                />
 
-              <button
-                type="button"
-                onClick={() => setModeMontantStandard("ttc")}
-                className={`rounded px-3 py-1 text-[11px] font-semibold transition-all duration-150 ${
-                  modeMontantStandard === "ttc"
-                    ? "bg-amber-500/15 text-amber-400"
-                    : "text-zinc-500 hover:text-zinc-300"
-                }`}
-              >
-                TTC
-              </button>
-            </div>
-          </div>
-        )}
-
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900/30 overflow-hidden">
-          <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-zinc-800 bg-zinc-900/40">
-            <div className="min-w-0 flex-1">
-              <h3 className="text-sm font-semibold text-white">
-                Lignes de vente
-              </h3>
-              <p className="text-[11px] text-zinc-500 mt-0.5">
-                {form.vatMode === "margin_vat"
-                  ? "Sélectionnez un article acheté à un particulier."
-                  : "Sélectionnez un article acheté à un pro ou encodez une ligne manuelle."}
-              </p>
-              <p className="text-[11px] text-zinc-700 mt-1">
-                Le taux de TVA par défaut peut être modifié dans les Préférences.
-              </p>
-            </div>
-
-            <button
-              type="button"
-              onClick={ajouterLigne}
-              className="flex-shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 rounded-lg border border-zinc-700 px-3.5 py-2 text-xs font-semibold text-zinc-300 hover:bg-zinc-800 hover:text-white active:scale-[0.97] transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
-            >
-              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-              </svg>
-              Ajouter une ligne
-            </button>
-          </div>
-
-          <div className="p-5 space-y-4">
-            {lines.map((line, index) => (
-              <div
-                key={line.id}
-                className="rounded-lg border border-zinc-800 bg-zinc-900/40 overflow-hidden"
-              >
-                <div className="flex items-center justify-between px-4 py-2.5 border-b border-zinc-800/80 bg-zinc-900/40">
-                  <span className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">
-                    Ligne #{index + 1}
+                {form.contactId && (
+                  <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 rounded bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-400">
+                    ✓ lié
                   </span>
+                )}
 
-                  <button
-                    type="button"
-                    onClick={() => supprimerLigne(line.id)}
-                    className="inline-flex items-center justify-center h-7 w-7 rounded-md text-zinc-600 hover:bg-red-500/10 hover:text-red-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/40"
-                    title="Supprimer cette ligne"
-                  >
-                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
-
-                <div className="p-4 space-y-3">
-                  <div>
-                    <label className={labelClasses}>Article en stock</label>
-
-                    {line.purchaseItemId ? (
-                      <div className="flex items-center gap-2 rounded-lg border border-zinc-700 bg-zinc-900/60 px-3 py-2.5">
-                        <div className="flex-1 min-w-0 flex items-baseline gap-1.5">
-                          <span className="font-mono text-sm font-semibold text-amber-400 shrink-0">
-                            {line.itemReference}
-                          </span>
-                          <span className="text-zinc-500 text-sm">·</span>
-                          <span className="text-sm text-zinc-200 truncate">
-                            {line.itemName}
-                          </span>
-                        </div>
+                {contactDropdownOpen && filteredContacts.length > 0 && (
+                  <ul className="absolute left-0 right-0 top-full z-50 mt-1 max-h-48 overflow-y-auto rounded-lg border border-zinc-700 bg-zinc-900 shadow-2xl">
+                    {filteredContacts.map((contact) => (
+                      <li key={contact.id}>
                         <button
                           type="button"
-                          onClick={() => {
-                            choisirItemStock(line.id, "");
-                            setLineSearchQueries((prev) => ({ ...prev, [line.id]: "" }));
-                            setOpenDropdownId(line.id);
-                          }}
-                          className="shrink-0 rounded px-2 py-1 text-[11px] font-semibold text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition-colors"
+                          onMouseDown={(e) => { e.preventDefault(); handleSelectContact(contact); }}
+                          className={`w-full px-3 py-2.5 text-left text-sm transition-colors hover:bg-amber-500/10 ${
+                            form.contactId === contact.id
+                              ? "text-emerald-400 font-semibold"
+                              : "text-zinc-200"
+                          }`}
                         >
-                          Changer
+                          {contact.name}
+                          {form.contactId === contact.id && (
+                            <span className="ml-2 text-[10px] text-emerald-400">✓</span>
+                          )}
                         </button>
-                      </div>
-                    ) : (
-                      <div className="relative">
-                        <input
-                          type="text"
-                          value={lineSearchQueries[line.id] || ""}
-                          onChange={(e) =>
-                            setLineSearchQueries((prev) => ({
-                              ...prev,
-                              [line.id]: e.target.value,
-                            }))
-                          }
-                          onFocus={() => setOpenDropdownId(line.id)}
-                          onBlur={() =>
-                            setTimeout(() => setOpenDropdownId(null), 150)
-                          }
-                          placeholder="Rechercher par référence, nom ou catégorie…"
-                          className={inputClasses}
-                          autoComplete="off"
-                        />
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+          </div>
 
-                        {openDropdownId === line.id && (() => {
-                          const q = (lineSearchQueries[line.id] || "").toLowerCase().trim();
-                          const filtered = q
-                            ? stockItemsFiltres.filter(
-                                (item) =>
-                                  (item.itemReference || "").toLowerCase().includes(q) ||
-                                  (item.itemName || "").toLowerCase().includes(q) ||
-                                  (item.category || "").toLowerCase().includes(q)
-                              )
-                            : stockItemsFiltres;
-                          const visible = filtered.slice(0, 50);
+          <div>
+            <label className={labelClasses}>Régime TVA</label>
 
-                          return (
-                            <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-72 overflow-y-auto rounded-lg border border-zinc-700 bg-zinc-900 shadow-2xl">
-                              {stockItemsFiltres.length === 0 ? (
-                                <div className="px-4 py-6 text-center text-sm text-zinc-500">
-                                  Aucun article en stock disponible.
-                                </div>
-                              ) : visible.length === 0 ? (
-                                <div className="px-4 py-6 text-center text-sm text-zinc-500">
-                                  Aucun résultat pour cette recherche.
-                                </div>
-                              ) : (
-                                <>
-                                  <button
-                                    type="button"
-                                    onMouseDown={(e) => {
-                                      e.preventDefault();
-                                      choisirItemStock(line.id, "");
-                                      setLineSearchQueries((prev) => ({ ...prev, [line.id]: "" }));
-                                      setOpenDropdownId(null);
-                                    }}
-                                    className="w-full px-4 py-2.5 text-left text-sm text-zinc-500 hover:bg-zinc-800/60 transition-colors border-b border-zinc-800"
-                                  >
-                                    — Ligne manuelle / aucun item lié —
-                                  </button>
+            <div className="grid grid-cols-2 gap-2">
+              {(["standard_vat", "margin_vat"] as SaleVatMode[]).map((mode) => {
+                const config = SALE_VAT_MODE_CONFIG[mode];
+                const active = form.vatMode === mode;
 
-                                  {visible.map((item) => (
+                return (
+                  <button
+                    key={mode}
+                    type="button"
+                    onClick={() => updateForm("vatMode", mode)}
+                    className={`
+                      rounded-lg px-4 py-3 text-sm border text-left
+                      transition-all duration-150
+                      ${
+                        active
+                          ? `${config.bg} ${config.text} ${config.border}`
+                          : "bg-zinc-900/40 text-zinc-500 border-zinc-800 hover:border-zinc-700"
+                      }
+                    `}
+                  >
+                    <div className="font-semibold">{config.label}</div>
+                    <div className="text-xs opacity-70 mt-0.5">
+                      {config.description}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {form.vatMode === "margin_vat" && (
+              <div className="mt-2 flex items-start gap-2.5 rounded-lg border border-blue-500/20 bg-blue-500/5 px-3 py-2.5">
+                <svg className="h-3.5 w-3.5 text-blue-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+                </svg>
+                <p className="text-[11px] text-zinc-400 leading-relaxed">
+                  Le régime de TVA sur marge s'applique uniquement aux biens achetés sans TVA déductible (ex. achat à un particulier). Vérifiez avec votre comptable avant utilisation.
+                </p>
+              </div>
+            )}
+          </div>
+
+          {form.vatMode === "standard_vat" && (
+            <div className="flex items-center justify-between rounded-lg border border-zinc-800 bg-zinc-900/40 px-4 py-3">
+              <div>
+                <p className="text-sm font-semibold text-white">
+                  Saisie des prix
+                </p>
+                <p className="text-xs text-zinc-500 mt-0.5">
+                  En TVA standard, les prix peuvent être encodés en HT ou TTC.
+                </p>
+              </div>
+
+              <div className="inline-flex p-0.5 rounded-md bg-zinc-900/60 border border-zinc-800">
+                <button
+                  type="button"
+                  onClick={() => setModeMontantStandard("ht")}
+                  className={`rounded px-3 py-1 text-[11px] font-semibold transition-all duration-150 ${
+                    modeMontantStandard === "ht"
+                      ? "bg-amber-500/15 text-amber-400"
+                      : "text-zinc-500 hover:text-zinc-300"
+                  }`}
+                >
+                  HT
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setModeMontantStandard("ttc")}
+                  className={`rounded px-3 py-1 text-[11px] font-semibold transition-all duration-150 ${
+                    modeMontantStandard === "ttc"
+                      ? "bg-amber-500/15 text-amber-400"
+                      : "text-zinc-500 hover:text-zinc-300"
+                  }`}
+                >
+                  TTC
+                </button>
+              </div>
+            </div>
+          )}
+
+          <div className="rounded-xl border border-zinc-800 bg-zinc-900/30 overflow-hidden">
+            <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-zinc-800 bg-zinc-900/40">
+              <div className="min-w-0 flex-1">
+                <h3 className="text-sm font-semibold text-white">
+                  Lignes de vente
+                </h3>
+                <p className="text-[11px] text-zinc-500 mt-0.5">
+                  {form.vatMode === "margin_vat"
+                    ? "Sélectionnez un article acheté à un particulier."
+                    : "Sélectionnez un article acheté à un pro ou encodez une ligne manuelle."}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={ajouterLigne}
+                className="flex-shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 rounded-lg border border-zinc-700 px-3 py-1.5 text-xs font-semibold text-zinc-300 hover:bg-zinc-800 hover:text-white active:scale-[0.97] transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
+              >
+                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                Ajouter une ligne
+              </button>
+            </div>
+
+            <div className="p-3 space-y-2.5">
+              {lines.map((line, index) => {
+                const qty = Number(line.quantity) || 0;
+                const unitPrice = Number(line.unitPrice) || 0;
+                const vatRate = Number(line.vatRate) || 0;
+                const purchaseCost = Number(line.purchaseCost) || 0;
+
+                let ligneTotal = 0;
+                let ligneMarge = 0;
+
+                if (form.vatMode === "margin_vat") {
+                  ligneTotal = unitPrice * qty;
+                  ligneMarge = calculateMarginVAT({
+                    salePriceTTC: ligneTotal,
+                    purchaseCost: purchaseCost * qty,
+                    vatRate,
+                  }).marginNet;
+                } else {
+                  const calc =
+                    modeMontantStandard === "ttc"
+                      ? calculateStandardVATfromTTC({
+                          unitPriceTTC: unitPrice,
+                          quantity: qty,
+                          vatRate,
+                        })
+                      : calculateStandardVAT({
+                          unitPriceHT: unitPrice,
+                          quantity: qty,
+                          vatRate,
+                        });
+                  ligneTotal = calc.totalTTC;
+                }
+
+                return (
+                <div
+                  key={line.id}
+                  className="rounded-lg border border-zinc-800 bg-zinc-900/40 overflow-hidden"
+                >
+                  <div className="flex items-center justify-between px-3 py-1.5 border-b border-zinc-800/80 bg-zinc-900/40">
+                    <span className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">
+                      Ligne #{index + 1}
+                    </span>
+
+                    <button
+                      type="button"
+                      onClick={() => supprimerLigne(line.id)}
+                      className="inline-flex items-center justify-center h-6 w-6 rounded-md text-zinc-600 hover:bg-red-500/10 hover:text-red-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/40"
+                      title="Supprimer cette ligne"
+                    >
+                      <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  <div className="p-3 space-y-2">
+                    <div>
+                      {line.purchaseItemId ? (
+                        <div className="flex items-center gap-2 rounded-lg border border-zinc-700 bg-zinc-900/60 px-3 py-2">
+                          <div className="flex-1 min-w-0 flex items-baseline gap-1.5">
+                            <span className="font-mono text-sm font-semibold text-amber-400 shrink-0">
+                              {line.itemReference}
+                            </span>
+                            <span className="text-zinc-500 text-sm">·</span>
+                            <span className="text-sm text-zinc-200 truncate">
+                              {line.itemName}
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              choisirItemStock(line.id, "");
+                              setLineSearchQueries((prev) => ({ ...prev, [line.id]: "" }));
+                              setOpenDropdownId(line.id);
+                            }}
+                            className="shrink-0 rounded px-2 py-1 text-[11px] font-semibold text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition-colors"
+                          >
+                            Changer
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="relative">
+                          <input
+                            type="text"
+                            value={lineSearchQueries[line.id] || ""}
+                            onChange={(e) =>
+                              setLineSearchQueries((prev) => ({
+                                ...prev,
+                                [line.id]: e.target.value,
+                              }))
+                            }
+                            onFocus={() => setOpenDropdownId(line.id)}
+                            onBlur={() =>
+                              setTimeout(() => setOpenDropdownId(null), 150)
+                            }
+                            placeholder="Article en stock : référence, nom, catégorie…"
+                            className={inputClasses}
+                            autoComplete="off"
+                          />
+
+                          {openDropdownId === line.id && (() => {
+                            const q = (lineSearchQueries[line.id] || "").toLowerCase().trim();
+                            const filtered = q
+                              ? stockItemsFiltres.filter(
+                                  (item) =>
+                                    (item.itemReference || "").toLowerCase().includes(q) ||
+                                    (item.itemName || "").toLowerCase().includes(q) ||
+                                    (item.category || "").toLowerCase().includes(q)
+                                )
+                              : stockItemsFiltres;
+                            const visible = filtered.slice(0, 50);
+
+                            return (
+                              <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-72 overflow-y-auto rounded-lg border border-zinc-700 bg-zinc-900 shadow-2xl">
+                                {stockItemsFiltres.length === 0 ? (
+                                  <div className="px-4 py-6 text-center text-sm text-zinc-500">
+                                    Aucun article en stock disponible.
+                                  </div>
+                                ) : visible.length === 0 ? (
+                                  <div className="px-4 py-6 text-center text-sm text-zinc-500">
+                                    Aucun résultat pour cette recherche.
+                                  </div>
+                                ) : (
+                                  <>
                                     <button
-                                      key={item.id}
                                       type="button"
                                       onMouseDown={(e) => {
                                         e.preventDefault();
-                                        choisirItemStock(line.id, item.id);
+                                        choisirItemStock(line.id, "");
                                         setLineSearchQueries((prev) => ({ ...prev, [line.id]: "" }));
                                         setOpenDropdownId(null);
                                       }}
-                                      className="w-full px-4 py-3 text-left hover:bg-amber-500/10 transition-colors border-b border-zinc-800/50 last:border-0"
+                                      className="w-full px-4 py-2.5 text-left text-sm text-zinc-500 hover:bg-zinc-800/60 transition-colors border-b border-zinc-800"
                                     >
-                                      <div className="flex items-baseline gap-1.5">
-                                        <span className="font-mono text-sm font-semibold text-amber-400">
-                                          {item.itemReference}
-                                        </span>
-                                        <span className="text-zinc-500 text-sm">·</span>
-                                        <span className="text-sm text-zinc-200 truncate">
-                                          {item.itemName}
-                                        </span>
-                                      </div>
-                                      <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-zinc-500">
-                                        {item.category && (
-                                          <>
-                                            <span>{item.category}</span>
-                                            <span>·</span>
-                                          </>
-                                        )}
-                                        <span>Stock : {item.stockQuantity}</span>
-                                        <span>·</span>
-                                        <span>
-                                          Coût :{" "}
-                                          {item.unitCost.toLocaleString("fr-BE", {
-                                            style: "currency",
-                                            currency: "EUR",
-                                          })}
-                                        </span>
-                                        <span>·</span>
-                                        <span>TVA marge : {item.marginEligible ? "oui" : "non"}</span>
-                                      </div>
+                                      — Ligne manuelle / aucun item lié —
                                     </button>
-                                  ))}
 
-                                  {filtered.length > 50 && (
-                                    <div className="px-4 py-2.5 text-center text-[11px] text-zinc-500 border-t border-zinc-800">
-                                      Affinez la recherche pour voir plus de résultats.
-                                    </div>
-                                  )}
-                                </>
-                              )}
-                            </div>
-                          );
-                        })()}
-                      </div>
-                    )}
-                  </div>
+                                    {visible.map((item) => (
+                                      <button
+                                        key={item.id}
+                                        type="button"
+                                        onMouseDown={(e) => {
+                                          e.preventDefault();
+                                          choisirItemStock(line.id, item.id);
+                                          setLineSearchQueries((prev) => ({ ...prev, [line.id]: "" }));
+                                          setOpenDropdownId(null);
+                                        }}
+                                        className="w-full px-4 py-3 text-left hover:bg-amber-500/10 transition-colors border-b border-zinc-800/50 last:border-0"
+                                      >
+                                        <div className="flex items-baseline gap-1.5">
+                                          <span className="font-mono text-sm font-semibold text-amber-400">
+                                            {item.itemReference}
+                                          </span>
+                                          <span className="text-zinc-500 text-sm">·</span>
+                                          <span className="text-sm text-zinc-200 truncate">
+                                            {item.itemName}
+                                          </span>
+                                        </div>
+                                        <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-zinc-500">
+                                          {item.category && (
+                                            <>
+                                              <span>{item.category}</span>
+                                              <span>·</span>
+                                            </>
+                                          )}
+                                          <span>Stock : {item.stockQuantity}</span>
+                                          <span>·</span>
+                                          <span>
+                                            Coût :{" "}
+                                            {item.unitCost.toLocaleString("fr-BE", {
+                                              style: "currency",
+                                              currency: "EUR",
+                                            })}
+                                          </span>
+                                          <span>·</span>
+                                          <span>TVA marge : {item.marginEligible ? "oui" : "non"}</span>
+                                        </div>
+                                      </button>
+                                    ))}
 
-                  <div className="space-y-3">
-                    <div>
-                      <label className={labelClasses}>Article</label>
-                      <input
-                        type="text"
-                        value={line.itemName}
-                        maxLength={MAX_TEXT.itemName}
-                        onChange={(e) =>
-                          updateLine(line.id, "itemName", e.target.value)
-                        }
-                        placeholder="Nom de l'article"
-                        className={inputClasses}
-                      />
+                                    {filtered.length > 50 && (
+                                      <div className="px-4 py-2.5 text-center text-[11px] text-zinc-500 border-t border-zinc-800">
+                                        Affinez la recherche pour voir plus de résultats.
+                                      </div>
+                                    )}
+                                  </>
+                                )}
+                              </div>
+                            );
+                          })()}
+                        </div>
+                      )}
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-[90px_1fr_100px]">
-                      <div className="order-1">
+                    <input
+                      type="text"
+                      value={line.itemName}
+                      maxLength={MAX_TEXT.itemName}
+                      onChange={(e) =>
+                        updateLine(line.id, "itemName", e.target.value)
+                      }
+                      placeholder="Nom de l'article"
+                      className={inputClasses}
+                    />
+
+                    <div className="grid grid-cols-4 gap-2 sm:grid-cols-[56px_1fr_56px_100px]">
+                      <div>
                         <label className={labelClasses}>Qté</label>
                         <input
                           type="number"
@@ -890,10 +918,10 @@ setForm({
                         />
                       </div>
 
-                      <div className="col-span-2 sm:col-span-1 order-3 sm:order-2">
+                      <div>
                         <label className={labelClasses}>
                           {form.vatMode === "margin_vat"
-                            ? "Prix vente unitaire "
+                            ? "Prix vente unit. "
                             : "Prix vente "}
                           {form.vatMode === "standard_vat"
                             ? modeMontantStandard.toUpperCase()
@@ -914,7 +942,7 @@ setForm({
                         />
                       </div>
 
-                      <div className="order-2 sm:order-3">
+                      <div>
                         <label className={labelClasses}>TVA %</label>
                         <input
                           type="number"
@@ -929,157 +957,226 @@ setForm({
                           className={inputClasses}
                         />
                       </div>
+
+                      <div>
+                        <label className={labelClasses}>Total ligne</label>
+                        <div className="rounded-lg border border-zinc-800/60 bg-zinc-900/30 px-2.5 py-2.5 text-sm text-zinc-200 font-medium tabular-nums text-right truncate">
+                          {ligneTotal.toLocaleString("fr-BE", {
+                            style: "currency",
+                            currency: "EUR",
+                          })}
+                        </div>
+                      </div>
                     </div>
+
+                    {form.vatMode === "margin_vat" && (
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label className={labelClasses}>
+                            Coût achat unit. TTC
+                          </label>
+                          <input
+                            type="number"
+                            min="0"
+                            max="999999"
+                            step="0.01"
+                            value={line.purchaseCost}
+                            onChange={(e) =>
+                              updateLine(line.id, "purchaseCost", e.target.value)
+                            }
+                            onWheel={(e) => e.currentTarget.blur()}
+                            placeholder="Coût unitaire"
+                            className={inputClasses}
+                          />
+                        </div>
+
+                        <div>
+                          <label className={labelClasses}>Marge ligne</label>
+                          <div className="rounded-lg border border-zinc-800/60 bg-zinc-900/30 px-2.5 py-2.5 text-sm text-emerald-400 font-medium tabular-nums text-right truncate">
+                            {ligneMarge.toLocaleString("fr-BE", {
+                              style: "currency",
+                              currency: "EUR",
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    <textarea
+                      rows={1}
+                      value={line.notes}
+                      maxLength={MAX_TEXT.notes}
+                      onChange={(e) =>
+                        updateLine(line.id, "notes", e.target.value)
+                      }
+                      placeholder="Notes ligne (facultatif)..."
+                      className={`${inputClasses} resize-y`}
+                    />
                   </div>
-
-                  {form.vatMode === "margin_vat" && (
-                    <div>
-                      <label className={labelClasses}>
-                        Coût achat à l&apos;unité TTC
-                      </label>
-                      <input
-                        type="number"
-                        min="0"
-                        max="999999"
-                        step="0.01"
-                        value={line.purchaseCost}
-                        onChange={(e) =>
-                          updateLine(line.id, "purchaseCost", e.target.value)
-                        }
-                        onWheel={(e) => e.currentTarget.blur()}
-                        placeholder="Coût unitaire"
-                        className={inputClasses}
-                      />
-                    </div>
-                  )}
-
-                  <textarea
-                    rows={2}
-                    value={line.notes}
-                    maxLength={MAX_TEXT.notes}
-                    onChange={(e) =>
-                      updateLine(line.id, "notes", e.target.value)
-                    }
-                    placeholder="Notes ligne..."
-                    className={`${inputClasses} resize-none`}
-                  />
                 </div>
-              </div>
-            ))}
+                );
+              })}
+            </div>
           </div>
         </div>
 
-        <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 overflow-hidden">
-          <div className="flex justify-between text-sm px-4 py-2.5">
-            <span className="text-zinc-500">HT / Base</span>
-            <span className="text-zinc-300 font-medium tabular-nums">
-              {totals.subtotalHT.toLocaleString("fr-BE", {
-                style: "currency",
-                currency: "EUR",
-              })}
-            </span>
+        <div className="flex flex-col gap-4 md:sticky md:top-0 md:self-start">
+          <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 overflow-hidden">
+            {form.vatMode === "margin_vat" ? (
+              <>
+                <div className="flex justify-between items-center px-4 py-3 bg-zinc-900/60">
+                  <span className="text-white font-semibold text-sm">Total encaissé</span>
+                  <span className="text-white font-bold text-base tabular-nums">
+                    {totals.totalTTC.toLocaleString("fr-BE", {
+                      style: "currency",
+                      currency: "EUR",
+                    })}
+                  </span>
+                </div>
+
+                <div className="flex justify-between text-sm px-4 py-2 border-t border-zinc-800/60">
+                  <span className="text-zinc-500">Coût total</span>
+                  <span className="text-zinc-300 font-medium tabular-nums">
+                    {(totals.totalTTC - (totals.marginAmount + totals.vatAmount)).toLocaleString("fr-BE", {
+                      style: "currency",
+                      currency: "EUR",
+                    })}
+                  </span>
+                </div>
+
+                <div className="flex justify-between text-sm px-4 py-2 border-t border-zinc-800/60">
+                  <span className="text-zinc-500">Marge TTC</span>
+                  <span className="text-violet-400 font-medium tabular-nums">
+                    {(totals.marginAmount + totals.vatAmount).toLocaleString("fr-BE", {
+                      style: "currency",
+                      currency: "EUR",
+                    })}
+                  </span>
+                </div>
+
+                <div className="flex justify-between text-sm px-4 py-2 border-t border-zinc-800/60">
+                  <span className="text-zinc-500">TVA sur marge</span>
+                  <span className="text-cyan-400 font-medium tabular-nums">
+                    {totals.vatAmount.toLocaleString("fr-BE", {
+                      style: "currency",
+                      currency: "EUR",
+                    })}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center px-4 py-3 border-t border-zinc-800/60 bg-emerald-500/[0.06]">
+                  <span className="text-emerald-400 font-semibold text-sm">Marge nette</span>
+                  <span className="text-emerald-400 font-bold text-base tabular-nums">
+                    {totals.marginAmount.toLocaleString("fr-BE", {
+                      style: "currency",
+                      currency: "EUR",
+                    })}
+                  </span>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex justify-between text-sm px-4 py-2.5">
+                  <span className="text-zinc-500">HT / Base</span>
+                  <span className="text-zinc-300 font-medium tabular-nums">
+                    {totals.subtotalHT.toLocaleString("fr-BE", {
+                      style: "currency",
+                      currency: "EUR",
+                    })}
+                  </span>
+                </div>
+
+                <div className="flex justify-between text-sm px-4 py-2.5 border-t border-zinc-800/60">
+                  <span className="text-zinc-500">TVA</span>
+                  <span className="text-cyan-400 font-medium tabular-nums">
+                    {totals.vatAmount.toLocaleString("fr-BE", {
+                      style: "currency",
+                      currency: "EUR",
+                    })}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center px-4 py-3 border-t border-zinc-800/60 bg-zinc-900/60">
+                  <span className="text-white font-semibold text-sm">Total TTC</span>
+                  <span className="text-white font-bold text-base tabular-nums">
+                    {totals.totalTTC.toLocaleString("fr-BE", {
+                      style: "currency",
+                      currency: "EUR",
+                    })}
+                  </span>
+                </div>
+              </>
+            )}
           </div>
 
-          <div className="flex justify-between text-sm px-4 py-2.5 border-t border-zinc-800/60">
-            <span className="text-zinc-500">TVA</span>
-            <span className="text-cyan-400 font-medium tabular-nums">
-              {totals.vatAmount.toLocaleString("fr-BE", {
-                style: "currency",
-                currency: "EUR",
-              })}
-            </span>
-          </div>
-
-          {form.vatMode === "margin_vat" && (
-            <div className="flex justify-between text-sm px-4 py-2.5 border-t border-zinc-800/60">
-              <span className="text-zinc-500">Marge nette</span>
-              <span className="text-emerald-400 font-medium tabular-nums">
-                {totals.marginAmount.toLocaleString("fr-BE", {
-                  style: "currency",
-                  currency: "EUR",
-                })}
-              </span>
+          {erreurs.length > 0 && (
+            <div className="rounded-lg border border-red-500/25 bg-red-500/10 px-4 py-3">
+              <ul className="space-y-1 text-sm text-red-300">
+                {erreurs.map((erreur) => (
+                  <li key={erreur}>• {erreur}</li>
+                ))}
+              </ul>
             </div>
           )}
 
-          <div className="flex justify-between items-center px-4 py-3 border-t border-zinc-800/60 bg-zinc-900/60">
-            <span className="text-white font-semibold text-sm">Total TTC</span>
-            <span className="text-white font-bold text-base tabular-nums">
-              {totals.totalTTC.toLocaleString("fr-BE", {
-                style: "currency",
-                currency: "EUR",
-              })}
-            </span>
+          <div>
+            <label className={labelClasses}>Mode de paiement</label>
+            <select
+              value={form.paymentMethod}
+              onChange={(e) =>
+                updateForm("paymentMethod", e.target.value as SalePaymentMethod)
+              }
+              className={inputClasses}
+            >
+             {paymentMethods.map((method) => (
+    <option key={method} value={method}>
+      {method}
+    </option>
+  ))}
+            </select>
           </div>
-        </div>
 
-        {erreurs.length > 0 && (
-          <div className="rounded-lg border border-red-500/25 bg-red-500/10 px-4 py-3">
-            <ul className="space-y-1 text-sm text-red-300">
-              {erreurs.map((erreur) => (
-                <li key={erreur}>• {erreur}</li>
-              ))}
-            </ul>
+          <div className="rounded-lg border border-zinc-800 bg-zinc-900/40 px-4 py-3">
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={form.saveClient}
+                onChange={(e) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    saveClient: e.target.checked,
+                  }))
+                }
+                className="
+                  mt-0.5 h-4 w-4 rounded border-zinc-700
+                  bg-zinc-900 text-amber-500
+                  focus:ring-amber-500/20
+                "
+              />
+
+              <div>
+                <p className="text-sm font-medium text-white">
+                  Enregistrer ce client dans les contacts
+                </p>
+
+                <p className="text-xs text-zinc-500 mt-0.5">
+                  Le client sera ajouté automatiquement dans l’onglet Contacts.
+                </p>
+              </div>
+            </label>
           </div>
-        )}
 
-        <div>
-          <label className={labelClasses}>Mode de paiement</label>
-          <select
-            value={form.paymentMethod}
-            onChange={(e) =>
-              updateForm("paymentMethod", e.target.value as SalePaymentMethod)
-            }
-            className={inputClasses}
-          >
-           {paymentMethods.map((method) => (
-  <option key={method} value={method}>
-    {method}
-  </option>
-))}
-          </select>
-        </div>
-
-<div className="rounded-lg border border-zinc-800 bg-zinc-900/40 px-4 py-3">
-  <label className="flex items-start gap-3 cursor-pointer">
-    <input
-      type="checkbox"
-      checked={form.saveClient}
-      onChange={(e) =>
-        setForm((prev) => ({
-          ...prev,
-          saveClient: e.target.checked,
-        }))
-      }
-      className="
-        mt-0.5 h-4 w-4 rounded border-zinc-700
-        bg-zinc-900 text-amber-500
-        focus:ring-amber-500/20
-      "
-    />
-
-    <div>
-      <p className="text-sm font-medium text-white">
-        Enregistrer ce client dans les contacts
-      </p>
-
-      <p className="text-xs text-zinc-500 mt-0.5">
-        Le client sera ajouté automatiquement dans l’onglet Contacts.
-      </p>
-    </div>
-  </label>
-</div>
-
-        <div>
-          <label className={labelClasses}>Notes</label>
-          <textarea
-            rows={2}
-            value={form.notes}
-            maxLength={MAX_TEXT.notes}
-            onChange={(e) => updateForm("notes", e.target.value)}
-            placeholder="Notes..."
-            className={`${inputClasses} resize-none`}
-          />
+          <div>
+            <label className={labelClasses}>Notes</label>
+            <textarea
+              rows={2}
+              value={form.notes}
+              maxLength={MAX_TEXT.notes}
+              onChange={(e) => updateForm("notes", e.target.value)}
+              placeholder="Notes..."
+              className={`${inputClasses} resize-none`}
+            />
+          </div>
         </div>
       </div>
     </Modal>
