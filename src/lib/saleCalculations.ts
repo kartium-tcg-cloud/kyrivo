@@ -79,7 +79,7 @@ export function calculateMarginVAT(params: {
 
 export function calculateMarginSale(params: {
   lines: {
-    unitPrice: number; // TTC total de la ligne
+    unitPrice: number; // prix unitaire TTC
     quantity: number;
     purchaseCost: number; // coût unitaire TTC
     vatRate: number;
@@ -96,7 +96,7 @@ export function calculateMarginSale(params: {
   let marginAmount = 0;
 
   params.lines.forEach((line) => {
-    const lineTTC = round2(line.unitPrice);
+    const lineTTC = round2(line.unitPrice * line.quantity);
     const lineCost = round2(line.purchaseCost * line.quantity);
 
     const calc = calculateMarginVAT({

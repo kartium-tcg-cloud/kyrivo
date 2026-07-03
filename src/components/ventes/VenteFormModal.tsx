@@ -893,7 +893,7 @@ setForm({
                       <div className="col-span-2 sm:col-span-1 order-3 sm:order-2">
                         <label className={labelClasses}>
                           {form.vatMode === "margin_vat"
-                            ? "Prix vente total "
+                            ? "Prix vente unitaire "
                             : "Prix vente "}
                           {form.vatMode === "standard_vat"
                             ? modeMontantStandard.toUpperCase()

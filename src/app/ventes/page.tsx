@@ -124,7 +124,7 @@ function buildSaleLineInsert(params: {
   let totalPriceStored: number;
 
   if (vatMode === "margin_vat") {
-    totalPriceStored = line.unitPrice;
+    totalPriceStored = Math.round(line.unitPrice * line.quantity * 100) / 100;
   } else if (line.isTTC) {
     const lineTTC = Math.round(line.unitPrice * line.quantity * 100) / 100;
     const lineHT =
