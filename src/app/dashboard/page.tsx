@@ -257,7 +257,7 @@ export default async function DashboardPage() {
           </svg>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-red-300">Paiement échoué</p>
-            <p className="text-xs text-zinc-400 mt-0.5 leading-relaxed">
+            <p className="text-xs text-neutral-400 mt-0.5 leading-relaxed">
               Votre paiement a échoué. Mettez à jour votre moyen de paiement pour éviter l&apos;interruption de votre accès.
             </p>
           </div>
@@ -271,12 +271,12 @@ export default async function DashboardPage() {
       )}
 
       {/* ── HEADER ──────────────────────────────────────────── */}
-      <div className="surface flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl border border-zinc-800/80 bg-zinc-900/30 p-5">
+      <div className="surface flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl border border-neutral-800/80 bg-neutral-900/30 p-5">
         <div className="flex items-center gap-4 min-w-0">
           <div className="relative h-12 w-12 flex-shrink-0">
             <div className="absolute -inset-1.5 rounded-2xl bg-amber-500/20 blur-md" />
             <div
-              className="relative h-12 w-12 rounded-xl flex items-center justify-center text-base font-black text-zinc-950 shadow-lg shadow-amber-500/20"
+              className="relative h-12 w-12 rounded-xl flex items-center justify-center text-base font-black text-neutral-950 shadow-lg shadow-amber-500/20"
               style={{ background: "linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%)" }}
             >
               {initiales}
@@ -299,7 +299,7 @@ export default async function DashboardPage() {
                 </span>
               )}
             </div>
-            <p className="text-sm text-zinc-500 mt-0.5 truncate">{email}</p>
+            <p className="text-sm text-neutral-500 mt-0.5 truncate">{email}</p>
           </div>
         </div>
         <LogoutButton />
@@ -330,16 +330,16 @@ export default async function DashboardPage() {
         />
 
         {/* Quota avec progress bar */}
-        <div className="surface group rounded-xl border border-zinc-800 bg-zinc-900/40 p-4 transition-all duration-200 hover:border-zinc-700 hover:bg-zinc-900/60">
+        <div className="surface group rounded-xl border border-neutral-800 bg-neutral-900/40 p-4 transition-all duration-200 hover:border-neutral-700 hover:bg-neutral-900/60">
           <div className="flex items-center gap-3 mb-3">
-            <span className="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border bg-gradient-to-br from-zinc-800 to-zinc-800/40 border-zinc-700 text-zinc-400 transition-transform duration-200 group-hover:scale-110">
+            <span className="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border bg-gradient-to-br from-neutral-800 to-neutral-800/40 border-neutral-700 text-neutral-400 transition-transform duration-200 group-hover:scale-110">
               <QuotaIcon />
             </span>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500 leading-tight">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-500 leading-tight">
               Quota lignes
             </p>
           </div>
-          <p className={`text-3xl font-bold tabular-nums leading-none mb-1 ${
+          <p className={`font-display text-3xl font-bold tabular-nums leading-none mb-1 ${
             monthlyLimit > 0 && usagePercent >= 90
               ? "text-red-400"
               : monthlyLimit > 0 && usagePercent >= 70
@@ -349,13 +349,13 @@ export default async function DashboardPage() {
             {monthlyLimit > 0 ? usedLines : "—"}
           </p>
           {monthlyLimit > 0 && (
-            <p className="text-xs text-zinc-600 mb-3">
+            <p className="text-xs text-neutral-400 mb-3">
               sur {monthlyLimit} ce mois · {usagePercent}%
             </p>
           )}
           {monthlyLimit > 0 ? (
             <>
-              <div className="h-1.5 rounded-full bg-zinc-800 overflow-hidden">
+              <div className="h-1.5 rounded-full bg-neutral-800 overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all duration-500 ease-out ${
                     usagePercent >= 90
@@ -367,19 +367,19 @@ export default async function DashboardPage() {
                   style={{ width: `${usagePercent}%` }}
                 />
               </div>
-              <p className="text-[10px] text-zinc-600 mt-2">
+              <p className="text-[10px] text-neutral-400 mt-2">
                 Réinit. {resetDateText}
               </p>
             </>
           ) : (
-            <p className="text-xs text-zinc-600">Aucun quota actif</p>
+            <p className="text-xs text-neutral-400">Aucun quota actif</p>
           )}
         </div>
 
       </div>
 
       {/* ── Stock immobilisé ────────────────────────────────── */}
-      <div className="card-amber-glow surface relative overflow-hidden rounded-2xl border border-amber-500/15 bg-gradient-to-br from-amber-500/[0.06] via-zinc-900/40 to-zinc-900/40 p-5 flex items-center justify-between gap-4 transition-colors hover:border-amber-500/25">
+      <div className="card-amber-glow surface relative overflow-hidden rounded-2xl border border-amber-500/15 bg-gradient-to-br from-amber-500/[0.06] via-neutral-900/40 to-neutral-900/40 p-5 flex items-center justify-between gap-4 transition-colors hover:border-amber-500/25">
         <div
           aria-hidden
           className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-amber-500/10 blur-3xl"
@@ -389,23 +389,23 @@ export default async function DashboardPage() {
             <LockStockIcon />
           </span>
           <div className="min-w-0">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-500">
               Argent immobilisé en stock
             </p>
-            <p className="text-[11px] text-zinc-600 mt-0.5">
+            <p className="text-[11px] text-neutral-400 mt-0.5">
               Valeur d&apos;achat des articles encore en stock
             </p>
           </div>
         </div>
-        <p className="relative text-2xl sm:text-3xl font-bold tabular-nums text-amber-400 flex-shrink-0">
+        <p className="font-display relative text-2xl sm:text-3xl font-bold tabular-nums text-amber-400 flex-shrink-0">
           {formatEuro(stockImmobilise)}
         </p>
       </div>
 
       {/* ── Lien vers analyse ───────────────────────────────── */}
-      <p className="text-[11px] text-zinc-600 text-right -mt-4">
+      <p className="text-[11px] text-neutral-400 text-right -mt-4">
         Besoin d&apos;une période précise ?{" "}
-        <a href="#analyse-periode" className="text-zinc-500 hover:text-amber-400 transition-colors underline-offset-2 underline decoration-zinc-700 hover:decoration-amber-400 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40">
+        <a href="#analyse-periode" className="text-neutral-500 hover:text-amber-400 transition-colors underline-offset-2 underline decoration-neutral-700 hover:decoration-amber-400 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40">
           Accéder à l&apos;analyse
         </a>
       </p>
@@ -414,20 +414,20 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] xl:grid-cols-[1fr_320px] gap-6">
 
         {/* Activité récente */}
-        <div className="surface rounded-xl border border-zinc-800 bg-zinc-900/40 overflow-hidden transition-colors hover:border-zinc-700/80">
-          <div className="px-5 py-4 border-b border-zinc-800">
+        <div className="surface rounded-xl border border-neutral-800 bg-neutral-900/40 overflow-hidden transition-colors hover:border-neutral-700/80">
+          <div className="px-5 py-4 border-b border-neutral-800">
             <h2 className="text-sm font-semibold text-white">Activité récente</h2>
           </div>
 
           {recentActivity.length === 0 ? (
             <div className="px-5 py-14 text-center">
-              <p className="text-sm text-zinc-600">
+              <p className="text-sm text-neutral-400">
                 Aucune opération enregistrée pour le moment.
               </p>
               <div className="flex items-center justify-center gap-3 mt-4">
                 <Link
                   href="/achats"
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-amber-500 px-4 py-2 text-xs font-semibold text-zinc-950 transition-all duration-200 hover:bg-amber-400 hover:-translate-y-0.5 active:scale-[0.97] active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-amber-500 px-4 py-2 text-xs font-semibold text-neutral-950 transition-all duration-200 hover:bg-amber-400 hover:-translate-y-0.5 active:scale-[0.97] active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
                 >
                   <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -436,7 +436,7 @@ export default async function DashboardPage() {
                 </Link>
                 <Link
                   href="/ventes"
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-700 bg-zinc-900 px-4 py-2 text-xs font-semibold text-zinc-300 transition-colors hover:border-zinc-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500/40"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-700 bg-neutral-900 px-4 py-2 text-xs font-semibold text-neutral-300 transition-colors hover:border-neutral-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500/40"
                 >
                   <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -446,9 +446,9 @@ export default async function DashboardPage() {
               </div>
             </div>
           ) : (
-            <div className="divide-y divide-zinc-800/50">
+            <div className="divide-y divide-neutral-800/50">
               {recentActivity.map((item, i) => (
-                <div key={i} className="flex items-center gap-3.5 px-5 py-3.5 transition-colors hover:bg-zinc-800/30">
+                <div key={i} className="flex items-center gap-3.5 px-5 py-3.5 transition-colors hover:bg-neutral-800/30">
                   <span className={`
                     inline-flex h-9 w-9 flex-shrink-0 items-center justify-center
                     rounded-lg border
@@ -459,10 +459,10 @@ export default async function DashboardPage() {
                     {item.type === "achat" ? <CartIcon /> : <SalesIcon />}
                   </span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-zinc-200 truncate font-medium">
+                    <p className="text-sm text-neutral-200 truncate font-medium">
                       {item.label || "—"}
                     </p>
-                    <p className="text-xs text-zinc-600 mt-0.5">
+                    <p className="text-xs text-neutral-400 mt-0.5">
                       {item.type === "achat" ? "Achat" : "Vente"} · {formatDateFr(item.date)}
                     </p>
                   </div>
@@ -476,16 +476,16 @@ export default async function DashboardPage() {
             </div>
           )}
 
-          <div className="border-t border-zinc-800 px-5 py-3 flex items-center gap-4">
+          <div className="border-t border-neutral-800 px-5 py-3 flex items-center gap-4">
             <Link
               href="/achats"
-              className="rounded-sm text-xs text-zinc-500 transition-colors hover:text-amber-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
+              className="rounded-sm text-xs text-neutral-500 transition-colors hover:text-amber-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
             >
               Tous les achats →
             </Link>
             <Link
               href="/ventes"
-              className="rounded-sm text-xs text-zinc-500 transition-colors hover:text-amber-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
+              className="rounded-sm text-xs text-neutral-500 transition-colors hover:text-amber-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
             >
               Toutes les ventes →
             </Link>
@@ -496,8 +496,8 @@ export default async function DashboardPage() {
         <div className="space-y-4">
 
           {/* Accès rapide */}
-          <div className="surface rounded-xl border border-zinc-800 bg-zinc-900/40 overflow-hidden transition-colors hover:border-zinc-700/80">
-            <div className="px-5 py-4 border-b border-zinc-800">
+          <div className="surface rounded-xl border border-neutral-800 bg-neutral-900/40 overflow-hidden transition-colors hover:border-neutral-700/80">
+            <div className="px-5 py-4 border-b border-neutral-800">
               <h2 className="text-sm font-semibold text-white">Accès rapide</h2>
             </div>
             <div className="p-3 grid grid-cols-2 gap-2">
@@ -510,34 +510,34 @@ export default async function DashboardPage() {
           </div>
 
           {/* Abonnement */}
-          <div className="surface card-amber-glow rounded-xl border border-amber-500/15 bg-gradient-to-b from-amber-500/[0.04] to-zinc-900/40 overflow-hidden transition-colors">
-            <div className="px-5 py-4 border-b border-zinc-800/80">
+          <div className="surface card-amber-glow rounded-xl border border-amber-500/15 bg-gradient-to-b from-amber-500/[0.04] to-neutral-900/40 overflow-hidden transition-colors">
+            <div className="px-5 py-4 border-b border-neutral-800/80">
               <h2 className="text-sm font-semibold text-white">Abonnement</h2>
             </div>
             <div className="p-5 space-y-4">
               <div className="flex items-center justify-between">
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-600">Plan actuel</p>
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Plan actuel</p>
                 <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider border ${
                   planStatus === "trial"
                     ? "bg-blue-500/10 border-blue-500/25 text-blue-400"
                     : planStatus === "active"
                     ? "bg-amber-500/10 border-amber-500/25 text-amber-400"
-                    : "bg-zinc-800/60 border-zinc-700 text-zinc-500"
+                    : "bg-neutral-800/60 border-neutral-700 text-neutral-500"
                 }`}>
                   {planLabel}
                 </span>
               </div>
               {subscriptionEndText !== "—" && (
-                <div className="flex items-center justify-between border-t border-zinc-800/60 pt-3">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-600">
+                <div className="flex items-center justify-between border-t border-neutral-800/60 pt-3">
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">
                     {planStatus === "trial" ? "Fin de l'essai" : "Accès jusqu'au"}
                   </p>
-                  <p className="text-sm text-zinc-200 font-semibold">{subscriptionEndText}</p>
+                  <p className="text-sm text-neutral-200 font-semibold">{subscriptionEndText}</p>
                 </div>
               )}
               <Link
                 href="/abonnements"
-                className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-amber-500 px-3 py-2.5 text-xs font-bold text-zinc-950 transition-all duration-200 hover:bg-amber-400 hover:-translate-y-0.5 active:scale-[0.97] active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
+                className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-amber-500 px-3 py-2.5 text-xs font-bold text-neutral-950 transition-all duration-200 hover:bg-amber-400 hover:-translate-y-0.5 active:scale-[0.97] active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
               >
                 {planStatus === "none" ? "Souscrire un abonnement" : "Gérer l'abonnement"}
                 <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
@@ -548,15 +548,15 @@ export default async function DashboardPage() {
           </div>
 
           {/* Support */}
-          <div className="surface rounded-xl border border-zinc-800 bg-zinc-900/40 p-4 flex items-center gap-3">
-            <span className="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-zinc-800 text-zinc-500">
+          <div className="surface rounded-xl border border-neutral-800 bg-neutral-900/40 p-4 flex items-center gap-3">
+            <span className="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-neutral-800 text-neutral-500">
               <MailIcon />
             </span>
             <div className="min-w-0">
-              <p className="text-xs font-semibold text-zinc-400">Besoin d&apos;aide ?</p>
+              <p className="text-xs font-semibold text-neutral-400">Besoin d&apos;aide ?</p>
               <a
                 href="mailto:contact@kartium-tcg.com"
-                className="text-[11px] text-zinc-600 hover:text-amber-400 transition-colors truncate block rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
+                className="text-[11px] text-neutral-400 hover:text-amber-400 transition-colors truncate block rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
               >
                 contact@kartium-tcg.com
               </a>
@@ -598,21 +598,21 @@ function StatTile({
         ? { icon: "bg-emerald-500/10 border-emerald-500/20 text-emerald-400", value: "text-emerald-400" }
         : accent === "rose"
           ? { icon: "bg-rose-500/10 border-rose-500/20 text-rose-400", value: "text-rose-400" }
-          : { icon: "bg-zinc-800/60 border-zinc-700 text-zinc-400", value: "text-white" };
+          : { icon: "bg-neutral-800/60 border-neutral-700 text-neutral-400", value: "text-white" };
 
   return (
-    <div className="surface group rounded-xl border border-zinc-800 bg-zinc-900/40 p-4 transition-all duration-200 hover:border-zinc-700 hover:bg-zinc-900/60">
+    <div className="surface group rounded-xl border border-neutral-800 bg-neutral-900/40 p-4 transition-all duration-200 hover:border-neutral-700 hover:bg-neutral-900/60">
       <div className="flex items-center gap-3 mb-3">
         <span
           className={`inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border transition-transform duration-200 group-hover:scale-110 ${styles.icon}`}
         >
           {icon}
         </span>
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500 leading-tight">
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-500 leading-tight">
           {label}
         </p>
       </div>
-      <p className={`text-3xl font-bold tabular-nums leading-none ${styles.value}`}>
+      <p className={`font-display text-3xl font-bold tabular-nums leading-none ${styles.value}`}>
         {value}
       </p>
     </div>
@@ -635,14 +635,14 @@ function QuickTile({
       href={href}
       className={`
         group flex items-center gap-2.5 rounded-lg border border-transparent px-3 py-3
-        text-xs font-semibold text-zinc-400
-        hover:border-zinc-700 hover:bg-zinc-800/60 hover:text-zinc-200
+        text-xs font-semibold text-neutral-400
+        hover:border-neutral-700 hover:bg-neutral-800/60 hover:text-neutral-200
         transition-colors
         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40
         ${wide ? "col-span-2" : ""}
       `}
     >
-      <span className="inline-flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md bg-zinc-800/60 text-zinc-500 group-hover:bg-amber-500/10 group-hover:text-amber-400 transition-colors">
+      <span className="inline-flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md bg-neutral-800/60 text-neutral-500 group-hover:bg-amber-500/10 group-hover:text-amber-400 transition-colors">
         {icon}
       </span>
       {label}

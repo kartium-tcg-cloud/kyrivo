@@ -129,9 +129,9 @@ prefillItem = null,
 
   const inputClasses = `
     w-full rounded-lg px-3 py-2.5 text-sm
-    bg-zinc-900/60 text-zinc-200
-    border border-zinc-800
-    placeholder:text-zinc-600
+    bg-neutral-900/60 text-neutral-200
+    border border-neutral-800
+    placeholder:text-neutral-400
     focus:outline-none
     focus:border-amber-500/40
     focus:ring-1 focus:ring-amber-500/15
@@ -139,7 +139,7 @@ prefillItem = null,
   `;
 
   const labelClasses =
-    "block text-[11px] font-semibold text-zinc-500 mb-2 uppercase tracking-wider";
+    "block text-[11px] font-semibold text-neutral-500 mb-2 uppercase tracking-wider";
 useEffect(() => {
   async function loadPaymentMethods() {
     try {
@@ -507,7 +507,7 @@ setForm({
           <button
             type="button"
             onClick={handleFermer}
-            className="rounded-lg px-4 py-2 text-sm font-medium text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500/40"
+            className="rounded-lg px-4 py-2 text-sm font-medium text-neutral-400 hover:bg-neutral-800/60 hover:text-neutral-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500/40"
           >
             Annuler
           </button>
@@ -515,7 +515,7 @@ setForm({
           <button
             type="button"
             onClick={handleSubmit}
-            className="rounded-lg px-5 py-2 text-sm font-semibold bg-amber-500 text-zinc-950 hover:bg-amber-400 active:scale-[0.97] transition-all duration-200 shadow-lg shadow-amber-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
+            className="rounded-lg px-5 py-2 text-sm font-semibold bg-amber-500 text-neutral-950 hover:bg-amber-400 active:scale-[0.97] transition-all duration-200 shadow-lg shadow-amber-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
           >
             {isEditing ? "Enregistrer" : "Ajouter la vente"}
           </button>
@@ -564,7 +564,7 @@ setForm({
                 )}
 
                 {contactDropdownOpen && filteredContacts.length > 0 && (
-                  <ul className="absolute left-0 right-0 top-full z-50 mt-1 max-h-48 overflow-y-auto rounded-lg border border-zinc-700 bg-zinc-900 shadow-2xl">
+                  <ul className="absolute left-0 right-0 top-full z-50 mt-1 max-h-48 overflow-y-auto rounded-lg border border-neutral-700 bg-neutral-900 shadow-2xl">
                     {filteredContacts.map((contact) => (
                       <li key={contact.id}>
                         <button
@@ -573,7 +573,7 @@ setForm({
                           className={`w-full px-3 py-2.5 text-left text-sm transition-colors hover:bg-amber-500/10 ${
                             form.contactId === contact.id
                               ? "text-emerald-400 font-semibold"
-                              : "text-zinc-200"
+                              : "text-neutral-200"
                           }`}
                         >
                           {contact.name}
@@ -608,7 +608,7 @@ setForm({
                       ${
                         active
                           ? `${config.bg} ${config.text} ${config.border}`
-                          : "bg-zinc-900/40 text-zinc-500 border-zinc-800 hover:border-zinc-700"
+                          : "bg-neutral-900/40 text-neutral-500 border-neutral-800 hover:border-neutral-700"
                       }
                     `}
                   >
@@ -626,7 +626,7 @@ setForm({
                 <svg className="h-3.5 w-3.5 text-blue-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
                 </svg>
-                <p className="text-[11px] text-zinc-400 leading-relaxed">
+                <p className="text-[11px] text-neutral-400 leading-relaxed">
                   Le régime de TVA sur marge s'applique uniquement aux biens achetés sans TVA déductible (ex. achat à un particulier). Vérifiez avec votre comptable avant utilisation.
                 </p>
               </div>
@@ -634,24 +634,24 @@ setForm({
           </div>
 
           {form.vatMode === "standard_vat" && (
-            <div className="flex items-center justify-between rounded-lg border border-zinc-800 bg-zinc-900/40 px-4 py-3">
+            <div className="flex items-center justify-between rounded-lg border border-neutral-800 bg-neutral-900/40 px-4 py-3">
               <div>
                 <p className="text-sm font-semibold text-white">
                   Saisie des prix
                 </p>
-                <p className="text-xs text-zinc-500 mt-0.5">
+                <p className="text-xs text-neutral-500 mt-0.5">
                   En TVA standard, les prix peuvent être encodés en HT ou TTC.
                 </p>
               </div>
 
-              <div className="inline-flex p-0.5 rounded-md bg-zinc-900/60 border border-zinc-800">
+              <div className="inline-flex p-0.5 rounded-md bg-neutral-900/60 border border-neutral-800">
                 <button
                   type="button"
                   onClick={() => setModeMontantStandard("ht")}
                   className={`rounded px-3 py-1 text-[11px] font-semibold transition-all duration-150 ${
                     modeMontantStandard === "ht"
                       ? "bg-amber-500/15 text-amber-400"
-                      : "text-zinc-500 hover:text-zinc-300"
+                      : "text-neutral-500 hover:text-neutral-300"
                   }`}
                 >
                   HT
@@ -663,7 +663,7 @@ setForm({
                   className={`rounded px-3 py-1 text-[11px] font-semibold transition-all duration-150 ${
                     modeMontantStandard === "ttc"
                       ? "bg-amber-500/15 text-amber-400"
-                      : "text-zinc-500 hover:text-zinc-300"
+                      : "text-neutral-500 hover:text-neutral-300"
                   }`}
                 >
                   TTC
@@ -672,13 +672,13 @@ setForm({
             </div>
           )}
 
-          <div className="rounded-xl border border-zinc-800 bg-zinc-900/30 overflow-hidden">
-            <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-zinc-800 bg-zinc-900/40">
+          <div className="rounded-xl border border-neutral-800 bg-neutral-900/30 overflow-hidden">
+            <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-neutral-800 bg-neutral-900/40">
               <div className="min-w-0 flex-1">
                 <h3 className="text-sm font-semibold text-white">
                   Lignes de vente
                 </h3>
-                <p className="text-[11px] text-zinc-500 mt-0.5">
+                <p className="text-[11px] text-neutral-500 mt-0.5">
                   {form.vatMode === "margin_vat"
                     ? "Sélectionnez un article acheté à un particulier."
                     : "Sélectionnez un article acheté à un pro ou encodez une ligne manuelle."}
@@ -688,7 +688,7 @@ setForm({
               <button
                 type="button"
                 onClick={ajouterLigne}
-                className="flex-shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 rounded-lg border border-zinc-700 px-3 py-1.5 text-xs font-semibold text-zinc-300 hover:bg-zinc-800 hover:text-white active:scale-[0.97] transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
+                className="flex-shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 rounded-lg border border-neutral-700 px-3 py-1.5 text-xs font-semibold text-neutral-300 hover:bg-neutral-800 hover:text-white active:scale-[0.97] transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
               >
                 <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -733,17 +733,17 @@ setForm({
                 return (
                 <div
                   key={line.id}
-                  className="rounded-lg border border-zinc-800 bg-zinc-900/40 overflow-hidden"
+                  className="rounded-lg border border-neutral-800 bg-neutral-900/40 overflow-hidden"
                 >
-                  <div className="flex items-center justify-between px-3 py-1.5 border-b border-zinc-800/80 bg-zinc-900/40">
-                    <span className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">
+                  <div className="flex items-center justify-between px-3 py-1.5 border-b border-neutral-800/80 bg-neutral-900/40">
+                    <span className="text-[10px] font-semibold text-neutral-500 uppercase tracking-wider">
                       Ligne #{index + 1}
                     </span>
 
                     <button
                       type="button"
                       onClick={() => supprimerLigne(line.id)}
-                      className="inline-flex items-center justify-center h-6 w-6 rounded-md text-zinc-600 hover:bg-red-500/10 hover:text-red-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/40"
+                      className="inline-flex items-center justify-center h-6 w-6 rounded-md text-neutral-400 hover:bg-red-500/10 hover:text-red-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/40"
                       title="Supprimer cette ligne"
                     >
                       <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
@@ -755,13 +755,13 @@ setForm({
                   <div className="p-3 space-y-2">
                     <div>
                       {line.purchaseItemId ? (
-                        <div className="flex items-center gap-2 rounded-lg border border-zinc-700 bg-zinc-900/60 px-3 py-2">
+                        <div className="flex items-center gap-2 rounded-lg border border-neutral-700 bg-neutral-900/60 px-3 py-2">
                           <div className="flex-1 min-w-0 flex items-baseline gap-1.5">
                             <span className="font-mono text-sm font-semibold text-amber-400 shrink-0">
                               {line.itemReference}
                             </span>
-                            <span className="text-zinc-500 text-sm">·</span>
-                            <span className="text-sm text-zinc-200 truncate">
+                            <span className="text-neutral-500 text-sm">·</span>
+                            <span className="text-sm text-neutral-200 truncate">
                               {line.itemName}
                             </span>
                           </div>
@@ -772,7 +772,7 @@ setForm({
                               setLineSearchQueries((prev) => ({ ...prev, [line.id]: "" }));
                               setOpenDropdownId(line.id);
                             }}
-                            className="shrink-0 rounded px-2 py-1 text-[11px] font-semibold text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition-colors"
+                            className="shrink-0 rounded px-2 py-1 text-[11px] font-semibold text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800 transition-colors"
                           >
                             Changer
                           </button>
@@ -810,13 +810,13 @@ setForm({
                             const visible = filtered.slice(0, 50);
 
                             return (
-                              <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-72 overflow-y-auto rounded-lg border border-zinc-700 bg-zinc-900 shadow-2xl">
+                              <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-72 overflow-y-auto rounded-lg border border-neutral-700 bg-neutral-900 shadow-2xl">
                                 {stockItemsFiltres.length === 0 ? (
-                                  <div className="px-4 py-6 text-center text-sm text-zinc-500">
+                                  <div className="px-4 py-6 text-center text-sm text-neutral-500">
                                     Aucun article en stock disponible.
                                   </div>
                                 ) : visible.length === 0 ? (
-                                  <div className="px-4 py-6 text-center text-sm text-zinc-500">
+                                  <div className="px-4 py-6 text-center text-sm text-neutral-500">
                                     Aucun résultat pour cette recherche.
                                   </div>
                                 ) : (
@@ -829,7 +829,7 @@ setForm({
                                         setLineSearchQueries((prev) => ({ ...prev, [line.id]: "" }));
                                         setOpenDropdownId(null);
                                       }}
-                                      className="w-full px-4 py-2.5 text-left text-sm text-zinc-500 hover:bg-zinc-800/60 transition-colors border-b border-zinc-800"
+                                      className="w-full px-4 py-2.5 text-left text-sm text-neutral-500 hover:bg-neutral-800/60 transition-colors border-b border-neutral-800"
                                     >
                                       — Ligne manuelle / aucun item lié —
                                     </button>
@@ -844,18 +844,18 @@ setForm({
                                           setLineSearchQueries((prev) => ({ ...prev, [line.id]: "" }));
                                           setOpenDropdownId(null);
                                         }}
-                                        className="w-full px-4 py-3 text-left hover:bg-amber-500/10 transition-colors border-b border-zinc-800/50 last:border-0"
+                                        className="w-full px-4 py-3 text-left hover:bg-amber-500/10 transition-colors border-b border-neutral-800/50 last:border-0"
                                       >
                                         <div className="flex items-baseline gap-1.5">
                                           <span className="font-mono text-sm font-semibold text-amber-400">
                                             {item.itemReference}
                                           </span>
-                                          <span className="text-zinc-500 text-sm">·</span>
-                                          <span className="text-sm text-zinc-200 truncate">
+                                          <span className="text-neutral-500 text-sm">·</span>
+                                          <span className="text-sm text-neutral-200 truncate">
                                             {item.itemName}
                                           </span>
                                         </div>
-                                        <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-zinc-500">
+                                        <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-neutral-500">
                                           {item.category && (
                                             <>
                                               <span>{item.category}</span>
@@ -878,7 +878,7 @@ setForm({
                                     ))}
 
                                     {filtered.length > 50 && (
-                                      <div className="px-4 py-2.5 text-center text-[11px] text-zinc-500 border-t border-zinc-800">
+                                      <div className="px-4 py-2.5 text-center text-[11px] text-neutral-500 border-t border-neutral-800">
                                         Affinez la recherche pour voir plus de résultats.
                                       </div>
                                     )}
@@ -960,7 +960,7 @@ setForm({
 
                       <div>
                         <label className={labelClasses}>Total ligne</label>
-                        <div className="rounded-lg border border-zinc-800/60 bg-zinc-900/30 px-2.5 py-2.5 text-sm text-zinc-200 font-medium tabular-nums text-right truncate">
+                        <div className="rounded-lg border border-neutral-800/60 bg-neutral-900/30 px-2.5 py-2.5 text-sm text-neutral-200 font-medium tabular-nums text-right truncate">
                           {ligneTotal.toLocaleString("fr-BE", {
                             style: "currency",
                             currency: "EUR",
@@ -992,7 +992,7 @@ setForm({
 
                         <div>
                           <label className={labelClasses}>Marge ligne</label>
-                          <div className="rounded-lg border border-zinc-800/60 bg-zinc-900/30 px-2.5 py-2.5 text-sm text-emerald-400 font-medium tabular-nums text-right truncate">
+                          <div className="rounded-lg border border-neutral-800/60 bg-neutral-900/30 px-2.5 py-2.5 text-sm text-emerald-400 font-medium tabular-nums text-right truncate">
                             {ligneMarge.toLocaleString("fr-BE", {
                               style: "currency",
                               currency: "EUR",
@@ -1021,10 +1021,10 @@ setForm({
         </div>
 
         <div className="flex flex-col gap-4 md:sticky md:top-0 md:self-start">
-          <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 overflow-hidden">
+          <div className="rounded-lg border border-neutral-800 bg-neutral-900/50 overflow-hidden">
             {form.vatMode === "margin_vat" ? (
               <>
-                <div className="flex justify-between items-center px-4 py-3 bg-zinc-900/60">
+                <div className="flex justify-between items-center px-4 py-3 bg-neutral-900/60">
                   <span className="text-white font-semibold text-sm">Total encaissé</span>
                   <span className="text-white font-bold text-base tabular-nums">
                     {totals.totalTTC.toLocaleString("fr-BE", {
@@ -1034,9 +1034,9 @@ setForm({
                   </span>
                 </div>
 
-                <div className="flex justify-between text-sm px-4 py-2 border-t border-zinc-800/60">
-                  <span className="text-zinc-500">Coût total</span>
-                  <span className="text-zinc-300 font-medium tabular-nums">
+                <div className="flex justify-between text-sm px-4 py-2 border-t border-neutral-800/60">
+                  <span className="text-neutral-500">Coût total</span>
+                  <span className="text-neutral-300 font-medium tabular-nums">
                     {(totals.totalTTC - (totals.marginAmount + totals.vatAmount)).toLocaleString("fr-BE", {
                       style: "currency",
                       currency: "EUR",
@@ -1044,8 +1044,8 @@ setForm({
                   </span>
                 </div>
 
-                <div className="flex justify-between text-sm px-4 py-2 border-t border-zinc-800/60">
-                  <span className="text-zinc-500">Marge TTC</span>
+                <div className="flex justify-between text-sm px-4 py-2 border-t border-neutral-800/60">
+                  <span className="text-neutral-500">Marge TTC</span>
                   <span className="text-violet-400 font-medium tabular-nums">
                     {(totals.marginAmount + totals.vatAmount).toLocaleString("fr-BE", {
                       style: "currency",
@@ -1054,8 +1054,8 @@ setForm({
                   </span>
                 </div>
 
-                <div className="flex justify-between text-sm px-4 py-2 border-t border-zinc-800/60">
-                  <span className="text-zinc-500">TVA sur marge</span>
+                <div className="flex justify-between text-sm px-4 py-2 border-t border-neutral-800/60">
+                  <span className="text-neutral-500">TVA sur marge</span>
                   <span className="text-cyan-400 font-medium tabular-nums">
                     {totals.vatAmount.toLocaleString("fr-BE", {
                       style: "currency",
@@ -1064,7 +1064,7 @@ setForm({
                   </span>
                 </div>
 
-                <div className="flex justify-between items-center px-4 py-3 border-t border-zinc-800/60 bg-emerald-500/[0.06]">
+                <div className="flex justify-between items-center px-4 py-3 border-t border-neutral-800/60 bg-emerald-500/[0.06]">
                   <span className="text-emerald-400 font-semibold text-sm">Marge nette</span>
                   <span className="text-emerald-400 font-bold text-base tabular-nums">
                     {totals.marginAmount.toLocaleString("fr-BE", {
@@ -1077,8 +1077,8 @@ setForm({
             ) : (
               <>
                 <div className="flex justify-between text-sm px-4 py-2.5">
-                  <span className="text-zinc-500">HT / Base</span>
-                  <span className="text-zinc-300 font-medium tabular-nums">
+                  <span className="text-neutral-500">HT / Base</span>
+                  <span className="text-neutral-300 font-medium tabular-nums">
                     {totals.subtotalHT.toLocaleString("fr-BE", {
                       style: "currency",
                       currency: "EUR",
@@ -1086,8 +1086,8 @@ setForm({
                   </span>
                 </div>
 
-                <div className="flex justify-between text-sm px-4 py-2.5 border-t border-zinc-800/60">
-                  <span className="text-zinc-500">TVA</span>
+                <div className="flex justify-between text-sm px-4 py-2.5 border-t border-neutral-800/60">
+                  <span className="text-neutral-500">TVA</span>
                   <span className="text-cyan-400 font-medium tabular-nums">
                     {totals.vatAmount.toLocaleString("fr-BE", {
                       style: "currency",
@@ -1096,7 +1096,7 @@ setForm({
                   </span>
                 </div>
 
-                <div className="flex justify-between items-center px-4 py-3 border-t border-zinc-800/60 bg-zinc-900/60">
+                <div className="flex justify-between items-center px-4 py-3 border-t border-neutral-800/60 bg-neutral-900/60">
                   <span className="text-white font-semibold text-sm">Total TTC</span>
                   <span className="text-white font-bold text-base tabular-nums">
                     {totals.totalTTC.toLocaleString("fr-BE", {
@@ -1136,7 +1136,7 @@ setForm({
             </select>
           </div>
 
-          <div className="rounded-lg border border-zinc-800 bg-zinc-900/40 px-4 py-3">
+          <div className="rounded-lg border border-neutral-800 bg-neutral-900/40 px-4 py-3">
             <label className="flex items-start gap-3 cursor-pointer">
               <input
                 type="checkbox"
@@ -1148,8 +1148,8 @@ setForm({
                   }))
                 }
                 className="
-                  mt-0.5 h-4 w-4 rounded border-zinc-700
-                  bg-zinc-900 text-amber-500
+                  mt-0.5 h-4 w-4 rounded border-neutral-700
+                  bg-neutral-900 text-amber-500
                   focus:ring-amber-500/20
                 "
               />
@@ -1159,7 +1159,7 @@ setForm({
                   Enregistrer ce client dans les contacts
                 </p>
 
-                <p className="text-xs text-zinc-500 mt-0.5">
+                <p className="text-xs text-neutral-500 mt-0.5">
                   Le client sera ajouté automatiquement dans l’onglet Contacts.
                 </p>
               </div>
@@ -1183,13 +1183,13 @@ setForm({
 
     {showUnsavedModal && (
       <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 animate-overlay-fade">
-        <div className="w-full max-w-sm rounded-2xl border border-zinc-800 bg-zinc-950 shadow-2xl overflow-hidden animate-modal-pop">
+        <div className="w-full max-w-sm rounded-2xl border border-neutral-800 bg-neutral-950 shadow-2xl overflow-hidden animate-modal-pop">
           <div className="h-px w-full bg-gradient-to-r from-transparent via-amber-500/60 to-transparent" />
           <div className="p-6">
             <h2 className="text-base font-semibold text-white">
               Modifications non enregistrées
             </h2>
-            <p className="mt-2 text-sm text-zinc-400 leading-relaxed">
+            <p className="mt-2 text-sm text-neutral-400 leading-relaxed">
               Voulez-vous sauvegarder les modifications ?
             </p>
             <div className="mt-5 flex justify-end gap-3">
@@ -1201,7 +1201,7 @@ setForm({
                   resetForm(defaultVatRate);
                   onFermer();
                 }}
-                className="rounded-lg border border-zinc-800 bg-zinc-900 px-4 py-2 text-sm font-semibold text-zinc-300 hover:bg-zinc-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500/40"
+                className="rounded-lg border border-neutral-800 bg-neutral-900 px-4 py-2 text-sm font-semibold text-neutral-300 hover:bg-neutral-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500/40"
               >
                 Non
               </button>
@@ -1211,7 +1211,7 @@ setForm({
                   setShowUnsavedModal(false);
                   handleSubmit();
                 }}
-                className="rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-zinc-950 hover:bg-amber-400 transition-colors shadow-lg shadow-amber-500/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
+                className="rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-neutral-950 hover:bg-amber-400 transition-colors shadow-lg shadow-amber-500/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
               >
                 Oui
               </button>

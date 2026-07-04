@@ -11,6 +11,9 @@ import LegalPage, {
 export const metadata: Metadata = {
   title: "Politique relative aux cookies — Kyrivo",
   description: "Informations sur les cookies utilisés par Kyrivo et comment les gérer.",
+  alternates: {
+    canonical: "https://kyrivo.fr/cookies",
+  },
 }
 
 export default function CookiesPage() {

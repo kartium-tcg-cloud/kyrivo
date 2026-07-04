@@ -274,9 +274,9 @@ className={`
 
           <div className="flex-1 min-w-0">
             <div className="flex items-baseline gap-1.5">
-              <h1 className="text-lg font-bold tracking-tight text-white">
+              <span className="text-lg font-bold tracking-tight text-white">
                 Kyrivo
-              </h1>
+              </span>
               <span className="text-[8px] font-bold text-amber-400/80 uppercase tracking-[0.18em]">
                 SaaS
               </span>
@@ -309,7 +309,7 @@ className={`
         {isAuthenticated !== null && navSections.map((section, sectionIdx) => (
           <div key={section.label} className={sectionIdx > 0 ? "mt-5" : ""}>
 
-            <h2 className="px-3 mb-2 text-[10px] font-semibold text-neutral-600 uppercase tracking-widest">
+            <h2 className="px-3 mb-2 text-[10px] font-semibold text-neutral-400 uppercase tracking-widest">
               {section.label}
             </h2>
 
@@ -366,7 +366,7 @@ className={`
         {isAuthenticated !== null && (
           <div className="mt-5">
 
-            <h2 className="px-3 mb-2 text-[10px] font-semibold text-neutral-600 uppercase tracking-widest">
+            <h2 className="px-3 mb-2 text-[10px] font-semibold text-neutral-400 uppercase tracking-widest">
               Compte
             </h2>
 
@@ -580,7 +580,7 @@ className={`
             <Link
               key={href}
               href={href}
-              className="text-xs text-neutral-600 hover:text-neutral-400 transition-colors"
+              className="text-xs text-neutral-400 hover:text-neutral-200 transition-colors"
             >
               {label}
             </Link>

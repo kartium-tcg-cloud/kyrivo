@@ -11,6 +11,9 @@ import LegalPage, {
 export const metadata: Metadata = {
   title: "Politique de confidentialité — Kyrivo",
   description: "Comment Kyrivo collecte, utilise et protège vos données personnelles. Conformité RGPD.",
+  alternates: {
+    canonical: "https://kyrivo.fr/politique-confidentialite",
+  },
 }
 
 export default function PolitiqueConfidentialitePage() {

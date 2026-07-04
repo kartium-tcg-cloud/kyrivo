@@ -7,6 +7,12 @@ export const metadata: Metadata = {
   alternates: {
     canonical: 'https://kyrivo.fr/login',
   },
+  // Une page de connexion n'a aucune valeur de résultat de recherche —
+  // cohérent avec son absence du sitemap.
+  robots: {
+    index: false,
+    follow: true,
+  },
 }
 
 export default function LoginLayout({

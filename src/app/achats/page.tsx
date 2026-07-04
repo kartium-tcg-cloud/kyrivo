@@ -723,14 +723,14 @@ const modifierAchat = async (achatModifie: Achat) => {
       />
 
       {achats.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-zinc-800/60 bg-zinc-900/40 shadow-sm shadow-black/20 px-6 py-20 text-center">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-zinc-800/60 bg-zinc-900/60 mb-5">
-            <svg className="h-7 w-7 text-zinc-600" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+        <div className="flex flex-col items-center justify-center rounded-xl border border-neutral-800/60 bg-neutral-900/40 shadow-sm shadow-black/20 px-6 py-20 text-center">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-neutral-800/60 bg-neutral-900/60 mb-5">
+            <svg className="h-7 w-7 text-neutral-400" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
             </svg>
           </div>
           <h3 className="text-base font-semibold text-white mb-2">Aucun achat enregistré</h3>
-          <p className="text-sm text-zinc-500 max-w-sm leading-relaxed mb-6">
+          <p className="text-sm text-neutral-500 max-w-sm leading-relaxed mb-6">
             Commencez par enregistrer votre premier achat. Tous vos achats PRO et particuliers seront centralisés ici.
           </p>
           <div className="flex flex-col sm:flex-row items-center gap-3">
@@ -738,13 +738,13 @@ const modifierAchat = async (achatModifie: Achat) => {
               type="button"
               disabled
               title="Import Vinted bientôt disponible"
-              className="inline-flex items-center gap-2 rounded-lg border border-zinc-800 bg-zinc-900/40 pl-5 pr-3 py-2.5 text-sm font-semibold text-zinc-500 cursor-not-allowed"
+              className="inline-flex items-center gap-2 rounded-lg border border-neutral-800 bg-neutral-900/40 pl-5 pr-3 py-2.5 text-sm font-semibold text-neutral-500 cursor-not-allowed"
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
               </svg>
               Importer depuis Vinted
-              <span className="rounded-full bg-zinc-800 px-2 py-0.5 text-[10px] font-semibold text-zinc-400">
+              <span className="rounded-full bg-neutral-800 px-2 py-0.5 text-[10px] font-semibold text-neutral-400">
                 Bientôt
               </span>
             </button>
@@ -795,7 +795,7 @@ const modifierAchat = async (achatModifie: Achat) => {
 
       {exportConfirmOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
-          <div className="w-full max-w-md rounded-2xl border border-amber-500/25 bg-zinc-950 shadow-2xl shadow-amber-500/10 overflow-hidden">
+          <div className="w-full max-w-md rounded-2xl border border-amber-500/25 bg-neutral-950 shadow-2xl shadow-amber-500/10 overflow-hidden">
             <div className="h-px w-full bg-gradient-to-r from-transparent via-amber-500/60 to-transparent" />
 
             <div className="p-6">
@@ -811,7 +811,7 @@ const modifierAchat = async (achatModifie: Achat) => {
                     Exporter en Excel
                   </h2>
 
-                  <p className="mt-2 text-sm leading-relaxed text-zinc-400">
+                  <p className="mt-2 text-sm leading-relaxed text-neutral-400">
                     Souhaitez-vous générer un fichier Excel qui reprend vos achats{" "}
                     {filtres.dateDebut && filtres.dateFin ? (
                       <>
@@ -837,7 +837,7 @@ const modifierAchat = async (achatModifie: Achat) => {
                   type="button"
                   onClick={() => setExportConfirmOpen(false)}
                   disabled={exportingExcel}
-                  className="rounded-lg border border-zinc-800 bg-zinc-900 px-4 py-2 text-sm font-semibold text-zinc-300 hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-40 transition-colors"
+                  className="rounded-lg border border-neutral-800 bg-neutral-900 px-4 py-2 text-sm font-semibold text-neutral-300 hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-40 transition-colors"
                 >
                   Annuler
                 </button>

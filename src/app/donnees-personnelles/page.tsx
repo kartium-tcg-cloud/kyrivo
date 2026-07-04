@@ -10,6 +10,9 @@ import LegalPage, {
 export const metadata: Metadata = {
   title: "Traitement des données personnelles — Kyrivo",
   description: "Résumé clair sur le traitement de vos données personnelles par Kyrivo.",
+  alternates: {
+    canonical: "https://kyrivo.fr/donnees-personnelles",
+  },
 }
 
 export default function DonneesPersonnellesPage() {
@@ -161,7 +164,7 @@ export default function DonneesPersonnellesPage() {
               >
                 <p className="text-sm font-medium text-neutral-200 group-hover:text-amber-400 transition-colors mb-1">
                   {label}
-                  {external && <span className="ml-1 text-neutral-600 text-xs">↗</span>}
+                  {external && <span className="ml-1 text-neutral-400 text-xs">↗</span>}
                 </p>
                 <p className="text-xs text-neutral-500 leading-relaxed">{desc}</p>
               </a>

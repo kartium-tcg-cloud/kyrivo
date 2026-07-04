@@ -446,7 +446,7 @@ async function confirmGenerateZip() {
     w-full rounded-lg px-3 py-2.5 text-sm
     bg-neutral-900/60 text-neutral-200
     border border-neutral-800
-    placeholder:text-neutral-600
+    placeholder:text-neutral-400
     focus:outline-none
     focus:border-amber-500/40
     focus:ring-1 focus:ring-amber-500/15
@@ -1006,7 +1006,7 @@ function PreviewCard({
         {value}
       </p>
 
-      <p className="mt-1 text-[10px] text-neutral-600">{hint}</p>
+      <p className="mt-1 text-[10px] text-neutral-400">{hint}</p>
     </div>
   );
 }

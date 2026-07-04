@@ -54,17 +54,17 @@ export default function Modal({
       <div className="absolute inset-0 bg-black/75 backdrop-blur-sm animate-overlay-fade" />
 
       {/* Contenu de la modal */}
-      <div className={`relative z-10 flex max-h-[90vh] w-full ${maxWidthClassName} flex-col rounded-2xl bg-zinc-950 border border-zinc-800/80 shadow-2xl shadow-black/60 overflow-hidden animate-modal-pop`}>
+      <div className={`relative z-10 flex max-h-[90vh] w-full ${maxWidthClassName} flex-col rounded-2xl bg-neutral-950 border border-neutral-800/80 shadow-2xl shadow-black/60 overflow-hidden animate-modal-pop`}>
 
         {/* Ligne amber signature */}
         <div className="h-0.5 w-full shrink-0 bg-gradient-to-r from-amber-500 via-amber-400 to-transparent" />
 
         {/* Header */}
-        <div className="flex shrink-0 items-center justify-between px-6 py-4 border-b border-zinc-800/60">
+        <div className="flex shrink-0 items-center justify-between px-6 py-4 border-b border-neutral-800/60">
           <h2 className="text-base font-bold tracking-tight text-white">{titre}</h2>
           <button
             onClick={onFermer}
-            className="rounded-lg p-1.5 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
+            className="rounded-lg p-1.5 text-neutral-500 hover:bg-neutral-800 hover:text-neutral-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
           >
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
@@ -79,7 +79,7 @@ export default function Modal({
 
         {/* Footer (optionnel) */}
         {footer && (
-          <div className="shrink-0 border-t border-zinc-800/60 px-6 py-4">
+          <div className="shrink-0 border-t border-neutral-800/60 px-6 py-4">
             {footer}
           </div>
         )}

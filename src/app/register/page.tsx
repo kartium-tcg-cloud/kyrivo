@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -11,6 +10,8 @@ import {
   hasMarketingConsent,
   getUtmParams,
 } from "@/lib/analytics";
+import Field from "@/components/ui/Field";
+import Button from "@/components/ui/Button";
 
 export default function RegisterPage() {
   const supabase = createClient();
@@ -103,23 +104,10 @@ export default function RegisterPage() {
     setLoading(false);
   }
 
-  const inputClasses = `
-    w-full rounded-xl border border-neutral-800
-    bg-neutral-950 px-4 py-3
-    text-sm text-white
-    placeholder:text-neutral-700
-    outline-none transition
-    focus:border-amber-500/50
-    focus:ring-2 focus:ring-amber-500/10
-  `;
-
   return (
     <main className="relative min-h-screen overflow-hidden bg-neutral-950 text-white flex items-center justify-center px-6 py-10">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div
-          className="absolute -top-40 left-1/2 h-[520px] w-[900px] -translate-x-1/2 rounded-full opacity-[0.14] blur-3xl"
-          style={{ background: "radial-gradient(circle, rgba(245,158,11,1) 0%, transparent 70%)" }}
-        />
+        <div className="absolute -top-40 left-1/2 h-[520px] w-[900px] -translate-x-1/2 rounded-full opacity-[0.14] blur-3xl bg-glow-brand" />
       </div>
 
       <div className="relative w-full max-w-md">
@@ -147,27 +135,18 @@ export default function RegisterPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <h2 className="text-xl font-bold text-white">Compte créé avec succès</h2>
+                  <h1 className="text-xl font-bold text-white">Compte créé avec succès</h1>
                   <p className="text-sm text-neutral-400 leading-relaxed">
                     Votre espace Kyrivo est prêt. Si une confirmation par email est requise, vérifiez votre boîte de réception avant de vous connecter.
                   </p>
-                  <p className="text-xs text-neutral-600 mt-1">
+                  <p className="text-xs text-neutral-400 mt-1">
                     Pensez à vérifier vos spams si vous ne recevez rien sous quelques minutes.
                   </p>
                 </div>
 
-                <Link
-                  href="/login"
-                  className="
-                    mt-2 w-full inline-flex items-center justify-center
-                    rounded-xl bg-amber-500 px-4 py-3
-                    text-sm font-bold text-neutral-950
-                    transition hover:bg-amber-400
-                    shadow-lg shadow-amber-500/10
-                  "
-                >
+                <Button href="/login" className="mt-2 w-full">
                   Se connecter
-                </Link>
+                </Button>
               </div>
             ) : (
               /* ── Formulaire ── */
@@ -180,9 +159,9 @@ export default function RegisterPage() {
                     </span>
                   </div>
 
-                  <h2 className="text-3xl font-bold tracking-tight text-white">
+                  <h1 className="text-3xl font-bold tracking-tight text-white">
                     Créer un compte
-                  </h2>
+                  </h1>
 
                   <p className="mt-2 text-sm leading-relaxed text-neutral-500">
                     Lancez votre espace Kyrivo avec un essai Pro de 7 jours
@@ -191,72 +170,53 @@ export default function RegisterPage() {
                 </div>
 
                 <form onSubmit={handleRegister} className="space-y-4">
-                  <div>
-                    <label className="mb-2 block text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
-                      Nom de société ou pseudo
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Ex : Ma société"
-                      value={companyName}
-                      onChange={(e) => setCompanyName(e.target.value)}
-                      className={inputClasses}
-                      required
-                    />
-                  </div>
+                  <Field
+                    label="Nom de société ou pseudo"
+                    type="text"
+                    placeholder="Ex : Ma société"
+                    value={companyName}
+                    onChange={(e) => setCompanyName(e.target.value)}
+                    required
+                  />
 
-                  <div>
-                    <label className="mb-2 block text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
-                      Adresse email
-                    </label>
-                    <input
-                      type="email"
-                      placeholder="vous@email.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className={inputClasses}
-                      required
-                    />
-                  </div>
+                  <Field
+                    label="Adresse email"
+                    type="email"
+                    placeholder="vous@email.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
 
-                  <div>
-                    <label className="mb-2 block text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
-                      Mot de passe
-                    </label>
-                    <input
-                      type="password"
-                      placeholder="Minimum 6 caractères"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className={inputClasses}
-                      required
-                    />
-                  </div>
+                  <Field
+                    label="Mot de passe"
+                    type="password"
+                    placeholder="Minimum 6 caractères"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
 
-                  <div>
-                    <label className="mb-2 block text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
-                      Confirmer le mot de passe
-                    </label>
-                    <input
-                      type="password"
-                      placeholder="Répétez votre mot de passe"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      className={`${inputClasses} ${
-                        confirmPassword && confirmPassword !== password
-                          ? "border-red-500/50"
-                          : confirmPassword && confirmPassword === password
-                          ? "border-emerald-500/40"
-                          : ""
-                      }`}
-                      required
-                    />
-                    {confirmPassword && confirmPassword !== password && (
-                      <p className="mt-1.5 text-xs text-red-400">
-                        Les mots de passe ne correspondent pas.
-                      </p>
-                    )}
-                  </div>
+                  <Field
+                    label="Confirmer le mot de passe"
+                    type="password"
+                    placeholder="Répétez votre mot de passe"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                    className={
+                      confirmPassword && confirmPassword !== password
+                        ? "border-red-500/50"
+                        : confirmPassword && confirmPassword === password
+                        ? "border-emerald-500/40"
+                        : ""
+                    }
+                    error={
+                      confirmPassword && confirmPassword !== password
+                        ? "Les mots de passe ne correspondent pas."
+                        : undefined
+                    }
+                  />
 
                   {error && (
                     <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400">
@@ -264,36 +224,16 @@ export default function RegisterPage() {
                     </div>
                   )}
 
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="
-                      w-full rounded-xl bg-amber-500 px-4 py-3
-                      text-sm font-bold text-neutral-950
-                      transition hover:bg-amber-400
-                      disabled:cursor-not-allowed disabled:opacity-50
-                      shadow-lg shadow-amber-500/10
-                    "
-                  >
+                  <Button type="submit" disabled={loading} className="w-full">
                     {loading ? "Création..." : "Créer mon compte"}
-                  </button>
+                  </Button>
                 </form>
 
                 <div className="mt-6 border-t border-neutral-800 pt-6 text-center">
                   <p className="text-sm text-neutral-500">Déjà un compte ?</p>
-                  <Link
-                    href="/login"
-                    className="
-                      mt-3 inline-flex w-full items-center justify-center
-                      rounded-xl border border-neutral-800
-                      bg-neutral-950 px-4 py-3
-                      text-sm font-semibold text-neutral-300
-                      transition
-                      hover:border-amber-500/30 hover:bg-amber-500/5 hover:text-amber-400
-                    "
-                  >
+                  <Button href="/login" variant="secondary" className="mt-3 w-full">
                     Se connecter
-                  </Link>
+                  </Button>
                 </div>
               </>
             )}

@@ -91,9 +91,9 @@ export default function VentesTableau({
 
   if (ventes.length === 0) {
     return (
-      <div className="rounded-xl border border-zinc-800/60 bg-zinc-900/40 shadow-sm shadow-black/20 p-16 text-center">
+      <div className="rounded-xl border border-neutral-800/60 bg-neutral-900/40 shadow-sm shadow-black/20 p-16 text-center">
         <svg
-          className="mx-auto h-10 w-10 text-zinc-700 mb-3"
+          className="mx-auto h-10 w-10 text-neutral-700 mb-3"
           fill="none"
           viewBox="0 0 24 24"
           strokeWidth={1}
@@ -106,7 +106,7 @@ export default function VentesTableau({
           />
         </svg>
 
-        <p className="text-zinc-500 text-sm">
+        <p className="text-neutral-500 text-sm">
           Aucune vente ne correspond à vos filtres.
         </p>
       </div>
@@ -114,39 +114,39 @@ export default function VentesTableau({
   }
 
   return (
-    <div className="rounded-xl border border-zinc-800/60 bg-zinc-900/40 shadow-sm shadow-black/20 overflow-hidden">
+    <div className="rounded-xl border border-neutral-800/60 bg-neutral-900/40 shadow-sm shadow-black/20 overflow-hidden">
       <div className="relative">
         <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-zinc-800 bg-zinc-950/40">
+            <tr className="border-b border-neutral-800 bg-neutral-950/40">
               <SortableTh
                 label="Date"
                 sortKey="date"
                 sortConfig={sortConfig}
                 onSort={handleSort}
-                className="px-2 sm:px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider"
+                className="px-2 sm:px-4 py-3.5 text-left text-[11px] font-semibold text-neutral-400 uppercase tracking-wider"
               />
               <SortableTh
                 label="N°"
                 sortKey="numInterne"
                 sortConfig={sortConfig}
                 onSort={handleSort}
-                className="hidden sm:table-cell px-2 sm:px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider"
+                className="hidden sm:table-cell px-2 sm:px-4 py-3.5 text-left text-[11px] font-semibold text-neutral-400 uppercase tracking-wider"
               />
               <SortableTh
                 label="Client"
                 sortKey="customerName"
                 sortConfig={sortConfig}
                 onSort={handleSort}
-                className="px-2 sm:px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider"
+                className="px-2 sm:px-4 py-3.5 text-left text-[11px] font-semibold text-neutral-400 uppercase tracking-wider"
               />
               <SortableTh
                 label="Régime"
                 sortKey="vatMode"
                 sortConfig={sortConfig}
                 onSort={handleSort}
-                className="hidden sm:table-cell px-2 sm:px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider"
+                className="hidden sm:table-cell px-2 sm:px-4 py-3.5 text-left text-[11px] font-semibold text-neutral-400 uppercase tracking-wider"
               />
               <SortableTh
                 label="HT"
@@ -154,7 +154,7 @@ export default function VentesTableau({
                 sortConfig={sortConfig}
                 onSort={handleSort}
                 align="right"
-                className="px-2 sm:px-4 py-3.5 text-right text-[11px] font-semibold text-zinc-400 uppercase tracking-wider"
+                className="px-2 sm:px-4 py-3.5 text-right text-[11px] font-semibold text-neutral-400 uppercase tracking-wider"
               />
               <SortableTh
                 label="TVA"
@@ -162,7 +162,7 @@ export default function VentesTableau({
                 sortConfig={sortConfig}
                 onSort={handleSort}
                 align="right"
-                className="px-2 sm:px-4 py-3.5 text-right text-[11px] font-semibold text-zinc-400 uppercase tracking-wider"
+                className="px-2 sm:px-4 py-3.5 text-right text-[11px] font-semibold text-neutral-400 uppercase tracking-wider"
               />
               <SortableTh
                 label="TTC"
@@ -170,7 +170,7 @@ export default function VentesTableau({
                 sortConfig={sortConfig}
                 onSort={handleSort}
                 align="right"
-                className="px-2 sm:px-4 py-3.5 text-right text-[11px] font-semibold text-zinc-400 uppercase tracking-wider"
+                className="px-2 sm:px-4 py-3.5 text-right text-[11px] font-semibold text-neutral-400 uppercase tracking-wider"
               />
               <SortableTh
                 label="Marge"
@@ -178,15 +178,15 @@ export default function VentesTableau({
                 sortConfig={sortConfig}
                 onSort={handleSort}
                 align="right"
-                className="px-2 sm:px-4 py-3.5 text-right text-[11px] font-semibold text-zinc-400 uppercase tracking-wider"
+                className="px-2 sm:px-4 py-3.5 text-right text-[11px] font-semibold text-neutral-400 uppercase tracking-wider"
               />
-              <th className="px-2 sm:px-4 py-3.5 text-center text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+              <th className="px-2 sm:px-4 py-3.5 text-center text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
           </thead>
 
-          <tbody className="divide-y divide-zinc-800/60">
+          <tbody className="divide-y divide-neutral-800/60">
             {ventesTriees.map((vente) => {
               const config = SALE_VAT_MODE_CONFIG[vente.vatMode];
 
@@ -196,13 +196,13 @@ export default function VentesTableau({
                   className={`
                     group cursor-pointer
                     transition-colors duration-200 ease-out
-                    hover:bg-zinc-800/40
+                    hover:bg-neutral-800/40
                     ${ligneOuverte === vente.id ? "bg-amber-500/[0.06]" : ""}
                   `}
                   onClick={() => toggleDetails(vente.id)}
                 >
                   <td
-                    className={`px-2 sm:px-4 py-3.5 text-zinc-400 whitespace-nowrap transition-shadow duration-200 ${
+                    className={`px-2 sm:px-4 py-3.5 text-neutral-400 whitespace-nowrap transition-shadow duration-200 ${
                       ligneOuverte === vente.id
                         ? "shadow-[inset_3px_0_0_0_rgba(251,191,36,0.7)]"
                         : ""
@@ -211,7 +211,7 @@ export default function VentesTableau({
                     {formatDate(vente.date)}
                   </td>
 
-                  <td className="hidden sm:table-cell px-2 sm:px-4 py-3.5 font-mono text-xs text-zinc-500">
+                  <td className="hidden sm:table-cell px-2 sm:px-4 py-3.5 font-mono text-xs text-neutral-500">
                     {vente.numInterne}
                   </td>
 
@@ -243,7 +243,7 @@ export default function VentesTableau({
                     </span>
                   </td>
 
-                  <td className="px-2 sm:px-4 py-3.5 text-right text-zinc-300 whitespace-nowrap tabular-nums">
+                  <td className="px-2 sm:px-4 py-3.5 text-right text-neutral-300 whitespace-nowrap tabular-nums">
                     {formatEuro(vente.subtotalHT)}
                   </td>
 
@@ -252,7 +252,7 @@ export default function VentesTableau({
                       className={
                         vente.vatAmount > 0
                           ? "text-cyan-400"
-                          : "text-zinc-700"
+                          : "text-neutral-700"
                       }
                     >
                       {vente.vatAmount > 0 ? formatEuro(vente.vatAmount) : "—"}
@@ -270,7 +270,7 @@ export default function VentesTableau({
                           ? vente.marginAmount > 0
                             ? "text-emerald-400 font-semibold"
                             : "text-red-400 font-semibold"
-                          : "text-zinc-700"
+                          : "text-neutral-700"
                       }
                     >
                       {vente.marginAmount !== 0
@@ -286,7 +286,7 @@ export default function VentesTableau({
                           e.stopPropagation();
                           toggleDetails(vente.id);
                         }}
-                        className="rounded-md p-1.5 sm:p-2 hover:bg-zinc-800 hover:text-amber-400 text-zinc-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
+                        className="rounded-md p-1.5 sm:p-2 hover:bg-neutral-800 hover:text-amber-400 text-neutral-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
                         title="Détails"
                       >
                         <svg
@@ -314,7 +314,7 @@ export default function VentesTableau({
                           e.stopPropagation();
                           onModifier(vente);
                         }}
-                        className="rounded-md p-1.5 sm:p-2 hover:bg-zinc-800 hover:text-blue-400 text-zinc-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
+                        className="rounded-md p-1.5 sm:p-2 hover:bg-neutral-800 hover:text-blue-400 text-neutral-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
                         title="Modifier"
                       >
                         <svg
@@ -344,7 +344,7 @@ export default function VentesTableau({
 
                           onSupprimer(vente.id);
                         }}
-                        className="rounded-md p-1.5 sm:p-2 hover:bg-red-500/10 hover:text-red-400 text-zinc-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/40"
+                        className="rounded-md p-1.5 sm:p-2 hover:bg-red-500/10 hover:text-red-400 text-neutral-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/40"
                         title="Supprimer"
                       >
                         <svg
@@ -369,27 +369,27 @@ export default function VentesTableau({
                   <tr key={`${vente.id}-details`}>
                     <td
                       colSpan={9}
-                      className="px-4 py-5 bg-zinc-950/50 border-b border-zinc-800/60"
+                      className="px-4 py-5 bg-neutral-950/50 border-b border-neutral-800/60"
                     >
                       <div className="animate-detail-reveal grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 text-sm">
-                        <div className="sm:hidden rounded-lg border border-zinc-800/60 bg-zinc-900/40 p-3">
-                          <span className="text-[11px] text-zinc-500 uppercase tracking-wider font-medium">
+                        <div className="sm:hidden rounded-lg border border-neutral-800/60 bg-neutral-900/40 p-3">
+                          <span className="text-[11px] text-neutral-500 uppercase tracking-wider font-medium">
                             N° interne
                           </span>
-                          <p className="text-zinc-200 mt-1 font-mono text-xs">
+                          <p className="text-neutral-200 mt-1 font-mono text-xs">
                             {vente.numInterne}
                           </p>
                         </div>
 
-                        <div className="rounded-lg border border-zinc-800/60 bg-zinc-900/40 p-3">
-                          <span className="text-[11px] text-zinc-500 uppercase tracking-wider font-medium">
+                        <div className="rounded-lg border border-neutral-800/60 bg-neutral-900/40 p-3">
+                          <span className="text-[11px] text-neutral-500 uppercase tracking-wider font-medium">
                             Client
                           </span>
-                          <p className="text-zinc-200 mt-1">
+                          <p className="text-neutral-200 mt-1">
                             {vente.contactId ? (
                               <Link
                                 href={`/contacts/${vente.contactId}`}
-                                className="text-zinc-200 underline decoration-amber-400/30 underline-offset-2 hover:text-amber-400 hover:decoration-amber-400/60 transition-colors"
+                                className="text-neutral-200 underline decoration-amber-400/30 underline-offset-2 hover:text-amber-400 hover:decoration-amber-400/60 transition-colors"
                               >
                                 {vente.customerName}
                               </Link>
@@ -399,50 +399,50 @@ export default function VentesTableau({
                           </p>
                         </div>
 
-                        <div className="rounded-lg border border-zinc-800/60 bg-zinc-900/40 p-3">
-                          <span className="text-[11px] text-zinc-500 uppercase tracking-wider font-medium">
+                        <div className="rounded-lg border border-neutral-800/60 bg-neutral-900/40 p-3">
+                          <span className="text-[11px] text-neutral-500 uppercase tracking-wider font-medium">
                             Paiement
                           </span>
-                          <p className="text-zinc-200 mt-1">
+                          <p className="text-neutral-200 mt-1">
                             {vente.paymentMethod}
                           </p>
                         </div>
 
-                        <div className="rounded-lg border border-zinc-800/60 bg-zinc-900/40 p-3">
-                          <span className="text-[11px] text-zinc-500 uppercase tracking-wider font-medium">
+                        <div className="rounded-lg border border-neutral-800/60 bg-neutral-900/40 p-3">
+                          <span className="text-[11px] text-neutral-500 uppercase tracking-wider font-medium">
                             Régime TVA
                           </span>
-                          <p className="text-zinc-200 mt-1">
+                          <p className="text-neutral-200 mt-1">
                             {SALE_VAT_MODE_CONFIG[vente.vatMode].label}
                           </p>
                         </div>
 
-                        <div className="rounded-lg border border-zinc-800/60 bg-zinc-900/40 p-3">
-                          <span className="text-[11px] text-zinc-500 uppercase tracking-wider font-medium">
+                        <div className="rounded-lg border border-neutral-800/60 bg-neutral-900/40 p-3">
+                          <span className="text-[11px] text-neutral-500 uppercase tracking-wider font-medium">
                             Lignes
                           </span>
-                          <p className="text-zinc-200 mt-1">
+                          <p className="text-neutral-200 mt-1">
                             {vente.lines?.length || 0}
                           </p>
                         </div>
 
                         {vente.notes && (
-                          <div className="sm:col-span-2 lg:col-span-4 rounded-lg border border-zinc-800/60 bg-zinc-900/40 p-3">
-                            <span className="text-[11px] text-zinc-500 uppercase tracking-wider font-medium">
+                          <div className="sm:col-span-2 lg:col-span-4 rounded-lg border border-neutral-800/60 bg-neutral-900/40 p-3">
+                            <span className="text-[11px] text-neutral-500 uppercase tracking-wider font-medium">
                               Notes
                             </span>
-                            <p className="text-zinc-400 mt-1 italic text-[13px]">
+                            <p className="text-neutral-400 mt-1 italic text-[13px]">
                               {vente.notes}
                             </p>
                           </div>
                         )}
 
                         {vente.lines && vente.lines.length > 0 && (
-                          <div className="sm:col-span-2 lg:col-span-4 mt-1 pt-4 border-t border-zinc-800/60">
+                          <div className="sm:col-span-2 lg:col-span-4 mt-1 pt-4 border-t border-neutral-800/60">
                             <div className="flex items-center justify-between mb-3">
-                              <span className="text-xs font-semibold text-zinc-300 uppercase tracking-wider flex items-center gap-2">
+                              <span className="text-xs font-semibold text-neutral-300 uppercase tracking-wider flex items-center gap-2">
                                 Lignes de vente
-                                <span className="inline-flex items-center justify-center h-5 min-w-[1.25rem] rounded-full bg-zinc-800 text-zinc-300 text-[10px] font-bold px-1.5">
+                                <span className="inline-flex items-center justify-center h-5 min-w-[1.25rem] rounded-full bg-neutral-800 text-neutral-300 text-[10px] font-bold px-1.5">
                                   {vente.lines.length}
                                 </span>
                               </span>
@@ -455,7 +455,7 @@ export default function VentesTableau({
                                   className="
                                     flex flex-col gap-1.5
                                     sm:grid sm:grid-cols-[120px_1fr_70px_110px_110px] sm:items-center sm:gap-3
-                                    rounded-lg bg-zinc-950/60 border border-zinc-800/60
+                                    rounded-lg bg-neutral-950/60 border border-neutral-800/60
                                     px-3 py-2.5 text-sm
                                   "
                                 >
@@ -467,16 +467,16 @@ export default function VentesTableau({
                                       {line.itemReference}
                                     </Link>
                                   ) : (
-                                    <span className="font-mono text-xs text-zinc-600">
+                                    <span className="font-mono text-xs text-neutral-400">
                                       {line.itemReference || "—"}
                                     </span>
                                   )}
 
-                                  <span className="text-zinc-200 sm:truncate">
+                                  <span className="text-neutral-200 sm:truncate">
                                     {line.itemName}
                                   </span>
 
-                                  <span className="text-zinc-400 tabular-nums sm:text-right">
+                                  <span className="text-neutral-400 tabular-nums sm:text-right">
                                     ×{line.quantity}
                                   </span>
 
@@ -484,7 +484,7 @@ export default function VentesTableau({
                                     {formatEuro(line.totalPrice)}
                                   </span>
 
-                                  <span className="text-zinc-500 tabular-nums sm:text-right">
+                                  <span className="text-neutral-500 tabular-nums sm:text-right">
                                     TVA {line.vatRate}%
                                   </span>
                                 </div>
@@ -503,7 +503,7 @@ export default function VentesTableau({
         </div>
 
         {/* Indicateur discret de scroll horizontal sur petits écrans */}
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-zinc-950/80 to-transparent lg:hidden" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-neutral-950/80 to-transparent lg:hidden" />
       </div>
     </div>
   );

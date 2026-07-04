@@ -4,6 +4,8 @@ import Link from "next/link";
 import { Suspense, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useSearchParams } from "next/navigation";
+import Field from "@/components/ui/Field";
+import Button from "@/components/ui/Button";
 
 // ── Formulaire isolé pour useSearchParams (requis par Next.js Suspense) ──────
 const CONFIRMATION_ERROR_CODES = ["confirmation_failed", "missing_confirmation_code"];
@@ -61,9 +63,9 @@ function LoginForm() {
             </span>
           </div>
 
-          <h2 className="text-3xl font-bold tracking-tight text-white">
+          <h1 className="text-3xl font-bold tracking-tight text-white">
             Se connecter
-          </h2>
+          </h1>
 
           <p className="mt-2 text-sm leading-relaxed text-neutral-500">
             Accédez à votre espace Kyrivo pour gérer vos achats, ventes,
@@ -78,57 +80,31 @@ function LoginForm() {
             </div>
           )}
 
-          <div>
-            <label className="mb-2 block text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
-              Adresse email
-            </label>
-            <input
-              type="email"
-              placeholder="vous@email.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="
-                w-full rounded-xl border border-neutral-800
-                bg-neutral-950 px-4 py-3
-                text-sm text-white
-                placeholder:text-neutral-700
-                outline-none transition
-                focus:border-amber-500/50
-                focus:ring-2 focus:ring-amber-500/10
-              "
-              required
-            />
-          </div>
+          <Field
+            label="Adresse email"
+            type="email"
+            placeholder="vous@email.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
 
-          <div>
-            <div className="mb-2 flex items-center justify-between">
-              <label className="block text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
-                Mot de passe
-              </label>
+          <Field
+            label="Mot de passe"
+            type="password"
+            placeholder="Votre mot de passe"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            action={
               <Link
                 href="/forgot-password"
                 className="text-xs text-neutral-500 hover:text-amber-400 transition-colors"
               >
                 Mot de passe oublié ?
               </Link>
-            </div>
-            <input
-              type="password"
-              placeholder="Votre mot de passe"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="
-                w-full rounded-xl border border-neutral-800
-                bg-neutral-950 px-4 py-3
-                text-sm text-white
-                placeholder:text-neutral-700
-                outline-none transition
-                focus:border-amber-500/50
-                focus:ring-2 focus:ring-amber-500/10
-              "
-              required
-            />
-          </div>
+            }
+          />
 
           {error && (
             <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400">
@@ -136,19 +112,9 @@ function LoginForm() {
             </div>
           )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="
-              w-full rounded-xl bg-amber-500 px-4 py-3
-              text-sm font-bold text-neutral-950
-              transition hover:bg-amber-400
-              disabled:cursor-not-allowed disabled:opacity-50
-              shadow-lg shadow-amber-500/10
-            "
-          >
+          <Button type="submit" disabled={loading} className="w-full">
             {loading ? "Connexion..." : "Se connecter"}
-          </button>
+          </Button>
         </form>
 
         <div className="mt-6 border-t border-neutral-800 pt-6 text-center">
@@ -156,19 +122,9 @@ function LoginForm() {
             Pas encore de compte ?
           </p>
 
-          <Link
-            href="/register"
-            className="
-              mt-3 inline-flex w-full items-center justify-center
-              rounded-xl border border-neutral-800
-              bg-neutral-950 px-4 py-3
-              text-sm font-semibold text-neutral-300
-              transition
-              hover:border-amber-500/30 hover:bg-amber-500/5 hover:text-amber-400
-            "
-          >
+          <Button href="/register" variant="secondary" className="mt-3 w-full">
             Créer un compte Kyrivo
-          </Link>
+          </Button>
         </div>
       </div>
     </div>
@@ -180,13 +136,7 @@ export default function LoginPage() {
   return (
     <main className="relative min-h-screen overflow-hidden bg-neutral-950 text-white flex items-center justify-center px-6">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div
-          className="absolute -top-40 left-1/2 h-[520px] w-[900px] -translate-x-1/2 rounded-full opacity-[0.14] blur-3xl"
-          style={{
-            background:
-              "radial-gradient(circle, rgba(245,158,11,1) 0%, transparent 70%)",
-          }}
-        />
+        <div className="absolute -top-40 left-1/2 h-[520px] w-[900px] -translate-x-1/2 rounded-full opacity-[0.14] blur-3xl bg-glow-brand" />
       </div>
 
       <div className="relative w-full max-w-md">

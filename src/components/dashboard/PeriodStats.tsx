@@ -252,16 +252,16 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
 
       {/* ── Titre de section ─────────────────────────────────── */}
       <div className="flex items-center gap-3">
-        <div className="h-px flex-1 bg-gradient-to-r from-transparent to-zinc-800" />
-        <span className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">
+        <div className="h-px flex-1 bg-gradient-to-r from-transparent to-neutral-800" />
+        <span className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.15em] text-neutral-500">
           <span className="h-1 w-1 rounded-full bg-amber-500" />
           Analyse par période
         </span>
-        <div className="h-px flex-1 bg-gradient-to-l from-transparent to-zinc-800" />
+        <div className="h-px flex-1 bg-gradient-to-l from-transparent to-neutral-800" />
       </div>
 
       {/* ── Sélecteurs de dates ──────────────────────────────── */}
-      <div className="surface space-y-3 rounded-xl border border-zinc-800 bg-zinc-900/30 p-3 sm:p-4">
+      <div className="surface space-y-3 rounded-xl border border-neutral-800 bg-neutral-900/30 p-3 sm:p-4">
         <div className="flex flex-wrap gap-1.5">
           {presets.map((p) => (
             <button
@@ -271,7 +271,7 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
               className={`rounded-full border px-3 py-1.5 text-[11px] font-semibold transition-colors ${
                 activePreset === p.label
                   ? "border-amber-500/40 bg-amber-500/10 text-amber-400"
-                  : "border-zinc-800 bg-zinc-900/60 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200"
+                  : "border-neutral-800 bg-neutral-900/60 text-neutral-400 hover:border-neutral-700 hover:text-neutral-200"
               }`}
             >
               {p.label}
@@ -280,7 +280,7 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
         </div>
         <div className="flex flex-col sm:flex-row gap-3 sm:items-end">
           <div className="flex-1">
-            <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
+            <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-wider text-neutral-500">
               Du
             </label>
             <input
@@ -288,16 +288,16 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
               value={dateDebut}
               onChange={(e) => setDateDebut(e.target.value)}
               className="
-                w-full rounded-lg border border-zinc-800
-                bg-zinc-900/60 px-3 py-2.5
-                text-sm text-zinc-200
+                w-full rounded-lg border border-neutral-800
+                bg-neutral-900/60 px-3 py-2.5
+                text-sm text-neutral-200
                 outline-none transition-colors
                 focus:border-amber-500/40 focus:ring-1 focus:ring-amber-500/10
               "
             />
           </div>
           <div className="flex-1">
-            <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
+            <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-wider text-neutral-500">
               Au
             </label>
             <input
@@ -305,16 +305,16 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
               value={dateFin}
               onChange={(e) => setDateFin(e.target.value)}
               className="
-                w-full rounded-lg border border-zinc-800
-                bg-zinc-900/60 px-3 py-2.5
-                text-sm text-zinc-200
+                w-full rounded-lg border border-neutral-800
+                bg-neutral-900/60 px-3 py-2.5
+                text-sm text-neutral-200
                 outline-none transition-colors
                 focus:border-amber-500/40 focus:ring-1 focus:ring-amber-500/10
               "
             />
           </div>
           {loading && (
-            <span className="hidden sm:inline-flex items-center gap-1.5 pb-2.5 text-[11px] text-zinc-500">
+            <span className="hidden sm:inline-flex items-center gap-1.5 pb-2.5 text-[11px] text-neutral-500">
               <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
               Mise à jour…
             </span>
@@ -341,7 +341,7 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
             {[...Array(4)].map((_, i) => (
               <div
                 key={i}
-                className="h-28 rounded-xl border border-zinc-800 bg-zinc-900/40 animate-pulse"
+                className="h-28 rounded-xl border border-neutral-800 bg-neutral-900/40 animate-pulse"
               />
             ))}
           </div>
@@ -349,7 +349,7 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
             {[...Array(2)].map((_, i) => (
               <div
                 key={i}
-                className="h-72 rounded-xl border border-zinc-800 bg-zinc-900/40 animate-pulse"
+                className="h-72 rounded-xl border border-neutral-800 bg-neutral-900/40 animate-pulse"
               />
             ))}
           </div>
@@ -363,35 +363,35 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
 
             {/* Argent dépensé */}
-            <div className="surface rounded-xl border border-zinc-800 bg-zinc-900/40 p-4 flex flex-col gap-3 transition-colors hover:border-zinc-700">
+            <div className="surface rounded-xl border border-neutral-800 bg-neutral-900/40 p-4 flex flex-col gap-3 transition-colors hover:border-neutral-700">
               <div className="flex items-center gap-2">
                 <span className="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border border-rose-500/20 bg-rose-500/10 text-rose-400">
                   <ArrowDownIcon />
                 </span>
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500 leading-tight">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-500 leading-tight">
                   Argent dépensé
                 </p>
               </div>
-              <p className="text-2xl font-bold tabular-nums text-rose-400 leading-none">
+              <p className="font-display text-2xl font-bold tabular-nums text-rose-400 leading-none">
                 {fmt(stats.depenses)}
               </p>
-              <p className="text-[10px] text-zinc-600">Ce que ça t&apos;a coûté</p>
+              <p className="text-[10px] text-neutral-400">Ce que ça t&apos;a coûté</p>
             </div>
 
             {/* Argent rentré */}
-            <div className="surface rounded-xl border border-zinc-800 bg-zinc-900/40 p-4 flex flex-col gap-3 transition-colors hover:border-zinc-700">
+            <div className="surface rounded-xl border border-neutral-800 bg-neutral-900/40 p-4 flex flex-col gap-3 transition-colors hover:border-neutral-700">
               <div className="flex items-center gap-2">
                 <span className="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border border-emerald-500/20 bg-emerald-500/10 text-emerald-400">
                   <ArrowUpIcon />
                 </span>
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500 leading-tight">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-500 leading-tight">
                   Argent rentré
                 </p>
               </div>
-              <p className="text-2xl font-bold tabular-nums text-emerald-400 leading-none">
+              <p className="font-display text-2xl font-bold tabular-nums text-emerald-400 leading-none">
                 {fmt(stats.recettes)}
               </p>
-              <p className="text-[10px] text-zinc-600">Ce que ça t&apos;a rapporté</p>
+              <p className="text-[10px] text-neutral-400">Ce que ça t&apos;a rapporté</p>
             </div>
 
             {/* Solde TVA */}
@@ -410,16 +410,16 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
                 `}>
                   <ReceiptIcon />
                 </span>
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500 leading-tight">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-500 leading-tight">
                   {stats.soldeTva >= 0 ? "TVA estimée à payer" : "Crédit TVA estimé"}
                 </p>
               </div>
-              <p className={`text-2xl font-bold tabular-nums leading-none ${stats.soldeTva >= 0 ? "text-cyan-400" : "text-violet-400"}`}>
+              <p className={`font-display text-2xl font-bold tabular-nums leading-none ${stats.soldeTva >= 0 ? "text-cyan-400" : "text-violet-400"}`}>
                 {fmt(Math.abs(stats.soldeTva))}
               </p>
-              <div className="flex items-center justify-between gap-2 border-t border-zinc-800/60 pt-2 text-[10px] text-zinc-600">
-                <span>Collectée <span className="text-zinc-400 tabular-nums">{fmt(stats.tvaCollectee)}</span></span>
-                <span>Déductible <span className="text-zinc-400 tabular-nums">{fmt(stats.tvaDeductible)}</span></span>
+              <div className="flex items-center justify-between gap-2 border-t border-neutral-800/60 pt-2 text-[10px] text-neutral-400">
+                <span>Collectée <span className="text-neutral-200 tabular-nums">{fmt(stats.tvaCollectee)}</span></span>
+                <span>Déductible <span className="text-neutral-200 tabular-nums">{fmt(stats.tvaDeductible)}</span></span>
               </div>
             </div>
 
@@ -439,14 +439,14 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
                 `}>
                   <TrendIcon />
                 </span>
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500 leading-tight">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-500 leading-tight">
                   Résultat net estimé
                 </p>
               </div>
-              <p className={`text-2xl font-bold tabular-nums leading-none ${stats.resultatNet >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+              <p className={`font-display text-2xl font-bold tabular-nums leading-none ${stats.resultatNet >= 0 ? "text-emerald-400" : "text-red-400"}`}>
                 {fmt(stats.resultatNet)}
               </p>
-              <p className="text-[10px] text-zinc-600">Ce qu&apos;il te reste réellement</p>
+              <p className="text-[10px] text-neutral-400">Ce qu&apos;il te reste réellement</p>
             </div>
 
           </div>
@@ -457,13 +457,13 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
             className="animate-chart-fade grid grid-cols-1 xl:grid-cols-[1.4fr_1fr] gap-4"
           >
             {/* Graphique 1 — Évolution de la période */}
-            <div className="surface rounded-xl border border-zinc-700/60 bg-gradient-to-b from-zinc-800/50 to-zinc-900/50 p-4 sm:p-6">
+            <div className="surface rounded-xl border border-neutral-700/60 bg-gradient-to-b from-neutral-800/50 to-neutral-900/50 p-4 sm:p-6">
               <div className="mb-5 flex items-center justify-between gap-2">
                 <div>
-                  <h3 className="text-base font-semibold text-zinc-100">Évolution de la période</h3>
-                  <p className="text-[11px] text-zinc-500 mt-0.5">Ventes, achats et bénéfice net</p>
+                  <h3 className="text-base font-semibold text-neutral-100">Évolution de la période</h3>
+                  <p className="text-[11px] text-neutral-500 mt-0.5">Ventes, achats et bénéfice net</p>
                 </div>
-                <span className="rounded-full border border-zinc-700 bg-zinc-900/60 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
+                <span className="rounded-full border border-neutral-700 bg-neutral-900/60 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-neutral-400">
                   {granularityLabel(granularity)}
                 </span>
               </div>
@@ -471,10 +471,10 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
             </div>
 
             {/* Graphique 2 — Pont de rentabilité */}
-            <div className="surface rounded-xl border border-zinc-700/60 bg-gradient-to-b from-zinc-800/50 to-zinc-900/50 p-4 sm:p-6">
+            <div className="surface rounded-xl border border-neutral-700/60 bg-gradient-to-b from-neutral-800/50 to-neutral-900/50 p-4 sm:p-6">
               <div className="mb-5">
-                <h3 className="text-base font-semibold text-zinc-100">Pont de rentabilité</h3>
-                <p className="text-[11px] text-zinc-500 mt-0.5">Décomposition du résultat de la période</p>
+                <h3 className="text-base font-semibold text-neutral-100">Pont de rentabilité</h3>
+                <p className="text-[11px] text-neutral-500 mt-0.5">Décomposition du résultat de la période</p>
               </div>
               <ProfitBridge
                 recettes={stats.recettes}
@@ -486,7 +486,7 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
           </div>
 
           {/* Disclaimer */}
-          <p className="text-center text-[10px] text-zinc-700">
+          <p className="text-center text-[10px] text-neutral-400">
             Montants estimatifs basés sur les achats et ventes enregistrés dans Kyrivo. Non certifiés comptablement.
           </p>
         </div>

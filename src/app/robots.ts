@@ -10,6 +10,7 @@ export default function robots(): MetadataRoute.Robots {
           '/dashboard',
           '/achats',
           '/ventes',
+          '/stock',
           '/factures',
           '/preferences',
           '/contacts',

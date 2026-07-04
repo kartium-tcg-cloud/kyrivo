@@ -158,7 +158,7 @@ export default async function ItemDetailPage({ params }: PageProps) {
               {formatEuro(Number(item.unit_cost))}
             </p>
 
-            <p className="text-xs text-neutral-600 mt-1">
+            <p className="text-xs text-neutral-400 mt-1">
               Stock restant : {stockQuantity} / {initialQuantity}
             </p>
           </div>

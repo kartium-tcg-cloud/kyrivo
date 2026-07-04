@@ -1,9 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
+import Field from "@/components/ui/Field";
+import Button from "@/components/ui/Button";
 
 export default function ResetPasswordPage() {
   const router = useRouter();
@@ -46,10 +47,7 @@ export default function ResetPasswordPage() {
   return (
     <main className="relative min-h-screen overflow-hidden bg-neutral-950 text-white flex items-center justify-center px-6">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div
-          className="absolute -top-40 left-1/2 h-[520px] w-[900px] -translate-x-1/2 rounded-full opacity-[0.14] blur-3xl"
-          style={{ background: "radial-gradient(circle, rgba(245,158,11,1) 0%, transparent 70%)" }}
-        />
+        <div className="absolute -top-40 left-1/2 h-[520px] w-[900px] -translate-x-1/2 rounded-full opacity-[0.14] blur-3xl bg-glow-brand" />
       </div>
 
       <div className="relative w-full max-w-md">
@@ -66,7 +64,7 @@ export default function ResetPasswordPage() {
             <span className="text-lg font-black tracking-tighter text-neutral-950">K</span>
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-white">Kyrivo</h1>
+            <p className="text-2xl font-bold tracking-tight text-white">Kyrivo</p>
           </div>
         </div>
 
@@ -82,73 +80,44 @@ export default function ResetPasswordPage() {
                   </svg>
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-white">Mot de passe mis à jour</h2>
+                  <h1 className="text-xl font-bold text-white">Mot de passe mis à jour</h1>
                   <p className="mt-2 text-sm text-neutral-400">
                     Votre mot de passe a bien été modifié. Vous pouvez maintenant vous connecter.
                   </p>
                 </div>
-                <Link
-                  href="/login"
-                  className="mt-2 inline-flex items-center gap-2 rounded-xl border border-neutral-800 bg-neutral-950 px-5 py-2.5 text-sm font-semibold text-neutral-300 transition hover:border-amber-500/30 hover:text-amber-400"
-                >
+                <Button href="/login" variant="secondary" size="sm" className="mt-2">
                   Se connecter
-                </Link>
+                </Button>
               </div>
             ) : (
               <>
                 <div className="mb-7">
-                  <h2 className="text-2xl font-bold tracking-tight text-white">
+                  <h1 className="text-2xl font-bold tracking-tight text-white">
                     Nouveau mot de passe
-                  </h2>
+                  </h1>
                   <p className="mt-2 text-sm leading-relaxed text-neutral-500">
                     Choisissez un nouveau mot de passe pour votre compte Kyrivo.
                   </p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <label className="mb-2 block text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
-                      Nouveau mot de passe
-                    </label>
-                    <input
-                      type="password"
-                      placeholder="Minimum 6 caractères"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="
-                        w-full rounded-xl border border-neutral-800
-                        bg-neutral-950 px-4 py-3
-                        text-sm text-white
-                        placeholder:text-neutral-700
-                        outline-none transition
-                        focus:border-amber-500/50
-                        focus:ring-2 focus:ring-amber-500/10
-                      "
-                      required
-                    />
-                  </div>
+                  <Field
+                    label="Nouveau mot de passe"
+                    type="password"
+                    placeholder="Minimum 6 caractères"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
 
-                  <div>
-                    <label className="mb-2 block text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
-                      Confirmer le mot de passe
-                    </label>
-                    <input
-                      type="password"
-                      placeholder="Répétez votre mot de passe"
-                      value={confirm}
-                      onChange={(e) => setConfirm(e.target.value)}
-                      className="
-                        w-full rounded-xl border border-neutral-800
-                        bg-neutral-950 px-4 py-3
-                        text-sm text-white
-                        placeholder:text-neutral-700
-                        outline-none transition
-                        focus:border-amber-500/50
-                        focus:ring-2 focus:ring-amber-500/10
-                      "
-                      required
-                    />
-                  </div>
+                  <Field
+                    label="Confirmer le mot de passe"
+                    type="password"
+                    placeholder="Répétez votre mot de passe"
+                    value={confirm}
+                    onChange={(e) => setConfirm(e.target.value)}
+                    required
+                  />
 
                   {error && (
                     <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400">
@@ -156,19 +125,9 @@ export default function ResetPasswordPage() {
                     </div>
                   )}
 
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="
-                      w-full rounded-xl bg-amber-500 px-4 py-3
-                      text-sm font-bold text-neutral-950
-                      transition hover:bg-amber-400
-                      disabled:cursor-not-allowed disabled:opacity-50
-                      shadow-lg shadow-amber-500/10
-                    "
-                  >
+                  <Button type="submit" disabled={loading} className="w-full">
                     {loading ? "Mise à jour..." : "Mettre à jour le mot de passe"}
-                  </button>
+                  </Button>
                 </form>
               </>
             )}

@@ -355,7 +355,7 @@ export default function StockPage() {
 
         <div className="flex flex-col items-center justify-center rounded-xl border border-neutral-800/60 bg-neutral-900/30 px-6 py-20 text-center">
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-neutral-800 bg-neutral-900 mb-5">
-            <BoxIcon className="h-7 w-7 text-neutral-600" />
+            <BoxIcon className="h-7 w-7 text-neutral-400" />
           </div>
 
           <h3 className="text-base font-semibold text-white mb-2">
@@ -475,14 +475,14 @@ export default function StockPage() {
               Articles en stock uniquement&nbsp;:&nbsp;
               <span
                 className={
-                  showInStockOnly ? "text-emerald-400" : "text-neutral-600"
+                  showInStockOnly ? "text-emerald-400" : "text-neutral-400"
                 }
               >
                 {showInStockOnly ? "activé" : "désactivé"}
               </span>
             </button>
 
-            <span className="ml-auto text-xs text-neutral-600">
+            <span className="ml-auto text-xs text-neutral-400">
               {filteredItems.length} résultat
               {filteredItems.length !== 1 ? "s" : ""}
             </span>
@@ -698,7 +698,7 @@ export default function StockPage() {
                               <button
                                 type="button"
                                 disabled
-                                className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold text-neutral-600 cursor-not-allowed"
+                                className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold text-neutral-400 cursor-not-allowed"
                                 title="Stock épuisé"
                               >
                                 <SellIcon className="h-3.5 w-3.5" />
@@ -920,7 +920,7 @@ function StockEditModal({
                 w-full rounded-lg px-3 py-2.5 text-sm
                 bg-neutral-900/60 text-neutral-200
                 border ${fieldError ? "border-red-500/50" : "border-neutral-800"}
-                placeholder:text-neutral-600
+                placeholder:text-neutral-400
                 focus:outline-none focus:border-amber-500/40 focus:ring-1 focus:ring-amber-500/15
                 transition-colors duration-150
               `}

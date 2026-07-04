@@ -288,9 +288,9 @@ export default function VintedImportModal({
     !date;
 
   const inputCls =
-    "w-full rounded-lg px-3 py-2.5 text-sm bg-zinc-900/60 text-zinc-200 border border-zinc-800 placeholder:text-zinc-600 focus:outline-none focus:border-amber-500/40 focus:ring-1 focus:ring-amber-500/15 transition-colors";
+    "w-full rounded-lg px-3 py-2.5 text-sm bg-neutral-900/60 text-neutral-200 border border-neutral-800 placeholder:text-neutral-400 focus:outline-none focus:border-amber-500/40 focus:ring-1 focus:ring-amber-500/15 transition-colors";
   const labelCls =
-    "block text-[11px] font-semibold text-zinc-500 mb-2 uppercase tracking-wider";
+    "block text-[11px] font-semibold text-neutral-500 mb-2 uppercase tracking-wider";
   const errCls = "text-red-400 text-[11px] mt-1.5";
 
   return (
@@ -306,7 +306,7 @@ export default function VintedImportModal({
             <button
               type="button"
               onClick={handleFermer}
-              className="rounded-lg px-4 py-2 text-sm font-medium text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-200 transition-colors"
+              className="rounded-lg px-4 py-2 text-sm font-medium text-neutral-400 hover:bg-neutral-800/60 hover:text-neutral-200 transition-colors"
             >
               Annuler
             </button>
@@ -314,7 +314,7 @@ export default function VintedImportModal({
               type="button"
               onClick={handleAnalyser}
               disabled={!rawText.trim()}
-              className="rounded-lg px-5 py-2 text-sm font-semibold bg-amber-500 text-zinc-950 hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.97] transition-all shadow-lg shadow-amber-500/10"
+              className="rounded-lg px-5 py-2 text-sm font-semibold bg-amber-500 text-neutral-950 hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.97] transition-all shadow-lg shadow-amber-500/10"
             >
               Analyser
             </button>
@@ -324,7 +324,7 @@ export default function VintedImportModal({
             <button
               type="button"
               onClick={() => setStep("paste")}
-              className="rounded-lg px-4 py-2 text-sm font-medium text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-200 transition-colors"
+              className="rounded-lg px-4 py-2 text-sm font-medium text-neutral-400 hover:bg-neutral-800/60 hover:text-neutral-200 transition-colors"
             >
               ← Retour
             </button>
@@ -332,14 +332,14 @@ export default function VintedImportModal({
               <button
                 type="button"
                 onClick={handleFermer}
-                className="rounded-lg px-4 py-2 text-sm font-medium text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-200 transition-colors"
+                className="rounded-lg px-4 py-2 text-sm font-medium text-neutral-400 hover:bg-neutral-800/60 hover:text-neutral-200 transition-colors"
               >
                 Annuler
               </button>
               <button
                 type="button"
                 onClick={handleCreer}
-                className="rounded-lg px-5 py-2 text-sm font-semibold bg-amber-500 text-zinc-950 hover:bg-amber-400 active:scale-[0.97] transition-all shadow-lg shadow-amber-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
+                className="rounded-lg px-5 py-2 text-sm font-semibold bg-amber-500 text-neutral-950 hover:bg-amber-400 active:scale-[0.97] transition-all shadow-lg shadow-amber-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
               >
                 Créer l'achat
               </button>
@@ -368,7 +368,7 @@ export default function VintedImportModal({
               <p className="text-sm font-semibold text-amber-300">
                 Comment importer
               </p>
-              <ol className="mt-1.5 text-xs text-zinc-400 space-y-0.5 list-decimal list-inside leading-relaxed">
+              <ol className="mt-1.5 text-xs text-neutral-400 space-y-0.5 list-decimal list-inside leading-relaxed">
                 <li>Ouvrez votre commande Vinted (appli ou email de confirmation)</li>
                 <li>Copiez le texte du récapitulatif ou du reçu</li>
                 <li>Collez-le ci-dessous et cliquez sur Analyser</li>
@@ -387,7 +387,7 @@ export default function VintedImportModal({
               }
               className={`${inputCls} resize-none font-mono text-xs leading-relaxed`}
             />
-            <p className="text-[10px] text-zinc-600 mt-1.5">
+            <p className="text-[10px] text-neutral-400 mt-1.5">
               Vous pourrez corriger les données détectées à l'étape suivante.
             </p>
           </div>
@@ -395,40 +395,40 @@ export default function VintedImportModal({
       ) : (
         <div className="flex flex-col gap-5">
           {parsed && (
-            <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 overflow-hidden">
-              <div className="px-4 py-2.5 border-b border-zinc-800 bg-zinc-900/60">
-                <span className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">
+            <div className="rounded-xl border border-neutral-800 bg-neutral-900/40 overflow-hidden">
+              <div className="px-4 py-2.5 border-b border-neutral-800 bg-neutral-900/60">
+                <span className="text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">
                   Données détectées
                 </span>
               </div>
               <div className="px-4 py-3 grid grid-cols-2 gap-x-6 gap-y-2 text-xs">
                 {parsed.prixArticle !== undefined && (
                   <>
-                    <span className="text-zinc-500">Prix article</span>
-                    <span className="text-zinc-300 tabular-nums font-medium">
+                    <span className="text-neutral-500">Prix article</span>
+                    <span className="text-neutral-300 tabular-nums font-medium">
                       {parsed.prixArticle.toFixed(2)} €
                     </span>
                   </>
                 )}
                 {parsed.fraisLivraison !== undefined && (
                   <>
-                    <span className="text-zinc-500">Livraison</span>
-                    <span className="text-zinc-300 tabular-nums font-medium">
+                    <span className="text-neutral-500">Livraison</span>
+                    <span className="text-neutral-300 tabular-nums font-medium">
                       {parsed.fraisLivraison.toFixed(2)} €
                     </span>
                   </>
                 )}
                 {parsed.fraisVinted !== undefined && (
                   <>
-                    <span className="text-zinc-500">Protection acheteur</span>
-                    <span className="text-zinc-300 tabular-nums font-medium">
+                    <span className="text-neutral-500">Protection acheteur</span>
+                    <span className="text-neutral-300 tabular-nums font-medium">
                       {parsed.fraisVinted.toFixed(2)} €
                     </span>
                   </>
                 )}
                 {parsed.total !== undefined && (
                   <>
-                    <span className="text-zinc-600 font-semibold">Total payé</span>
+                    <span className="text-neutral-400 font-semibold">Total payé</span>
                     <span className="text-amber-400 tabular-nums font-bold">
                       {parsed.total.toFixed(2)} €
                     </span>
@@ -436,8 +436,8 @@ export default function VintedImportModal({
                 )}
                 {parsed.reference && (
                   <>
-                    <span className="text-zinc-500">Référence</span>
-                    <span className="text-zinc-400 font-mono truncate">
+                    <span className="text-neutral-500">Référence</span>
+                    <span className="text-neutral-400 font-mono truncate">
                       {parsed.reference}
                     </span>
                   </>
@@ -519,7 +519,7 @@ export default function VintedImportModal({
                   className={`${inputCls} ${errors.produit ? "border-red-500/50" : ""}`}
                 />
                 {showCatDropdown && filteredCats.length > 0 && (
-                  <div className="absolute left-0 right-0 top-full z-[100] mt-1 max-h-40 overflow-y-auto rounded-lg border border-zinc-700 bg-zinc-900 shadow-xl">
+                  <div className="absolute left-0 right-0 top-full z-[100] mt-1 max-h-40 overflow-y-auto rounded-lg border border-neutral-700 bg-neutral-900 shadow-xl">
                     {filteredCats.map((cat) => (
                       <button
                         key={cat}
@@ -528,7 +528,7 @@ export default function VintedImportModal({
                           setProduit(cat);
                           setShowCatDropdown(false);
                         }}
-                        className="w-full px-3 py-2 text-left text-sm text-zinc-200 hover:bg-amber-500/5 hover:text-amber-400 transition-colors"
+                        className="w-full px-3 py-2 text-left text-sm text-neutral-200 hover:bg-amber-500/5 hover:text-amber-400 transition-colors"
                       >
                         {cat}
                       </button>
@@ -561,12 +561,12 @@ export default function VintedImportModal({
                   placeholder="0.00"
                   className={`${inputCls} pr-7 ${errors.total ? "border-red-500/50" : ""}`}
                 />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-zinc-500 pointer-events-none">
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-neutral-500 pointer-events-none">
                   €
                 </span>
               </div>
               {errors.total && <p className={errCls}>{errors.total}</p>}
-              <p className="text-[10px] text-zinc-600 mt-1.5">
+              <p className="text-[10px] text-neutral-400 mt-1.5">
                 Coût réel = prix article + livraison + protection acheteur
               </p>
             </div>
@@ -574,7 +574,7 @@ export default function VintedImportModal({
             <div>
               <label className={labelCls}>
                 Commentaire{" "}
-                <span className="text-zinc-700 normal-case tracking-normal ml-1">
+                <span className="text-neutral-700 normal-case tracking-normal ml-1">
                   (facultatif)
                 </span>
               </label>
@@ -588,9 +588,9 @@ export default function VintedImportModal({
             </div>
           </div>
 
-          <div className="flex items-start gap-2.5 rounded-lg border border-zinc-800/60 bg-zinc-900/20 px-4 py-3">
+          <div className="flex items-start gap-2.5 rounded-lg border border-neutral-800/60 bg-neutral-900/20 px-4 py-3">
             <svg
-              className="h-4 w-4 text-zinc-600 flex-shrink-0 mt-0.5"
+              className="h-4 w-4 text-neutral-400 flex-shrink-0 mt-0.5"
               fill="none"
               viewBox="0 0 24 24"
               strokeWidth={2}
@@ -602,11 +602,11 @@ export default function VintedImportModal({
                 d="m11.25 11.25.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0Zm-9-3.75h.008v.008H12V8.25Z"
               />
             </svg>
-            <p className="text-[11px] text-zinc-500 leading-relaxed">
+            <p className="text-[11px] text-neutral-500 leading-relaxed">
               Achat créé en mode{" "}
-              <span className="text-zinc-300 font-medium">Particulier</span>,
+              <span className="text-neutral-300 font-medium">Particulier</span>,
               TVA 0 %, paiement{" "}
-              <span className="text-zinc-300 font-medium">Vinted</span>.
+              <span className="text-neutral-300 font-medium">Vinted</span>.
               L'article sera mis en stock avec le coût réel total payé.
             </p>
           </div>

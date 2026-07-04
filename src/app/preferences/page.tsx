@@ -218,14 +218,14 @@ function addPaymentMethod() {
     w-full rounded-lg px-3 py-2.5 text-sm
     bg-neutral-900/60 text-neutral-200
     border border-neutral-800
-    placeholder:text-neutral-600
+    placeholder:text-neutral-400
     focus:outline-none
     focus:border-amber-500/40
     focus:ring-1 focus:ring-amber-500/15
     transition-colors duration-150
   `;
 
-  const helperTextClasses = "text-[11px] text-neutral-600 mt-1.5";
+  const helperTextClasses = "text-[11px] text-neutral-400 mt-1.5";
 
   // ─────────────────────────────────────────────────────────
   // RENDER — LOADING

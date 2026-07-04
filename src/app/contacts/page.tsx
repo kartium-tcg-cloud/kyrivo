@@ -1195,7 +1195,7 @@ function inputClass(error?: string) {
     w-full rounded-lg px-3 py-2.5 text-sm
     bg-neutral-900/60 text-neutral-200
     border ${error ? "border-red-500/50" : "border-neutral-800"}
-    placeholder:text-neutral-600
+    placeholder:text-neutral-400
     transition-colors duration-150
     focus:outline-none focus:border-amber-500/40 focus:ring-1 focus:ring-amber-500/15
   `;

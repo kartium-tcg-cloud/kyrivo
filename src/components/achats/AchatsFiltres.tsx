@@ -24,20 +24,20 @@ export default function AchatsFiltres({
   // Classes partagées pour tous les inputs
   const inputBase = `
     w-full rounded-lg px-3 py-1.5 text-sm
-    bg-zinc-900/60 text-zinc-200
-    border border-zinc-800
-    placeholder:text-zinc-500
+    bg-neutral-900/60 text-neutral-200
+    border border-neutral-800
+    placeholder:text-neutral-500
     focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20
     transition-colors duration-200
   `;
 
   return (
-    <div className="rounded-xl border border-zinc-800/60 bg-zinc-900/40 shadow-sm shadow-black/20 p-3">
+    <div className="rounded-xl border border-neutral-800/60 bg-neutral-900/40 shadow-sm shadow-black/20 p-3">
       <div className="flex flex-col gap-2 lg:flex-row lg:flex-wrap lg:items-center">
         {/* Recherche textuelle */}
         <div className="relative flex-1 lg:min-w-[180px]">
           <svg
-            className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500 pointer-events-none"
+            className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-500 pointer-events-none"
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth={2}
@@ -68,7 +68,7 @@ export default function AchatsFiltres({
         <div className="flex gap-2">
           {/* Date début */}
           <div className="relative flex-1 lg:w-36 lg:flex-none">
-            <label className="absolute -top-2 left-2.5 px-1 text-[10px] text-zinc-500 bg-zinc-950 rounded">
+            <label className="absolute -top-2 left-2.5 px-1 text-[10px] text-neutral-500 bg-neutral-950 rounded">
               Du
             </label>
             <input
@@ -81,7 +81,7 @@ export default function AchatsFiltres({
 
           {/* Date fin */}
           <div className="relative flex-1 lg:w-36 lg:flex-none">
-            <label className="absolute -top-2 left-2.5 px-1 text-[10px] text-zinc-500 bg-zinc-950 rounded">
+            <label className="absolute -top-2 left-2.5 px-1 text-[10px] text-neutral-500 bg-neutral-950 rounded">
               Au
             </label>
             <input

@@ -1,12 +1,13 @@
 // Page 404 globale — remplace la page par défaut Next.js (anglais, fond blanc)
 // par une page cohérente avec le thème sombre Kyrivo.
 
-import Link from "next/link";
+import Card from "@/components/ui/Card";
+import Button from "@/components/ui/Button";
 
 export default function NotFound() {
   return (
     <div className="flex min-h-[70vh] items-center justify-center p-6">
-      <div className="w-full max-w-md text-center">
+      <Card padding="lg" className="w-full max-w-md text-center">
         <div className="mx-auto mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl border border-amber-500/25 bg-amber-500/10 text-amber-400">
           <svg
             className="h-7 w-7"
@@ -37,35 +38,15 @@ export default function NotFound() {
         </p>
 
         <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
-          <Link
-            href="/dashboard"
-            className="
-              inline-flex w-full sm:w-auto items-center justify-center
-              rounded-lg px-5 py-2.5
-              text-sm font-semibold
-              bg-amber-500 text-neutral-950
-              hover:bg-amber-400
-              transition-colors
-            "
-          >
+          <Button href="/dashboard" variant="primary" size="sm" className="w-full sm:w-auto">
             Retour au tableau de bord
-          </Link>
+          </Button>
 
-          <Link
-            href="/stock"
-            className="
-              inline-flex w-full sm:w-auto items-center justify-center
-              rounded-lg border border-neutral-800 bg-neutral-900
-              px-5 py-2.5
-              text-sm font-semibold text-neutral-300
-              hover:bg-neutral-800
-              transition-colors
-            "
-          >
+          <Button href="/stock" variant="secondary" size="sm" className="w-full sm:w-auto">
             Voir le stock
-          </Link>
+          </Button>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

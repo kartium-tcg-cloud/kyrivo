@@ -97,7 +97,7 @@ export default function LegalPage({ title, subtitle, lastUpdated, children }: Le
 
       {/* ─── Header ─────────────────────────────────────────── */}
       <div className="border-b border-neutral-800/60 bg-[#0c0c0c]">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-7 pb-6 sm:pt-9 sm:pb-8">
+        <div className="max-w-[44rem] mx-auto px-4 sm:px-6 lg:px-8 pt-7 pb-6 sm:pt-9 sm:pb-8">
 
           <Link
             href="/"
@@ -126,7 +126,7 @@ export default function LegalPage({ title, subtitle, lastUpdated, children }: Le
           )}
 
           {lastUpdated && (
-            <p className="mt-3 text-xs text-neutral-600">
+            <p className="mt-3 text-xs text-neutral-400">
               Dernière mise à jour : {lastUpdated}
             </p>
           )}
@@ -134,15 +134,15 @@ export default function LegalPage({ title, subtitle, lastUpdated, children }: Le
       </div>
 
       {/* ─── Contenu ─────────────────────────────────────────── */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <div className="max-w-[44rem] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {children}
       </div>
 
       {/* ─── Footer légal ────────────────────────────────────── */}
       <div className="border-t border-neutral-800/60 bg-[#0c0c0c]">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="max-w-[44rem] mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-[11px] text-neutral-600">
+            <p className="text-[11px] text-neutral-400">
               © {new Date().getFullYear()} Kyrivo — Pierre Higny
             </p>
             <nav aria-label="Liens légaux" className="flex flex-wrap gap-x-4 gap-y-2">

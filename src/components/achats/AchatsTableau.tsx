@@ -93,9 +93,9 @@ export default function AchatsTableau({
 
   if (achats.length === 0) {
     return (
-      <div className="rounded-xl border border-zinc-800/60 bg-zinc-900/40 shadow-sm shadow-black/20 p-16 text-center">
+      <div className="rounded-xl border border-neutral-800/60 bg-neutral-900/40 shadow-sm shadow-black/20 p-16 text-center">
         <svg
-          className="mx-auto h-10 w-10 text-zinc-700 mb-3"
+          className="mx-auto h-10 w-10 text-neutral-700 mb-3"
           fill="none"
           viewBox="0 0 24 24"
           strokeWidth={1}
@@ -108,7 +108,7 @@ export default function AchatsTableau({
           />
         </svg>
 
-        <p className="text-zinc-500 text-sm">
+        <p className="text-neutral-500 text-sm">
           Aucun achat ne correspond à vos filtres.
         </p>
       </div>
@@ -116,46 +116,46 @@ export default function AchatsTableau({
   }
 
   return (
-    <div className="rounded-xl border border-zinc-800/60 bg-zinc-900/40 shadow-sm shadow-black/20 overflow-hidden">
+    <div className="rounded-xl border border-neutral-800/60 bg-neutral-900/40 shadow-sm shadow-black/20 overflow-hidden">
       <div className="relative">
         <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-zinc-800 bg-zinc-950/40">
+            <tr className="border-b border-neutral-800 bg-neutral-950/40">
               <SortableTh
                 label="Date"
                 sortKey="date"
                 sortConfig={sortConfig}
                 onSort={handleSort}
-                className="px-2 sm:px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider"
+                className="px-2 sm:px-4 py-3.5 text-left text-[11px] font-semibold text-neutral-400 uppercase tracking-wider"
               />
               <SortableTh
                 label="N°"
                 sortKey="numInterne"
                 sortConfig={sortConfig}
                 onSort={handleSort}
-                className="hidden sm:table-cell px-2 sm:px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider"
+                className="hidden sm:table-cell px-2 sm:px-4 py-3.5 text-left text-[11px] font-semibold text-neutral-400 uppercase tracking-wider"
               />
               <SortableTh
                 label="Fournisseur"
                 sortKey="fournisseur"
                 sortConfig={sortConfig}
                 onSort={handleSort}
-                className="px-2 sm:px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider"
+                className="px-2 sm:px-4 py-3.5 text-left text-[11px] font-semibold text-neutral-400 uppercase tracking-wider"
               />
               <SortableTh
                 label="Produit"
                 sortKey="produit"
                 sortConfig={sortConfig}
                 onSort={handleSort}
-                className="px-2 sm:px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider"
+                className="px-2 sm:px-4 py-3.5 text-left text-[11px] font-semibold text-neutral-400 uppercase tracking-wider"
               />
               <SortableTh
                 label="Type"
                 sortKey="type"
                 sortConfig={sortConfig}
                 onSort={handleSort}
-                className="hidden sm:table-cell px-2 sm:px-4 py-3.5 text-left text-[11px] font-semibold text-zinc-400 uppercase tracking-wider"
+                className="hidden sm:table-cell px-2 sm:px-4 py-3.5 text-left text-[11px] font-semibold text-neutral-400 uppercase tracking-wider"
               />
               <SortableTh
                 label="HT"
@@ -163,7 +163,7 @@ export default function AchatsTableau({
                 sortConfig={sortConfig}
                 onSort={handleSort}
                 align="right"
-                className="px-2 sm:px-4 py-3.5 text-right text-[11px] font-semibold text-zinc-400 uppercase tracking-wider"
+                className="px-2 sm:px-4 py-3.5 text-right text-[11px] font-semibold text-neutral-400 uppercase tracking-wider"
               />
               <SortableTh
                 label="TVA"
@@ -171,7 +171,7 @@ export default function AchatsTableau({
                 sortConfig={sortConfig}
                 onSort={handleSort}
                 align="right"
-                className="px-2 sm:px-4 py-3.5 text-right text-[11px] font-semibold text-zinc-400 uppercase tracking-wider"
+                className="px-2 sm:px-4 py-3.5 text-right text-[11px] font-semibold text-neutral-400 uppercase tracking-wider"
               />
               <SortableTh
                 label="TTC"
@@ -179,28 +179,28 @@ export default function AchatsTableau({
                 sortConfig={sortConfig}
                 onSort={handleSort}
                 align="right"
-                className="px-2 sm:px-4 py-3.5 text-right text-[11px] font-semibold text-zinc-400 uppercase tracking-wider"
+                className="px-2 sm:px-4 py-3.5 text-right text-[11px] font-semibold text-neutral-400 uppercase tracking-wider"
               />
-              <th className="px-2 sm:px-4 py-3.5 text-center text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+              <th className="px-2 sm:px-4 py-3.5 text-center text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
           </thead>
 
-          <tbody className="divide-y divide-zinc-800/60">
+          <tbody className="divide-y divide-neutral-800/60">
             {achatsTries.map((achat) => [
               <tr
                 key={achat.id}
                 className={`
                   group cursor-pointer
                   transition-colors duration-200 ease-out
-                  hover:bg-zinc-800/40
+                  hover:bg-neutral-800/40
                   ${ligneOuverte === achat.id ? "bg-amber-500/[0.06]" : ""}
                 `}
                 onClick={() => toggleDetails(achat.id)}
               >
                 <td
-                  className={`px-2 sm:px-4 py-3.5 text-zinc-400 whitespace-nowrap transition-shadow duration-200 ${
+                  className={`px-2 sm:px-4 py-3.5 text-neutral-400 whitespace-nowrap transition-shadow duration-200 ${
                     ligneOuverte === achat.id
                       ? "shadow-[inset_3px_0_0_0_rgba(251,191,36,0.7)]"
                       : ""
@@ -209,7 +209,7 @@ export default function AchatsTableau({
                   {formatDate(achat.date)}
                 </td>
 
-                <td className="hidden sm:table-cell px-2 sm:px-4 py-3.5 font-mono text-xs text-zinc-500">
+                <td className="hidden sm:table-cell px-2 sm:px-4 py-3.5 font-mono text-xs text-neutral-500">
                   {achat.numInterne}
                 </td>
 
@@ -227,7 +227,7 @@ export default function AchatsTableau({
                   )}
                 </td>
 
-                <td className="px-2 sm:px-4 py-3.5 text-zinc-400 max-w-[100px] sm:max-w-[180px] truncate">
+                <td className="px-2 sm:px-4 py-3.5 text-neutral-400 max-w-[100px] sm:max-w-[180px] truncate">
                   {achat.produit}
                 </td>
 
@@ -239,7 +239,7 @@ export default function AchatsTableau({
                       ${
                         achat.type === "pro"
                           ? "bg-blue-500/10 text-blue-400 border-blue-500/25"
-                          : "bg-zinc-700/30 text-zinc-400 border-zinc-600/40"
+                          : "bg-neutral-700/30 text-neutral-400 border-neutral-600/40"
                       }
                     `}
                   >
@@ -247,14 +247,14 @@ export default function AchatsTableau({
                   </span>
                 </td>
 
-                <td className="px-2 sm:px-4 py-3.5 text-right text-zinc-300 whitespace-nowrap tabular-nums">
+                <td className="px-2 sm:px-4 py-3.5 text-right text-neutral-300 whitespace-nowrap tabular-nums">
                   {formatEuro(achat.prixHT)}
                 </td>
 
                 <td className="px-2 sm:px-4 py-3.5 text-right whitespace-nowrap tabular-nums">
                   <span
                     className={
-                      achat.prixTVA > 0 ? "text-cyan-400" : "text-zinc-700"
+                      achat.prixTVA > 0 ? "text-cyan-400" : "text-neutral-700"
                     }
                   >
                     {achat.prixTVA > 0 ? formatEuro(achat.prixTVA) : "—"}
@@ -272,7 +272,7 @@ export default function AchatsTableau({
                         e.stopPropagation();
                         toggleDetails(achat.id);
                       }}
-                      className="rounded-md p-1.5 sm:p-2 hover:bg-zinc-800 hover:text-amber-400 text-zinc-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
+                      className="rounded-md p-1.5 sm:p-2 hover:bg-neutral-800 hover:text-amber-400 text-neutral-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
                       title="Détails"
                     >
                       <svg
@@ -300,7 +300,7 @@ export default function AchatsTableau({
                         e.stopPropagation();
                         onModifier(achat);
                       }}
-                      className="rounded-md p-1.5 sm:p-2 hover:bg-zinc-800 hover:text-blue-400 text-zinc-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
+                      className="rounded-md p-1.5 sm:p-2 hover:bg-neutral-800 hover:text-blue-400 text-neutral-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
                       title="Modifier"
                     >
                       <svg
@@ -323,7 +323,7 @@ export default function AchatsTableau({
                         e.stopPropagation();
                         onSupprimer(achat.id);
                       }}
-                      className="rounded-md p-1.5 sm:p-2 hover:bg-red-500/10 hover:text-red-400 text-zinc-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/40"
+                      className="rounded-md p-1.5 sm:p-2 hover:bg-red-500/10 hover:text-red-400 text-neutral-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/40"
                       title="Supprimer"
                     >
                       <svg
@@ -348,36 +348,36 @@ export default function AchatsTableau({
                 <tr key={`${achat.id}-details`}>
                   <td
                     colSpan={9}
-                    className="px-4 py-5 bg-zinc-950/50 border-b border-zinc-800/60"
+                    className="px-4 py-5 bg-neutral-950/50 border-b border-neutral-800/60"
                   >
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 text-sm animate-detail-reveal">
-                      <div className="sm:hidden rounded-lg border border-zinc-800/60 bg-zinc-900/40 p-3">
-                        <span className="text-[11px] text-zinc-500 uppercase tracking-wider font-medium">
+                      <div className="sm:hidden rounded-lg border border-neutral-800/60 bg-neutral-900/40 p-3">
+                        <span className="text-[11px] text-neutral-500 uppercase tracking-wider font-medium">
                           N° interne
                         </span>
-                        <p className="text-zinc-200 mt-1 font-mono text-xs">
+                        <p className="text-neutral-200 mt-1 font-mono text-xs">
                           {achat.numInterne}
                         </p>
                       </div>
 
-                      <div className="rounded-lg border border-zinc-800/60 bg-zinc-900/40 p-3">
-                        <span className="text-[11px] text-zinc-500 uppercase tracking-wider font-medium">
+                      <div className="rounded-lg border border-neutral-800/60 bg-neutral-900/40 p-3">
+                        <span className="text-[11px] text-neutral-500 uppercase tracking-wider font-medium">
                           Paiement
                         </span>
-                        <p className="text-zinc-200 mt-1">{achat.paiement}</p>
+                        <p className="text-neutral-200 mt-1">{achat.paiement}</p>
                       </div>
 
-                      <div className="rounded-lg border border-zinc-800/60 bg-zinc-900/40 p-3">
-                        <span className="text-[11px] text-zinc-500 uppercase tracking-wider font-medium">
+                      <div className="rounded-lg border border-neutral-800/60 bg-neutral-900/40 p-3">
+                        <span className="text-[11px] text-neutral-500 uppercase tracking-wider font-medium">
                           Réf. facture
                         </span>
-                        <p className="text-zinc-200 mt-1 font-mono text-xs">
+                        <p className="text-neutral-200 mt-1 font-mono text-xs">
                           {achat.numFacture || "—"}
                         </p>
                       </div>
 
-                      <div className="rounded-lg border border-zinc-800/60 bg-zinc-900/40 p-3">
-                        <span className="text-[11px] text-zinc-500 uppercase tracking-wider font-medium">
+                      <div className="rounded-lg border border-neutral-800/60 bg-neutral-900/40 p-3">
+                        <span className="text-[11px] text-neutral-500 uppercase tracking-wider font-medium">
                           Document
                         </span>
                         {achat.documentUrl ? (
@@ -397,15 +397,15 @@ export default function AchatsTableau({
                             Ouvrir / télécharger
                           </button>
                         ) : (
-                          <p className="text-zinc-200 mt-1">—</p>
+                          <p className="text-neutral-200 mt-1">—</p>
                         )}
                       </div>
 
-                      <div className="rounded-lg border border-zinc-800/60 bg-zinc-900/40 p-3">
-                        <span className="text-[11px] text-zinc-500 uppercase tracking-wider font-medium">
+                      <div className="rounded-lg border border-neutral-800/60 bg-neutral-900/40 p-3">
+                        <span className="text-[11px] text-neutral-500 uppercase tracking-wider font-medium">
                           Régime TVA
                         </span>
-                        <p className="text-zinc-200 mt-1">
+                        <p className="text-neutral-200 mt-1">
                           {achat.type === "pro"
                             ? "TVA déductible"
                             : "Pas de TVA (particulier)"}
@@ -413,22 +413,22 @@ export default function AchatsTableau({
                       </div>
 
                       {achat.commentaire && (
-                        <div className="sm:col-span-2 lg:col-span-4 rounded-lg border border-zinc-800/60 bg-zinc-900/40 p-3">
-                          <span className="text-[11px] text-zinc-500 uppercase tracking-wider font-medium">
+                        <div className="sm:col-span-2 lg:col-span-4 rounded-lg border border-neutral-800/60 bg-neutral-900/40 p-3">
+                          <span className="text-[11px] text-neutral-500 uppercase tracking-wider font-medium">
                             Commentaire
                           </span>
-                          <p className="text-zinc-400 mt-1 italic text-[13px]">
+                          <p className="text-neutral-400 mt-1 italic text-[13px]">
                             {achat.commentaire}
                           </p>
                         </div>
                       )}
 
                       {achat.articles && achat.articles.length > 0 && (
-                        <div className="sm:col-span-2 lg:col-span-4 mt-1 pt-4 border-t border-zinc-800/60">
+                        <div className="sm:col-span-2 lg:col-span-4 mt-1 pt-4 border-t border-neutral-800/60">
                           <div className="flex items-center justify-between mb-3">
-                            <span className="text-xs font-semibold text-zinc-300 uppercase tracking-wider flex items-center gap-2">
+                            <span className="text-xs font-semibold text-neutral-300 uppercase tracking-wider flex items-center gap-2">
                               Articles détaillés
-                              <span className="inline-flex items-center justify-center h-5 min-w-[1.25rem] rounded-full bg-zinc-800 text-zinc-300 text-[10px] font-bold px-1.5">
+                              <span className="inline-flex items-center justify-center h-5 min-w-[1.25rem] rounded-full bg-neutral-800 text-neutral-300 text-[10px] font-bold px-1.5">
                                 {achat.articles.length}
                               </span>
                             </span>
@@ -442,9 +442,9 @@ export default function AchatsTableau({
                                 className="
                                   flex flex-col items-start gap-1.5
                                   sm:grid sm:grid-cols-[120px_1fr_90px_100px_100px] sm:items-center sm:gap-3
-                                  rounded-lg bg-zinc-950/60 border border-zinc-800/60
+                                  rounded-lg bg-neutral-950/60 border border-neutral-800/60
                                   px-3 py-2.5 text-sm
-                                  hover:border-amber-500/30 hover:bg-zinc-900/80
+                                  hover:border-amber-500/30 hover:bg-neutral-900/80
                                   transition-all duration-200 ease-out
                                   focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40
                                   group/article
@@ -454,11 +454,11 @@ export default function AchatsTableau({
                                   {article.reference}
                                 </span>
 
-                                <span className="text-zinc-200 sm:truncate">
+                                <span className="text-neutral-200 sm:truncate">
                                   {article.nom}
                                 </span>
 
-                                <span className="text-zinc-500 text-xs sm:text-right">
+                                <span className="text-neutral-500 text-xs sm:text-right">
                                   Stock {article.stockRestant}/{article.quantite}
                                 </span>
 
@@ -482,7 +482,7 @@ export default function AchatsTableau({
         </div>
 
         {/* Indicateur discret de scroll horizontal sur petits écrans */}
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-zinc-950/80 to-transparent lg:hidden" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-neutral-950/80 to-transparent lg:hidden" />
       </div>
     </div>
   );

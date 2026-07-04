@@ -61,7 +61,7 @@ function smoothPath(pts: { x: number; y: number }[]): string {
 
 function LegendKey({ color, label }: { color: string; label: string }) {
   return (
-    <span className="inline-flex items-center gap-2 rounded-full border border-zinc-700 bg-zinc-900/70 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-zinc-200">
+    <span className="inline-flex items-center gap-2 rounded-full border border-neutral-700 bg-neutral-900/70 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-neutral-200">
       <span className="h-[3px] w-5 flex-shrink-0 rounded-full" style={{ backgroundColor: color }} />
       {label}
     </span>
@@ -75,8 +75,8 @@ function TooltipRow({ color, label, value }: { color: string; label: string; val
   return (
     <p className="flex items-center gap-2.5">
       <span className="h-[3px] w-3.5 flex-shrink-0 rounded-full" style={{ backgroundColor: color }} />
-      <span className="flex-1 text-zinc-400">{label}</span>
-      <span className="tabular-nums font-semibold text-zinc-100">{value}</span>
+      <span className="flex-1 text-neutral-400">{label}</span>
+      <span className="tabular-nums font-semibold text-neutral-100">{value}</span>
     </p>
   );
 }
@@ -97,29 +97,29 @@ export function EvolutionChart({ data }: { data: EvolutionPoint[] }) {
   if (data.length <= 1) {
     const single = data[0];
     return (
-      <div className="flex h-52 flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-zinc-700 bg-zinc-900/30 px-4 py-6 text-center">
-        <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900/60 text-zinc-500">
+      <div className="flex h-52 flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-neutral-700 bg-neutral-900/30 px-4 py-6 text-center">
+        <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-neutral-700 bg-neutral-900/60 text-neutral-500">
           <ChartIcon />
         </span>
         <div className="space-y-1">
-          <p className="text-sm font-semibold text-zinc-300">Pas assez de données pour une courbe</p>
-          <p className="text-xs text-zinc-500">
+          <p className="text-sm font-semibold text-neutral-300">Pas assez de données pour une courbe</p>
+          <p className="text-xs text-neutral-500">
             Sélectionnez une période plus longue pour visualiser une évolution dans le temps.
           </p>
         </div>
         {single && (
-          <div className="mt-1 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-xs text-zinc-300">
+          <div className="mt-1 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-xs text-neutral-300">
             <span className="inline-flex items-center gap-1.5">
               <span className="h-[3px] w-3 rounded-full" style={{ backgroundColor: CHART_COLORS.ventes }} />
-              Ventes&nbsp;: <span className="font-semibold tabular-nums text-zinc-100">{fmt(single.ventes)}</span>
+              Ventes&nbsp;: <span className="font-semibold tabular-nums text-neutral-100">{fmt(single.ventes)}</span>
             </span>
             <span className="inline-flex items-center gap-1.5">
               <span className="h-[3px] w-3 rounded-full" style={{ backgroundColor: CHART_COLORS.achats }} />
-              Achats&nbsp;: <span className="font-semibold tabular-nums text-zinc-100">{fmt(single.achats)}</span>
+              Achats&nbsp;: <span className="font-semibold tabular-nums text-neutral-100">{fmt(single.achats)}</span>
             </span>
             <span className="inline-flex items-center gap-1.5">
               <span className="h-[3px] w-3 rounded-full" style={{ backgroundColor: single.net < 0 ? CHART_COLORS.netNeg : CHART_COLORS.netPos }} />
-              Bénéfice net&nbsp;: <span className="font-semibold tabular-nums text-zinc-100">{fmt(single.net)}</span>
+              Bénéfice net&nbsp;: <span className="font-semibold tabular-nums text-neutral-100">{fmt(single.net)}</span>
             </span>
           </div>
         )}
@@ -269,14 +269,14 @@ export function EvolutionChart({ data }: { data: EvolutionPoint[] }) {
         {/* Tooltip premium */}
         {hover !== null && (
           <div
-            className={`pointer-events-none absolute z-10 ${tooltipVerticalClass} ${tooltipAlign} min-w-[160px] sm:min-w-[180px] max-w-[80vw] rounded-xl border border-zinc-600 bg-zinc-950/95 backdrop-blur-sm px-3.5 py-3 text-xs shadow-2xl shadow-black/50`}
+            className={`pointer-events-none absolute z-10 ${tooltipVerticalClass} ${tooltipAlign} min-w-[160px] sm:min-w-[180px] max-w-[80vw] rounded-xl border border-neutral-600 bg-neutral-950/95 backdrop-blur-sm px-3.5 py-3 text-xs shadow-2xl shadow-black/50`}
             style={{ left: `${hoverPct}%` }}
           >
-            <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-zinc-400">{data[hover].label}</p>
+            <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-neutral-400">{data[hover].label}</p>
             <div className="space-y-1.5">
               <TooltipRow color={CHART_COLORS.ventes} label="Ventes" value={fmt(data[hover].ventes)} />
               <TooltipRow color={CHART_COLORS.achats} label="Achats" value={fmt(data[hover].achats)} />
-              <div className="border-t border-zinc-700 pt-1.5">
+              <div className="border-t border-neutral-700 pt-1.5">
                 <TooltipRow
                   color={data[hover].net < 0 ? CHART_COLORS.netNeg : CHART_COLORS.netPos}
                   label="Bénéfice net"

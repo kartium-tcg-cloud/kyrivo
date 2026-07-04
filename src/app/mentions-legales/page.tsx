@@ -9,6 +9,9 @@ import LegalPage, {
 export const metadata: Metadata = {
   title: "Mentions légales — Kyrivo",
   description: "Informations légales relatives à l'éditeur et au fonctionnement du site Kyrivo.",
+  alternates: {
+    canonical: "https://kyrivo.fr/mentions-legales",
+  },
 }
 
 export default function MentionsLegalesPage() {

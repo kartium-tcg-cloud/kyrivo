@@ -1,9 +1,21 @@
 import type { Metadata } from "next";
+import { Space_Grotesk } from "next/font/google";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import LandingAnalytics from "@/components/LandingAnalytics";
 import RegisterCTA from "@/components/RegisterCTA";
 import Reveal from "@/components/ui/Reveal";
+import SectionHeader from "@/components/ui/SectionHeader";
+import SocialProofBadges from "@/components/SocialProofBadges";
+
+// Police d'accent réservée au hero — chargée uniquement sur cette page
+// (pas dans le layout racine) pour ne pas alourdir le reste du site.
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  weight: ["600", "700"],
+  variable: "--font-display",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   alternates: {
@@ -81,13 +93,6 @@ export default async function HomePage() {
     },
     {
       "@context": "https://schema.org",
-      "@type": "Organization",
-      name: "Kartium TCG",
-      url: "https://kyrivo.fr",
-      brand: { "@type": "Brand", name: "Kyrivo" },
-    },
-    {
-      "@context": "https://schema.org",
       "@type": "FAQPage",
       mainEntity: FAQ_ITEMS.map((item) => ({
         "@type": "Question",
@@ -98,7 +103,7 @@ export default async function HomePage() {
   ];
 
   return (
-    <div className="relative overflow-hidden">
+    <div className={`relative overflow-hidden ${spaceGrotesk.variable}`}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
@@ -110,14 +115,8 @@ export default async function HomePage() {
 
       {/* Ambiance de fond globale — deux halos maîtrisés, pas une nébuleuse */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden -z-10">
-        <div
-          className="absolute -top-32 left-1/2 -translate-x-1/2 h-[650px] w-[1100px] rounded-full opacity-[0.11] blur-3xl"
-          style={{ background: "radial-gradient(circle, rgba(245,158,11,1) 0%, transparent 70%)" }}
-        />
-        <div
-          className="absolute bottom-0 right-0 h-[500px] w-[500px] rounded-full opacity-[0.05] blur-3xl"
-          style={{ background: "radial-gradient(circle, rgba(245,158,11,1) 0%, transparent 70%)" }}
-        />
+        <div className="absolute -top-32 left-1/2 -translate-x-1/2 h-[650px] w-[1100px] rounded-full opacity-[0.11] blur-3xl bg-glow-brand" />
+        <div className="absolute bottom-0 right-0 h-[500px] w-[500px] rounded-full opacity-[0.05] blur-3xl bg-glow-brand" />
       </div>
 
       <div className="relative px-5 sm:px-6 lg:px-10 py-8 lg:py-12 mx-auto max-w-6xl">
@@ -126,6 +125,7 @@ export default async function HomePage() {
         <FeatureSystemSection />
         <WorkflowSection />
         <AudienceSection />
+        <SocialProofSection />
         <PricingCTA user={!!user} />
         <FAQSection />
         <CredibilityFooter />
@@ -146,7 +146,7 @@ function HeroSection({ user }: { user: boolean }) {
       <div className="flex flex-col lg:flex-row lg:items-center lg:gap-16 lg:justify-between">
         <div className="flex flex-col items-center text-center lg:items-start lg:text-left lg:max-w-[500px]">
           <Reveal delay={0} className="w-full">
-            <h1 className="text-4xl sm:text-5xl lg:text-[54px] font-bold text-white tracking-tight leading-[1.12] mb-4">
+            <h1 className="font-display text-4xl sm:text-5xl lg:text-[54px] font-bold text-white tracking-tight leading-[1.12] mb-4">
               Tu fais de l&apos;achat-revente&nbsp;?{" "}
               <span
                 className="block bg-clip-text text-transparent pb-2"
@@ -171,10 +171,7 @@ function HeroSection({ user }: { user: boolean }) {
                   <ArrowIcon className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
                 </Link>
               ) : (
-                <RegisterCTA
-                  label="Essai gratuit 7 jours"
-                  className="group inline-flex items-center justify-center gap-2 rounded-xl px-8 py-4 bg-amber-500 text-neutral-950 text-sm font-bold hover:bg-amber-400 hover:-translate-y-0.5 active:scale-[0.97] transition-all duration-200 shadow-xl shadow-amber-500/20"
-                />
+                <RegisterCTA label="Essai gratuit 7 jours" />
               )}
               <Link
                 href="/abonnements"
@@ -184,7 +181,7 @@ function HeroSection({ user }: { user: boolean }) {
               </Link>
             </div>
 
-            <p className="text-[12px] text-neutral-600 font-medium tracking-wide">
+            <p className="text-[12px] text-neutral-400 font-medium tracking-wide">
               Sans carte bancaire · Données exportables · Développé par Kartium TCG
             </p>
 
@@ -243,11 +240,11 @@ function ProductProofPanel() {
 
         <div className="px-5 py-4 grid grid-cols-2 gap-4">
           <div>
-            <p className="text-[10px] uppercase tracking-widest text-neutral-600 mb-1">Achat</p>
+            <p className="text-[10px] uppercase tracking-widest text-neutral-400 mb-1">Achat</p>
             <p className="text-lg font-bold text-neutral-200 tabular-nums">21,00 €</p>
           </div>
           <div>
-            <p className="text-[10px] uppercase tracking-widest text-neutral-600 mb-1">Vente</p>
+            <p className="text-[10px] uppercase tracking-widest text-neutral-400 mb-1">Vente</p>
             <p className="text-lg font-bold text-neutral-200 tabular-nums">29,90 €</p>
           </div>
         </div>
@@ -477,6 +474,21 @@ function AudienceSection() {
 }
 
 // ═══════════════════════════════════════════════════════════
+// PREUVE SOCIALE — reprend les chiffres déjà annoncés dans le
+// footer (CredibilityFooter), mis en valeur juste avant le CTA
+// ═══════════════════════════════════════════════════════════
+
+function SocialProofSection() {
+  return (
+    <Reveal delay={0}>
+      <section className="mb-24">
+        <SocialProofBadges />
+      </section>
+    </Reveal>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════
 // TARIFS / CTA — bloc le plus premium de la page
 // ═══════════════════════════════════════════════════════════
 
@@ -526,10 +538,7 @@ function PricingCTA({ user }: { user: boolean }) {
                   Accéder à mon espace
                 </Link>
               ) : (
-                <RegisterCTA
-                  label="Essai gratuit 7 jours"
-                  className="group inline-flex items-center justify-center gap-2 rounded-xl px-8 py-4 bg-amber-500 text-neutral-950 text-sm font-bold hover:bg-amber-400 hover:-translate-y-0.5 active:scale-[0.97] transition-all duration-200 shadow-xl shadow-amber-500/25"
-                />
+                <RegisterCTA label="Essai gratuit 7 jours" />
               )}
               <Link
                 href="/abonnements"
@@ -562,8 +571,8 @@ function FAQSection() {
               className="group rounded-xl border border-neutral-800 bg-neutral-900/30 px-5 py-4 open:border-amber-500/25 open:bg-neutral-900/50 hover:border-neutral-700 transition-colors duration-200"
             >
               <summary className="flex items-center justify-between gap-4 cursor-pointer list-none marker:content-none [&::-webkit-details-marker]:hidden">
-                <span className="text-sm font-semibold text-white">{item.question}</span>
-                <span className="text-neutral-600 text-lg leading-none transition-transform duration-200 group-open:rotate-45 flex-shrink-0">
+                <h3 className="text-sm font-semibold text-white">{item.question}</h3>
+                <span className="text-neutral-400 text-lg leading-none transition-transform duration-200 group-open:rotate-45 flex-shrink-0">
                   +
                 </span>
               </summary>
@@ -587,17 +596,17 @@ function CredibilityFooter() {
         <p className="text-base text-neutral-400">
           Développé par <span className="text-amber-400 font-semibold">Kartium TCG</span>, boutique e-commerce professionnelle.
         </p>
-        <p className="mt-2 text-sm text-neutral-600">
+        <p className="mt-2 text-sm text-neutral-400">
           Avis clients : Vinted (24 avis) · Google (7 avis)
         </p>
       </Reveal>
 
       <div className="pt-6 mt-6 border-t border-neutral-800/60">
         <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-          <p className="text-[11px] text-neutral-600 tracking-wider uppercase">
+          <p className="text-[11px] text-neutral-400 tracking-wider uppercase">
             Kyrivo · Gestion achat-revente
           </p>
-          <p className="text-[11px] text-neutral-600">France · Belgique · Luxembourg</p>
+          <p className="text-[11px] text-neutral-400">France · Belgique · Luxembourg</p>
         </div>
         <nav className="flex flex-wrap gap-x-4 gap-y-1.5" aria-label="Liens légaux">
           {[
@@ -607,7 +616,7 @@ function CredibilityFooter() {
             { href: "/cookies", label: "Cookies" },
             { href: "/donnees-personnelles", label: "Données personnelles" },
           ].map(({ href, label }) => (
-            <Link key={href} href={href} prefetch={false} className="text-[10px] text-neutral-600 hover:text-neutral-400 transition-colors">
+            <Link key={href} href={href} prefetch={false} className="text-[10px] text-neutral-400 hover:text-neutral-200 transition-colors">
               {label}
             </Link>
           ))}
@@ -620,15 +629,6 @@ function CredibilityFooter() {
 // ═══════════════════════════════════════════════════════════
 // PETITS UTILITAIRES PARTAGÉS
 // ═══════════════════════════════════════════════════════════
-
-function SectionHeader({ label, title }: { label: string; title: string }) {
-  return (
-    <div className="text-center max-w-2xl mx-auto">
-      <p className="text-[11px] font-semibold text-amber-400 uppercase tracking-widest mb-3">{label}</p>
-      <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">{title}</h2>
-    </div>
-  );
-}
 
 // Grille fine + fondu radial — texture de fond premium contenue dans une section
 function GridFade({ className = "" }: { className?: string }) {

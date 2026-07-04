@@ -1,42 +1,56 @@
 "use client";
 
-import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { buildRegisterUrl, trackFunnel, trackMetaCustom } from "@/lib/analytics";
+import Container from "@/components/ui/Container";
+import Button from "@/components/ui/Button";
 
 // ═══════════════════════════════════════════════════════════
 // IMAGE AVEC FALLBACK
 // ═══════════════════════════════════════════════════════════
 
-function HelpImage({ src, alt }: { src: string; alt: string }) {
+function HelpImage({
+  src,
+  alt,
+  width,
+  height,
+}: {
+  src: string;
+  alt: string;
+  width: number;
+  height: number;
+}) {
   const [hasError, setHasError] = useState(false);
 
   if (hasError) {
     return (
       <div className="mt-5 flex items-center justify-center rounded-xl border border-dashed border-neutral-700 bg-neutral-900/40 py-10">
-        <span className="text-sm text-neutral-600">Capture d&apos;écran à venir</span>
+        <span className="text-sm text-neutral-400">Capture d&apos;écran à venir</span>
       </div>
     );
   }
 
   return (
     <div className="mt-5">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
+      <Image
         src={src}
         alt={alt}
+        width={width}
+        height={height}
         onError={() => setHasError(true)}
-        className="w-full rounded-xl border border-neutral-800/60"
-        loading="lazy"
+        className="w-full h-auto rounded-xl border border-neutral-800/60"
         style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.4)" }}
+        sizes="(min-width: 768px) 704px, (min-width: 640px) calc(100vw - 48px), calc(100vw - 40px)"
       />
       <div className="mt-2 text-right">
         <a
           href={src}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 text-xs text-neutral-600 hover:text-neutral-400 transition-colors"
+          className="inline-flex items-center gap-1 text-xs text-neutral-400 hover:text-neutral-300 transition-colors"
         >
           Ouvrir en grand
           <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
@@ -50,58 +64,31 @@ function HelpImage({ src, alt }: { src: string; alt: string }) {
 
 // ═══════════════════════════════════════════════════════════
 // ACCORDÉON — ENTRÉE UNIQUE
+// <details>/<summary> natifs (contenu toujours dans le DOM, donc
+// indexable) avec name partagé pour un accordéon exclusif sans JS —
+// même pattern que FAQSection sur la page d'accueil.
 // ═══════════════════════════════════════════════════════════
 
 type AccordionItem = {
   question: string;
   answer: React.ReactNode;
-  screenshot?: { src: string; alt: string };
+  screenshot?: { src: string; alt: string; width: number; height: number };
 };
 
-function AccordionEntry({
-  item,
-  isOpen,
-  onToggle,
-}: {
-  item: AccordionItem;
-  isOpen: boolean;
-  onToggle: () => void;
-}) {
+function AccordionEntry({ item }: { item: AccordionItem }) {
   return (
-    <div
-      className={`
-        rounded-xl border overflow-hidden
-        transition-colors duration-150
-        ${isOpen ? "border-amber-500/30" : "border-neutral-800 hover:border-neutral-700"}
-      `}
+    <details
+      name="mode-emploi-accordion"
+      className="group rounded-xl border border-neutral-800 overflow-hidden transition-colors duration-150 open:border-amber-500/30 hover:border-neutral-700"
     >
-      {/* Question — bouton cliquable */}
-      <button
-        type="button"
-        onClick={onToggle}
-        className={`
-          w-full flex items-center justify-between gap-4
-          px-5 py-4 text-left min-h-[56px]
-          transition-colors duration-150
-          ${isOpen ? "bg-amber-500/5" : "bg-neutral-900/40 hover:bg-neutral-900/60"}
-        `}
-        aria-expanded={isOpen}
-      >
-        <span
-          className={`text-sm font-semibold leading-snug ${
-            isOpen ? "text-amber-400" : "text-white"
-          }`}
-        >
+      <summary className="flex w-full min-h-[56px] cursor-pointer list-none items-center justify-between gap-4 bg-neutral-900/40 px-5 py-4 text-left transition-colors duration-150 marker:content-none group-open:bg-amber-500/5 hover:bg-neutral-900/60 [&::-webkit-details-marker]:hidden">
+        <h2 className="text-sm font-semibold leading-snug text-white group-open:text-amber-400">
           {item.question}
-        </span>
+        </h2>
 
         {/* Chevron */}
         <svg
-          className={`
-            flex-shrink-0 h-5 w-5
-            transition-transform duration-200
-            ${isOpen ? "rotate-180 text-amber-400" : "text-neutral-500"}
-          `}
+          className="h-5 w-5 flex-shrink-0 text-neutral-500 transition-transform duration-200 group-open:rotate-180 group-open:text-amber-400"
           fill="none"
           viewBox="0 0 24 24"
           strokeWidth={2}
@@ -109,20 +96,23 @@ function AccordionEntry({
         >
           <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
         </svg>
-      </button>
+      </summary>
 
-      {/* Réponse */}
-      {isOpen && (
-        <div className="px-5 pb-6 pt-4 bg-neutral-900/20 border-t border-neutral-800/50">
-          <div className="text-sm text-neutral-300 leading-relaxed">
-            {item.answer}
-          </div>
-          {item.screenshot && (
-            <HelpImage src={item.screenshot.src} alt={item.screenshot.alt} />
-          )}
+      {/* Réponse — toujours dans le DOM, seulement masquée par le navigateur */}
+      <div className="px-5 pb-6 pt-4 bg-neutral-900/20 border-t border-neutral-800/50">
+        <div className="text-sm text-neutral-300 leading-relaxed">
+          {item.answer}
         </div>
-      )}
-    </div>
+        {item.screenshot && (
+          <HelpImage
+            src={item.screenshot.src}
+            alt={item.screenshot.alt}
+            width={item.screenshot.width}
+            height={item.screenshot.height}
+          />
+        )}
+      </div>
+    </details>
   );
 }
 
@@ -173,6 +163,8 @@ const ITEMS: AccordionItem[] = [
     screenshot: {
       src: "/help/preferences.png",
       alt: "Page Préférences Kyrivo — configuration TVA, modes de paiement et identité",
+      width: 1586,
+      height: 992,
     },
   },
 
@@ -239,6 +231,8 @@ const ITEMS: AccordionItem[] = [
     screenshot: {
       src: "/help/achats.png",
       alt: "Page Achats Kyrivo — encoder un achat avec ou sans stock",
+      width: 1448,
+      height: 1086,
     },
   },
 
@@ -283,6 +277,8 @@ const ITEMS: AccordionItem[] = [
     screenshot: {
       src: "/help/ventes.png",
       alt: "Page Ventes Kyrivo — encoder une vente avec sélection d'articles en stock",
+      width: 1122,
+      height: 1402,
     },
   },
 
@@ -308,6 +304,8 @@ const ITEMS: AccordionItem[] = [
     screenshot: {
       src: "/help/export-excel.png",
       alt: "Export Excel des achats et ventes dans Kyrivo",
+      width: 1586,
+      height: 992,
     },
   },
 
@@ -342,6 +340,8 @@ const ITEMS: AccordionItem[] = [
     screenshot: {
       src: "/help/factures.png",
       alt: "Section Factures Kyrivo — générer des factures PDF",
+      width: 1448,
+      height: 1086,
     },
   },
 
@@ -376,6 +376,8 @@ const ITEMS: AccordionItem[] = [
     screenshot: {
       src: "/help/dashboard.png",
       alt: "Dashboard Kyrivo — suivi des dépenses, revenus, TVA et résultat",
+      width: 1448,
+      height: 1086,
     },
   },
 
@@ -431,11 +433,7 @@ const ITEMS: AccordionItem[] = [
 // ═══════════════════════════════════════════════════════════
 
 export default function ModeEmploiPage() {
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
   const router = useRouter();
-
-  const toggle = (i: number) =>
-    setOpenIndex((prev) => (prev === i ? null : i));
 
   function handleRegisterClick(e: React.MouseEvent<HTMLAnchorElement>) {
     e.preventDefault();
@@ -445,7 +443,7 @@ export default function ModeEmploiPage() {
   }
 
   return (
-    <div className="relative px-4 sm:px-6 lg:px-10 py-10 lg:py-14 mx-auto max-w-3xl">
+    <Container size="prose" className="relative py-10 lg:py-14">
 
       {/* ─── En-tête ────────────────────────────────────── */}
       <div className="mb-10">
@@ -469,11 +467,7 @@ export default function ModeEmploiPage() {
       <div className="space-y-2" role="list">
         {ITEMS.map((item, i) => (
           <div key={i} role="listitem">
-            <AccordionEntry
-              item={item}
-              isOpen={openIndex === i}
-              onToggle={() => toggle(i)}
-            />
+            <AccordionEntry item={item} />
           </div>
         ))}
       </div>
@@ -493,41 +487,18 @@ export default function ModeEmploiPage() {
           Essaie Kyrivo gratuitement pendant 7 jours, sans carte bancaire.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Link
-            href="/register"
-            onClick={handleRegisterClick}
-            className="
-              inline-flex items-center justify-center gap-2
-              rounded-lg px-5 py-2.5
-              bg-amber-500 text-neutral-950
-              text-sm font-semibold
-              hover:bg-amber-400 active:scale-[0.98]
-              transition-all duration-200
-              shadow-lg shadow-amber-500/20
-            "
-          >
+          <Button href="/register" onClick={handleRegisterClick}>
             Essayer gratuitement
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
             </svg>
-          </Link>
-          <Link
-            href="/abonnements"
-            className="
-              inline-flex items-center justify-center gap-2
-              rounded-lg px-5 py-2.5
-              bg-neutral-900/60 text-neutral-200
-              text-sm font-semibold
-              border border-neutral-800
-              hover:border-neutral-700 hover:bg-neutral-900
-              transition-all duration-200
-            "
-          >
+          </Button>
+          <Button href="/abonnements" variant="secondary">
             Voir les tarifs
-          </Link>
+          </Button>
         </div>
       </div>
 
-    </div>
+    </Container>
   );
 }

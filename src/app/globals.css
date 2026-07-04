@@ -3,23 +3,77 @@
 :root {
   --background: #0a0a0a;
   --foreground: #e5e5e5;
+
+  /* ─── Tokens de design Kyrivo ────────────────────────────────
+     Surfaces neutres */
+  --color-canvas: #080808;
+  --color-surface-0: #0a0a0a;
+  --color-surface-1: #111111;
+  --color-surface-2: #171717;
+  --color-border-subtle: rgba(255, 255, 255, 0.06);
+  --color-border: #262626;
+
+  /* Texte — 3 paliers seulement. neutral-600 est banni de tout texte
+     (contraste insuffisant sur --color-canvas), réservé aux bordures. */
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #d4d4d4;
+  --color-text-tertiary: #a3a3a3;
+
+  /* Marque — ambre/or */
+  --color-brand-300: #fcd34d;
+  --color-brand-400: #fbbf24;
+  --color-brand-500: #f59e0b;
+  --color-brand-600: #d97706;
+
+  /* Sémantique */
+  --color-success: #059669;
+  --color-danger: #f43f5e;
+  --color-info: #0891b2;
+  --color-accent-violet: #7c3aed;
+
+  /* Rayons */
+  --radius-control: 0.75rem;
+  --radius-card: 1rem;
+  --radius-pill: 999px;
+
+  /* Ombres */
+  --shadow-card: 0 14px 32px -18px rgba(0, 0, 0, 0.75);
+  --shadow-modal: 0 30px 70px rgba(0, 0, 0, 0.7);
+  --shadow-glow-brand: 0 0 32px rgba(245, 158, 11, 0.08);
+
+  /* Gradients de marque — remplacent les valeurs dupliquées en dur
+     dans page.tsx, abonnements, login, register, forgot/reset-password, Sidebar */
+  --gradient-brand-text: linear-gradient(135deg, #fcd34d 0%, #f59e0b 45%, #d97706 100%);
+  --gradient-brand-glow: radial-gradient(circle, rgba(245, 158, 11, 1) 0%, transparent 70%);
+  --gradient-brand-badge: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --color-background: var(--color-surface-0);
+  --color-foreground: var(--color-text-secondary);
+  --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
 }
 
 body {
-  background:
-    radial-gradient(ellipse 100% 50% at 50% -5%, rgba(245,158,11,0.045) 0%, transparent 70%),
-    #080808;
+  background-color: #080808;
+  /* Grain subtil (~5% d'opacité bakée dans le SVG) + halo ambre existant —
+     casse l'effet "noir plastique plat" sans ajouter de poids notable. */
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='128'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse 100% 50% at 50% -5%, rgba(245,158,11,0.045) 0%, transparent 70%);
+  background-repeat: repeat, no-repeat;
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Police d'accent — réservée au hero H1, aux prix et aux KPI chiffrés
+   (voir §1.2 du plan). Retombe sur --font-sans si --font-display n'est
+   pas chargé dans la portée courante (pages qui ne l'utilisent pas). */
+.font-display {
+  font-family: var(--font-display), var(--font-sans), system-ui, sans-serif;
 }
 
 /* Scrollbar discrète */
@@ -262,4 +316,22 @@ input[type="number"] {
     transform: none !important;
     transition: none !important;
   }
+}
+
+/* ─── Utilitaires de marque — remplacent les valeurs de gradient
+   copiées-collées en dur dans plusieurs pages ─────────────────── */
+.text-gradient-brand {
+  background-image: var(--gradient-brand-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.bg-glow-brand {
+  background: var(--gradient-brand-glow);
+}
+
+.bg-glow-brand-soft {
+  background: var(--gradient-brand-glow);
+  opacity: 0.5;
 }

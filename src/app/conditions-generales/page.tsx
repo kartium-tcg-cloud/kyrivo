@@ -11,6 +11,9 @@ import LegalPage, {
 export const metadata: Metadata = {
   title: "Conditions générales — Kyrivo",
   description: "Conditions générales d'utilisation et de vente du service Kyrivo.",
+  alternates: {
+    canonical: "https://kyrivo.fr/conditions-generales",
+  },
 }
 
 export default function ConditionsGeneralesPage() {

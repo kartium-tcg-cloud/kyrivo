@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import Field from "@/components/ui/Field";
+import Button from "@/components/ui/Button";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -37,10 +39,7 @@ export default function ForgotPasswordPage() {
   return (
     <main className="relative min-h-screen overflow-hidden bg-neutral-950 text-white flex items-center justify-center px-6">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div
-          className="absolute -top-40 left-1/2 h-[520px] w-[900px] -translate-x-1/2 rounded-full opacity-[0.14] blur-3xl"
-          style={{ background: "radial-gradient(circle, rgba(245,158,11,1) 0%, transparent 70%)" }}
-        />
+        <div className="absolute -top-40 left-1/2 h-[520px] w-[900px] -translate-x-1/2 rounded-full opacity-[0.14] blur-3xl bg-glow-brand" />
       </div>
 
       <div className="relative w-full max-w-md">
@@ -57,7 +56,7 @@ export default function ForgotPasswordPage() {
             <span className="text-lg font-black tracking-tighter text-neutral-950">K</span>
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-white">Kyrivo</h1>
+            <p className="text-2xl font-bold tracking-tight text-white">Kyrivo</p>
           </div>
         </div>
 
@@ -73,54 +72,38 @@ export default function ForgotPasswordPage() {
                   </svg>
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-white">Email envoyé</h2>
+                  <h1 className="text-xl font-bold text-white">Email envoyé</h1>
                   <p className="mt-2 text-sm text-neutral-400 leading-relaxed">
                     Si un compte existe pour <span className="text-neutral-200 font-medium">{email}</span>, vous recevrez un lien de réinitialisation dans quelques minutes.
                   </p>
-                  <p className="mt-3 text-xs text-neutral-600">
+                  <p className="mt-3 text-xs text-neutral-400">
                     Pensez à vérifier vos spams.
                   </p>
                 </div>
-                <Link
-                  href="/login"
-                  className="mt-2 inline-flex items-center gap-2 rounded-xl border border-neutral-800 bg-neutral-950 px-5 py-2.5 text-sm font-semibold text-neutral-300 transition hover:border-amber-500/30 hover:text-amber-400"
-                >
+                <Button href="/login" variant="secondary" size="sm" className="mt-2">
                   Retour à la connexion
-                </Link>
+                </Button>
               </div>
             ) : (
               <>
                 <div className="mb-7">
-                  <h2 className="text-2xl font-bold tracking-tight text-white">
+                  <h1 className="text-2xl font-bold tracking-tight text-white">
                     Mot de passe oublié
-                  </h2>
+                  </h1>
                   <p className="mt-2 text-sm leading-relaxed text-neutral-500">
                     Renseignez votre adresse email et nous vous enverrons un lien pour réinitialiser votre mot de passe.
                   </p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <label className="mb-2 block text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
-                      Adresse email
-                    </label>
-                    <input
-                      type="email"
-                      placeholder="vous@email.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="
-                        w-full rounded-xl border border-neutral-800
-                        bg-neutral-950 px-4 py-3
-                        text-sm text-white
-                        placeholder:text-neutral-700
-                        outline-none transition
-                        focus:border-amber-500/50
-                        focus:ring-2 focus:ring-amber-500/10
-                      "
-                      required
-                    />
-                  </div>
+                  <Field
+                    label="Adresse email"
+                    type="email"
+                    placeholder="vous@email.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
 
                   {error && (
                     <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400">
@@ -128,19 +111,9 @@ export default function ForgotPasswordPage() {
                     </div>
                   )}
 
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="
-                      w-full rounded-xl bg-amber-500 px-4 py-3
-                      text-sm font-bold text-neutral-950
-                      transition hover:bg-amber-400
-                      disabled:cursor-not-allowed disabled:opacity-50
-                      shadow-lg shadow-amber-500/10
-                    "
-                  >
+                  <Button type="submit" disabled={loading} className="w-full">
                     {loading ? "Envoi en cours..." : "Envoyer le lien"}
-                  </button>
+                  </Button>
                 </form>
 
                 <div className="mt-6 border-t border-neutral-800 pt-6 text-center">

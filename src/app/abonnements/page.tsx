@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
+import SocialProofBadges from "@/components/SocialProofBadges";
 
 // ═══════════════════════════════════════════════════════════
 // TYPES
@@ -371,13 +372,7 @@ const handlePortal = async () => {
 
       {/* ═══ GLOW BACKGROUND ═══════════════════════════════ */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div
-          className="absolute -top-40 left-1/2 -translate-x-1/2 h-[500px] w-[900px] rounded-full opacity-[0.12] blur-3xl"
-          style={{
-            background:
-              "radial-gradient(circle, rgba(245,158,11,1) 0%, transparent 70%)",
-          }}
-        />
+        <div className="absolute -top-40 left-1/2 -translate-x-1/2 h-[500px] w-[900px] rounded-full opacity-[0.12] blur-3xl bg-glow-brand" />
       </div>
 
       <div className="relative px-6 lg:px-10 py-10 lg:py-14 mx-auto max-w-6xl">
@@ -399,6 +394,10 @@ const handlePortal = async () => {
           <p className="mt-3 text-base text-neutral-400 max-w-xl">
             Choisissez la formule adaptée à votre activité. Changez à tout moment depuis votre espace compte.
           </p>
+
+          <div className="mt-6">
+            <SocialProofBadges compact />
+          </div>
 
         </header>
 
@@ -878,7 +877,7 @@ if (isAuthenticated) {
           {/* Prix barré si quarterly */}
           {pricing.oldPrice && (
             <div className="flex items-baseline gap-2 mb-1">
-              <span className="text-base text-neutral-600 line-through tabular-nums">
+              <span className="text-base text-neutral-400 line-through tabular-nums">
                 {pricing.oldPrice}
               </span>
               <span
@@ -895,7 +894,7 @@ if (isAuthenticated) {
           )}
 
           <div className="flex items-baseline gap-1">
-            <span className="text-4xl font-bold tracking-tight tabular-nums text-white">
+            <span className="font-display text-4xl font-bold tracking-tight tabular-nums text-white">
               {pricing.price}
             </span>
             <span className="text-sm text-neutral-500 font-medium">
@@ -903,7 +902,7 @@ if (isAuthenticated) {
             </span>
           </div>
 
-          <p className="mt-2 text-[11px] text-neutral-600">
+          <p className="mt-2 text-[11px] text-neutral-400">
             {billingPeriod === "monthly"
               ? "Facturé mensuellement — TTC"
               : "Prépayé 3 mois — TTC"}
