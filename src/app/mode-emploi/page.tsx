@@ -429,6 +429,32 @@ const ITEMS: AccordionItem[] = [
 ];
 
 // ═══════════════════════════════════════════════════════════
+// FAQPage JSON-LD — réponses en texte brut synchronisées avec les
+// 7 questions de ITEMS ci-dessus (les réponses y sont en JSX, donc
+// non réutilisables telles quelles dans le schema.org).
+// ═══════════════════════════════════════════════════════════
+
+const FAQ_ANSWERS_PLAIN: string[] = [
+  "Avant d'encoder tes premiers achats et ventes, configure les Préférences de ton compte : le taux de TVA par défaut selon ta situation fiscale, les modes de paiement que tu utilises le plus souvent, l'identité de ta société ou de ton activité, et les informations de facturation pour tes factures PDF.",
+  "Va dans Achats et clique sur Ajouter un achat, puis renseigne la date, le montant HT ou TTC, la TVA et le moyen de paiement. Il existe deux catégories d'achats : achat avec articles en stock, destinés à être revendus, et achat sans stock pour les dépenses comme les fournitures ou les abonnements. Tu peux joindre un justificatif et enregistrer le fournisseur en un clic.",
+  "Va dans Ventes et clique sur Ajouter une vente. Choisis le client si nécessaire, sélectionne les articles depuis ton stock disponible, encode le prix de vente, la quantité et le moyen de paiement, puis choisis le mode TVA adapté à ta situation : TVA standard ou TVA sur marge. Le stock est décrémenté automatiquement à l'enregistrement de la vente.",
+  "Dans les pages Achats et Ventes, sélectionne une plage de dates et utilise les boutons d'export pour télécharger tes données. Les fichiers Excel contiennent les montants utiles selon le type d'export : montants HT, TTC, TVA, paiements et marges.",
+  "Va dans la section Factures pour générer et télécharger tes factures. Vérifie d'abord tes informations de facturation dans Préférences, puis sélectionne les ventes ou la période concernée pour générer les factures PDF ou une archive ZIP.",
+  "Le Dashboard donne une vue d'ensemble de ton activité : achats du mois, ventes du mois, stock disponible et quota utilisé, ainsi que l'argent immobilisé en stock. L'analyse par période permet de sélectionner deux dates pour voir les achats, ventes, TVA estimée et résultat net estimé sur l'intervalle.",
+  "Commence par l'essai gratuit de 7 jours pour tester l'outil sans engagement ni carte bancaire. Ensuite, choisis le plan selon ton volume réel : Pro pour démarrer ou une activité à faible volume, Business pour une activité régulière, et Entreprise pour un gros volume de transactions.",
+];
+
+const faqStructuredData = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: ITEMS.map((item, i) => ({
+    "@type": "Question",
+    name: item.question,
+    acceptedAnswer: { "@type": "Answer", text: FAQ_ANSWERS_PLAIN[i] },
+  })),
+};
+
+// ═══════════════════════════════════════════════════════════
 // PAGE PRINCIPALE
 // ═══════════════════════════════════════════════════════════
 
@@ -444,6 +470,10 @@ export default function ModeEmploiPage() {
 
   return (
     <Container size="prose" className="relative py-10 lg:py-14">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqStructuredData) }}
+      />
 
       {/* ─── En-tête ────────────────────────────────────── */}
       <div className="mb-10">

@@ -38,12 +38,12 @@ export default function NotFound() {
         </p>
 
         <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
-          <Button href="/dashboard" variant="primary" size="sm" className="w-full sm:w-auto">
-            Retour au tableau de bord
+          <Button href="/" variant="primary" size="sm" className="w-full sm:w-auto">
+            Retour à l&apos;accueil
           </Button>
 
-          <Button href="/stock" variant="secondary" size="sm" className="w-full sm:w-auto">
-            Voir le stock
+          <Button href="/abonnements" variant="secondary" size="sm" className="w-full sm:w-auto">
+            Voir les tarifs
           </Button>
         </div>
       </Card>

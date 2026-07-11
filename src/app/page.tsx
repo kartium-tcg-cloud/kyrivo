@@ -562,7 +562,7 @@ function FAQSection() {
   return (
     <Reveal delay={0}>
       <section className="mb-20" aria-labelledby="faq-heading">
-        <SectionHeader label="FAQ" title="Questions fréquentes" />
+        <SectionHeader label="FAQ" title="Questions fréquentes" id="faq-heading" />
 
         <div className="mt-10 max-w-2xl mx-auto space-y-2.5">
           {FAQ_ITEMS.map((item) => (

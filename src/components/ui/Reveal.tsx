@@ -51,7 +51,10 @@ export default function Reveal({
   return (
     <div
       ref={ref}
-      className={`reveal transition-all duration-700 ease-out ${
+      // motion-reduce: force l'état final (visible, sans transform) quel que soit
+      // `visible` — l'utilisateur avec la réduction de mouvement activée voit le
+      // contenu directement, sans attendre l'IntersectionObserver ni l'animation.
+      className={`reveal transition-all duration-700 ease-out motion-reduce:transition-none motion-reduce:!opacity-100 motion-reduce:!transform-none ${
         visible ? VISIBLE_CLASSES : HIDDEN_CLASSES[direction]
       } ${className}`}
       style={{ transitionDelay: visible ? `${delay}ms` : "0ms" }}

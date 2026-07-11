@@ -7,6 +7,11 @@ export const metadata: Metadata = {
   alternates: {
     canonical: 'https://kyrivo.fr/forgot-password',
   },
+  // Page utilitaire sans valeur de résultat de recherche — même traitement que /login.
+  robots: {
+    index: false,
+    follow: true,
+  },
 }
 
 export default function ForgotPasswordLayout({

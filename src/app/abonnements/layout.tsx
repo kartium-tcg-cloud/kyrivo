@@ -16,6 +16,12 @@ export const metadata: Metadata = {
   alternates: {
     canonical: 'https://kyrivo.fr/abonnements',
   },
+  openGraph: {
+    title: 'Tarifs Kyrivo — dès 9,90 €/mois',
+    description:
+      "Essai gratuit 7 jours sans carte bancaire. Choisissez le plan Pro, Business ou Entreprise selon votre volume d'achats et de ventes.",
+    images: ['/brand/kyrivo-hero-marketing-2400.png'],
+  },
 }
 
 const productStructuredData = {
