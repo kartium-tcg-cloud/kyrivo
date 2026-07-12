@@ -256,6 +256,7 @@ const session = await stripe.checkout.sessions.create({
   line_items: [{ price: priceId, quantity: 1 }],
   metadata,
   subscription_data: { metadata },
+  allow_promotion_codes: true,
   success_url: `${appUrl}/dashboard?stripe=success`,
   cancel_url: `${appUrl}/abonnements?stripe=cancel`,
 }).catch((err: any) => {
