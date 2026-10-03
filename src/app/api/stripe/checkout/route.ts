@@ -2,22 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { createClient } from "@/lib/supabase/server";
 import { calculateUpgradeCreditPreview } from "@/lib/billing";
+import { STRIPE_PRICE_IDS as PRICE_IDS } from "@/lib/stripe-plans";
 import type { BillingPeriod, PaidSubscriptionPlan } from "@/types/subscription";
-
-const PRICE_IDS = {
-  pro: {
-    monthly: process.env.STRIPE_PRICE_PRO_MONTHLY!,
-    quarterly: process.env.STRIPE_PRICE_PRO_QUARTERLY!,
-  },
-  business: {
-    monthly: process.env.STRIPE_PRICE_BUSINESS_MONTHLY!,
-    quarterly: process.env.STRIPE_PRICE_BUSINESS_QUARTERLY!,
-  },
-  entreprise: {
-    monthly: process.env.STRIPE_PRICE_ENTREPRISE_MONTHLY!,
-    quarterly: process.env.STRIPE_PRICE_ENTREPRISE_QUARTERLY!,
-  },
-};
 
 const MIN_CHECKOUT_AMOUNT_CENTS = 50;
 
