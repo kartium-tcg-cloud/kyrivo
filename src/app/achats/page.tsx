@@ -158,7 +158,11 @@ function buildPurchaseItems(params: {
       quantity,
       stock_quantity: quantity,
       unit_cost: unitCostHT,
-      total_cost: Math.round(unitCostTTC * quantity * 100) / 100,
+      // total_cost sert aux écrans stock et au coût de revient : garder le
+      // total Vinted avec frais, tandis que unit_cost reste le prix fiscal.
+      total_cost: achat.source === "vinted_import"
+        ? achat.prixTTC
+        : Math.round(unitCostTTC * quantity * 100) / 100,
       fiscal_unit_cost: achat.source === "vinted_import" ? unitCostTTC : null,
       economic_unit_cost: achat.source === "vinted_import" ? achat.prixTTC : null,
       fiscal_cost_review_required:
