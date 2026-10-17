@@ -1,0 +1,25 @@
+name: Public release notes validation
+on:
+  pull_request:
+    paths:
+      - 'src/app/mises-a-jour/**'
+      - 'src/lib/releases.ts'
+      - 'src/components/Sidebar.tsx'
+      - 'src/proxy.ts'
+      - 'src/app/sitemap.ts'
+      - 'src/app/page.tsx'
+      - 'tests/public-changelog.test.cjs'
+      - '.github/workflows/public-changelog.yml'
+jobs:
+  changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx next typegen
+      - run: npx tsc --noEmit
+      - run: node --test tests/public-changelog.test.cjs tests/design-regression.test.cjs tests/fees-always-on.test.cjs tests/checkout-eligibility.test.cjs
