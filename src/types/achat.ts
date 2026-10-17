@@ -1,4 +1,5 @@
 import { ItemStatus } from "@/types/item";
+import type { TransactionFeeDraft } from "@/lib/transactionFees";
 
 export type TypeAchat = "pro" | "particulier";
 
@@ -70,6 +71,7 @@ export interface Achat {
   saveSupplier?: boolean;
   /** Open optional fee editor after the purchase has been created successfully. */
   openFeesAfterSave?: boolean;
+  draftFees?: TransactionFeeDraft[];
   /** true = achat de stock (défaut), false = dépense sans stock */
   avecStock?: boolean;
 }
