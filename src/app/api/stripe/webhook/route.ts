@@ -580,6 +580,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ received: true });
     }
 
+    // La période payée est celle de Stripe (et non le reliquat de l'essai).
+    // Checkout crée un abonnement Stripe payant dès la validation du paiement.
+    const paidStripeSubscription = await stripe.subscriptions.retrieve(stripeSubscriptionId);
+    if (paidStripeSubscription.status !== "active") {
+      console.warn("[checkout.session.completed] Abonnement Stripe pas encore actif :", paidStripeSubscription.status);
+      return NextResponse.json({ received: true });
+    }
+    const paidItem = paidStripeSubscription.items.data[0];
+    const paidStartSec = paidItem?.current_period_start;
+    const paidEndSec = paidItem?.current_period_end;
+    if (!paidStartSec || !paidEndSec || paidEndSec <= paidStartSec) {
+      throw new Error("[checkout.session.completed] Dates de période payée Stripe manquantes.");
+    }
+    const paidStart = new Date(paidStartSec * 1000);
+    const paidEnd = new Date(paidEndSec * 1000);
+
     const monthlyLimit = getMonthlyLineLimit(plan);
     const durationMonths = getDurationMonths(billingPeriod);
     const now = new Date();
@@ -593,6 +609,16 @@ export async function POST(req: NextRequest) {
 
     if (existingError) {
       throw existingError;
+    }
+
+    // Stripe peut redélivrer cet événement ; le même paiement ne peut
+    // jamais ajouter un deuxième mois ou trimestre à la souscription.
+    if (
+      existingSubscription?.stripe_subscription_id === stripeSubscriptionId &&
+      existingSubscription.plan !== "trial"
+    ) {
+      console.log("[checkout.session.completed] Déjà traité, aucun renouvellement ajouté :", stripeSubscriptionId);
+      return NextResponse.json({ received: true });
     }
 
     const currentPlan = existingSubscription?.plan ?? null;
@@ -636,13 +662,12 @@ export async function POST(req: NextRequest) {
     let subscriptionEndsAt = addMonths(now, durationMonths);
     let finalMonthlyLimit = monthlyLimit;
 
-    // Conversion trial → plan payant : on étend depuis la fin du trial si encore actif
+    // Conversion essai → payant : l'essai s'arrête à l'achat. Le droit
+    // démarre avec la période réellement payée, sans 7 jours supplémentaires.
     if (isTrialConversion && existingSubscription) {
-      const baseForEnd =
-        existingTrialEnd && existingTrialEnd > now ? existingTrialEnd : now;
-      subscriptionEndsAt = addMonths(baseForEnd, durationMonths);
-      currentPeriodStart = now;
-      currentPeriodEnd = addMonths(now, 1);
+      subscriptionEndsAt = paidEnd;
+      currentPeriodStart = paidStart;
+      currentPeriodEnd = quotaPeriodEnd(paidStart, paidEnd, billingPeriod);
       finalMonthlyLimit = monthlyLimit;
     }
 
@@ -669,9 +694,9 @@ export async function POST(req: NextRequest) {
     }
 
     if (isUpgrade || !existingSubscription) {
-      currentPeriodStart = now;
-      currentPeriodEnd = addMonths(now, 1);
-      subscriptionEndsAt = addMonths(now, durationMonths);
+      currentPeriodStart = paidStart;
+      currentPeriodEnd = quotaPeriodEnd(paidStart, paidEnd, billingPeriod);
+      subscriptionEndsAt = paidEnd;
       finalMonthlyLimit = monthlyLimit;
     }
 
@@ -687,7 +712,7 @@ export async function POST(req: NextRequest) {
           current_period_start: currentPeriodStart.toISOString(),
           current_period_end: currentPeriodEnd.toISOString(),
           subscription_ends_at: subscriptionEndsAt.toISOString(),
-          trial_ends_at: existingSubscription?.trial_ends_at ?? null,
+          trial_ends_at: null,
           stripe_customer_id: stripeCustomerId,
           stripe_subscription_id: stripeSubscriptionId,
           updated_at: now.toISOString(),
