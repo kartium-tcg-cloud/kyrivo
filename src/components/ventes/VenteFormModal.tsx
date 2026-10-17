@@ -32,6 +32,7 @@ interface VenteFormModalProps {
   stockItems: AvailableStockItem[];
   clients?: { id: string; name: string }[];
   prefillItem?: AvailableStockItem | null;
+  enableFees?: boolean;
 }
 
 type VentePayload = {
@@ -47,6 +48,7 @@ type VentePayload = {
   notes?: string;
   lines: SaleLineInput[];
   saveClient?: boolean;
+  openFeesAfterSave?: boolean;
 };
 
 interface FormLine {
@@ -98,6 +100,7 @@ export default function VenteFormModal({
 stockItems,
 clients = [],
 prefillItem = null,
+enableFees = false,
 }: VenteFormModalProps) {
   const isEditing = Boolean(venteInitiale);
 
@@ -116,6 +119,7 @@ prefillItem = null,
 
   const [defaultVatRate, setDefaultVatRate] = useState(21);
   const [lines, setLines] = useState<FormLine[]>([emptyLine()]);
+  const [openFeesAfterSave, setOpenFeesAfterSave] = useState(false);
   const [erreurs, setErreurs] = useState<string[]>([]);
   const [paymentMethods, setPaymentMethods] = useState<string[]>([
   "Virement",
@@ -449,6 +453,7 @@ setForm({
     });
     setModeMontantStandard("ttc");
     setLines([emptyLine(vatRate)]);
+    setOpenFeesAfterSave(false);
     setErreurs([]);
   };
 
@@ -517,6 +522,7 @@ setForm({
       notes: form.notes.trim() || undefined,
       lines: mappedLines,
       saveClient: form.saveClient,
+      openFeesAfterSave: !isEditing && enableFees && openFeesAfterSave,
     };
 
     if (isEditing) {
@@ -1202,6 +1208,19 @@ setForm({
             </label>
           </div>
 
+          {!isEditing && enableFees && (
+            <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-amber-500/25 bg-amber-500/5 px-4 py-3">
+              <input type="checkbox" className="mt-1 h-4 w-4 accent-amber-500"
+                checked={openFeesAfterSave} onChange={e => setOpenFeesAfterSave(e.target.checked)} />
+              <span className="text-sm text-neutral-200">
+                <strong>Ajouter des frais après l'enregistrement</strong>
+                <span className="mt-1 block text-xs text-neutral-400">
+                  Expédition payée par le vendeur, commission ou emballage.
+                  Le détail s'ouvrira après création ; la TVA et le total facturé restent inchangés.
+                </span>
+              </span>
+            </label>
+          )}
           <div>
             <label className={labelClasses}>Notes</label>
             <textarea
