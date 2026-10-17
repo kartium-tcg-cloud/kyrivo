@@ -2,6 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { getTransactionFees } from "@/lib/feeQueries";
+import { getSaleLines } from "@/lib/sales";
+import { estimateSaleProfit } from "@/lib/estimatedSaleProfit";
+import type { Sale, SaleLine } from "@/types/sale";
 import { EvolutionChart, ProfitBridge, type EvolutionPoint } from "./PeriodCharts";
 
 interface PeriodStatsProps {
@@ -15,6 +19,9 @@ interface Stats {
   tvaDeductible: number;
   soldeTva: number;
   resultatNet: number;
+  margeVentesCalculee: number;
+  ventesAvecMarge: number;
+  nombreVentes: number;
 }
 
 type Granularity = "day" | "week" | "month";
@@ -171,13 +178,13 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
           await Promise.all([
             supabase
               .from("purchases")
-              .select("amount_ttc, vat_amount, purchase_date")
+              .select("id, amount_ttc, vat_amount, purchase_date")
               .eq("company_id", companyId)
               .gte("purchase_date", dateDebut)
               .lte("purchase_date", dateFin),
             supabase
               .from("sales")
-              .select("total_ttc, vat_amount, sale_date")
+              .select("id, total_ttc, vat_amount, sale_date, vat_mode")
               .eq("company_id", companyId)
               .gte("sale_date", dateDebut)
               .lte("sale_date", dateFin),
@@ -187,14 +194,65 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
         if (eV) throw eV;
         if (cancelled) return;
 
-        const depenses      = round2((achats ?? []).reduce((s, a) => s + Number(a.amount_ttc  ?? 0), 0));
-        const tvaDeductible = round2((achats ?? []).reduce((s, a) => s + Number(a.vat_amount  ?? 0), 0));
+        // Existing fees remain part of reports even if the optional input UI is hidden.
+        const fees = await Promise.all([
+          getTransactionFees({ companyId, purchaseIds: (achats ?? []).map(a => String(a.id)) }),
+          getTransactionFees({ companyId, saleIds: (ventes ?? []).map(v => String(v.id)) }),
+        ]).then(([a, b]) => [...a, ...b]);
+        const purchaseDates = new Map((achats ?? []).map(p => [p.id, p.purchase_date]));
+        const saleDates = new Map((ventes ?? []).map(v => [v.id, v.sale_date]));
+        // Expense at purchase already included in its TTC total: never deduct twice.
+        // Sale expense is always a merchant outlay, separate from sale revenue.
+        const externalFees = fees.filter(f => f.kind === "expense" &&
+          (f.saleId || (f.purchaseId && !f.includedInParentTotal)));
+        const extraExpensesCents = externalFees.reduce((sum, f) => sum + Math.round(f.amountTTC * 100), 0);
+        const deductibleFeeVatCents = externalFees.reduce(
+          (sum, f) => sum + Math.round(f.recoverableVatAmount * 100), 0);
+        const depenses      = round2((achats ?? []).reduce((sum, a) => sum + Number(a.amount_ttc ?? 0), 0) + extraExpensesCents / 100);
+        const tvaDeductible = round2((achats ?? []).reduce((sum, a) => sum + Number(a.vat_amount ?? 0), 0) + deductibleFeeVatCents / 100);
         const recettes      = round2((ventes ?? []).reduce((s, v) => s + Number(v.total_ttc   ?? 0), 0));
         const tvaCollectee  = round2((ventes ?? []).reduce((s, v) => s + Number(v.vat_amount  ?? 0), 0));
         const soldeTva      = round2(tvaCollectee - tvaDeductible);
         const resultatNet   = round2(recettes - depenses - soldeTva);
 
-        setStats({ depenses, recettes, tvaCollectee, tvaDeductible, soldeTva, resultatNet });
+        const saleIds = (ventes ?? []).map(v => String(v.id));
+        const saleLines = await getSaleLines(saleIds);
+        const feesBySale = new Map<string, typeof fees>();
+        for (const fee of fees) {
+          if (!fee.saleId) continue;
+          if (!feesBySale.has(fee.saleId)) feesBySale.set(fee.saleId, []);
+          feesBySale.get(fee.saleId)!.push(fee);
+        }
+        const linesBySale = new Map<string, SaleLine[]>();
+        for (const line of saleLines) {
+          const saleId = String(line.sale_id);
+          if (!linesBySale.has(saleId)) linesBySale.set(saleId, []);
+          linesBySale.get(saleId)!.push({
+            id: String(line.id), saleId, companyId,
+            itemName: line.item_name ?? "", quantity: Number(line.quantity),
+            unitPrice: Number(line.unit_price), totalPrice: Number(line.total_price),
+            purchaseCost: line.purchase_cost == null ? undefined : Number(line.purchase_cost),
+            economicPurchaseCost: line.economic_purchase_cost == null ? undefined : Number(line.economic_purchase_cost),
+            vatRate: Number(line.vat_rate), createdAt: line.created_at,
+          });
+        }
+        let margeCents = 0;
+        let ventesAvecMarge = 0;
+        for (const v of ventes ?? []) {
+          const guess = estimateSaleProfit({
+            id: String(v.id), vatMode: v.vat_mode,
+            lines: linesBySale.get(String(v.id)) ?? [],
+          } as Sale, feesBySale.get(String(v.id)) ?? []);
+          if (guess !== null) {
+            margeCents += Math.round(guess * 100);
+            ventesAvecMarge += 1;
+          }
+        }
+        setStats({
+          depenses, recettes, tvaCollectee, tvaDeductible, soldeTva, resultatNet,
+          margeVentesCalculee: margeCents / 100,
+          ventesAvecMarge, nombreVentes: (ventes ?? []).length,
+        });
 
         // Évolution par bucket (jour / semaine / mois) — même formule que ci-dessus,
         // appliquée par sous-période pour le graphique d'évolution.
@@ -217,6 +275,16 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
           if (entry) {
             entry.ventes += Number(v.total_ttc ?? 0);
             entry.tvaCol += Number(v.vat_amount ?? 0);
+          }
+        });
+        // Keep day/week/month chart consistent with the top period cards.
+        externalFees.forEach(f => {
+          const date = f.saleId ? saleDates.get(f.saleId) : f.purchaseId ? purchaseDates.get(f.purchaseId) : null;
+          if (!date) return;
+          const entry = buckets.get(bucketKeyFor(date, bucketGranularity));
+          if (entry) {
+            entry.achats += f.amountTTC;
+            entry.tvaDed += f.recoverableVatAmount;
           }
         });
 
@@ -440,16 +508,29 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
                   <TrendIcon />
                 </span>
                 <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-500 leading-tight">
-                  Résultat net estimé
+                  Solde estimé (flux)
                 </p>
               </div>
               <p className={`font-display text-2xl font-bold tabular-nums leading-none ${stats.resultatNet >= 0 ? "text-emerald-400" : "text-red-400"}`}>
                 {fmt(stats.resultatNet)}
               </p>
-              <p className="text-[10px] text-neutral-400">Ce qu&apos;il te reste réellement</p>
+              <p className="text-[10px] text-neutral-400">Achats et ventes de la période, frais inclus · pas un bénéfice comptable</p>
             </div>
 
           </div>
+
+          {stats.ventesAvecMarge > 0 && (
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
+              <div>
+                <p className="text-xs font-semibold text-emerald-300">Marge estimée sur les ventes après frais</p>
+                <p className="mt-1 text-[11px] text-neutral-400">
+                  Calculable pour {stats.ventesAvecMarge} vente{stats.ventesAvecMarge > 1 ? "s" : ""}
+                  {" "}sur {stats.nombreVentes}. Frais généraux et frais d’achat non affectés aux articles exclus.
+                </p>
+              </div>
+              <strong className="text-xl tabular-nums text-emerald-300">{fmt(stats.margeVentesCalculee)}</strong>
+            </div>
+          )}
 
           {/* ── Graphiques ──────────────────────────────────────── */}
           <div
@@ -461,7 +542,7 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
               <div className="mb-5 flex items-center justify-between gap-2">
                 <div>
                   <h3 className="text-base font-semibold text-neutral-100">Évolution de la période</h3>
-                  <p className="text-[11px] text-neutral-500 mt-0.5">Ventes, achats et bénéfice net</p>
+                  <p className="text-[11px] text-neutral-500 mt-0.5">Ventes, achats, frais et solde estimé</p>
                 </div>
                 <span className="rounded-full border border-neutral-700 bg-neutral-900/60 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-neutral-400">
                   {granularityLabel(granularity)}
@@ -473,8 +554,8 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
             {/* Graphique 2 — Pont de rentabilité */}
             <div className="surface rounded-xl border border-neutral-700/60 bg-gradient-to-b from-neutral-800/50 to-neutral-900/50 p-4 sm:p-6">
               <div className="mb-5">
-                <h3 className="text-base font-semibold text-neutral-100">Pont de rentabilité</h3>
-                <p className="text-[11px] text-neutral-500 mt-0.5">Décomposition du résultat de la période</p>
+                <h3 className="text-base font-semibold text-neutral-100">Répartition des flux</h3>
+                <p className="text-[11px] text-neutral-500 mt-0.5">Recettes, débours, TVA et solde estimé de la période</p>
               </div>
               <ProfitBridge
                 recettes={stats.recettes}

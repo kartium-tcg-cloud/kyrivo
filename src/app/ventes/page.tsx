@@ -36,6 +36,10 @@ import {
 } from "@/types/sale";
 
 import { createClient } from "@/lib/supabase/client";
+import { getCompanyPreferences } from "@/lib/preferences";
+import TransactionFeesModal from "@/components/fees/TransactionFeesModal";
+import { getTransactionFees } from "@/lib/feeQueries";
+import type { TransactionFeeDraft } from "@/lib/transactionFees";
 
 import VentesHeader from "@/components/ventes/VentesHeader";
 import VentesFiltres from "@/components/ventes/VentesFiltres";
@@ -55,6 +59,7 @@ type VentePayload = {
   notes?: string;
   lines: SaleLineInput[];
   saveClient?: boolean;
+  openFeesAfterSave?: boolean;
 };
 
 function formatDateFr(value: string): string {
@@ -173,6 +178,10 @@ function VentesContent() {
   const [clients, setClients] = useState<{ id: string; name: string }[]>([]);
   const [exportConfirmOpen, setExportConfirmOpen] = useState(false);
   const [exportingExcel, setExportingExcel] = useState(false);
+  const [enableTransactionFees, setEnableTransactionFees] = useState(false);
+  const [companyIdForFees, setCompanyIdForFees] = useState("");
+  const [saleForFees, setSaleForFees] = useState<Sale | null>(null);
+  const [feesBySale, setFeesBySale] = useState<Record<string, TransactionFeeDraft[]>>({});
 
   const [filtres, setFiltres] = useState<SaleFiltres>({
     recherche: "",
@@ -213,6 +222,13 @@ function VentesContent() {
 
     const mappedSales = sales.map((sale: any) => mapSale(sale, saleLines));
     setVentes(mappedSales);
+    const fees = await getTransactionFees({ companyId, saleIds });
+    const grouped: Record<string, TransactionFeeDraft[]> = {};
+    for (const fee of fees) {
+      if (!fee.saleId) continue;
+      (grouped[fee.saleId] ??= []).push(fee);
+    }
+    setFeesBySale(grouped);
   };
 
   useEffect(() => {
@@ -220,6 +236,9 @@ function VentesContent() {
       try {
         const companyId = await getCompanyId();
         if (!companyId) return;
+        const prefs = await getCompanyPreferences(companyId);
+        setEnableTransactionFees(prefs.enableTransactionFees);
+        setCompanyIdForFees(companyId);
         await refreshSales(companyId);
         await refreshStock(companyId);
         const { data: contacts } = await createClient()
@@ -317,7 +336,10 @@ function VentesContent() {
 
     setExportingExcel(true);
     try {
-      await exportSalesToExcel(ventesFiltrees);
+      const fees = companyIdForFees
+        ? await getTransactionFees({ companyId: companyIdForFees, saleIds: ventesFiltrees.map(v => v.id) })
+        : [];
+      await exportSalesToExcel(ventesFiltrees, fees);
       setExportConfirmOpen(false);
     } catch (error) {
       console.error(error);
@@ -515,6 +537,9 @@ function VentesContent() {
       await refreshStock(companyId);
 
       fermerModal();
+      if (vente.openFeesAfterSave && enableTransactionFees && createdSale) {
+        setSaleForFees({ id: createdSale.id } as Sale);
+      }
     } catch (error: any) {
       console.error(error);
       if (error?.isSaleCreationError) {
@@ -749,8 +774,20 @@ function VentesContent() {
             ventes={ventesFiltrees}
             onModifier={ouvrirEdition}
             onSupprimer={supprimerVente}
+            onManageFees={enableTransactionFees ? setSaleForFees : undefined}
+            feesBySale={feesBySale}
           />
         </>
+      )}
+
+      {enableTransactionFees && companyIdForFees && saleForFees && (
+        <TransactionFeesModal
+          ouvert={true}
+          companyId={companyIdForFees}
+          saleId={saleForFees.id}
+          onFermer={() => setSaleForFees(null)}
+          onSaved={() => refreshSales(companyIdForFees)}
+        />
       )}
 
       <VenteFormModal
@@ -762,6 +799,7 @@ function VentesContent() {
 stockItems={stockItems}
 clients={clients}
 prefillItem={prefillItem}
+enableFees={enableTransactionFees}
       />
 
       {exportConfirmOpen && (

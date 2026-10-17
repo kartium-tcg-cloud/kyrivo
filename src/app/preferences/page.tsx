@@ -499,6 +499,30 @@ async function handleInvoicePrefixChange(value: string) {
           />
         </Section>
 
+        {/* ═══ FRAIS FACULTATIFS ════════════════════════════ */}
+        <Section
+          title="Frais et rentabilité"
+          description="Enregistrez les coûts de votre activité sans compliquer les montants de vos factures."
+          icon={<svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M3 3v18h18M7 17l4-5 4 2 5-8" /></svg>}
+        >
+          <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-neutral-700/70 bg-neutral-900/50 p-4">
+            <input
+              type="checkbox"
+              checked={preferences.enableTransactionFees}
+              onChange={(event) => update("enableTransactionFees", event.target.checked)}
+              className="mt-0.5 h-5 w-5 accent-amber-500"
+            />
+            <span>
+              <span className="block text-sm font-semibold text-white">Afficher la gestion des frais</span>
+              <span className="mt-1 block text-xs leading-relaxed text-neutral-400">
+                Frais d’achat, expédition, commissions et frais de vente, regroupés avec les opérations.
+                Aucun changement automatique des taux TVA ou des factures.
+                Désactiver masque les outils sans supprimer les frais enregistrés.
+              </span>
+            </span>
+          </label>
+        </Section>
+
         {/* ═══ SECTION 5 — TVA ════════════════════════════ */}
         <Section
           title="Fiscalité"
