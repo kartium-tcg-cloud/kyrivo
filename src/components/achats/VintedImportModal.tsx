@@ -170,7 +170,7 @@ function parseVintedText(text: string): ParsedVinted {
 interface VintedImportModalProps {
   ouvert: boolean;
   onFermer: () => void;
-  onCreer: (achat: Achat) => void;
+  onCreer: (achat: Achat) => Promise<boolean>;
   existingCategories?: string[];
 }
 
@@ -207,6 +207,7 @@ export default function VintedImportModal({
   const [commentaire, setCommentaire] = useState("");
   const [showCatDropdown, setShowCatDropdown] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [saving, setSaving] = useState(false);
 
   const filteredCats = existingCategories
     .filter(
@@ -245,7 +246,8 @@ export default function VintedImportModal({
     setStep("preview");
   };
 
-  const handleCreer = () => {
+  const handleCreer = async () => {
+    if (saving) return;
     const errs: Record<string, string> = {};
     if (!produit.trim()) errs.produit = "Nom de l'article requis";
     if (!date) errs.date = "Date requise";
@@ -297,8 +299,19 @@ export default function VintedImportModal({
       documentFile: receiptFile,
     };
 
-    onCreer(achat);
-    handleFermer();
+    setSaving(true);
+    try {
+      const created = await onCreer(achat);
+      if (created) handleFermer();
+    } catch (error) {
+      console.error("[Vinted import] Echec enregistrement", error);
+      setErrors((prev) => ({
+        ...prev,
+        submit: "L'import n'a pas été enregistré. Vérifiez les montants et réessayez.",
+      }));
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleFermer = () => {
@@ -332,7 +345,7 @@ export default function VintedImportModal({
   return (
     <Modal
       ouvert={ouvert}
-      onFermer={handleFermer}
+      onFermer={saving ? () => {} : handleFermer}
       titre={
         step === "paste" ? "Importer depuis Vinted" : "Prévisualisation de l'import"
       }
@@ -342,7 +355,8 @@ export default function VintedImportModal({
             <button
               type="button"
               onClick={handleFermer}
-              className="flex-1 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-400 sm:flex-none sm:px-4 hover:bg-neutral-800/60 hover:text-neutral-200 transition-colors"
+              disabled={saving}
+              className="flex-1 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-400 sm:flex-none sm:px-4 hover:bg-neutral-800/60 hover:text-neutral-200 transition-colors disabled:opacity-50"
             >
               Annuler
             </button>
@@ -360,7 +374,8 @@ export default function VintedImportModal({
             <button
               type="button"
               onClick={() => setStep("paste")}
-              className="flex-1 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-400 sm:flex-none sm:px-4 hover:bg-neutral-800/60 hover:text-neutral-200 transition-colors"
+              disabled={saving}
+              className="flex-1 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-400 sm:flex-none sm:px-4 hover:bg-neutral-800/60 hover:text-neutral-200 transition-colors disabled:opacity-50"
             >
               ← Retour
             </button>
@@ -368,16 +383,18 @@ export default function VintedImportModal({
               <button
                 type="button"
                 onClick={handleFermer}
-                className="flex-1 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-400 sm:flex-none sm:px-4 hover:bg-neutral-800/60 hover:text-neutral-200 transition-colors"
+                disabled={saving}
+                className="flex-1 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-400 sm:flex-none sm:px-4 hover:bg-neutral-800/60 hover:text-neutral-200 transition-colors disabled:opacity-50"
               >
                 Annuler
               </button>
               <button
                 type="button"
                 onClick={handleCreer}
-                className="flex-1 rounded-lg px-3 py-2.5 text-sm font-semibold bg-amber-500 sm:flex-none sm:px-5 text-neutral-950 hover:bg-amber-400 active:scale-[0.97] transition-all shadow-lg shadow-amber-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
+                disabled={saving}
+                className="flex-1 rounded-lg px-3 py-2.5 text-sm font-semibold bg-amber-500 sm:flex-none sm:px-5 text-neutral-950 hover:bg-amber-400 active:scale-[0.97] transition-all shadow-lg shadow-amber-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40 disabled:opacity-50"
               >
-                Créer l'achat
+                {saving ? "Enregistrement…" : "Créer l'achat"}
               </button>
             </div>
           </div>
