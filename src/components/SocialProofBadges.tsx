@@ -1,5 +1,7 @@
+import { SOCIAL_PROOF_REVIEW_COUNTS } from "@/lib/socialProof";
+
 // Badges de preuve sociale (Vinted / Google) — reprend les chiffres déjà
-// annoncés dans CredibilityFooter (src/app/page.tsx). Recréés en HTML/CSS
+// centralisés dans src/lib/socialProof.ts. Recréés en HTML/CSS
 // natif plutôt qu'en image (public/brand/Vinted.png et google.png ne sont
 // pas utilisés : 900 Ko+ chacun pour un simple badge, non optimisés).
 
@@ -23,13 +25,13 @@ export default function SocialProofBadges({ compact = false }: { compact?: boole
       <div className={`inline-flex items-center gap-3 rounded-full border border-neutral-800 bg-neutral-900/40 ${padding}`}>
         <StarRating />
         <span className="h-4 w-px bg-neutral-800" />
-        <span className="text-sm text-neutral-300">24 avis Vinted</span>
+        <span className="text-sm text-neutral-300">{SOCIAL_PROOF_REVIEW_COUNTS.vinted} avis Vinted</span>
       </div>
       <div className={`inline-flex items-center gap-3 rounded-full border border-neutral-800 bg-neutral-900/40 ${padding}`}>
         <StarRating />
         <span className="text-sm font-semibold text-white">5,0</span>
         <span className="h-4 w-px bg-neutral-800" />
-        <span className="text-sm text-neutral-300">7 avis Google</span>
+        <span className="text-sm text-neutral-300">{SOCIAL_PROOF_REVIEW_COUNTS.google} avis Google</span>
       </div>
     </div>
   );

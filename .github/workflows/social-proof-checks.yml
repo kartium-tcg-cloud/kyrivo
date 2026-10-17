@@ -1,0 +1,22 @@
+name: Social proof regression tests
+on:
+  pull_request:
+    paths:
+      - 'src/lib/socialProof.ts'
+      - 'src/components/SocialProofBadges.tsx'
+      - 'src/app/page.tsx'
+      - 'tests/social-proof-counts.test.cjs'
+      - '.github/workflows/social-proof-checks.yml'
+jobs:
+  social-proof:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx next typegen
+      - run: npx tsc --noEmit
+      - run: node --test tests/social-proof-counts.test.cjs
