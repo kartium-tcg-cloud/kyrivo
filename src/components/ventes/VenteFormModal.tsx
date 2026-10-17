@@ -342,6 +342,11 @@ setForm({
     const item = stockItems.find((stockItem) => stockItem.id === itemId);
     if (!item) return;
 
+    if (!isEditing && form.vatMode === "margin_vat" && item.fiscalCostReviewRequired) {
+      setErreurs(["Ce stock Vinted doit faire vérifier son prix vendeur fiscal et son justificatif avant une vente sous TVA sur marge. Retrouvez son achat dans Achats."]);
+      return;
+    }
+
     setLines((prev) =>
       prev.map((line) =>
         line.id === lineId
@@ -468,9 +473,12 @@ setForm({
     });
 
     const stockErrors = validateStock();
-    const allErrors = [...validation.errors, ...stockErrors];
+    const fiscalReviewErrors = !isEditing && form.vatMode === "margin_vat" && mappedLines.some((line) =>
+      stockItems.some((item) => item.id === line.purchaseItemId && item.fiscalCostReviewRequired)
+    ) ? ["Un article Vinted sélectionné doit être vérifié avant de calculer une TVA sur marge."] : [];
+    const allErrors = [...validation.errors, ...stockErrors, ...fiscalReviewErrors];
 
-    if (!validation.valid || stockErrors.length > 0) {
+    if (!validation.valid || stockErrors.length > 0 || fiscalReviewErrors.length > 0) {
       setErreurs(allErrors);
       return;
     }
