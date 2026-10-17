@@ -48,21 +48,23 @@ export default function Modal({
   return (
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4"
     >
       {/* Overlay sombre */}
       <div className="absolute inset-0 bg-black/75 backdrop-blur-sm animate-overlay-fade" />
 
       {/* Contenu de la modal */}
-      <div className={`relative z-10 flex max-h-[90vh] w-full ${maxWidthClassName} flex-col rounded-2xl bg-neutral-950 border border-neutral-800/80 shadow-2xl shadow-black/60 overflow-hidden animate-modal-pop`}>
+      <div role="dialog" aria-modal="true" aria-label={titre} className={`relative z-10 flex max-h-[100dvh] min-w-0 w-full ${maxWidthClassName} flex-col rounded-t-2xl border border-neutral-800/80 bg-neutral-950 shadow-2xl shadow-black/60 overflow-hidden animate-modal-pop sm:max-h-[90vh] sm:rounded-2xl`}>
 
         {/* Ligne amber signature */}
         <div className="h-0.5 w-full shrink-0 bg-gradient-to-r from-amber-500 via-amber-400 to-transparent" />
 
         {/* Header */}
-        <div className="flex shrink-0 items-center justify-between px-6 py-4 border-b border-neutral-800/60">
-          <h2 className="text-base font-bold tracking-tight text-white">{titre}</h2>
+        <div className="flex shrink-0 items-center justify-between gap-3 border-b border-neutral-800/60 px-4 py-3 sm:px-6 sm:py-4">
+          <h2 className="min-w-0 text-base font-bold tracking-tight text-white">{titre}</h2>
           <button
+            type="button"
+            aria-label="Fermer la fenêtre"
             onClick={onFermer}
             className="rounded-lg p-1.5 text-neutral-500 hover:bg-neutral-800 hover:text-neutral-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
           >
@@ -73,13 +75,13 @@ export default function Modal({
         </div>
 
         {/* Body */}
-        <div className="flex-1 overflow-y-auto px-6 py-5">
+        <div className="min-h-0 flex-1 overscroll-contain overflow-y-auto px-3 py-4 sm:px-6 sm:py-5">
           {children}
         </div>
 
         {/* Footer (optionnel) */}
         {footer && (
-          <div className="shrink-0 border-t border-neutral-800/60 px-6 py-4">
+          <div className="shrink-0 border-t border-neutral-800/60 px-3 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sm:px-6 sm:py-4">
             {footer}
           </div>
         )}
