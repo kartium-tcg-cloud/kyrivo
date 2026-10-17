@@ -1,3 +1,4 @@
+import { saveDraftTransactionFees } from "@/lib/saveDraftTransactionFees";
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -557,9 +558,19 @@ if (usageError) {
   throw usageError;
 }
 
+      let feesSaveFailed = false;
+      if (enableTransactionFees && nouvelAchat.draftFees?.length) {
+        try {
+          await saveDraftTransactionFees({ companyId, purchaseId: created.id, fees: nouvelAchat.draftFees });
+        } catch (feeError) {
+          console.error("Achat créé, mais frais non enregistrés :", feeError);
+          feesSaveFailed = true;
+          toast.error("Achat enregistré, mais les frais n'ont pas pu être sauvegardés. Ajoutez-les dans la fiche Frais de cet achat.");
+        }
+      }
       await refreshPurchases(companyId);
       fermerModal();
-      if (nouvelAchat.openFeesAfterSave && enableTransactionFees) {
+      if (feesSaveFailed || (nouvelAchat.openFeesAfterSave && enableTransactionFees)) {
         setPurchaseForFees({ id: created.id } as Achat);
       }
     } catch (error: any) {
