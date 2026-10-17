@@ -185,7 +185,7 @@ export default async function DashboardPage() {
         .eq("status", "in_stock"),
       supabase
         .from("purchase_items")
-        .select("stock_quantity, unit_cost")
+        .select("stock_quantity, unit_cost, economic_unit_cost")
         .eq("company_id", companyId)
         .eq("status", "in_stock"),
     ]);
@@ -196,7 +196,7 @@ export default async function DashboardPage() {
     stockImmobilise = Math.round(
       (stockItems ?? []).reduce(
         (sum, item) =>
-          sum + Number(item.stock_quantity ?? 0) * Number(item.unit_cost ?? 0),
+          sum + Number(item.stock_quantity ?? 0) * Number(item.economic_unit_cost ?? item.unit_cost ?? 0),
         0
       ) * 100
     ) / 100;
