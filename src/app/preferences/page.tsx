@@ -233,10 +233,10 @@ function addPaymentMethod() {
 
   if (loading) {
     return (
-      <div className="p-6 lg:p-8 max-w-4xl">
+      <div className="p-4 sm:p-6 lg:p-8 max-w-4xl">
         <div className="animate-pulse space-y-6">
           <div className="h-8 w-64 bg-neutral-800 rounded" />
-          <div className="h-4 w-96 bg-neutral-800/60 rounded" />
+          <div className="h-4 w-full max-w-96 bg-neutral-800/60 rounded" />
           <div className="space-y-4 mt-8">
             {[...Array(4)].map((_, i) => (
               <div
@@ -256,7 +256,7 @@ function addPaymentMethod() {
 
   if (errorMessage && !preferences) {
     return (
-      <div className="p-6 lg:p-8 max-w-4xl">
+      <div className="p-4 sm:p-6 lg:p-8 max-w-4xl">
         <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-6">
           <p className="text-sm text-red-400">{errorMessage}</p>
         </div>
@@ -273,7 +273,7 @@ function addPaymentMethod() {
   return (
     <div className="pb-32"> {/* padding bottom pour ne pas être caché par la barre sticky */}
 
-      <div className="p-6 lg:p-8 max-w-4xl space-y-8">
+      <div className="p-4 sm:p-6 lg:p-8 max-w-4xl space-y-8">
 
         {/* ═══ HERO ═══════════════════════════════════════ */}
         <div className="flex flex-col gap-2 pb-6 border-b border-neutral-800">
