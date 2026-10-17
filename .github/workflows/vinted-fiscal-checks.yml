@@ -33,6 +33,14 @@ jobs:
       - run: npm ci
       - run: npx next typegen
       - run: npx tsc --noEmit
+      - name: Full Next.js production compilation (without real Stripe / Supabase access)
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key
+          SUPABASE_SERVICE_ROLE_KEY: placeholder-service-key
+          STRIPE_SECRET_KEY: sk_test_placeholder
+          STRIPE_WEBHOOK_SECRET: whsec_placeholder
       - run: node --test tests/vinted-fiscal-cost.test.cjs
       - run: node --test tests/vinted-export-invoice.test.cjs
       - run: node --test tests/stripe-reactivation.test.cjs
