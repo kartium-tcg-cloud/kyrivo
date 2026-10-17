@@ -28,22 +28,22 @@ export const DEFAULT_COMPANY_PREFERENCES: Omit<
   invoiceCompanyEmail: "",
   invoiceCompanyPhone: "",
 
-  invoiceFooter: "Merci pour votre confiance.",
-  invoicePaymentTerms: "Paiement à réception.",
+  invoiceFooter: "Merci de votre confiance",
+  invoicePaymentTerms: "Paiement à réception",
 
   invoicePrefix: "FAC",
   invoiceNextNumber: 1,
 
-  defaultVatRate: 21,
+  defaultVatRate: 0,
 
   defaultPaymentMethods: [
     "Virement",
-    "Paypal",
+    "PayPal",
     "Bancontact",
     "Cash",
     "Vinted",
     "Shopify",
-    "Cardmarket",
-    "Stripe",
+    "CardMarket",
+    "Voggt",
   ],
 };
