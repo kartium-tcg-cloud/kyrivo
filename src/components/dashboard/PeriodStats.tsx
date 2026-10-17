@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { getTransactionFees } from "@/lib/feeQueries";
+import { getSaleLines } from "@/lib/sales";
+import { estimateSaleProfit } from "@/lib/estimatedSaleProfit";
+import type { Sale, SaleLine } from "@/types/sale";
 import { EvolutionChart, ProfitBridge, type EvolutionPoint } from "./PeriodCharts";
 
 interface PeriodStatsProps {
@@ -16,6 +19,9 @@ interface Stats {
   tvaDeductible: number;
   soldeTva: number;
   resultatNet: number;
+  margeVentesCalculee: number;
+  ventesAvecMarge: number;
+  nombreVentes: number;
 }
 
 type Granularity = "day" | "week" | "month";
@@ -178,7 +184,7 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
               .lte("purchase_date", dateFin),
             supabase
               .from("sales")
-              .select("id, total_ttc, vat_amount, sale_date")
+              .select("id, total_ttc, vat_amount, sale_date, vat_mode")
               .eq("company_id", companyId)
               .gte("sale_date", dateDebut)
               .lte("sale_date", dateFin),
@@ -209,7 +215,44 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
         const soldeTva      = round2(tvaCollectee - tvaDeductible);
         const resultatNet   = round2(recettes - depenses - soldeTva);
 
-        setStats({ depenses, recettes, tvaCollectee, tvaDeductible, soldeTva, resultatNet });
+        const saleIds = (ventes ?? []).map(v => String(v.id));
+        const saleLines = await getSaleLines(saleIds);
+        const feesBySale = new Map<string, typeof fees>();
+        for (const fee of fees) {
+          if (!fee.saleId) continue;
+          if (!feesBySale.has(fee.saleId)) feesBySale.set(fee.saleId, []);
+          feesBySale.get(fee.saleId)!.push(fee);
+        }
+        const linesBySale = new Map<string, SaleLine[]>();
+        for (const line of saleLines) {
+          const saleId = String(line.sale_id);
+          if (!linesBySale.has(saleId)) linesBySale.set(saleId, []);
+          linesBySale.get(saleId)!.push({
+            id: String(line.id), saleId, companyId,
+            itemName: line.item_name ?? "", quantity: Number(line.quantity),
+            unitPrice: Number(line.unit_price), totalPrice: Number(line.total_price),
+            purchaseCost: line.purchase_cost == null ? undefined : Number(line.purchase_cost),
+            economicPurchaseCost: line.economic_purchase_cost == null ? undefined : Number(line.economic_purchase_cost),
+            vatRate: Number(line.vat_rate), createdAt: line.created_at,
+          });
+        }
+        let margeCents = 0;
+        let ventesAvecMarge = 0;
+        for (const v of ventes ?? []) {
+          const guess = estimateSaleProfit({
+            id: String(v.id), vatMode: v.vat_mode,
+            lines: linesBySale.get(String(v.id)) ?? [],
+          } as Sale, feesBySale.get(String(v.id)) ?? []);
+          if (guess !== null) {
+            margeCents += Math.round(guess * 100);
+            ventesAvecMarge += 1;
+          }
+        }
+        setStats({
+          depenses, recettes, tvaCollectee, tvaDeductible, soldeTva, resultatNet,
+          margeVentesCalculee: margeCents / 100,
+          ventesAvecMarge, nombreVentes: (ventes ?? []).length,
+        });
 
         // Évolution par bucket (jour / semaine / mois) — même formule que ci-dessus,
         // appliquée par sous-période pour le graphique d'évolution.
@@ -475,6 +518,19 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
             </div>
 
           </div>
+
+          {stats.ventesAvecMarge > 0 && (
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
+              <div>
+                <p className="text-xs font-semibold text-emerald-300">Marge estimée sur les ventes après frais</p>
+                <p className="mt-1 text-[11px] text-neutral-400">
+                  Calculable pour {stats.ventesAvecMarge} vente{stats.ventesAvecMarge > 1 ? "s" : ""}
+                  {" "}sur {stats.nombreVentes}. Frais généraux et frais d’achat non affectés aux articles exclus.
+                </p>
+              </div>
+              <strong className="text-xl tabular-nums text-emerald-300">{fmt(stats.margeVentesCalculee)}</strong>
+            </div>
+          )}
 
           {/* ── Graphiques ──────────────────────────────────────── */}
           <div
