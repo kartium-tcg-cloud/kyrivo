@@ -9,10 +9,10 @@ type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 type ButtonSize = "sm" | "md" | "lg";
 
 const VARIANT_CLASSES: Record<ButtonVariant, string> = {
-  primary: "bg-amber-500 text-neutral-950 hover:bg-amber-400 shadow-xl shadow-amber-500/20",
+  primary: "ky-button-primary bg-amber-500 text-neutral-950 hover:bg-amber-400 shadow-xl shadow-amber-500/20",
   secondary:
-    "bg-neutral-900/60 text-neutral-200 border border-neutral-700/60 hover:border-neutral-600 hover:bg-neutral-900",
-  ghost: "text-neutral-400 hover:text-neutral-200",
+    "ky-button-secondary bg-neutral-900/60 text-neutral-200 border border-neutral-700/60 hover:border-neutral-600 hover:bg-neutral-900",
+  ghost: "text-neutral-300 hover:text-neutral-200",
   danger: "bg-red-500/10 text-red-400 border border-red-500/30 hover:bg-red-500/20",
 };
 
@@ -39,7 +39,7 @@ export default function Button({
   onClick,
   ...rest
 }: ButtonProps) {
-  const classes = `group inline-flex items-center justify-center gap-2 transition-all duration-200 active:scale-[0.97] hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 ${VARIANT_CLASSES[variant]} ${SIZE_CLASSES[size]} ${className}`;
+  const classes = `group inline-flex items-center justify-center gap-2 transition-all duration-200 focus-visible:ring-2 focus-visible:ring-amber-400/60 active:scale-[0.97] hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 ${VARIANT_CLASSES[variant]} ${SIZE_CLASSES[size]} ${className}`;
 
   if (href) {
     return (
