@@ -1,4 +1,5 @@
 "use client";
+import BrandLogo from "@/components/ui/BrandLogo";
 
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
@@ -114,11 +115,7 @@ export default function RegisterPage() {
 
         {/* Logo */}
         <div className="mb-6 flex items-center justify-center">
-          <img
-            src="/brand/kyrivo-logo-primary-dark.svg"
-            alt="Kyrivo"
-            className="h-11"
-          />
+          <BrandLogo className="justify-center" />
         </div>
 
         <div className="ky-auth-card overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900/70 shadow-2xl shadow-black/30 backdrop-blur">
