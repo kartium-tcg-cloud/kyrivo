@@ -57,6 +57,12 @@ const AMOUNT_COLS = new Set<string>([
   "TTC total vente",
   "Marge totale",
   "Marge économique vérifiable après TVA",
+  "Frais de vente supportés TTC",
+  "TVA récupérable sur frais déclarée",
+  "Marge estimée après frais",
+  "Montant TTC",
+  "TVA indiquée",
+  "TVA récupérable déclarée",
   "Prix ligne HT",
   "Prix ligne TTC",
   "Coût achat TTC",
@@ -251,7 +257,12 @@ export async function exportSalesToExcel(ventes: Sale[], fees: TransactionFeeDra
         "Déjà inclus dans total de vente": f.includedInParentTotal ? "Oui" : "Non",
         Notes: f.notes,
       }));
-    if (details.length) XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(details), "Frais ventes");
+    if (details.length) {
+      const feeSheet = XLSX.utils.json_to_sheet(details);
+      feeSheet["!cols"] = buildColWidths(details as unknown as SaleExportRow[]);
+      applyStyles(feeSheet, XLSX);
+      XLSX.utils.book_append_sheet(workbook, feeSheet, "Frais ventes");
+    }
   }
 
   const today = new Date().toISOString().slice(0, 10);
