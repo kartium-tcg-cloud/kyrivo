@@ -52,6 +52,8 @@ export interface SaleLineInput {
   unitPrice: number;
   isTTC?: boolean; // true when unitPrice is TTC (standard VAT + TTC input mode)
   purchaseCost?: number;
+  /** Full economic acquisition cost, never used as the margin-VAT purchase price. */
+  economicPurchaseCost?: number;
   marginAmount?: number;
   vatRate: number;
   notes?: string;
@@ -68,6 +70,8 @@ export interface SaleLine {
   unitPrice: number;
   totalPrice: number;
   purchaseCost?: number;
+  /** Full economic acquisition cost, never used as the margin-VAT purchase price. */
+  economicPurchaseCost?: number;
   marginAmount?: number;
   vatRate: number;
   notes?: string;
@@ -111,6 +115,7 @@ export interface AvailableStockItem {
   itemReference: string;
   itemName: string;
   unitCost: number;
+  economicUnitCost?: number;
   status: ItemStatus;
   marginEligible: boolean;
   /** L'article doit être revu (ancien achat Vinted ou absence de justificatif). */
