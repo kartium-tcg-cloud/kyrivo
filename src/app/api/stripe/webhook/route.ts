@@ -269,11 +269,27 @@ export async function POST(req: NextRequest) {
         const liveStart = liveItem?.current_period_start ?? 0;
         const liveEnd = liveItem?.current_period_end ?? 0;
 
+        if (live.status !== "active") {
+          // Une ancienne facture payée ne doit pas réactiver un compte qui
+          // possède une autre facture en souffrance.
+          return NextResponse.json({ received: true });
+        }
+
         if (alreadyAdjusted && liveStart > 0 && liveEnd > liveStart) {
           // Réception répétée du webhook : ne jamais décaler une seconde fois.
+          // Si le cycle Stripe est déjà passé au renouvellement suivant, cette
+          // facture historique ne doit plus changer les droits Kyrivo.
+          if (Math.abs(liveStart - paidAt) >= 24 * 3600) {
+            return NextResponse.json({ received: true });
+          }
           effectiveStart = new Date(liveStart * 1000);
           effectiveEnd = new Date(liveEnd * 1000);
         } else {
+          // Ancienne facture après un autre renouvellement : ignorer et ne
+          // jamais remettre le statut "active" à tort.
+          if (liveStart > renewalLine.period.start + 300) {
+            return NextResponse.json({ received: true });
+          }
           const isCurrentCycle =
             Math.abs(liveStart - renewalLine.period.start) < 300 &&
             Math.abs(liveEnd - renewalLine.period.end) < 300;
@@ -408,9 +424,13 @@ export async function POST(req: NextRequest) {
         stripe.invoices.retrieve(invoice.id),
         stripe.subscriptions.retrieve(stripeSubId),
       ]);
+      const latestInvoiceId = typeof currentSubscription.latest_invoice === "string"
+        ? currentSubscription.latest_invoice
+        : currentSubscription.latest_invoice?.id ?? null;
       if (
         currentInvoice.status === "paid" ||
-        !["past_due", "unpaid", "incomplete"].includes(currentSubscription.status)
+        (latestInvoiceId && latestInvoiceId !== invoice.id) ||
+        ["canceled", "incomplete_expired"].includes(currentSubscription.status)
       ) {
         return NextResponse.json({ received: true });
       }
