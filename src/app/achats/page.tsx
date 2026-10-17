@@ -411,6 +411,12 @@ export default function AchatsPage() {
   const fermerVintedModal = () => setVintedModalOuverte(false);
 
   const ouvrirEdition = (achat: Achat) => {
+    if (achat.source === "vinted_import") {
+      toast.error(
+        "Les achats importés de Vinted doivent être corrigés depuis leur détail dédié pour conserver la ventilation fiscale. La modification sera proposée dans la prochaine étape."
+      );
+      return;
+    }
     setAchatEnEdition(achat);
     setModalOuverte(true);
   };
