@@ -808,7 +808,7 @@ function ContactsTable({
                 </td>
 
                 <td className="px-4 py-3.5">
-                  <div className="flex items-center justify-center gap-0.5 opacity-100 md:opacity-40 md:group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-200">
+                  <div className="ky-row-actions flex items-center justify-center gap-0.5 opacity-100 md:opacity-40 md:group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-200">
                     <button
                       type="button"
                       onClick={() => onEdit(contact)}
