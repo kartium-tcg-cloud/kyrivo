@@ -14,6 +14,8 @@ type PurchaseExportRow = {
   "Taux TVA achat": number | "";
   "TVA déductible": number | "";
   "Montant TTC achat": number | "";
+  "Source achat": string;
+  "Frais Vinted inclus TTC": number | "";
 
   // Qualification
   "Nature achat": string;
@@ -26,6 +28,9 @@ type PurchaseExportRow = {
   "Stock restant": number | "";
   "Coût unitaire HT": number | "";
   "Coût unitaire TTC": number | "";
+  "Prix fiscal vendeur unitaire": number | "";
+  "Coût économique unitaire": number | "";
+  "Prix fiscal à vérifier": string;
   "Total ligne TTC": number | "";
 
   // Divers
@@ -38,6 +43,9 @@ const AMOUNT_COLS = new Set<string>([
   "Montant HT achat",
   "TVA déductible",
   "Montant TTC achat",
+  "Frais Vinted inclus TTC",
+  "Prix fiscal vendeur unitaire",
+  "Coût économique unitaire",
   "Coût unitaire HT",
   "Coût unitaire TTC",
   "Total ligne TTC",
@@ -150,6 +158,10 @@ export async function exportPurchasesToExcel(achats: Achat[]) {
         "Taux TVA achat":    isFirst ? (achat.vatRate ?? 0) : "",
         "TVA déductible":    isFirst ? achat.prixTVA       : "",
         "Montant TTC achat": isFirst ? achat.prixTTC       : "",
+        "Source achat": isFirst ? (achat.source === "vinted_import" ? "Import Vinted" : "Manuel") : "",
+        "Frais Vinted inclus TTC": isFirst && achat.source === "vinted_import" && achat.sourceDetails
+          ? Math.round((achat.sourceDetails.shippingFee + achat.sourceDetails.buyerProtectionFee + achat.sourceDetails.otherFees) * 100) / 100
+          : "",
 
         // Qualification
         "Nature achat": isFirst ? nature      : "",
@@ -162,6 +174,9 @@ export async function exportPurchasesToExcel(achats: Achat[]) {
         "Stock restant":    article?.stockRestant ?? "",
         "Coût unitaire HT": article?.coutHT     ?? "",
         "Coût unitaire TTC":article?.coutTTC    ?? "",
+        "Prix fiscal vendeur unitaire": article?.fiscalUnitCost ?? "",
+        "Coût économique unitaire": article?.economicUnitCost ?? "",
+        "Prix fiscal à vérifier": article?.fiscalCostReviewRequired ? "Oui" : "",
         "Total ligne TTC":  totalLigneTTC,
 
         // Divers
@@ -177,6 +192,29 @@ export async function exportPurchasesToExcel(achats: Achat[]) {
 
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, "Achats");
+
+  // Un seul relevé de frais Vinted par achat, même lorsqu'un achat comporte
+  // plusieurs articles. Ne jamais additionner ces frais une seconde fois à
+  // Montant TTC achat : ils sont DÉJÀ inclus dans ce total.
+  const detailsVinted = achats.filter((achat) => achat.source === "vinted_import" && achat.sourceDetails)
+    .map((achat) => ({
+      "Date achat": dateFR(achat.date),
+      "N° achat": achat.numInterne,
+      "Référence Vinted": achat.sourceDetails?.orderReference ?? "",
+      "Prix vendeur TTC": achat.sourceDetails!.sellerPrice,
+      "Livraison acheteur TTC": achat.sourceDetails!.shippingFee,
+      "Protection acheteur TTC": achat.sourceDetails!.buyerProtectionFee,
+      "Autres frais TTC": achat.sourceDetails!.otherFees,
+      "Total payé TTC": achat.sourceDetails!.paidTotal,
+      "Prix vérifié": achat.sourceDetails!.amountsConfirmed ? "Oui" : "Non",
+      "Justificatif lié": achat.documentUrl ? "Oui" : "Non",
+      Notes: achat.commentaire ?? "",
+    }));
+  if (detailsVinted.length > 0) {
+    const detailsSheet = XLSX.utils.json_to_sheet(detailsVinted);
+    detailsSheet["!cols"] = Object.keys(detailsVinted[0]).map((key) => ({ wch: Math.min(45, key.length + 4) }));
+    XLSX.utils.book_append_sheet(workbook, detailsSheet, "Détail Vinted");
+  }
 
   const today = new Date().toISOString().slice(0, 10);
   XLSX.writeFile(workbook, `kyrivo-achats-${today}.xlsx`);
