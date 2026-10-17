@@ -74,6 +74,7 @@ function mapPurchase(p: any, itemsByPurchaseId: Map<string, any[]>): Achat {
         ? Number(item.total_cost) / Number(item.quantity)
         : undefined,
     fiscalUnitCost: item.fiscal_unit_cost == null ? null : Number(item.fiscal_unit_cost),
+    economicUnitCost: item.economic_unit_cost == null ? null : Number(item.economic_unit_cost),
     fiscalCostReviewRequired: Boolean(item.fiscal_cost_review_required),
     statut: isItemStatus(item.status) ? item.status : "in_stock",
     notes: item.notes || undefined,
@@ -159,6 +160,7 @@ function buildPurchaseItems(params: {
       unit_cost: unitCostHT,
       total_cost: Math.round(unitCostTTC * quantity * 100) / 100,
       fiscal_unit_cost: achat.source === "vinted_import" ? unitCostTTC : null,
+      economic_unit_cost: achat.source === "vinted_import" ? achat.prixTTC : null,
       fiscal_cost_review_required:
         achat.source === "vinted_import" && !achat.documentFile && !achat.documentUrl,
       vat_type: achat.type,
