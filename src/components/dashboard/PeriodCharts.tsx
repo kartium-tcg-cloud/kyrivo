@@ -119,7 +119,7 @@ export function EvolutionChart({ data }: { data: EvolutionPoint[] }) {
             </span>
             <span className="inline-flex items-center gap-1.5">
               <span className="h-[3px] w-3 rounded-full" style={{ backgroundColor: single.net < 0 ? CHART_COLORS.netNeg : CHART_COLORS.netPos }} />
-              Bénéfice net&nbsp;: <span className="font-semibold tabular-nums text-neutral-100">{fmt(single.net)}</span>
+              Solde estimé&nbsp;: <span className="font-semibold tabular-nums text-neutral-100">{fmt(single.net)}</span>
             </span>
           </div>
         )}
@@ -275,11 +275,11 @@ export function EvolutionChart({ data }: { data: EvolutionPoint[] }) {
             <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-neutral-400">{data[hover].label}</p>
             <div className="space-y-1.5">
               <TooltipRow color={CHART_COLORS.ventes} label="Ventes" value={fmt(data[hover].ventes)} />
-              <TooltipRow color={CHART_COLORS.achats} label="Achats" value={fmt(data[hover].achats)} />
+              <TooltipRow color={CHART_COLORS.achats} label="Achats et frais" value={fmt(data[hover].achats)} />
               <div className="border-t border-neutral-700 pt-1.5">
                 <TooltipRow
                   color={data[hover].net < 0 ? CHART_COLORS.netNeg : CHART_COLORS.netPos}
-                  label="Bénéfice net"
+                  label="Solde estimé"
                   value={fmt(data[hover].net)}
                 />
               </div>
@@ -290,8 +290,8 @@ export function EvolutionChart({ data }: { data: EvolutionPoint[] }) {
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
         <LegendKey color={CHART_COLORS.ventes} label="Ventes" />
-        <LegendKey color={CHART_COLORS.achats} label="Achats" />
-        <LegendKey color={CHART_COLORS.netPos} label="Bénéfice net" />
+        <LegendKey color={CHART_COLORS.achats} label="Achats et frais" />
+        <LegendKey color={CHART_COLORS.netPos} label="Solde estimé" />
       </div>
     </div>
   );
@@ -356,7 +356,7 @@ export function ProfitBridge({
     })),
     {
       key: "net",
-      label: "Résultat net",
+      label: "Solde estimé",
       x: slot * 3 + slot / 2,
       yTop: yPos(Math.max(0, resultatNet)),
       yBottom: yPos(Math.min(0, resultatNet)),
@@ -450,9 +450,9 @@ export function ProfitBridge({
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
         <LegendKey color={CHART_COLORS.ventes} label="Ventes" />
-        <LegendKey color={CHART_COLORS.achats} label="Achats" />
+        <LegendKey color={CHART_COLORS.achats} label="Achats et frais" />
         <LegendKey color={tvaColor} label={tvaLabel} />
-        <LegendKey color={netColor} label="Résultat net" />
+        <LegendKey color={netColor} label="Solde estimé" />
       </div>
     </div>
   );
