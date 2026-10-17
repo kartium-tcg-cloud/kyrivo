@@ -503,6 +503,7 @@ async function handleInvoicePrefixChange(value: string) {
         <Section
           title="Plateformes et imports"
           description="Activez uniquement les outils spécifiques aux plateformes que vous utilisez."
+          icon={<svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M3 7h18v12H3zM7 7V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2M7 13h10" /></svg>}
         >
           <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-neutral-700/70 bg-neutral-900/50 p-4">
             <input type="checkbox" checked={preferences.enableVinted}
