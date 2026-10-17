@@ -1,4 +1,5 @@
 import { Sale, SaleLine } from "@/types/sale";
+import type { TransactionFeeDraft } from "@/lib/transactionFees";
 import { calculateMarginVAT } from "@/lib/saleCalculations";
 
 // ── Colonnes ──────────────────────────────────────────────────────────────────
@@ -29,6 +30,9 @@ type SaleExportRow = {
   "TTC total vente": number | "";
   "Marge totale": number | "";
   "Marge économique vérifiable après TVA": number | "";
+  "Frais de vente supportés TTC": number | "";
+  "TVA récupérable sur frais déclarée": number | "";
+  "Marge estimée après frais": number | "";
 
   // Détail ligne article
   Article: string;
@@ -154,7 +158,7 @@ function economicProfit(sale: Sale, line: SaleLine): number | null {
 
 // ── Export principal ──────────────────────────────────────────────────────────
 
-export async function exportSalesToExcel(ventes: Sale[]) {
+export async function exportSalesToExcel(ventes: Sale[], fees: TransactionFeeDraft[] = []) {
   const XLSX = await import("xlsx");
 
   const rows: SaleExportRow[] = ventes.flatMap((vente) => {
@@ -165,6 +169,12 @@ export async function exportSalesToExcel(ventes: Sale[]) {
     const totalEconomic = economicMargins.length > 0 && economicMargins.every((value) => value !== null)
       ? round2(economicMargins.reduce((sum, value) => sum + (value ?? 0), 0))
       : null;
+    const saleFees = fees.filter(f => f.saleId === vente.id && f.kind === "expense");
+    // A fee billed to the customer is already part of a sale line and must never
+    // be added again. Only outlays reduce estimated economic margin.
+    const feeGrossCents = saleFees.reduce((n, f) => n + Math.round(f.amountTTC * 100), 0);
+    const feeRecoverableCents = saleFees.reduce((n, f) => n + Math.round(f.recoverableVatAmount * 100), 0);
+    const saleFeeNet = (feeGrossCents - feeRecoverableCents) / 100;
 
     return lines.map((line, idx) => {
       const isFirst = idx === 0;
@@ -202,6 +212,9 @@ export async function exportSalesToExcel(ventes: Sale[]) {
         "TTC total vente":isFirst ? vente.totalTTC      : "",
         "Marge totale":   isFirst ? vente.marginAmount  : "",
         "Marge économique vérifiable après TVA": isFirst ? (totalEconomic ?? "") : "",
+        "Frais de vente supportés TTC": isFirst ? feeGrossCents / 100 : "",
+        "TVA récupérable sur frais déclarée": isFirst ? feeRecoverableCents / 100 : "",
+        "Marge estimée après frais": isFirst ? (totalEconomic === null ? "" : round2(totalEconomic - saleFeeNet)) : "",
 
         // Détail ligne
         Article:           line?.itemName        ?? "",
@@ -227,6 +240,19 @@ export async function exportSalesToExcel(ventes: Sale[]) {
 
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, "Ventes");
+
+  if (fees.length) {
+    const details = fees.filter(f => f.saleId && ventes.some(v => v.id === f.saleId))
+      .map(f => ({
+        "N° vente": ventes.find(v => v.id === f.saleId)?.numInterne ?? "",
+        "Nature": f.kind === "expense" ? "Frais supporté" : "Déjà facturé au client",
+        "Catégorie": f.category, "Libellé": f.label, "Montant TTC": f.amountTTC,
+        "TVA indiquée": f.vatAmount, "TVA récupérable déclarée": f.recoverableVatAmount,
+        "Déjà inclus dans total de vente": f.includedInParentTotal ? "Oui" : "Non",
+        Notes: f.notes,
+      }));
+    if (details.length) XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(details), "Frais ventes");
+  }
 
   const today = new Date().toISOString().slice(0, 10);
   XLSX.writeFile(workbook, `kyrivo-ventes-${today}.xlsx`);
