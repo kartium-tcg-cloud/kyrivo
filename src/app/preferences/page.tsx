@@ -512,12 +512,30 @@ async function handleInvoicePrefixChange(value: string) {
             <span className="space-y-1">
               <span className="block text-sm font-semibold text-white">J'utilise Vinted</span>
               <span className="block text-xs leading-relaxed text-neutral-400">
-                Activez l'import des commandes Vinted, la séparation du prix payé au vendeur,
-                des frais de livraison et de protection, et la revue du prix fiscal du stock.
-                Les achats existants et leurs données restent conservés si vous décochez cette option.
+                Affiche le bouton « Importer depuis Vinted » dans Achats. Vous copiez-collez
+                le récapitulatif d'une commande : Kyrivo sépare le prix vendeur, le port
+                et la protection acheteur. Ce n'est ni une synchronisation automatique,
+                ni le module de frais divers des achats et ventes.
               </span>
             </span>
           </label>
+          {preferences.enableVinted && (
+            <div className="rounded-xl border border-amber-500/25 bg-amber-500/5 px-4 py-3 text-sm">
+              {original?.enableVinted && !isDirty ? (
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <span className="text-emerald-300">Mode Vinted enregistré. L'import est accessible dans Achats.</span>
+                  <a href="/achats"
+                    className="rounded-lg bg-amber-500 px-3 py-2 text-xs font-bold text-neutral-950 hover:bg-amber-400">
+                    Aller aux achats →
+                  </a>
+                </div>
+              ) : (
+                <p className="text-amber-300">
+                  Cliquez sur « Enregistrer » en bas de page, puis ouvrez Achats pour utiliser l'import.
+                </p>
+              )}
+            </div>
+          )}
         </Section>
 
         {/* ═══ SECTION 5 — TVA ════════════════════════════ */}
