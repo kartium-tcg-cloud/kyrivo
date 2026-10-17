@@ -413,7 +413,7 @@ export default function AchatsPage() {
 
     setExportingExcel(true);
     try {
-      const fees = enableTransactionFees && companyIdForFees
+      const fees = companyIdForFees
         ? await getTransactionFees({ companyId: companyIdForFees, purchaseIds: achatsFiltres.map(a => a.id) })
         : [];
       await exportPurchasesToExcel(achatsFiltres, fees);
