@@ -38,7 +38,6 @@ import {
 } from "@/types/sale";
 
 import { createClient } from "@/lib/supabase/client";
-import { getCompanyPreferences } from "@/lib/preferences";
 import TransactionFeesModal from "@/components/fees/TransactionFeesModal";
 import { getTransactionFees } from "@/lib/feeQueries";
 import type { TransactionFeeDraft } from "@/lib/transactionFees";
@@ -61,7 +60,6 @@ type VentePayload = {
   notes?: string;
   lines: SaleLineInput[];
   saveClient?: boolean;
-  openFeesAfterSave?: boolean;
   draftFees?: TransactionFeeDraft[];
 };
 
@@ -181,7 +179,6 @@ function VentesContent() {
   const [clients, setClients] = useState<{ id: string; name: string }[]>([]);
   const [exportConfirmOpen, setExportConfirmOpen] = useState(false);
   const [exportingExcel, setExportingExcel] = useState(false);
-  const [enableTransactionFees, setEnableTransactionFees] = useState(false);
   const [companyIdForFees, setCompanyIdForFees] = useState("");
   const [saleForFees, setSaleForFees] = useState<Sale | null>(null);
   const [feesBySale, setFeesBySale] = useState<Record<string, TransactionFeeDraft[]>>({});
@@ -239,8 +236,6 @@ function VentesContent() {
       try {
         const companyId = await getCompanyId();
         if (!companyId) return;
-        const prefs = await getCompanyPreferences(companyId);
-        setEnableTransactionFees(prefs.enableTransactionFees);
         setCompanyIdForFees(companyId);
         await refreshSales(companyId);
         await refreshStock(companyId);
@@ -537,7 +532,7 @@ function VentesContent() {
       }
 
       let feesSaveFailed = false;
-      if (enableTransactionFees && vente.draftFees?.length && createdSale) {
+      if (vente.draftFees?.length && createdSale) {
         try {
           await saveDraftTransactionFees({ companyId, saleId: createdSale.id, fees: vente.draftFees });
         } catch (feeError) {
@@ -550,7 +545,7 @@ function VentesContent() {
       await refreshStock(companyId);
 
       fermerModal();
-      if ((feesSaveFailed || vente.openFeesAfterSave) && enableTransactionFees && createdSale) {
+      if (feesSaveFailed && createdSale) {
         setSaleForFees({ id: createdSale.id } as Sale);
       }
     } catch (error: any) {
@@ -787,13 +782,13 @@ function VentesContent() {
             ventes={ventesFiltrees}
             onModifier={ouvrirEdition}
             onSupprimer={supprimerVente}
-            onManageFees={enableTransactionFees ? setSaleForFees : undefined}
+            onManageFees={setSaleForFees}
             feesBySale={feesBySale}
           />
         </>
       )}
 
-      {enableTransactionFees && companyIdForFees && saleForFees && (
+      {companyIdForFees && saleForFees && (
         <TransactionFeesModal
           ouvert={true}
           companyId={companyIdForFees}
@@ -812,7 +807,6 @@ function VentesContent() {
 stockItems={stockItems}
 clients={clients}
 prefillItem={prefillItem}
-enableFees={enableTransactionFees}
       />
 
       {exportConfirmOpen && (
