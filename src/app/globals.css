@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0a0a0a;
-  --foreground: #e5e5e5;
+  --background: #0a1016;
+  --foreground: #e6ebf1;
 
   /* ─── Tokens de design Kyrivo ────────────────────────────────
      Surfaces neutres */
@@ -351,6 +351,7 @@ input[type="number"] {
 }
 
 .ky-workspace { min-width: 0; position: relative; }
+.ky-workspace :where(button,a,input,select,textarea):focus-visible { outline-color: rgba(245,181,68,.8); }
 .ky-page { width: 100%; margin-inline: auto; padding-bottom: 5rem; }
 .ky-page h1 {
   font-size: clamp(1.65rem, 2vw, 2rem);
