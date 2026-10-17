@@ -204,7 +204,7 @@ return (
     <header className="ky-mobile-header fixed top-8 left-0 right-0 z-40 flex h-16 items-center justify-between border-b border-neutral-800/60 bg-neutral-950/95 px-4 backdrop-blur lg:hidden">
       <Link href="/" className="flex items-center gap-3">
         <img
-          src="/brand/kyrivo-symbol-dark.svg"
+          src="/brand/kyrivo-mark-2026.png"
           alt="Kyrivo"
           className="h-9 w-9"
         />
@@ -266,7 +266,7 @@ className={`
               }}
             />
             <img
-              src="/brand/kyrivo-symbol-dark.svg"
+              src="/brand/kyrivo-mark-2026.png"
               alt="Kyrivo"
               className="relative h-9 w-9 transition-transform duration-200 group-hover:scale-105"
             />
