@@ -7,7 +7,7 @@ type ContainerSize = "marketing" | "app" | "prose";
 
 const SIZE_CLASSES: Record<ContainerSize, string> = {
   marketing: "max-w-6xl", // landing, abonnements, login, register
-  app: "max-w-[1440px]", // dashboard, achats, ventes, stock, contacts, factures
+  app: "max-w-[1500px]", // dashboard, achats, ventes, stock, contacts, factures
   prose: "max-w-[44rem]", // mode-emploi, pages légales — ligne de lecture 65-75 caractères
 };
 
