@@ -16,6 +16,8 @@ export interface CompanyPreferences {
 
   defaultPaymentMethods: string[];
   defaultVatRate: number;
+  /** Enable specialized Vinted purchase import and fiscal-cost verification tools. */
+  enableVinted: boolean;
 }
 
 export const DEFAULT_COMPANY_PREFERENCES: Omit<
@@ -35,6 +37,7 @@ export const DEFAULT_COMPANY_PREFERENCES: Omit<
   invoiceNextNumber: 1,
 
   defaultVatRate: 0,
+  enableVinted: false,
 
   defaultPaymentMethods: [
     "Virement",

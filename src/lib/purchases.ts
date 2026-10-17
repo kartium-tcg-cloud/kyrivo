@@ -28,6 +28,8 @@ export async function createPurchase(payload: {
   vat_amount: number;
   amount_ttc: number;
   comment?: string;
+  source?: "manual" | "vinted_import";
+  source_details?: Record<string, unknown> | null;
 }) {
   const {
     data: { user },
@@ -98,6 +100,9 @@ export async function createPurchaseItems(
     stock_quantity: number;
     unit_cost: number;
     total_cost: number;
+    fiscal_unit_cost?: number | null;
+    economic_unit_cost?: number | null;
+    fiscal_cost_review_required?: boolean;
     vat_type?: string;
     vat_rate: number;
     margin_eligible: boolean;

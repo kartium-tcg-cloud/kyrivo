@@ -81,7 +81,8 @@ export function calculateMarginSale(params: {
   lines: {
     unitPrice: number; // prix unitaire TTC
     quantity: number;
-    purchaseCost: number; // coût unitaire TTC
+    purchaseCost: number; // coût fiscal unitaire TTC pour TVA sur marge
+    economicPurchaseCost?: number; // coût économique complet (port/protection Vinted inclus)
     vatRate: number;
   }[];
 }): {
@@ -108,7 +109,10 @@ export function calculateMarginSale(params: {
     totalTTC = round2(totalTTC + lineTTC);
     subtotalHT = round2(subtotalHT + (lineTTC - calc.vatAmount));
     vatAmount = round2(vatAmount + calc.vatAmount);
-    marginAmount = round2(marginAmount + calc.marginNet);
+    const economicCost = round2((line.economicPurchaseCost ?? line.purchaseCost) * line.quantity);
+    // Ne jamais calculer la TVA avec le prix de revient. Le bénéfice
+    // économique = vente TTC - TVA réellement due - coût économique complet.
+    marginAmount = round2(marginAmount + lineTTC - calc.vatAmount - economicCost);
   });
 
   return { totalTTC, subtotalHT, vatAmount, marginAmount };

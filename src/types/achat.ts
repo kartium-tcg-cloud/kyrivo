@@ -2,6 +2,17 @@ import { ItemStatus } from "@/types/item";
 
 export type TypeAchat = "pro" | "particulier";
 
+export interface VintedSourceDetails {
+  sellerPrice: number;
+  shippingFee: number;
+  buyerProtectionFee: number;
+  otherFees: number;
+  paidTotal: number;
+  orderReference?: string;
+  /** Price split manually checked against a Vinted order recap. */
+  amountsConfirmed: boolean;
+}
+
 export type ModePaiement =
   | "Virement"
   | "Paypal"
@@ -27,6 +38,9 @@ export interface AchatArticle {
   stockRestant: number;
   coutHT: number;
   coutTTC?: number;
+  fiscalUnitCost?: number | null;
+  economicUnitCost?: number | null;
+  fiscalCostReviewRequired?: boolean;
   statut: ItemStatus;
   notes?: string;
 }
@@ -49,6 +63,8 @@ export interface Achat {
   commentaire?: string;
   documentUrl?: string;
   documentFile?: File | null;
+  source?: "manual" | "vinted_import";
+  sourceDetails?: VintedSourceDetails;
   items?: AchatItemInput[];
   articles?: AchatArticle[];
   saveSupplier?: boolean;

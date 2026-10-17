@@ -539,9 +539,10 @@ function drawItemsTable(doc: jsPDF, sale: Sale): number {
   const colUnit = marginX + 135;
   const colTotal = marginX + contentWidth - 5;
 
-  // Labels de colonnes : TTC pour TVA standard, HT pour TVA sur marge (déjà validé)
-  const labelUnit  = isStandard ? "Prix unit. TTC" : "Prix unitaire";
-  const labelTotal = isStandard ? "Total TTC"      : "Total HT";
+  // La TVA sur marge est comprise dans le prix vendu au client :
+  // ne jamais présenter le total de la ligne comme un total HT.
+  const labelUnit  = isStandard ? "Prix unit. TTC" : "Prix unitaire TTC";
+  const labelTotal = "Total TTC";
 
   const drawTblHeader = (startY: number): number => {
     drawBox(doc, marginX, startY, contentWidth, tblHeaderH, COLORS.headerBg);

@@ -5,6 +5,9 @@ import { Achat, AchatFiltres, AchatItemInput } from "@/types/achat";
 import { ItemStatus, isItemStatus } from "@/types/item";
 import { createClient } from "@/lib/supabase/client";
 import { exportPurchasesToExcel } from "@/lib/exportPurchases";
+import { getCompanyPreferences } from "@/lib/preferences";
+import VintedFiscalReviewModal from "@/components/achats/VintedFiscalReviewModal";
+import { validateVintedCosts } from "@/lib/vintedCosts";
 import { canCreateLines } from "@/lib/subscriptions";
 import { toast } from "sonner";
 
@@ -70,6 +73,9 @@ function mapPurchase(p: any, itemsByPurchaseId: Map<string, any[]>): Achat {
       item.total_cost !== null && item.quantity
         ? Number(item.total_cost) / Number(item.quantity)
         : undefined,
+    fiscalUnitCost: item.fiscal_unit_cost == null ? null : Number(item.fiscal_unit_cost),
+    economicUnitCost: item.economic_unit_cost == null ? null : Number(item.economic_unit_cost),
+    fiscalCostReviewRequired: Boolean(item.fiscal_cost_review_required),
     statut: isItemStatus(item.status) ? item.status : "in_stock",
     notes: item.notes || undefined,
   }));
@@ -90,6 +96,8 @@ function mapPurchase(p: any, itemsByPurchaseId: Map<string, any[]>): Achat {
     numFacture: "",
     commentaire: p.comment || undefined,
     documentUrl: p.document_url || undefined,
+    source: p.source === "vinted_import" ? "vinted_import" : "manual",
+    sourceDetails: p.source_details ?? undefined,
     articles,
     avecStock: articles.length > 0,
   };
@@ -150,7 +158,15 @@ function buildPurchaseItems(params: {
       quantity,
       stock_quantity: quantity,
       unit_cost: unitCostHT,
-      total_cost: Math.round(unitCostTTC * quantity * 100) / 100,
+      // total_cost sert aux écrans stock et au coût de revient : garder le
+      // total Vinted avec frais, tandis que unit_cost reste le prix fiscal.
+      total_cost: achat.source === "vinted_import"
+        ? achat.prixTTC
+        : Math.round(unitCostTTC * quantity * 100) / 100,
+      fiscal_unit_cost: achat.source === "vinted_import" ? unitCostTTC : null,
+      economic_unit_cost: achat.source === "vinted_import" ? achat.prixTTC : null,
+      fiscal_cost_review_required:
+        achat.source === "vinted_import" && !achat.documentFile && !achat.documentUrl,
       vat_type: achat.type,
       vat_rate: vatRate,
       margin_eligible: achat.type === "particulier",
@@ -253,7 +269,9 @@ export default function AchatsPage() {
   const [achats, setAchats] = useState<Achat[]>([]);
   const [modalOuverte, setModalOuverte] = useState(false);
   const [achatEnEdition, setAchatEnEdition] = useState<Achat | null>(null);
+  const [achatFiscalReview, setAchatFiscalReview] = useState<Achat | null>(null);
   const [vintedModalOuverte, setVintedModalOuverte] = useState(false);
+  const [enableVinted, setEnableVinted] = useState(false);
   const [supplierContacts, setSupplierContacts] = useState<Array<{ id: string; name: string }>>([]);
   const [existingCategories, setExistingCategories] = useState<string[]>([]);
   const [exportConfirmOpen, setExportConfirmOpen] = useState(false);
@@ -308,6 +326,8 @@ export default function AchatsPage() {
       )
     );
 
+    const prefs = await getCompanyPreferences(companyId);
+    setEnableVinted(prefs.enableVinted);
     const purchases = await getPurchases(companyId);
     const purchaseIds = purchases.map((p: any) => p.id);
     const purchaseItems = await getPurchaseItems(purchaseIds);
@@ -401,10 +421,24 @@ export default function AchatsPage() {
     setModalOuverte(true);
   };
 
-  const ouvrirImportVinted = () => setVintedModalOuverte(true);
+  const ouvrirImportVinted = () => {
+    if (!enableVinted) {
+      toast.error("Activez le mode Vinted dans Préférences → Plateformes et imports.");
+      return;
+    }
+    setVintedModalOuverte(true);
+  };
   const fermerVintedModal = () => setVintedModalOuverte(false);
 
   const ouvrirEdition = (achat: Achat) => {
+    if (achat.articles?.some((article) => article.stockRestant > 0 && article.fiscalCostReviewRequired)) {
+      setAchatFiscalReview(achat);
+      return;
+    }
+    if (achat.source === "vinted_import") {
+      toast.error("La ventilation fiscale d'un import Vinted vérifié ne peut pas être modifiée depuis le formulaire d'achat général.");
+      return;
+    }
     setAchatEnEdition(achat);
     setModalOuverte(true);
   };
@@ -416,6 +450,15 @@ export default function AchatsPage() {
 
   const ajouterAchat = async (nouvelAchat: Achat) => {
     try {
+      if (nouvelAchat.source === "vinted_import") {
+        const detail = nouvelAchat.sourceDetails;
+        if (!detail || validateVintedCosts(detail).length ||
+            nouvelAchat.items?.length !== 1 ||
+            Math.round((nouvelAchat.items[0]?.cout ?? 0) * 100) !== Math.round(detail.sellerPrice * 100) ||
+            Math.round(nouvelAchat.prixTTC * 100) !== Math.round(detail.paidTotal * 100)) {
+          throw new Error("La ventilation du prix Vinted n'est pas cohérente.");
+        }
+      }
       const companyId = await getCompanyId();
       if (!companyId) return;
 
@@ -465,6 +508,8 @@ toast.error(
         vat_amount: nouvelAchat.prixTVA,
         amount_ttc: nouvelAchat.prixTTC,
         comment: nouvelAchat.commentaire,
+        source: nouvelAchat.source ?? "manual",
+        source_details: nouvelAchat.source === "vinted_import" ? { ...nouvelAchat.sourceDetails } : null,
       });
 
       let documentPath: string | undefined = undefined;
@@ -719,7 +764,7 @@ const modifierAchat = async (achatModifie: Achat) => {
         totalMontant={totalMontant}
         totalTVA={totalTVA}
         onAjouter={ouvrirAjout}
-        onImporterVinted={ouvrirImportVinted}
+        onImporterVinted={enableVinted ? ouvrirImportVinted : undefined}
       />
 
       {achats.length === 0 ? (
@@ -734,10 +779,10 @@ const modifierAchat = async (achatModifie: Achat) => {
             Commencez par enregistrer votre premier achat. Tous vos achats PRO et particuliers seront centralisés ici.
           </p>
           <div className="flex flex-col sm:flex-row items-center gap-3">
-            <button
+            {enableVinted && <button
               type="button"
-              disabled
-              title="Import Vinted bientôt disponible"
+              onClick={ouvrirImportVinted}
+              title="Importer une commande Vinted"
               className="inline-flex items-center gap-2 rounded-lg border border-neutral-800 bg-neutral-900/40 pl-5 pr-3 py-2.5 text-sm font-semibold text-neutral-500 cursor-not-allowed"
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
@@ -745,9 +790,9 @@ const modifierAchat = async (achatModifie: Achat) => {
               </svg>
               Importer depuis Vinted
               <span className="rounded-full bg-neutral-800 px-2 py-0.5 text-[10px] font-semibold text-neutral-400">
-                Bientôt
+                Actif
               </span>
-            </button>
+            </button>}
             <button
               type="button"
               onClick={ouvrirAjout}
@@ -786,12 +831,21 @@ const modifierAchat = async (achatModifie: Achat) => {
         existingCategories={existingCategories}
       />
 
-      <VintedImportModal
+      <VintedFiscalReviewModal
+        achat={achatFiscalReview}
+        onFermer={() => setAchatFiscalReview(null)}
+        onSaved={async () => {
+          const companyId = await getCompanyId();
+          if (companyId) await refreshPurchases(companyId);
+        }}
+      />
+
+      {enableVinted && <VintedImportModal
         ouvert={vintedModalOuverte}
         onFermer={fermerVintedModal}
         onCreer={ajouterAchat}
         existingCategories={existingCategories}
-      />
+      />}
 
       {exportConfirmOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">

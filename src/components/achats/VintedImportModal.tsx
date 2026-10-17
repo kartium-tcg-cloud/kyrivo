@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import Modal from "@/components/ui/Modal";
-import { Achat, AchatItemInput } from "@/types/achat";
+import { Achat, AchatItemInput, VintedSourceDetails } from "@/types/achat";
+import { validateVintedCosts } from "@/lib/vintedCosts";
 
 // ─── Parser ──────────────────────────────────────────────────────────────────
 
@@ -197,6 +198,12 @@ export default function VintedImportModal({
   const [fournisseur, setFournisseur] = useState("");
   const [produit, setProduit] = useState("");
   const [totalStr, setTotalStr] = useState("");
+  const [sellerPriceStr, setSellerPriceStr] = useState("");
+  const [shippingStr, setShippingStr] = useState("0");
+  const [protectionStr, setProtectionStr] = useState("0");
+  const [otherFeesStr, setOtherFeesStr] = useState("0");
+  const [amountsConfirmed, setAmountsConfirmed] = useState(false);
+  const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const [commentaire, setCommentaire] = useState("");
   const [showCatDropdown, setShowCatDropdown] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -217,6 +224,12 @@ export default function VintedImportModal({
     setFournisseur(result.vendeur || "");
     setProduit(result.articleName || "");
     setTotalStr(result.total !== undefined ? result.total.toFixed(2) : "");
+    setSellerPriceStr(result.prixArticle !== undefined ? result.prixArticle.toFixed(2) : "");
+    setShippingStr((result.fraisLivraison ?? 0).toFixed(2));
+    setProtectionStr((result.fraisVinted ?? 0).toFixed(2));
+    setOtherFeesStr("0");
+    setAmountsConfirmed(false);
+    setReceiptFile(null);
 
     const parts = ["Import Vinted"];
     if (result.reference) parts.push(`Commande ${result.reference}`);
@@ -236,16 +249,29 @@ export default function VintedImportModal({
     const errs: Record<string, string> = {};
     if (!produit.trim()) errs.produit = "Nom de l'article requis";
     if (!date) errs.date = "Date requise";
-    const totalNum = parseFloat(totalStr);
-    if (!totalStr || isNaN(totalNum) || totalNum <= 0)
-      errs.total = "Montant requis";
+    const totalNum = Number(totalStr);
+    const details: VintedSourceDetails = {
+      sellerPrice: sellerPriceStr.trim() ? Number(sellerPriceStr) : NaN,
+      shippingFee: shippingStr.trim() ? Number(shippingStr) : NaN,
+      buyerProtectionFee: protectionStr.trim() ? Number(protectionStr) : NaN,
+      otherFees: otherFeesStr.trim() ? Number(otherFeesStr) : NaN,
+      paidTotal: totalStr.trim() ? totalNum : NaN,
+      orderReference: parsed?.reference,
+      amountsConfirmed,
+    };
+    const amountsError = validateVintedCosts(details);
+    if (amountsError.length) errs.total = amountsError.join(" ");
+    if (receiptFile && (
+      !["application/pdf", "image/jpeg", "image/png", "image/webp"].includes(receiptFile.type)
+      || receiptFile.size > 10 * 1024 * 1024
+    )) errs.receipt = "Justificatif PDF ou image de 10 Mo maximum.";
 
     setErrors(errs);
     if (Object.keys(errs).length > 0) return;
 
     const item: AchatItemInput = {
       nom: produit.trim(),
-      cout: totalNum,
+      cout: details.sellerPrice,
       quantite: 1,
       modeMontant: "ttc",
       notes: "",
@@ -266,6 +292,9 @@ export default function VintedImportModal({
       commentaire: commentaire.trim() || undefined,
       avecStock: true,
       items: [item],
+      source: "vinted_import",
+      sourceDetails: details,
+      documentFile: receiptFile,
     };
 
     onCreer(achat);
@@ -276,6 +305,12 @@ export default function VintedImportModal({
     setStep("paste");
     setRawText("");
     setParsed(null);
+    setSellerPriceStr("");
+    setShippingStr("0");
+    setProtectionStr("0");
+    setOtherFeesStr("0");
+    setAmountsConfirmed(false);
+    setReceiptFile(null);
     setErrors({});
     onFermer();
   };
@@ -283,6 +318,7 @@ export default function VintedImportModal({
   const hasMissing =
     !produit.trim() ||
     !totalStr ||
+    !sellerPriceStr ||
     parseFloat(totalStr) <= 0 ||
     !fournisseur.trim() ||
     !date;
@@ -539,6 +575,34 @@ export default function VintedImportModal({
               {errors.produit && <p className={errCls}>{errors.produit}</p>}
             </div>
 
+            <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-4">
+              <p className="mb-2 text-sm font-semibold text-amber-300">Vérifiez le prix vendeur et les frais</p>
+              <p className="mb-3 text-xs leading-relaxed text-neutral-300">
+                Le prix de l&apos;article sert au calcul fiscal de la TVA sur marge.
+                La livraison et la protection restent enregistrées dans le total réellement déboursé.
+              </p>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {([
+                  ["Prix de l'article payé au vendeur *", sellerPriceStr, setSellerPriceStr],
+                  ["Livraison payée séparément", shippingStr, setShippingStr],
+                  ["Protection acheteur Vinted", protectionStr, setProtectionStr],
+                  ["Autres frais payés", otherFeesStr, setOtherFeesStr],
+                ] as const).map(([label, value, setter]) => (
+                  <label key={label} className="block">
+                    <span className={labelCls}>{label}</span>
+                    <input type="number" min="0" max="999999" step="0.01" value={value}
+                      onChange={(e) => { setter(e.target.value); setAmountsConfirmed(false); }}
+                      className={inputCls} />
+                  </label>
+                ))}
+              </div>
+              <label className="mt-4 flex cursor-pointer items-start gap-2 text-xs text-neutral-200">
+                <input type="checkbox" checked={amountsConfirmed} onChange={(e) => setAmountsConfirmed(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 accent-amber-500" />
+                <span>Je confirme ces montants d&apos;après mon reçu ou récapitulatif Vinted.</span>
+              </label>
+            </div>
+
             <div>
               <label className={labelCls}>Total payé (TTC)</label>
               <div className="relative">
@@ -567,8 +631,20 @@ export default function VintedImportModal({
               </div>
               {errors.total && <p className={errCls}>{errors.total}</p>}
               <p className="text-[10px] text-neutral-400 mt-1.5">
-                Coût réel = prix article + livraison + protection acheteur
+                Somme réellement payée. Le prix fiscal du stock reste celui du vendeur.
               </p>
+            </div>
+
+            <div>
+              <label className={labelCls}>Justificatif Vinted (PDF ou image)</label>
+              <input type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp"
+                onChange={(e) => setReceiptFile(e.target.files?.[0] ?? null)}
+                className={inputCls} />
+              <p className="mt-1 text-xs text-amber-300/80">
+                Conservez une preuve du prix payé au vendeur pour justifier une vente sous TVA sur marge.
+                Si vous n&apos;avez pas de justificatif, l&apos;article devra être contrôlé avant une telle vente.
+              </p>
+              {errors.receipt && <p role="alert" className={errCls}>{errors.receipt}</p>}
             </div>
 
             <div>
@@ -607,7 +683,7 @@ export default function VintedImportModal({
               <span className="text-neutral-300 font-medium">Particulier</span>,
               TVA 0 %, paiement{" "}
               <span className="text-neutral-300 font-medium">Vinted</span>.
-              L'article sera mis en stock avec le coût réel total payé.
+              L'article sera mis en stock au prix du vendeur, hors livraison et protection. Le total déboursé et son détail seront conservés dans l'achat.
             </p>
           </div>
         </div>

@@ -1,0 +1,46 @@
+name: Vinted fiscal cost regression tests
+
+on:
+  pull_request:
+    paths:
+      - "src/components/achats/VintedImportModal.tsx"
+      - "src/components/achats/VintedFiscalReviewModal.tsx"
+      - "src/app/achats/page.tsx"
+      - "src/lib/vintedCosts.ts"
+      - "src/lib/purchases.ts"
+      - "src/lib/sales.ts"
+      - "src/components/ventes/VenteFormModal.tsx"
+      - "src/types/achat.ts"
+      - "src/types/sale.ts"
+      - "tests/vinted-fiscal-cost.test.cjs"
+      - "tests/vinted-export-invoice.test.cjs"
+      - "src/lib/exportPurchases.ts"
+      - "src/lib/exportSales.ts"
+      - "src/lib/invoiceZip.ts"
+      - "src/components/onboarding/AccountSetupWizard.tsx"
+      - "src/app/preferences/page.tsx"
+      - ".github/workflows/vinted-fiscal-checks.yml"
+
+jobs:
+  validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npx next typegen
+      - run: npx tsc --noEmit
+      - name: Full Next.js production compilation (without real Stripe / Supabase access)
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key
+          SUPABASE_SERVICE_ROLE_KEY: placeholder-service-key
+          STRIPE_SECRET_KEY: sk_test_placeholder
+          STRIPE_WEBHOOK_SECRET: whsec_placeholder
+      - run: node --test tests/vinted-fiscal-cost.test.cjs
+      - run: node --test tests/vinted-export-invoice.test.cjs
+      - run: node --test tests/stripe-reactivation.test.cjs

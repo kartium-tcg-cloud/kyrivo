@@ -61,15 +61,15 @@ export default function AchatsHeader({
       </div>
 
       <div className="flex items-center gap-2">
-        <button
-          disabled
-          title="Import Vinted bientôt disponible"
+        {onImporterVinted && <button
+          type="button"
+          onClick={onImporterVinted}
+          title="Importer une commande Vinted"
           className="
             inline-flex items-center gap-2
             rounded-lg pl-4 pr-2.5 py-2
-            border border-neutral-800 bg-neutral-900/40 text-neutral-500
-            text-sm font-semibold
-            cursor-not-allowed
+            border border-amber-500/30 bg-amber-500/5 text-amber-300
+            text-sm font-semibold hover:bg-amber-500/10
           "
         >
           <svg
@@ -86,10 +86,7 @@ export default function AchatsHeader({
             />
           </svg>
           Importer depuis Vinted
-          <span className="rounded-full bg-neutral-800 px-2 py-0.5 text-[10px] font-semibold text-neutral-400">
-            Bientôt
-          </span>
-        </button>
+        </button>}
 
         <button
           onClick={onAjouter}

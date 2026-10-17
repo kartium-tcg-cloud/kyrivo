@@ -43,7 +43,7 @@ export async function getAvailableStockItems(
   const { data, error } = await supabase
     .from("purchase_items")
     .select(
-      "id, item_reference, item_name, unit_cost, total_cost, quantity, stock_quantity, status, margin_eligible, category"
+      "id, item_reference, item_name, unit_cost, fiscal_unit_cost, economic_unit_cost, fiscal_cost_review_required, total_cost, quantity, stock_quantity, status, margin_eligible, category"
     )
     .eq("company_id", companyId)
     .eq("status", "in_stock")
@@ -59,7 +59,9 @@ export async function getAvailableStockItems(
       itemName: d.item_name as string,
       quantity: Number(d.quantity),
       stockQuantity: Number(d.stock_quantity ?? d.quantity),
-      unitCost: Number(d.unit_cost),
+      unitCost: Number(d.fiscal_unit_cost ?? d.unit_cost),
+      economicUnitCost: Number(d.economic_unit_cost ?? d.unit_cost),
+      fiscalCostReviewRequired: Boolean(d.fiscal_cost_review_required),
       status: d.status as ItemStatus,
       marginEligible: Boolean(d.margin_eligible),
       category: (d.category as string) || undefined,
