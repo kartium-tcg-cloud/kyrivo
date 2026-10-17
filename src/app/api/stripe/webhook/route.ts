@@ -402,6 +402,19 @@ export async function POST(req: NextRequest) {
 
       if (!stripeSubId) return NextResponse.json({ received: true });
 
+      // Les webhooks peuvent arriver dans le désordre. Ne jamais suspendre
+      // un compte pour un échec d'une facture depuis payée.
+      const [currentInvoice, currentSubscription] = await Promise.all([
+        stripe.invoices.retrieve(invoice.id),
+        stripe.subscriptions.retrieve(stripeSubId),
+      ]);
+      if (
+        currentInvoice.status === "paid" ||
+        !["past_due", "unpaid", "incomplete"].includes(currentSubscription.status)
+      ) {
+        return NextResponse.json({ received: true });
+      }
+
       await supabaseAdmin
         .from("subscriptions")
         .update({
@@ -420,7 +433,11 @@ export async function POST(req: NextRequest) {
     // API dahlia : les dates de période ne sont plus sur la subscription mais
     // sur subscription.items.data[0] (un abonnement peut avoir plusieurs items).
     if (event.type === "customer.subscription.updated") {
-      const subscription = event.data.object as Stripe.Subscription;
+      const eventSubscription = event.data.object as Stripe.Subscription;
+      // Lire l'état Stripe ACTUEL : une notification ancienne, reçue après
+      // invoice.paid, ne doit pas remettre un compte en impayé ni raccourcir
+      // une période déjà réalignée.
+      const subscription = await stripe.subscriptions.retrieve(eventSubscription.id);
 
       const stripeCustomerId =
         typeof subscription.customer === "string"
@@ -478,24 +495,26 @@ export async function POST(req: NextRequest) {
         update.monthly_line_limit = monthlyLineLimit;
       }
 
-      // La programmation d'une résiliation ne modifie ni les droits prépayés
-      // (subscription_ends_at), ni les cycles de quotas Kyrivo (mensuels, y
-      // compris sur les offres de trois mois). Ces dates sont propres à Kyrivo
-      // et peuvent différer de la période de facturation chez Stripe.
-      // customer.subscription.deleted ferme l'abonnement à l'échéance.
-      if (!subscription.cancel_at_period_end) {
-        if (periodStart) update.current_period_start = periodStart.toISOString();
-
-        if (periodEnd) {
-          update.current_period_end = periodEnd.toISOString();
-
-          // L'accès (subscription_ends_at) ne s'étend que si Stripe confirme un
-          // abonnement actif — un échec de paiement ne doit jamais prolonger l'accès,
-          // et on ne raccourcit jamais un accès déjà acquis sur un statut non-actif.
-          if (mappedStatus === "active") {
-            update.subscription_ends_at = periodEnd.toISOString();
-          }
-        }
+      // Ne jamais raccourcir des droits acquis ni rembobiner les quotas à la
+      // réception d'un événement redélivré. Sur une offre 3 mois, le quota
+      // reste mensuel, distinct de la date de prélèvement Stripe.
+      // Une simple modification (annulation programmée, mode de paiement,
+      // mise à jour de metadata) ne remet pas le compteur à zéro.
+      const previousEntitlementEnd = row.subscription_ends_at
+        ? new Date(row.subscription_ends_at).getTime()
+        : 0;
+      if (
+        !subscription.cancel_at_period_end &&
+        mappedStatus === "active" &&
+        periodStart &&
+        periodEnd &&
+        periodEnd.getTime() > previousEntitlementEnd
+      ) {
+        update.current_period_start = periodStart.toISOString();
+        update.current_period_end = quotaPeriodEnd(
+          periodStart, periodEnd, row.billing_period
+        ).toISOString();
+        update.subscription_ends_at = periodEnd.toISOString();
       }
 
       if (plan) update.plan = plan;
