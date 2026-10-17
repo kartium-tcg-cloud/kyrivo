@@ -201,7 +201,7 @@ export default function Sidebar() {
 
 return (
   <>
-    <header className="fixed top-8 left-0 right-0 z-40 flex h-16 items-center justify-between border-b border-neutral-800/60 bg-neutral-950/95 px-4 backdrop-blur lg:hidden">
+    <header className="ky-mobile-header fixed top-8 left-0 right-0 z-40 flex h-16 items-center justify-between border-b border-neutral-800/60 bg-neutral-950/95 px-4 backdrop-blur lg:hidden">
       <Link href="/" className="flex items-center gap-3">
         <img
           src="/brand/kyrivo-symbol-dark.svg"
@@ -244,7 +244,7 @@ className={`
   flex flex-col
   h-[calc(100dvh-2rem)]
   w-[82vw] max-w-72 lg:w-64 lg:max-w-none
-  bg-neutral-950
+  ky-sidebar bg-neutral-950
   border-r border-neutral-800/60
   transition-transform duration-200
   lg:translate-x-0
@@ -294,7 +294,7 @@ className={`
       </div>
 
       {/* ═══ NAVIGATION SCROLLABLE ═════════════════════════ */}
-      <nav className="flex-1 overflow-y-auto px-3 py-4 sidebar-scroll">
+      <nav className="ky-sidebar-nav flex-1 overflow-y-auto px-3 py-4 sidebar-scroll">
 
         {/* État loading initial — placeholder shimmer */}
         {isAuthenticated === null && (
@@ -320,8 +320,9 @@ className={`
                   <Link
                     key={item.href}
                     href={item.href}
+                    aria-current={active ? "page" : undefined}
                     className={`
-                      relative flex items-center gap-3
+                      ky-nav-link relative flex items-center gap-3
                       rounded-lg px-3 py-2
                       text-sm font-medium
                       transition-all duration-150
@@ -377,7 +378,7 @@ className={`
                 <Link
                   href="/dashboard"
                   className={`
-                    relative flex items-center gap-3
+                    ky-nav-link relative flex items-center gap-3
                     rounded-lg px-3 py-2
                     text-sm font-medium
                     transition-all duration-150
@@ -532,7 +533,7 @@ className={`
                 <Link
                   href="/login"
                   className="
-                    relative flex items-center gap-3
+                    ky-nav-link relative flex items-center gap-3
                     rounded-lg px-3 py-2
                     text-sm font-medium
                     transition-all duration-150
