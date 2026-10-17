@@ -57,7 +57,13 @@ function cents(amount: number): number {
   if (!Number.isFinite(amount) || amount < 0) {
     throw new Error("Montant de frais invalide.");
   }
-  const value = Math.round(amount * 100);
+  const raw = amount * 100;
+  const value = Math.round(raw);
+  // Values are entered as euros/cents. Reject fractions of a cent rather
+  // than silently changing their meaning on save.
+  if (Math.abs(raw - value) > 1e-7) {
+    throw new Error("Montant à deux décimales maximum.");
+  }
   if (!Number.isSafeInteger(value)) {
     throw new Error("Montant de frais trop élevé.");
   }
@@ -70,6 +76,10 @@ function euros(value: number): number {
 
 export function validateTransactionFee(fee: TransactionFeeDraft): string[] {
   const errors: string[] = [];
+  if (!["expense", "customer_charge"].includes(fee.kind)) errors.push("Nature du frais invalide.");
+  if (!["shipping", "marketplace", "payment_processing", "packaging", "insurance", "customs", "tax", "other"].includes(fee.category)) {
+    errors.push("Catégorie de frais invalide.");
+  }
   if (!fee.label.trim() || fee.label.trim().length > 120) errors.push("Libellé de frais obligatoire (120 caractères maximum).");
   if (fee.notes.length > 2000) errors.push("Notes limitées à 2 000 caractères.");
   if (!Number.isFinite(fee.vatRate) || fee.vatRate < 0 || fee.vatRate > 100) {
@@ -85,6 +95,13 @@ export function validateTransactionFee(fee: TransactionFeeDraft): string[] {
     if (ht + vat !== total) errors.push("Le montant HT et la TVA ne correspondent pas au TTC.");
     if (deductible > vat) errors.push("La TVA récupérable ne peut pas dépasser la TVA du frais.");
     if (fee.kind === "customer_charge" && deductible !== 0) errors.push("Une recette ne contient pas de TVA déductible.");
+    if (fee.kind === "customer_charge" && !fee.includedInParentTotal) {
+      errors.push("Un frais client déjà facturé doit être inclus dans la vente existante.");
+    }
+    if (fee.vatRate === 0 && vat > 0) errors.push("La TVA du frais doit être nulle si son taux est 0 %.");
+    if (fee.vatRate > 0 && Number.isFinite(fee.vatRate) && Math.abs(vat - Math.round(total * fee.vatRate / (100 + fee.vatRate))) > 1) {
+      errors.push("TVA incohérente avec le taux et le TTC du frais.");
+    }
   } catch {
     errors.push("Montants de frais invalides.");
   }
