@@ -4,7 +4,11 @@ export function cents(value: number): number {
   if (!Number.isFinite(value) || value < 0 || value > 999999) {
     throw new Error("Montant Vinted invalide.");
   }
-  return Math.round(value * 100);
+  const monetaryCents = Math.round(value * 100);
+  if (!Number.isSafeInteger(monetaryCents) || Math.abs(value * 100 - monetaryCents) > 0.00001) {
+    throw new Error("Montant Vinted limité à deux décimales.");
+  }
+  return monetaryCents;
 }
 
 export function validateVintedCosts(details: VintedSourceDetails): string[] {
