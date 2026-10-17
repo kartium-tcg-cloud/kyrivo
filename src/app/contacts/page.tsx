@@ -696,7 +696,7 @@ function ContactsTable({
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-neutral-800/60 bg-neutral-800/20">
+    <div className="ky-data-table overflow-hidden rounded-xl border border-neutral-800/60 bg-neutral-800/20">
       {/* Sur téléphone, les contacts doivent rester consultables sans défilement latéral. */}
       <div className="divide-y divide-neutral-800/60 md:hidden">
         {sortedContacts.map((contact) => (
