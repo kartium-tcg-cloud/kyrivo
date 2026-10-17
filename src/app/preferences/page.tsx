@@ -533,6 +533,44 @@ async function handleInvoicePrefixChange(value: string) {
           </div>
         </Section>
 
+        {/* ═══ SECTION 6 — FRAIS ET RENTABILITÉ ════════════ */}
+        <Section
+          title="Frais et rentabilité"
+          description="Suivez séparément vos charges et les frais réellement facturés à vos clients."
+          icon={
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 4.5h18M3 9h18M3 13.5h10.5M3 18h7.5M19.5 13.5v7.5m-3.75-3.75h7.5" />
+            </svg>
+          }
+        >
+          <div className="space-y-3">
+            <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-neutral-700/70 bg-neutral-950/40 p-4">
+              <input
+                type="checkbox"
+                checked={preferences.enableTransactionFees}
+                onChange={(e) => update("enableTransactionFees", e.target.checked)}
+                className="mt-0.5 h-5 w-5 flex-shrink-0 accent-amber-500"
+              />
+              <span className="space-y-1">
+                <span className="block text-sm font-semibold text-neutral-100">
+                  Je souhaite pouvoir ajouter des frais à mes achats et à mes ventes
+                </span>
+                <span className="block text-xs leading-relaxed text-neutral-400">
+                  Frais d&apos;envoi, commissions, emballages et autres charges, ainsi que les frais
+                  facturés aux clients. Ces deux catégories restent distinctes.
+                </span>
+              </span>
+            </label>
+            <p className="text-xs leading-relaxed text-neutral-400">
+              Désactivé par défaut. Désactiver cette option ultérieurement ne supprimera aucun frais enregistré.
+            </p>
+            <p className="rounded-lg border border-neutral-800 bg-neutral-950/40 px-3 py-2 text-xs text-neutral-400">
+              La saisie des frais dans les formulaires Achats et Ventes sera disponible
+              après l&apos;intégration des calculs de TVA, des exports et des factures.
+            </p>
+          </div>
+        </Section>
+
       </div>
 
       {/* ═══ STICKY SAVE BAR ═══════════════════════════════ */}
