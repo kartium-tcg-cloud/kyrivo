@@ -540,7 +540,7 @@ export default function StockPage() {
 
         {/* Tableau */}
         {filteredItems.length > 0 && (
-          <div className="overflow-hidden rounded-xl border border-neutral-800/60 bg-neutral-800/20">
+          <div className="ky-data-table overflow-hidden rounded-xl border border-neutral-800/60 bg-neutral-800/20">
             <div className="divide-y divide-neutral-800/60 md:hidden">
               {sortedItems.map((item) => {
                 const stockQty = Number(item.stock_quantity ?? 0);
@@ -1200,7 +1200,7 @@ function StatCard({
           };
 
   return (
-    <div className="flex items-center gap-4 rounded-xl border border-neutral-800 bg-neutral-900/40 p-4 transition-colors hover:border-neutral-700">
+    <div className="ky-kpi flex items-center gap-4 rounded-xl border border-neutral-800 bg-neutral-900/40 p-4 transition-colors hover:border-neutral-700">
       <span
         className={`inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border ${styles.icon}`}
       >
