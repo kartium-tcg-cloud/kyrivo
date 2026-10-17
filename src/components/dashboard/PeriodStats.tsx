@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { getCompanyPreferences } from "@/lib/preferences";
+import { getTransactionFees } from "@/lib/feeQueries";
 import { EvolutionChart, ProfitBridge, type EvolutionPoint } from "./PeriodCharts";
 
 interface PeriodStatsProps {
@@ -171,13 +173,13 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
           await Promise.all([
             supabase
               .from("purchases")
-              .select("amount_ttc, vat_amount, purchase_date")
+              .select("id, amount_ttc, vat_amount, purchase_date")
               .eq("company_id", companyId)
               .gte("purchase_date", dateDebut)
               .lte("purchase_date", dateFin),
             supabase
               .from("sales")
-              .select("total_ttc, vat_amount, sale_date")
+              .select("id, total_ttc, vat_amount, sale_date")
               .eq("company_id", companyId)
               .gte("sale_date", dateDebut)
               .lte("sale_date", dateFin),
@@ -187,8 +189,24 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
         if (eV) throw eV;
         if (cancelled) return;
 
-        const depenses      = round2((achats ?? []).reduce((s, a) => s + Number(a.amount_ttc  ?? 0), 0));
-        const tvaDeductible = round2((achats ?? []).reduce((s, a) => s + Number(a.vat_amount  ?? 0), 0));
+        const prefs = await getCompanyPreferences(companyId);
+        const fees = prefs.enableTransactionFees
+          ? await Promise.all([
+              getTransactionFees({ companyId, purchaseIds: (achats ?? []).map(a => String(a.id)) }),
+              getTransactionFees({ companyId, saleIds: (ventes ?? []).map(v => String(v.id)) }),
+            ]).then(([a, b]) => [...a, ...b])
+          : [];
+        const purchaseDates = new Map((achats ?? []).map(p => [p.id, p.purchase_date]));
+        const saleDates = new Map((ventes ?? []).map(v => [v.id, v.sale_date]));
+        // Expense at purchase already included in its TTC total: never deduct twice.
+        // Sale expense is always a merchant outlay, separate from sale revenue.
+        const externalFees = fees.filter(f => f.kind === "expense" &&
+          (f.saleId || (f.purchaseId && !f.includedInParentTotal)));
+        const extraExpensesCents = externalFees.reduce((sum, f) => sum + Math.round(f.amountTTC * 100), 0);
+        const deductibleFeeVatCents = externalFees.reduce(
+          (sum, f) => sum + Math.round(f.recoverableVatAmount * 100), 0);
+        const depenses      = round2((achats ?? []).reduce((sum, a) => sum + Number(a.amount_ttc ?? 0), 0) + extraExpensesCents / 100);
+        const tvaDeductible = round2((achats ?? []).reduce((sum, a) => sum + Number(a.vat_amount ?? 0), 0) + deductibleFeeVatCents / 100);
         const recettes      = round2((ventes ?? []).reduce((s, v) => s + Number(v.total_ttc   ?? 0), 0));
         const tvaCollectee  = round2((ventes ?? []).reduce((s, v) => s + Number(v.vat_amount  ?? 0), 0));
         const soldeTva      = round2(tvaCollectee - tvaDeductible);
@@ -217,6 +235,16 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
           if (entry) {
             entry.ventes += Number(v.total_ttc ?? 0);
             entry.tvaCol += Number(v.vat_amount ?? 0);
+          }
+        });
+        // Keep day/week/month chart consistent with the top period cards.
+        externalFees.forEach(f => {
+          const date = f.saleId ? saleDates.get(f.saleId) : f.purchaseId ? purchaseDates.get(f.purchaseId) : null;
+          if (!date) return;
+          const entry = buckets.get(bucketKeyFor(date, bucketGranularity));
+          if (entry) {
+            entry.achats += f.amountTTC;
+            entry.tvaDed += f.recoverableVatAmount;
           }
         });
 
@@ -440,13 +468,13 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
                   <TrendIcon />
                 </span>
                 <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-500 leading-tight">
-                  Résultat net estimé
+                  Solde estimé (flux)
                 </p>
               </div>
               <p className={`font-display text-2xl font-bold tabular-nums leading-none ${stats.resultatNet >= 0 ? "text-emerald-400" : "text-red-400"}`}>
                 {fmt(stats.resultatNet)}
               </p>
-              <p className="text-[10px] text-neutral-400">Ce qu&apos;il te reste réellement</p>
+              <p className="text-[10px] text-neutral-400">Achats et ventes de la période, frais inclus · pas un bénéfice comptable</p>
             </div>
 
           </div>
@@ -461,7 +489,7 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
               <div className="mb-5 flex items-center justify-between gap-2">
                 <div>
                   <h3 className="text-base font-semibold text-neutral-100">Évolution de la période</h3>
-                  <p className="text-[11px] text-neutral-500 mt-0.5">Ventes, achats et bénéfice net</p>
+                  <p className="text-[11px] text-neutral-500 mt-0.5">Ventes, achats, frais et solde estimé</p>
                 </div>
                 <span className="rounded-full border border-neutral-700 bg-neutral-900/60 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-neutral-400">
                   {granularityLabel(granularity)}
