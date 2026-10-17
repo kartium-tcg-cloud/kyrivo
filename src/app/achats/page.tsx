@@ -27,6 +27,7 @@ import AchatsFiltres from "@/components/achats/AchatsFiltres";
 import AchatsTableau from "@/components/achats/AchatsTableau";
 import AchatFormModal from "@/components/achats/AchatFormModal";
 import VintedImportModal from "@/components/achats/VintedImportModal";
+import TransactionFeesModal from "@/components/fees/TransactionFeesModal";
 
 function formatDateFr(value: string): string {
   const [year, month, day] = value.split("-");
@@ -272,6 +273,9 @@ export default function AchatsPage() {
   const [achatFiscalReview, setAchatFiscalReview] = useState<Achat | null>(null);
   const [vintedModalOuverte, setVintedModalOuverte] = useState(false);
   const [enableVinted, setEnableVinted] = useState(false);
+  const [enableTransactionFees, setEnableTransactionFees] = useState(false);
+  const [companyIdForFees, setCompanyIdForFees] = useState("");
+  const [purchaseForFees, setPurchaseForFees] = useState<Achat | null>(null);
   const [supplierContacts, setSupplierContacts] = useState<Array<{ id: string; name: string }>>([]);
   const [existingCategories, setExistingCategories] = useState<string[]>([]);
   const [exportConfirmOpen, setExportConfirmOpen] = useState(false);
@@ -328,6 +332,8 @@ export default function AchatsPage() {
 
     const prefs = await getCompanyPreferences(companyId);
     setEnableVinted(prefs.enableVinted);
+    setEnableTransactionFees(prefs.enableTransactionFees);
+    setCompanyIdForFees(companyId);
     const purchases = await getPurchases(companyId);
     const purchaseIds = purchases.map((p: any) => p.id);
     const purchaseItems = await getPurchaseItems(purchaseIds);
@@ -817,8 +823,18 @@ const modifierAchat = async (achatModifie: Achat) => {
             achats={achatsFiltres}
             onModifier={ouvrirEdition}
             onSupprimer={supprimerAchat}
+            onManageFees={enableTransactionFees ? setPurchaseForFees : undefined}
           />
         </>
+      )}
+
+      {enableTransactionFees && companyIdForFees && purchaseForFees && (
+        <TransactionFeesModal
+          ouvert={true}
+          companyId={companyIdForFees}
+          purchaseId={purchaseForFees.id}
+          onFermer={() => setPurchaseForFees(null)}
+        />
       )}
 
       <AchatFormModal
