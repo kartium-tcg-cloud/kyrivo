@@ -48,3 +48,7 @@ test("TVA sur marge plancher zéro par article, pas compensation des pertes entr
  assert.equal(v.totalTTC, 230);
  assert.equal(v.marginAmount, 21.67); // -20 + (50 - 8.33)
 });
+
+test("aucune fraction de centime ne peut être réconciliée silencieusement", () => {
+ assert.ok(validateVintedCosts(details({ sellerPrice: 100.001 })).length > 0);
+});
