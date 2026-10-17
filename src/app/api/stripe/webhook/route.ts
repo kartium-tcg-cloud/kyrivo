@@ -104,7 +104,7 @@ async function findSubscriptionRow(
 
   const { data: byCustomerId, error: byCustomerIdError } = await supabaseAdmin
     .from("subscriptions")
-    .select("company_id, stripe_subscription_id, status, plan")
+    .select("company_id, stripe_subscription_id, status, plan, billing_period, subscription_ends_at")
     .eq("stripe_customer_id", stripeCustomerId)
     .maybeSingle();
 
