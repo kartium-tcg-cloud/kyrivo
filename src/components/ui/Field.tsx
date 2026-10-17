@@ -14,13 +14,13 @@ export default function Field({ label, error, action, id, className, ...inputPro
   return (
     <div>
       <div className="mb-2 flex items-center justify-between">
-        <label htmlFor={id} className="block text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
+        <label htmlFor={id} className="block text-xs font-semibold tracking-wide text-neutral-300">
           {label}
         </label>
         {action}
       </div>
       <Input id={id} className={className} {...inputProps} />
-      {error && <p className="mt-1.5 text-xs text-red-400">{error}</p>}
+      {error && <p className="mt-2 text-xs text-red-300">{error}</p>}
     </div>
   );
 }
