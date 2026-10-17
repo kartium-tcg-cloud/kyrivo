@@ -1,0 +1,26 @@
+name: Onboarding type check
+
+on:
+  pull_request:
+    paths:
+      - "src/components/onboarding/**"
+      - "src/components/preferences/**"
+      - "src/app/preferences/page.tsx"
+      - "src/app/dashboard/page.tsx"
+      - "src/app/api/onboarding/**"
+      - "src/lib/preferences.ts"
+      - "src/types/preferences.ts"
+      - ".github/workflows/onboarding-validation.yml"
+
+jobs:
+  types:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npx next typegen
+      - run: npx tsc --noEmit

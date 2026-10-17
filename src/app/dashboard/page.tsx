@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import LogoutButton from "@/components/auth/LogoutButton";
 import PeriodStats from "@/components/dashboard/PeriodStats";
+import AccountSetupWizard from "@/components/onboarding/AccountSetupWizard";
 
 type ActivityItem = {
   type: "achat" | "vente";
@@ -43,7 +44,7 @@ export default async function DashboardPage() {
   if (companyId) {
     const { data } = await supabase
       .from("companies")
-      .select("id, name")
+      .select("id, name, onboarding_completed_at")
       .eq("id", companyId)
       .maybeSingle();
     company = data;
@@ -243,6 +244,13 @@ export default async function DashboardPage() {
   // ── Rendu ─────────────────────────────────────────────────────
   return (
     <div className="relative w-full max-w-[1500px] p-4 sm:p-6 lg:p-8 xl:p-10 space-y-8 overflow-hidden">
+      {companyId && company && firstMembership?.role === "owner" && !company.onboarding_completed_at && (
+        <AccountSetupWizard
+          companyId={companyId}
+          companyName={companyName}
+          initialOpen
+        />
+      )}
 
       {/* ── Halos d'ambiance (purement décoratifs) ───────────── */}
       <div aria-hidden className="pointer-events-none absolute -top-32 right-[-10%] h-80 w-80 rounded-full bg-amber-500/[0.07] blur-3xl" />
