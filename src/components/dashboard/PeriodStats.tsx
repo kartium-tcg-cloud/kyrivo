@@ -554,8 +554,8 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
             {/* Graphique 2 — Pont de rentabilité */}
             <div className="surface rounded-xl border border-neutral-700/60 bg-gradient-to-b from-neutral-800/50 to-neutral-900/50 p-4 sm:p-6">
               <div className="mb-5">
-                <h3 className="text-base font-semibold text-neutral-100">Pont de rentabilité</h3>
-                <p className="text-[11px] text-neutral-500 mt-0.5">Décomposition du résultat de la période</p>
+                <h3 className="text-base font-semibold text-neutral-100">Répartition des flux</h3>
+                <p className="text-[11px] text-neutral-500 mt-0.5">Recettes, débours, TVA et solde estimé de la période</p>
               </div>
               <ProfitBridge
                 recettes={stats.recettes}
