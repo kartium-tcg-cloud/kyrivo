@@ -262,7 +262,7 @@ export async function POST(req: NextRequest) {
       let effectiveStart = periodStart;
       let effectiveEnd = periodEnd;
 
-      if (isLate) {
+      if (isLate && paidAt !== null) {
         const live = await stripe.subscriptions.retrieve(stripeSubId);
         const liveItem = live.items.data[0];
         const alreadyAdjusted = live.metadata?.kyrivo_late_invoice_id === invoice.id;
