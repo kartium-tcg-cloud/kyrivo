@@ -48,6 +48,12 @@ const AMOUNT_COLS = new Set<string>([
   "TVA déductible",
   "Montant TTC achat",
   "Frais Vinted inclus TTC",
+  "Frais supplémentaires supportés TTC",
+  "Frais payés hors montant achat TTC",
+  "Débours global estimé TTC",
+  "Frais supporté TTC",
+  "TVA indiquée",
+  "TVA récupérable déclarée",
   "Prix fiscal vendeur unitaire",
   "Coût économique unitaire",
   "Coût unitaire HT",
@@ -237,7 +243,12 @@ export async function exportPurchasesToExcel(achats: Achat[], fees: TransactionF
         "Déjà inclus dans total achat": f.includedInParentTotal ? "Oui" : "Non",
         "Notes": f.notes,
       }));
-    if (details.length) XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(details), "Frais achats");
+    if (details.length) {
+      const feeSheet = XLSX.utils.json_to_sheet(details);
+      feeSheet["!cols"] = buildColWidths(details as unknown as PurchaseExportRow[]);
+      applyStyles(feeSheet, XLSX);
+      XLSX.utils.book_append_sheet(workbook, feeSheet, "Frais achats");
+    }
   }
 
   const today = new Date().toISOString().slice(0, 10);
