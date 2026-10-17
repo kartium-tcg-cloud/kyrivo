@@ -519,7 +519,7 @@ const buildPayload = (): Achat => {
         </div>
       }
     >
-      <div className="grid grid-cols-1 md:grid-cols-[1fr_340px] gap-5 items-start">
+      <div className="ky-form-area grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_340px] gap-5 items-start">
         <div className="min-w-0 flex flex-col gap-5">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
