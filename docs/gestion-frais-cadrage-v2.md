@@ -48,6 +48,15 @@ Une perte économique reste **négative** même si la TVA de la ligne est plafon
 
 La **globalisation optionnelle des marges en France** (périodes/stock) est une fonctionnalité distincte, **hors périmètre V1**, et ne doit pas interférer avec le calcul au coup par coup.
 
+**Port facturé au client sur une vente contenant plusieurs biens** :
+- affecter son montant TTC aux **articles au prorata de leur prix de vente TTC**, en centimes entiers ;
+- répartir les restes d'arrondi selon une règle stable (les plus grands restes, puis ordre de ligne) pour que la somme allouée soit **exactement** le montant de port facturé ;
+- ajouter la part allouée au **prix de vente fiscal de chaque article** avant l'application du plancher individuel `max(0, marge)` ;
+- en cas d'articles relevant de **taux différents** ou de régimes distincts (marge et normal), déterminer séparément les montants/taux applicables ; ne **jamais** appliquer une TVA unique à l'ensemble du port ni compenser les pertes d'un article avec les bénéfices d'un autre ;
+- conserver la ventilation par article dans les données de vente/facture pour permettre contrôle et export.
+
+**Tests prioritaires** : deux articles à gains/pertes opposés ; port réparti en euros et centimes, dont arrondis résiduels ; combinaison de plusieurs taux ; plusieurs régimes (marge/normal) dans un même panier ; facture sans port ; port remboursé ou modifié. Le formulaire actuel exige encore des factures séparées pour marge et normal : prendre en charge le panier mixte seulement lorsque la ventilation sera validée.
+
 ## 5. Décisions fonctionnelles proposées
 
 | Sujet | V2 proposée | Garde-fou |
@@ -98,10 +107,19 @@ Chaîne vérifiée :
 **Conséquence :** en régime marge, les frais externes ajoutés au prix vendeur peuvent réduire artificiellement la marge taxable.
 
 **Exemple :** vendeur 100 €, port distinct 5 €, protection acheteur 3 €, vente 150 € à 20 %. Valeur fiscale 100 €, valeur économique 108 €.
-- Actuel : `(150−108)×20/120 = 7,00 €` de TVA sur marge.
-- Attendu : `(150−100)×20/120 = 8,33 €` de TVA sur marge.
+
+| Valeur | Calcul actuel erroné | Calcul fiscal corrigé |
+|---|---:|---:|
+| TVA sur marge due | 7,00 € | **8,33 €** |
+| Marge commerciale **avant** TVA (150 – 108) | 42,00 € | 42,00 € |
+| Marge économique **après** TVA (150 – 108 – TVA due) | 35,00 € | **33,67 €** |
+
+**La rentabilité nette de TVA n'est PAS 42 €** : l'écart de 1,33 € entre les deux dernières colonnes représente la TVA sur marge non intégrée à la marge économique si le prix fiscal est surévalué. Aucune autre charge n'est retenue dans cet exemple.
 
 **Historique** :
+- Audit de lecture seule complémentaire : **23 achats ont `payment_method='Vinted'` et 30 lignes d'articles Vinted sont encore en stock** (17/10/2026). Ce critère n'identifie PAS avec certitude le mode d'import : l'utilisateur a pu créer manuellement un achat puis choisir Vinted. Aucun prix existant n'est modifié, y compris pour ce stock.
+- Marquer les articles Vinted candidats non vérifiés pour revue, en laissant le prix historique intact. Si des justificatifs ou les commentaires conservent les montants, proposer leur ventilation **avec confirmation humaine**. Une absence de marqueur « Import Vinted » ne doit plus être considérée comme rassurante.
+- Chaque **nouvel** achat importé porte une provenance structurée `source=vinted_import`, un détail prix vendeur/livraison/protection et le lien vers une preuve d'achat lorsque celle-ci est jointe.
 - Jamais recalculer automatiquement une vente déjà facturée ou une déclaration passée.
 - Ajouter un marquage **historique non vérifié**, sur la base de la provenance détectable ; avertir qu'une absence de marqueur ne garantit pas absence de frais.
 - Sur contrôle SQL en lecture seule du 17/10/2026, `purchases.comment ILIKE 'Import Vinted%'` : **0 enregistrement identifiable**, ce qui n'exclut pas les achats manuels ou imports historiques dépourvus du texte.
