@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Sale, SALE_VAT_MODE_CONFIG } from "@/types/sale";
+import type { TransactionFeeDraft } from "@/lib/transactionFees";
+import { estimateSaleProfit } from "@/lib/estimatedSaleProfit";
 import {
   SortConfig,
   SortableTh,
@@ -49,6 +51,7 @@ interface VentesTableauProps {
   onModifier: (vente: Sale) => void;
   onSupprimer: (id: string) => void;
   onManageFees?: (vente: Sale) => void;
+  feesBySale?: Record<string, TransactionFeeDraft[]>;
 }
 
 function formatEuro(montant: number): string {
@@ -71,6 +74,7 @@ export default function VentesTableau({
   onModifier,
   onSupprimer,
   onManageFees,
+  feesBySale = {},
 }: VentesTableauProps) {
   const [ligneOuverte, setLigneOuverte] = useState<string | null>(null);
   const [sortConfig, setSortConfig] = useState<SortConfig<VenteSortKey>>({
@@ -280,6 +284,13 @@ export default function VentesTableau({
                         ? formatEuro(vente.marginAmount)
                         : "—"}
                     </span>
+                    {(feesBySale[vente.id] ?? []).some(f => f.kind === "expense") && (
+                      <div className="mt-1 text-[11px] text-neutral-400">
+                        {estimateSaleProfit(vente, feesBySale[vente.id]) == null
+                          ? "Frais suivis · coût d'achat à compléter"
+                          : `Après frais : ${formatEuro(estimateSaleProfit(vente, feesBySale[vente.id])!)}`}
+                      </div>
+                    )}
                   </td>
 
                   <td className="px-2 sm:px-4 py-3.5">
