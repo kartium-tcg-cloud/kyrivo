@@ -28,6 +28,7 @@ import AchatsTableau from "@/components/achats/AchatsTableau";
 import AchatFormModal from "@/components/achats/AchatFormModal";
 import VintedImportModal from "@/components/achats/VintedImportModal";
 import TransactionFeesModal from "@/components/fees/TransactionFeesModal";
+import { getTransactionFees } from "@/lib/feeQueries";
 
 function formatDateFr(value: string): string {
   const [year, month, day] = value.split("-");
@@ -412,7 +413,10 @@ export default function AchatsPage() {
 
     setExportingExcel(true);
     try {
-      await exportPurchasesToExcel(achatsFiltres);
+      const fees = enableTransactionFees && companyIdForFees
+        ? await getTransactionFees({ companyId: companyIdForFees, purchaseIds: achatsFiltres.map(a => a.id) })
+        : [];
+      await exportPurchasesToExcel(achatsFiltres, fees);
       setExportConfirmOpen(false);
     } catch (error) {
       console.error(error);
