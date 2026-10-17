@@ -28,6 +28,8 @@ export async function createPurchase(payload: {
   vat_amount: number;
   amount_ttc: number;
   comment?: string;
+  source?: "manual" | "vinted_import";
+  source_details?: Record<string, unknown> | null;
 }) {
   const {
     data: { user },
