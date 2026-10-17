@@ -344,7 +344,7 @@ function FeatureSystemSection() {
       <section className="mb-24">
         <SectionHeader label="Ce que Kyrivo fait" title="Un seul outil, du premier achat à l'export comptable" />
 
-        <div className="relative mt-10 rounded-2xl border border-neutral-800 bg-neutral-900/30 overflow-hidden">
+        <div className="ky-panel relative mt-10 rounded-2xl border border-neutral-800 bg-neutral-900/30 overflow-hidden">
           <div className="h-px w-full bg-gradient-to-r from-transparent via-amber-500/30 to-transparent" />
 
           <div className="p-6 sm:p-8 lg:p-10 grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-8 lg:gap-10 items-start">
@@ -500,7 +500,7 @@ function PricingCTA({ user }: { user: boolean }) {
     <Reveal delay={0} direction="scale">
       <section className="mb-24">
         <div
-          className="relative rounded-2xl overflow-hidden border px-6 py-12 lg:px-16 lg:py-16 text-center"
+          className="ky-marketing-cta relative rounded-2xl overflow-hidden border px-6 py-12 lg:px-16 lg:py-16 text-center"
           style={{
             borderColor: "rgba(245,158,11,0.22)",
             background: "linear-gradient(160deg, rgba(245,158,11,0.07) 0%, #0d0d0e 55%, rgba(245,158,11,0.04) 100%)",
@@ -569,7 +569,7 @@ function FAQSection() {
           {FAQ_ITEMS.map((item) => (
             <details
               key={item.question}
-              className="group rounded-xl border border-neutral-800 bg-neutral-900/30 px-5 py-4 open:border-amber-500/25 open:bg-neutral-900/50 hover:border-neutral-700 transition-colors duration-200"
+              className="ky-panel-interactive group rounded-xl border border-neutral-800 bg-neutral-900/30 px-5 py-4 open:border-amber-500/25 open:bg-neutral-900/50 hover:border-neutral-700 transition-colors duration-200"
             >
               <summary className="flex items-center justify-between gap-4 cursor-pointer list-none marker:content-none [&::-webkit-details-marker]:hidden">
                 <h3 className="text-sm font-semibold text-white">{item.question}</h3>
