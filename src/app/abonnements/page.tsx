@@ -267,6 +267,7 @@ async function checkAuth() {
     console.error(error);
     setIsAuthenticated(false);
     setCurrentPlan(null);
+    setCheckoutSubscription(null);
     setHasStripeCustomer(false);
     setCanCancel(false);
   }
