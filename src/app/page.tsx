@@ -104,7 +104,7 @@ export default async function HomePage() {
   ];
 
   return (
-    <div className={`relative overflow-hidden ${spaceGrotesk.variable}`}>
+    <div className={`ky-marketing relative overflow-hidden ${spaceGrotesk.variable}`}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
@@ -141,7 +141,7 @@ export default async function HomePage() {
 
 function HeroSection({ user }: { user: boolean }) {
   return (
-    <section className="relative pt-2 sm:pt-6 pb-16 sm:pb-24">
+    <section className="ky-hero relative pt-2 sm:pt-6 pb-16 sm:pb-24">
       <GridFade className="h-[560px]" />
 
       <div className="flex flex-col lg:flex-row lg:items-center lg:gap-16 lg:justify-between">
