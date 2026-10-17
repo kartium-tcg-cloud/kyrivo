@@ -99,6 +99,9 @@ export default function VintedFiscalReviewModal({ achat, onFermer, onSaved }: Pr
       const { data: updated, error: updateError } = await supabase
         .from("purchase_items")
         .update({
+          // Conserver le coût réellement supporté tel qu'il était enregistré
+          // historiquement (article + frais), sans réécrire unit_cost.
+          economic_unit_cost: item.economicUnitCost ?? item.coutTTC ?? item.coutHT,
           fiscal_unit_cost: money / 100,
           fiscal_cost_review_required: false,
           fiscal_cost_reviewed_at: new Date().toISOString(),
