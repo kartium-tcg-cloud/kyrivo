@@ -5,6 +5,7 @@ import { Achat, AchatFiltres, AchatItemInput } from "@/types/achat";
 import { ItemStatus, isItemStatus } from "@/types/item";
 import { createClient } from "@/lib/supabase/client";
 import { exportPurchasesToExcel } from "@/lib/exportPurchases";
+import { getCompanyPreferences } from "@/lib/preferences";
 import VintedFiscalReviewModal from "@/components/achats/VintedFiscalReviewModal";
 import { validateVintedCosts } from "@/lib/vintedCosts";
 import { canCreateLines } from "@/lib/subscriptions";
@@ -25,6 +26,8 @@ import AchatsHeader from "@/components/achats/AchatsHeader";
 import AchatsFiltres from "@/components/achats/AchatsFiltres";
 import AchatsTableau from "@/components/achats/AchatsTableau";
 import AchatFormModal from "@/components/achats/AchatFormModal";
+import TransactionFeesModal from "@/components/fees/TransactionFeesModal";
+import { getTransactionFees } from "@/lib/feeQueries";
 
 function formatDateFr(value: string): string {
   const [year, month, day] = value.split("-");
@@ -268,6 +271,9 @@ export default function AchatsPage() {
   const [modalOuverte, setModalOuverte] = useState(false);
   const [achatEnEdition, setAchatEnEdition] = useState<Achat | null>(null);
   const [achatFiscalReview, setAchatFiscalReview] = useState<Achat | null>(null);
+  const [enableTransactionFees, setEnableTransactionFees] = useState(false);
+  const [companyIdForFees, setCompanyIdForFees] = useState("");
+  const [purchaseForFees, setPurchaseForFees] = useState<Achat | null>(null);
   const [supplierContacts, setSupplierContacts] = useState<Array<{ id: string; name: string }>>([]);
   const [existingCategories, setExistingCategories] = useState<string[]>([]);
   const [exportConfirmOpen, setExportConfirmOpen] = useState(false);
@@ -322,6 +328,9 @@ export default function AchatsPage() {
       )
     );
 
+    const prefs = await getCompanyPreferences(companyId);
+    setEnableTransactionFees(prefs.enableTransactionFees);
+    setCompanyIdForFees(companyId);
     const purchases = await getPurchases(companyId);
     const purchaseIds = purchases.map((p: any) => p.id);
     const purchaseItems = await getPurchaseItems(purchaseIds);
@@ -400,7 +409,10 @@ export default function AchatsPage() {
 
     setExportingExcel(true);
     try {
-      await exportPurchasesToExcel(achatsFiltres);
+      const fees = companyIdForFees
+        ? await getTransactionFees({ companyId: companyIdForFees, purchaseIds: achatsFiltres.map(a => a.id) })
+        : [];
+      await exportPurchasesToExcel(achatsFiltres, fees);
       setExportConfirmOpen(false);
     } catch (error) {
       console.error(error);
@@ -547,6 +559,9 @@ if (usageError) {
 
       await refreshPurchases(companyId);
       fermerModal();
+      if (nouvelAchat.openFeesAfterSave && enableTransactionFees) {
+        setPurchaseForFees({ id: created.id } as Achat);
+      }
     } catch (error: any) {
       console.error(error);
       if (error?.isStockItemError) {
@@ -787,8 +802,18 @@ const modifierAchat = async (achatModifie: Achat) => {
             achats={achatsFiltres}
             onModifier={ouvrirEdition}
             onSupprimer={supprimerAchat}
+            onManageFees={enableTransactionFees ? setPurchaseForFees : undefined}
           />
         </>
+      )}
+
+      {enableTransactionFees && companyIdForFees && purchaseForFees && (
+        <TransactionFeesModal
+          ouvert={true}
+          companyId={companyIdForFees}
+          purchaseId={purchaseForFees.id}
+          onFermer={() => setPurchaseForFees(null)}
+        />
       )}
 
       <AchatFormModal
@@ -799,6 +824,7 @@ const modifierAchat = async (achatModifie: Achat) => {
         achatInitial={achatEnEdition}
         supplierContacts={supplierContacts}
         existingCategories={existingCategories}
+        enableFees={enableTransactionFees}
       />
 
       <VintedFiscalReviewModal
