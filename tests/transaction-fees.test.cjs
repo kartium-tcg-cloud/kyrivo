@@ -45,12 +45,13 @@ test("frais refacturé au client : revenu, pas dépense", () => {
   const totals = summarizeTransactionFees([
     expense({ amountHT: 5, vatAmount: 0, amountTTC: 5, vatRate: 0, recoverableVatAmount: 0 }),
     expense({ purchaseId: null, saleId: "sale-1", kind: "customer_charge",
-      amountHT: 5, vatAmount: 0, amountTTC: 5, vatRate: 0, recoverableVatAmount: 0 }),
+      amountHT: 5, vatAmount: 0, amountTTC: 5, vatRate: 0, recoverableVatAmount: 0,
+      includedInParentTotal: true }),
   ]);
   assert.equal(totals.expenseTTC, 5);
   assert.equal(totals.customerChargeTTC, 5);
   assert.equal(totals.externalExpenseTTC, 5);
-  assert.equal(totals.externalCustomerChargeTTC, 5);
+  assert.equal(totals.externalCustomerChargeTTC, 0);
 });
 
 test("la TVA déductible ne dépasse jamais la TVA constatée", () => {
