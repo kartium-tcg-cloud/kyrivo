@@ -34,7 +34,7 @@ export default function CookieConsent() {
   if (!visible) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-[100] border-t border-neutral-800 bg-neutral-950/98 backdrop-blur-sm px-6 py-4 lg:pl-[calc(16rem+1.5rem)]">
+    <div className="fixed bottom-0 left-0 right-0 z-[100] border-t border-neutral-800 bg-neutral-950/98 backdrop-blur-sm px-4 py-4 pb-[calc(1rem+env(safe-area-inset-bottom))] sm:px-6 lg:pl-[calc(16rem+1.5rem)]">
       <div className="mx-auto max-w-5xl flex flex-col sm:flex-row items-start sm:items-center gap-4">
         <p className="flex-1 text-sm text-neutral-400 leading-relaxed">
           Kyrivo utilise des cookies publicitaires (
@@ -47,18 +47,18 @@ export default function CookieConsent() {
             En savoir plus
           </Link>
         </p>
-        <div className="flex gap-3 flex-shrink-0">
+        <div className="flex w-full flex-shrink-0 gap-3 sm:w-auto">
           <button
             type="button"
             onClick={refuse}
-            className="rounded-lg border border-neutral-700 bg-neutral-900 px-4 py-2.5 text-sm font-semibold text-neutral-300 hover:bg-neutral-800 transition-colors"
+            className="flex-1 rounded-lg border border-neutral-700 bg-neutral-900 px-4 py-2.5 sm:flex-none text-sm font-semibold text-neutral-300 hover:bg-neutral-800 transition-colors"
           >
             Refuser
           </button>
           <button
             type="button"
             onClick={accept}
-            className="rounded-lg bg-amber-500 px-4 py-2.5 text-sm font-semibold text-neutral-950 hover:bg-amber-400 transition-colors shadow-lg shadow-amber-500/20"
+            className="flex-1 rounded-lg bg-amber-500 px-4 py-2.5 sm:flex-none text-sm font-semibold text-neutral-950 hover:bg-amber-400 transition-colors shadow-lg shadow-amber-500/20"
           >
             Accepter
           </button>

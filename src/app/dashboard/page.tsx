@@ -306,7 +306,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* ── STATS ───────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 xl:gap-4">
+      <div className="grid grid-cols-1 min-[390px]:grid-cols-2 lg:grid-cols-4 gap-3 xl:gap-4">
 
         <StatTile
           label="Achats ce mois"
@@ -379,7 +379,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* ── Stock immobilisé ────────────────────────────────── */}
-      <div className="card-amber-glow surface relative overflow-hidden rounded-2xl border border-amber-500/15 bg-gradient-to-br from-amber-500/[0.06] via-neutral-900/40 to-neutral-900/40 p-5 flex items-center justify-between gap-4 transition-colors hover:border-amber-500/25">
+      <div className="card-amber-glow surface relative overflow-hidden rounded-2xl border border-amber-500/15 bg-gradient-to-br from-amber-500/[0.06] via-neutral-900/40 to-neutral-900/40 p-5 flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4 transition-colors hover:border-amber-500/25">
         <div
           aria-hidden
           className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-amber-500/10 blur-3xl"
@@ -397,7 +397,7 @@ export default async function DashboardPage() {
             </p>
           </div>
         </div>
-        <p className="font-display relative text-2xl sm:text-3xl font-bold tabular-nums text-amber-400 flex-shrink-0">
+        <p className="font-display relative max-w-full break-words text-2xl sm:text-3xl font-bold tabular-nums text-amber-400">
           {formatEuro(stockImmobilise)}
         </p>
       </div>

@@ -337,7 +337,7 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
       {/* ── Squelette chargement (premier chargement uniquement) ── */}
       {loading && !stats && (
         <>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 min-[390px]:grid-cols-2 lg:grid-cols-4 gap-3">
             {[...Array(4)].map((_, i) => (
               <div
                 key={i}
@@ -360,7 +360,7 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
              pendant un rafraîchissement plutôt qu'un flash de squelette ── */}
       {stats && (
         <div className={`space-y-5 transition-opacity duration-200 ${loading ? "opacity-50" : "opacity-100"}`}>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 min-[390px]:grid-cols-2 lg:grid-cols-4 gap-3">
 
             {/* Argent dépensé */}
             <div className="surface rounded-xl border border-neutral-800 bg-neutral-900/40 p-4 flex flex-col gap-3 transition-colors hover:border-neutral-700">
@@ -417,7 +417,7 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
               <p className={`font-display text-2xl font-bold tabular-nums leading-none ${stats.soldeTva >= 0 ? "text-cyan-400" : "text-violet-400"}`}>
                 {fmt(Math.abs(stats.soldeTva))}
               </p>
-              <div className="flex items-center justify-between gap-2 border-t border-neutral-800/60 pt-2 text-[10px] text-neutral-400">
+              <div className="flex flex-col items-start gap-1 border-t border-neutral-800/60 pt-2 text-[10px] text-neutral-400 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
                 <span>Collectée <span className="text-neutral-200 tabular-nums">{fmt(stats.tvaCollectee)}</span></span>
                 <span>Déductible <span className="text-neutral-200 tabular-nums">{fmt(stats.tvaDeductible)}</span></span>
               </div>

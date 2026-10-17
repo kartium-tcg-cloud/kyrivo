@@ -302,11 +302,11 @@ export default function VintedImportModal({
       }
       footer={
         step === "paste" ? (
-          <div className="flex items-center justify-end gap-3">
+          <div className="flex w-full items-center gap-2 sm:justify-end sm:gap-3">
             <button
               type="button"
               onClick={handleFermer}
-              className="rounded-lg px-4 py-2 text-sm font-medium text-neutral-400 hover:bg-neutral-800/60 hover:text-neutral-200 transition-colors"
+              className="flex-1 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-400 sm:flex-none sm:px-4 hover:bg-neutral-800/60 hover:text-neutral-200 transition-colors"
             >
               Annuler
             </button>
@@ -314,32 +314,32 @@ export default function VintedImportModal({
               type="button"
               onClick={handleAnalyser}
               disabled={!rawText.trim()}
-              className="rounded-lg px-5 py-2 text-sm font-semibold bg-amber-500 text-neutral-950 hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.97] transition-all shadow-lg shadow-amber-500/10"
+              className="flex-1 rounded-lg px-3 py-2.5 text-sm font-semibold bg-amber-500 sm:flex-none sm:px-5 text-neutral-950 hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.97] transition-all shadow-lg shadow-amber-500/10"
             >
               Analyser
             </button>
           </div>
         ) : (
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
             <button
               type="button"
               onClick={() => setStep("paste")}
-              className="rounded-lg px-4 py-2 text-sm font-medium text-neutral-400 hover:bg-neutral-800/60 hover:text-neutral-200 transition-colors"
+              className="flex-1 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-400 sm:flex-none sm:px-4 hover:bg-neutral-800/60 hover:text-neutral-200 transition-colors"
             >
               ← Retour
             </button>
-            <div className="flex items-center gap-3">
+            <div className="flex w-full items-center gap-2 sm:w-auto sm:gap-3">
               <button
                 type="button"
                 onClick={handleFermer}
-                className="rounded-lg px-4 py-2 text-sm font-medium text-neutral-400 hover:bg-neutral-800/60 hover:text-neutral-200 transition-colors"
+                className="flex-1 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-400 sm:flex-none sm:px-4 hover:bg-neutral-800/60 hover:text-neutral-200 transition-colors"
               >
                 Annuler
               </button>
               <button
                 type="button"
                 onClick={handleCreer}
-                className="rounded-lg px-5 py-2 text-sm font-semibold bg-amber-500 text-neutral-950 hover:bg-amber-400 active:scale-[0.97] transition-all shadow-lg shadow-amber-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
+                className="flex-1 rounded-lg px-3 py-2.5 text-sm font-semibold bg-amber-500 sm:flex-none sm:px-5 text-neutral-950 hover:bg-amber-400 active:scale-[0.97] transition-all shadow-lg shadow-amber-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
               >
                 Créer l'achat
               </button>

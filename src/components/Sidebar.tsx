@@ -242,7 +242,7 @@ return (
 className={`
   fixed top-8 left-0 z-50
   flex flex-col
-  h-[calc(100vh-2rem)]
+  h-[calc(100dvh-2rem)]
   w-[82vw] max-w-72 lg:w-64 lg:max-w-none
   bg-neutral-950
   border-r border-neutral-800/60

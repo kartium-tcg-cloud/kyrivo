@@ -116,7 +116,8 @@ export default function VentesTableau({
   return (
     <div className="rounded-xl border border-neutral-800/60 bg-neutral-900/40 shadow-sm shadow-black/20 overflow-hidden">
       <div className="relative">
-        <div className="overflow-x-auto">
+        <p className="border-b border-neutral-800/60 px-3 py-2 text-xs text-neutral-400 sm:hidden">Glissez horizontalement pour voir toutes les colonnes du tableau.</p>
+        <div role="region" aria-label="Tableau des ventes, défilement horizontal" className="overflow-x-auto overscroll-x-contain">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-neutral-800 bg-neutral-950/40">

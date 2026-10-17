@@ -79,7 +79,7 @@ export default async function ItemDetailPage({ params }: PageProps) {
   });
 
   return (
-    <div className="p-6 lg:p-8 max-w-4xl">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-4xl">
       <nav className="flex items-center gap-2 text-xs text-neutral-500 mb-6">
         <Link href="/achats" className="hover:text-amber-400 transition-colors">
           Achats

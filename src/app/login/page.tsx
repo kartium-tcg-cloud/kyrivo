@@ -54,7 +54,7 @@ function LoginForm() {
     <div className="overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900/70 shadow-2xl shadow-black/30 backdrop-blur">
       <div className="h-px bg-gradient-to-r from-transparent via-amber-500/50 to-transparent" />
 
-      <div className="p-8">
+      <div className="p-5 sm:p-8">
         <div className="mb-7">
           <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1">
             <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
@@ -152,7 +152,7 @@ export default function LoginPage() {
           fallback={
             <div className="overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900/70 shadow-2xl shadow-black/30">
               <div className="h-px bg-gradient-to-r from-transparent via-amber-500/50 to-transparent" />
-              <div className="p-8 space-y-4 animate-pulse">
+              <div className="p-5 sm:p-8 space-y-4 animate-pulse">
                 <div className="h-6 w-40 bg-neutral-800 rounded" />
                 <div className="h-12 bg-neutral-800 rounded-xl" />
                 <div className="h-12 bg-neutral-800 rounded-xl" />

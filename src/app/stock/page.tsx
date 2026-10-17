@@ -315,7 +315,7 @@ export default function StockPage() {
   // ── Loading ─────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="p-6 lg:p-8 max-w-[1440px]">
+      <div className="p-4 sm:p-6 lg:p-8 max-w-[1440px]">
         <div className="animate-pulse space-y-6">
           <div className="h-8 w-40 rounded bg-neutral-800" />
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -332,7 +332,7 @@ export default function StockPage() {
 
   if (error) {
     return (
-      <div className="p-6 lg:p-8 max-w-[1440px]">
+      <div className="p-4 sm:p-6 lg:p-8 max-w-[1440px]">
         <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-6">
           <p className="text-sm text-red-400">{error}</p>
         </div>
@@ -343,7 +343,7 @@ export default function StockPage() {
   // ── Empty (aucun article du tout) ────────────────────────
   if (items.length === 0) {
     return (
-      <div className="p-6 lg:p-8 max-w-[1440px] flex flex-col gap-6">
+      <div className="p-4 sm:p-6 lg:p-8 max-w-[1440px] flex flex-col gap-6">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-white">
             Stock
@@ -381,7 +381,7 @@ export default function StockPage() {
   // ── Page principale ──────────────────────────────────────
   return (
     <>
-      <div className="p-6 lg:p-8 max-w-[1440px] flex flex-col gap-6">
+      <div className="p-4 sm:p-6 lg:p-8 max-w-[1440px] flex flex-col gap-6">
         {/* Header */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -541,7 +541,60 @@ export default function StockPage() {
         {/* Tableau */}
         {filteredItems.length > 0 && (
           <div className="overflow-hidden rounded-xl border border-neutral-800/60 bg-neutral-800/20">
-            <div className="overflow-x-auto">
+            <div className="divide-y divide-neutral-800/60 md:hidden">
+              {sortedItems.map((item) => {
+                const stockQty = Number(item.stock_quantity ?? 0);
+                const unitCostTTC = Number(item.quantity) > 0
+                  ? Math.round((Number(item.total_cost) / Number(item.quantity)) * 100) / 100
+                  : Number(item.unit_cost ?? 0);
+                return (
+                  <div key={item.id} className="space-y-3 p-4">
+                    <div className="min-w-0">
+                      <Link
+                        href={`/items/${item.id}`}
+                        className="break-all font-mono text-xs text-amber-400 underline decoration-amber-400/30 underline-offset-2"
+                      >
+                        {item.item_reference}
+                      </Link>
+                      <p className="mt-1 break-words text-sm font-semibold text-neutral-100">{item.item_name}</p>
+                      {item.category && <p className="mt-1 break-words text-xs text-neutral-500">{item.category}</p>}
+                    </div>
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <StockAvailabilityBadge qty={stockQty} />
+                      <span className="text-sm font-semibold text-emerald-400">Stock : {stockQty}</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 text-xs">
+                      <div>
+                        <p className="text-neutral-500">Coût unitaire TTC</p>
+                        <p className="mt-1 break-words font-medium text-neutral-200">{formatEuro(unitCostTTC)}</p>
+                      </div>
+                      <div>
+                        <p className="text-neutral-500">Valeur en stock TTC</p>
+                        <p className="mt-1 break-words font-semibold text-white">{formatEuro(stockQty * unitCostTTC)}</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-2 border-t border-neutral-800/60 pt-3">
+                      <button
+                        type="button"
+                        disabled={stockQty <= 0}
+                        onClick={() => router.push(`/ventes?itemId=${item.id}`)}
+                        className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-lg border border-neutral-700 px-3 text-xs font-semibold text-neutral-200 disabled:opacity-40"
+                      >
+                        <SellIcon className="h-4 w-4" /> Vendre
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEditingItem(item)}
+                        className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-lg border border-neutral-700 px-3 text-xs font-semibold text-neutral-200"
+                      >
+                        <PencilIcon className="h-4 w-4" /> Modifier
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="hidden overflow-x-auto md:block">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-neutral-700/50">
@@ -831,17 +884,17 @@ function StockEditModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 p-0 backdrop-blur-sm sm:items-center sm:p-4">
       <div
         className="
-          w-full max-w-md rounded-2xl border border-neutral-800
-          bg-neutral-950 shadow-2xl shadow-black/50 overflow-hidden
+          flex max-h-[100dvh] w-full max-w-md flex-col rounded-t-2xl border border-neutral-800
+          bg-neutral-950 shadow-2xl shadow-black/50 overflow-hidden sm:max-h-[90vh] sm:rounded-2xl
         "
       >
         <div className="h-0.5 w-full bg-gradient-to-r from-amber-500 via-amber-400 to-transparent" />
 
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-neutral-800 px-6 py-4">
+        <div className="flex shrink-0 items-center justify-between border-b border-neutral-800 px-4 py-3 sm:px-6 sm:py-4">
           <div className="flex items-center gap-3">
             <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-amber-500/25 bg-amber-500/10 text-amber-400">
               <PencilIcon className="h-4 w-4" />
@@ -865,7 +918,7 @@ function StockEditModal({
           </button>
         </div>
 
-        <div className="p-6 space-y-5">
+        <div className="min-h-0 space-y-5 overflow-y-auto p-4 sm:p-6">
           {/* Infos article */}
           <div className="rounded-lg border border-neutral-800 bg-neutral-900/40 px-4 py-3 space-y-2 text-sm">
             <div className="flex items-center justify-between gap-4">
@@ -932,13 +985,13 @@ function StockEditModal({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-3 border-t border-neutral-800 bg-neutral-950 px-6 py-4">
+        <div className="flex shrink-0 items-center gap-2 border-t border-neutral-800 bg-neutral-950 px-3 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sm:justify-end sm:px-6 sm:py-4">
           <button
             type="button"
             onClick={onClose}
             disabled={saving}
             className="
-              rounded-lg px-4 py-2 text-sm font-medium text-neutral-400
+              flex-1 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-400 sm:flex-none sm:px-4
               transition-colors hover:bg-neutral-800/60 hover:text-neutral-200
               disabled:opacity-50
             "
@@ -1003,12 +1056,12 @@ function QrPrintModal({
   const allSelected = selectedIds.size === items.length && items.length > 0;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-lg rounded-2xl border border-neutral-800 bg-neutral-950 shadow-2xl shadow-black/50 overflow-hidden flex flex-col max-h-[85vh]">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 p-0 backdrop-blur-sm sm:items-center sm:p-4">
+      <div className="flex max-h-[100dvh] w-full max-w-lg flex-col overflow-hidden rounded-t-2xl border border-neutral-800 bg-neutral-950 shadow-2xl shadow-black/50 sm:max-h-[85vh] sm:rounded-2xl">
         <div className="h-0.5 w-full bg-gradient-to-r from-amber-500 via-amber-400 to-transparent" />
 
         {/* Header */}
-        <div className="flex items-start gap-3 border-b border-neutral-800 px-6 py-4">
+        <div className="flex shrink-0 items-start gap-3 border-b border-neutral-800 px-4 py-3 sm:px-6 sm:py-4">
           <span className="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-amber-500/25 bg-amber-500/10 text-amber-400">
             <QrIcon className="h-4 w-4" />
           </span>
@@ -1023,7 +1076,7 @@ function QrPrintModal({
         </div>
 
         {/* Compteur + sélection */}
-        <div className="flex items-center justify-between gap-3 border-b border-neutral-800 px-6 py-3">
+        <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-neutral-800 px-4 py-3 sm:px-6">
           <span className="text-xs font-semibold text-neutral-300">
             {selectedIds.size} article{selectedIds.size !== 1 ? "s" : ""} sélectionné
             {selectedIds.size !== 1 ? "s" : ""}
@@ -1039,7 +1092,7 @@ function QrPrintModal({
         </div>
 
         {/* Liste des articles */}
-        <div className="flex-1 overflow-y-auto px-6 py-3 space-y-1.5">
+        <div className="min-h-0 flex-1 overflow-y-auto px-3 py-3 space-y-1.5 sm:px-6">
           {items.map((item) => {
             const checked = selectedIds.has(item.id);
             return (
@@ -1076,13 +1129,13 @@ function QrPrintModal({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-3 border-t border-neutral-800 bg-neutral-950 px-6 py-4">
+        <div className="flex shrink-0 items-center gap-2 border-t border-neutral-800 bg-neutral-950 px-3 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sm:justify-end sm:px-6 sm:py-4">
           <button
             type="button"
             onClick={onCancel}
             disabled={generating}
             className="
-              rounded-lg px-4 py-2 text-sm font-medium text-neutral-400
+              flex-1 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-400 sm:flex-none sm:px-4
               transition-colors hover:bg-neutral-800/60 hover:text-neutral-200
               disabled:opacity-50
             "
