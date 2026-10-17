@@ -100,6 +100,8 @@ export async function createPurchaseItems(
     stock_quantity: number;
     unit_cost: number;
     total_cost: number;
+    fiscal_unit_cost?: number | null;
+    fiscal_cost_review_required?: boolean;
     vat_type?: string;
     vat_rate: number;
     margin_eligible: boolean;
