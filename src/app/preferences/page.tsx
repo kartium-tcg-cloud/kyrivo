@@ -273,7 +273,7 @@ function addPaymentMethod() {
   return (
     <div className="pb-32"> {/* padding bottom pour ne pas être caché par la barre sticky */}
 
-      <div className="p-4 sm:p-6 lg:p-8 max-w-4xl space-y-8">
+      <div className="p-4 sm:p-6 lg:p-8 pb-36 sm:pb-28 max-w-4xl space-y-8">
 
         {/* ═══ HERO ═══════════════════════════════════════ */}
         <div className="flex flex-col gap-2 pb-6 border-b border-neutral-800">
@@ -593,22 +593,22 @@ function addPaymentMethod() {
             transition-all duration-200
           "
         >
-          <div className="max-w-4xl px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
+          <div className="max-w-4xl px-4 sm:px-6 lg:px-8 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
 
             {/* Status indicator */}
-            <div className="flex items-center gap-2.5">
+            <div className="flex min-w-0 items-center gap-2.5">
               <StatusIcon status={saveStatus} />
               <StatusLabel status={saveStatus} errorMessage={errorMessage} />
             </div>
 
             {/* Actions */}
-            <div className="flex items-center gap-2">
+            <div className="flex w-full items-center gap-2 sm:w-auto">
 
               {(saveStatus === "dirty" || saveStatus === "error") && (
                 <button
                   onClick={handleReset}
                   className="
-                    rounded-lg px-3 py-1.5
+                    flex-1 rounded-lg px-3 py-2.5 text-center sm:flex-none sm:py-1.5
                     text-sm font-medium
                     text-neutral-400
                     hover:bg-neutral-800/60 hover:text-neutral-200
@@ -623,8 +623,8 @@ function addPaymentMethod() {
                 onClick={handleSave}
                 disabled={saveStatus === "saving" || saveStatus === "saved"}
                 className={`
-                  inline-flex items-center gap-2
-                  rounded-lg px-4 py-1.5
+                  inline-flex flex-1 items-center justify-center gap-2 sm:flex-none
+                  rounded-lg px-4 py-2.5 sm:py-1.5
                   text-sm font-semibold
                   transition-all duration-200
                   ${
