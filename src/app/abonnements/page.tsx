@@ -373,9 +373,9 @@ const handlePortal = async () => {
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9.303 3.376c.866 1.5-.217 3.374-1.948 3.374H2.645c-1.73 0-2.813-1.874-1.948-3.374L10.051 3.378c.866-1.5 3.032-1.5 3.898 0L21.303 16.126ZM12 15.75h.007v.008H12v-.008Z" />
           </svg>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-amber-300">Abonnement annulé</p>
+            <p className="text-sm font-semibold text-amber-300">{cancellationScheduled && !isCanceled ? "Résiliation programmée" : "Abonnement annulé"}</p>
             <p className="text-xs text-neutral-400 mt-0.5 leading-relaxed">
-              Votre abonnement a été annulé, mais votre accès reste actif jusqu'au{" "}
+              Le renouvellement automatique est désactivé. Votre accès Kyrivo reste actif jusqu'au{" "}
               <strong className="text-neutral-200">
                 {new Date((canceledEndsAt || subscriptionEndsAt)!).toLocaleDateString("fr-BE", {
                   day: "2-digit",
@@ -650,7 +650,7 @@ onCheckout={handleCheckout}
               </button>
             )}
             {cancellationScheduled && (
-              <p className="text-center text-xs text-amber-400">Renouvellement désactivé</p>
+              <p className="text-center text-xs text-amber-400">Renouvellement automatique désactivé</p>
             )}
           </section>
         )}
