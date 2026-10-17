@@ -15,10 +15,17 @@ export async function getTransactionFees(params: {
   const output: TransactionFeeDraft[] = [];
   // Stay under PostgREST URL and filter-size limits.
   for (let i = 0; i < ids.length; i += 100) {
-    const { data, error } = await supabase.from("transaction_fees")
-      .select("*").eq("company_id", companyId).in(column, ids.slice(i, i + 100));
-    if (error) throw error;
-    for (const f of data ?? []) {
+    let offset = 0;
+    while (true) {
+      const { data, error } = await supabase.from("transaction_fees")
+        .select("*")
+        .eq("company_id", companyId)
+        .in(column, ids.slice(i, i + 100))
+        .order("created_at", { ascending: true })
+        .order("id", { ascending: true })
+        .range(offset, offset + 999);
+      if (error) throw error;
+      for (const f of data ?? []) {
       output.push({
         id: f.id,
         companyId: f.company_id,
@@ -36,6 +43,9 @@ export async function getTransactionFees(params: {
         vatTreatment: f.vat_treatment,
         notes: f.notes ?? "",
       });
+      }
+      if (!data || data.length < 1000) break;
+      offset += data.length;
     }
   }
   return output;
