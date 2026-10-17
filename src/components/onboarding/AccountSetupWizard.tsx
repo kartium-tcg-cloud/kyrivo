@@ -262,14 +262,6 @@ export default function AccountSetupWizard({
                   <h3 className="text-base font-semibold text-white">Quels modes de paiement utilisez-vous ?</h3>
                   <PaymentMethodsPicker value={preferences.defaultPaymentMethods}
                     onChange={(methods) => update("defaultPaymentMethods", methods)} />
-                  <label className="mt-5 flex items-start gap-3 rounded-xl border border-neutral-700 bg-neutral-900/50 p-3">
-                    <input type="checkbox" checked={preferences.enableTransactionFees}
-                      onChange={(e) => update("enableTransactionFees", e.target.checked)}
-                      className="mt-1 h-4 w-4 accent-amber-500" />
-                    <span className="text-sm text-neutral-200"><strong>Suivre les frais des achats et ventes</strong>
-                      <span className="mt-1 block text-xs text-neutral-400">Option facultative pour mieux suivre la rentabilité.</span>
-                    </span>
-                  </label>
                 </>
               )}
               {error && <p role="alert" className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2.5 text-sm text-red-300">{error}</p>}
