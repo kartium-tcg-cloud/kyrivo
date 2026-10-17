@@ -18,6 +18,8 @@ export interface CompanyPreferences {
   defaultVatRate: number;
   /** Enable specialized Vinted purchase import and fiscal-cost verification tools. */
   enableVinted: boolean;
+  /** Enregistre des frais supplémentaires séparément des montants des ventes/achats. */
+  enableTransactionFees: boolean;
 }
 
 export const DEFAULT_COMPANY_PREFERENCES: Omit<
@@ -38,6 +40,7 @@ export const DEFAULT_COMPANY_PREFERENCES: Omit<
 
   defaultVatRate: 0,
   enableVinted: false,
+  enableTransactionFees: false,
 
   defaultPaymentMethods: [
     "Virement",
