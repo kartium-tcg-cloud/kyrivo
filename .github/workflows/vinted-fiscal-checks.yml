@@ -13,6 +13,12 @@ on:
       - "src/types/achat.ts"
       - "src/types/sale.ts"
       - "tests/vinted-fiscal-cost.test.cjs"
+      - "tests/vinted-export-invoice.test.cjs"
+      - "src/lib/exportPurchases.ts"
+      - "src/lib/exportSales.ts"
+      - "src/lib/invoiceZip.ts"
+      - "src/components/onboarding/AccountSetupWizard.tsx"
+      - "src/app/preferences/page.tsx"
       - ".github/workflows/vinted-fiscal-checks.yml"
 
 jobs:
@@ -28,4 +34,5 @@ jobs:
       - run: npx next typegen
       - run: npx tsc --noEmit
       - run: node --test tests/vinted-fiscal-cost.test.cjs
+      - run: node --test tests/vinted-export-invoice.test.cjs
       - run: node --test tests/stripe-reactivation.test.cjs
