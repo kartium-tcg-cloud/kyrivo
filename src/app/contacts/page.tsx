@@ -303,7 +303,7 @@ export default function ContactsPage() {
 
   if (loading) {
     return (
-      <div className="p-4 sm:p-6 lg:p-8 max-w-[1440px]">
+      <div className="ky-page p-4 sm:p-6 lg:p-8 max-w-[1500px]">
         <div className="animate-pulse space-y-6">
           <div className="h-8 w-64 rounded bg-neutral-800" />
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -320,7 +320,7 @@ export default function ContactsPage() {
 
   if (errorMessage && !companyId) {
     return (
-      <div className="p-4 sm:p-6 lg:p-8 max-w-[1440px]">
+      <div className="ky-page p-4 sm:p-6 lg:p-8 max-w-[1500px]">
         <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-6">
           <p className="text-sm text-red-400">{errorMessage}</p>
         </div>
@@ -329,7 +329,7 @@ export default function ContactsPage() {
   }
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 max-w-[1440px] flex flex-col gap-6">
+    <div className="ky-page p-4 sm:p-6 lg:p-8 max-w-[1500px] flex flex-col gap-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-white">
@@ -367,7 +367,7 @@ export default function ContactsPage() {
         />
       </div>
 
-      <div className="rounded-xl border border-neutral-800/60 bg-neutral-800/20 p-4">
+      <div className="ky-toolbar rounded-xl border border-neutral-800/60 bg-neutral-800/20 p-4">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_240px]">
           <div className="relative">
             <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
@@ -575,7 +575,7 @@ function StatCard({
           };
 
   return (
-    <div className="flex items-center gap-4 rounded-xl border border-neutral-800 bg-neutral-900/40 p-4 transition-colors hover:border-neutral-700">
+    <div className="ky-kpi flex items-center gap-4 rounded-xl border border-neutral-800 bg-neutral-900/40 p-4 transition-colors hover:border-neutral-700">
       <span
         className={`inline-flex h-10 w-10 items-center justify-center rounded-lg border ${styles.icon}`}
       >
@@ -696,7 +696,7 @@ function ContactsTable({
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-neutral-800/60 bg-neutral-800/20">
+    <div className="ky-data-table overflow-hidden rounded-xl border border-neutral-800/60 bg-neutral-800/20">
       {/* Sur téléphone, les contacts doivent rester consultables sans défilement latéral. */}
       <div className="divide-y divide-neutral-800/60 md:hidden">
         {sortedContacts.map((contact) => (
@@ -808,7 +808,7 @@ function ContactsTable({
                 </td>
 
                 <td className="px-4 py-3.5">
-                  <div className="flex items-center justify-center gap-0.5 opacity-100 md:opacity-40 md:group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-200">
+                  <div className="ky-row-actions flex items-center justify-center gap-0.5 opacity-100 md:opacity-40 md:group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-200">
                     <button
                       type="button"
                       onClick={() => onEdit(contact)}

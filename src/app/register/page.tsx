@@ -121,7 +121,7 @@ export default function RegisterPage() {
           />
         </div>
 
-        <div className="overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900/70 shadow-2xl shadow-black/30 backdrop-blur">
+        <div className="ky-auth-card overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900/70 shadow-2xl shadow-black/30 backdrop-blur">
           <div className="h-px bg-gradient-to-r from-transparent via-amber-500/50 to-transparent" />
 
           <div className="p-5 sm:p-8">

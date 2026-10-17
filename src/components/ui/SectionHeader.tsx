@@ -11,8 +11,8 @@ interface SectionHeaderProps {
 export default function SectionHeader({ label, title, id }: SectionHeaderProps) {
   return (
     <div className="text-center max-w-2xl mx-auto">
-      <p className="text-[11px] font-semibold text-amber-400 uppercase tracking-widest mb-3">{label}</p>
-      <h2 id={id} className="text-2xl sm:text-3xl font-bold text-white tracking-tight">{title}</h2>
+      <p className="text-xs font-semibold text-amber-400 uppercase tracking-widest mb-3">{label}</p>
+      <h2 id={id} className="text-2xl sm:text-[2rem] font-bold text-white tracking-[-0.035em] leading-tight">{title}</h2>
     </div>
   );
 }

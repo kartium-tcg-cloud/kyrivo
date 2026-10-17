@@ -766,7 +766,7 @@ const modifierAchat = async (achatModifie: Achat) => {
   };
 
   return (
-    <div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8 max-w-[1440px]">
+    <div className="ky-page flex flex-col gap-6 p-4 sm:p-6 lg:p-8 max-w-[1500px]">
       <AchatsHeader
         totalAchats={achatsFiltres.length}
         totalMontant={totalMontant}

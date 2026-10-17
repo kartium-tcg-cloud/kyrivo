@@ -18,7 +18,7 @@ export default function VentesFiltres({
   };
 
   const inputBase = `
-    w-full rounded-lg px-3 py-1.5 text-sm
+    w-full rounded-lg px-3 py-2.5 text-sm
     bg-neutral-900/60 text-neutral-200
     border border-neutral-800
     placeholder:text-neutral-500
@@ -27,7 +27,7 @@ export default function VentesFiltres({
   `;
 
   return (
-    <div className="rounded-xl border border-neutral-800/60 bg-neutral-900/40 shadow-sm shadow-black/20 p-3">
+    <div className="ky-toolbar rounded-xl border border-neutral-800/60 bg-neutral-900/40 shadow-sm shadow-black/20 p-3">
       <div className="flex flex-col gap-2 lg:flex-row lg:flex-wrap lg:items-center">
         <div className="relative flex-1 lg:min-w-[180px]">
           <svg

@@ -315,7 +315,7 @@ export default function StockPage() {
   // ── Loading ─────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="p-4 sm:p-6 lg:p-8 max-w-[1440px]">
+      <div className="ky-page p-4 sm:p-6 lg:p-8 max-w-[1500px]">
         <div className="animate-pulse space-y-6">
           <div className="h-8 w-40 rounded bg-neutral-800" />
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -332,7 +332,7 @@ export default function StockPage() {
 
   if (error) {
     return (
-      <div className="p-4 sm:p-6 lg:p-8 max-w-[1440px]">
+      <div className="ky-page p-4 sm:p-6 lg:p-8 max-w-[1500px]">
         <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-6">
           <p className="text-sm text-red-400">{error}</p>
         </div>
@@ -343,7 +343,7 @@ export default function StockPage() {
   // ── Empty (aucun article du tout) ────────────────────────
   if (items.length === 0) {
     return (
-      <div className="p-4 sm:p-6 lg:p-8 max-w-[1440px] flex flex-col gap-6">
+      <div className="ky-page p-4 sm:p-6 lg:p-8 max-w-[1500px] flex flex-col gap-6">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-white">
             Stock
@@ -381,7 +381,7 @@ export default function StockPage() {
   // ── Page principale ──────────────────────────────────────
   return (
     <>
-      <div className="p-4 sm:p-6 lg:p-8 max-w-[1440px] flex flex-col gap-6">
+      <div className="ky-page p-4 sm:p-6 lg:p-8 max-w-[1500px] flex flex-col gap-6">
         {/* Header */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -441,7 +441,7 @@ export default function StockPage() {
         </div>
 
         {/* Barre de filtres */}
-        <div className="rounded-xl border border-neutral-800/60 bg-neutral-800/20 p-4 flex flex-col gap-3">
+        <div className="ky-toolbar rounded-xl border border-neutral-800/60 bg-neutral-800/20 p-4 flex flex-col gap-3">
           {/* Ligne 1 : toggle + compteur */}
           <div className="flex flex-wrap items-center gap-3">
             <button
@@ -540,7 +540,7 @@ export default function StockPage() {
 
         {/* Tableau */}
         {filteredItems.length > 0 && (
-          <div className="overflow-hidden rounded-xl border border-neutral-800/60 bg-neutral-800/20">
+          <div className="ky-data-table overflow-hidden rounded-xl border border-neutral-800/60 bg-neutral-800/20">
             <div className="divide-y divide-neutral-800/60 md:hidden">
               {sortedItems.map((item) => {
                 const stockQty = Number(item.stock_quantity ?? 0);
@@ -736,7 +736,7 @@ export default function StockPage() {
                         </td>
 
                         <td className="px-4 py-3.5">
-                          <div className="flex items-center justify-center gap-1 opacity-100 md:opacity-40 md:group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-200">
+                          <div className="ky-row-actions flex items-center justify-center gap-1 opacity-100 md:opacity-40 md:group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-200">
                             {stockQty > 0 ? (
                               <button
                                 type="button"
@@ -1200,7 +1200,7 @@ function StatCard({
           };
 
   return (
-    <div className="flex items-center gap-4 rounded-xl border border-neutral-800 bg-neutral-900/40 p-4 transition-colors hover:border-neutral-700">
+    <div className="ky-kpi flex items-center gap-4 rounded-xl border border-neutral-800 bg-neutral-900/40 p-4 transition-colors hover:border-neutral-700">
       <span
         className={`inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border ${styles.icon}`}
       >

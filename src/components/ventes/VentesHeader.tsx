@@ -14,7 +14,7 @@ export default function VentesHeader({
   onAjouter,
 }: VentesHeaderProps) {
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div className="ky-page-heading flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div>
         <h1 className="text-2xl font-semibold text-white tracking-tight">
           Ventes
@@ -79,7 +79,7 @@ export default function VentesHeader({
         <button
           onClick={onAjouter}
           className="
-            inline-flex items-center gap-2
+            ky-button-primary inline-flex items-center gap-2
             rounded-lg px-4 py-2
             bg-amber-500 text-neutral-950
             text-sm font-semibold

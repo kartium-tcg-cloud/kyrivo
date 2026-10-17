@@ -1,17 +1,17 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0a0a0a;
-  --foreground: #e5e5e5;
+  --background: #0a1016;
+  --foreground: #e6ebf1;
 
   /* ─── Tokens de design Kyrivo ────────────────────────────────
      Surfaces neutres */
-  --color-canvas: #080808;
-  --color-surface-0: #0a0a0a;
-  --color-surface-1: #111111;
-  --color-surface-2: #171717;
+  --color-canvas: #0a1016;
+  --color-surface-0: #0b1219;
+  --color-surface-1: #111b26;
+  --color-surface-2: #192532;
   --color-border-subtle: rgba(255, 255, 255, 0.06);
-  --color-border: #262626;
+  --color-border: #2b3846;
 
   /* Texte — 3 paliers seulement. neutral-600 est banni de tout texte
      (contraste insuffisant sur --color-canvas), réservé aux bordures. */
@@ -32,8 +32,8 @@
   --color-accent-violet: #7c3aed;
 
   /* Rayons */
-  --radius-control: 0.75rem;
-  --radius-card: 1rem;
+  --radius-control: 0.7rem;
+  --radius-card: 1.125rem;
   --radius-pill: 999px;
 
   /* Ombres */
@@ -56,14 +56,11 @@
 }
 
 body {
-  background-color: #080808;
-  /* Grain subtil (~5% d'opacité bakée dans le SVG) + halo ambre existant —
-     casse l'effet "noir plastique plat" sans ajouter de poids notable. */
+  background: #0a1016;
   background-image:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='128'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E"),
-    radial-gradient(ellipse 100% 50% at 50% -5%, rgba(245,158,11,0.045) 0%, transparent 70%);
-  background-repeat: repeat, no-repeat;
-  color: var(--foreground);
+    radial-gradient(ellipse 75% 42% at 60% -8%, rgba(245,158,11,0.055), transparent 70%),
+    linear-gradient(180deg, #0a1016 0%, #0c121a 64%, #0a1016 100%);
+  color: #e6ebf1;
   font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -334,4 +331,170 @@ input[type="number"] {
 .bg-glow-brand-soft {
   background: var(--gradient-brand-glow);
   opacity: 0.5;
+}
+
+/* ======================================================================
+   KYRIVO DESIGN SYSTEM 2026 — cohérence application + site public
+   Ces classes sont purement visuelles. Aucune règle métier, aucun calcul.
+   ====================================================================== */
+:root {
+  --ky-bg: #0a1016;
+  --ky-panel: #121b25;
+  --ky-panel-raised: #17222e;
+  --ky-border: rgba(159, 180, 203, 0.16);
+  --ky-border-strong: rgba(159, 180, 203, 0.26);
+  --ky-text: #f5f7fa;
+  --ky-muted: #afbdcb;
+  --ky-brand: #f5b544;
+  --ky-accent-soft: rgba(245,181,68,0.10);
+  --ky-elevation: 0 10px 30px rgba(0,0,0,0.20);
+}
+
+.ky-workspace { min-width: 0; position: relative; }
+.ky-workspace :where(button,a,input,select,textarea):focus-visible { outline-color: rgba(245,181,68,.8); }
+.ky-page { width: 100%; margin-inline: auto; padding-bottom: 5rem; }
+.ky-page h1 {
+  font-size: clamp(1.65rem, 2vw, 2rem);
+  line-height: 1.2;
+  font-weight: 750;
+  letter-spacing: -0.035em;
+  color: var(--ky-text);
+}
+.ky-page h2 { letter-spacing: -0.025em; }
+.ky-page :where(.text-neutral-500) { color: #9faebf; }
+.ky-page :where(.text-neutral-400) { color: #b6c1ce; }
+
+.ky-panel {
+  border: 1px solid var(--ky-border);
+  border-radius: 1.125rem;
+  background: linear-gradient(160deg, rgba(255,255,255,0.022), transparent 54%), var(--ky-panel);
+  box-shadow: var(--ky-elevation), inset 0 1px 0 rgba(255,255,255,0.035);
+}
+.ky-panel-interactive { transition: border-color .18s ease, background .18s ease; }
+.ky-panel-interactive:hover { border-color: var(--ky-border-strong); background-color: var(--ky-panel-raised); }
+.ky-toolbar {
+  background: rgba(18,27,37,.95);
+  border: 1px solid var(--ky-border);
+  border-radius: 1rem;
+  box-shadow: 0 4px 20px rgba(0,0,0,.12);
+}
+.ky-page-heading { padding-block: .3rem .55rem; }
+.ky-page-heading h1 { font-weight: 750; }
+
+.ky-kpi {
+  border: 1px solid var(--ky-border);
+  border-radius: 1.125rem;
+  background: var(--ky-panel);
+  box-shadow: 0 8px 26px rgba(0,0,0,.15);
+}
+.ky-kpi:hover { border-color: rgba(245,181,68,.28); }
+.ky-data-table {
+  border: 1px solid var(--ky-border);
+  border-radius: 1rem;
+  background: var(--ky-panel);
+  box-shadow: var(--ky-elevation);
+}
+.ky-data-table :where(table) { border-collapse: separate; border-spacing: 0; }
+.ky-data-table :where(thead) { background: #192531; }
+.ky-data-table :where(th) {
+  color: #c5d0dc;
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .035em;
+}
+.ky-data-table :where(tbody tr) { transition: background-color .15s ease; }
+.ky-data-table :where(tbody tr:hover) { background-color: rgba(255,255,255,.038); }
+.ky-data-table :where(td) { border-color: rgba(159,180,203,.09); line-height: 1.55; }
+.ky-row-actions { opacity: .76 !important; transform: none !important; }
+.ky-data-table tr:hover .ky-row-actions,
+.ky-data-table tr:focus-within .ky-row-actions { opacity: 1 !important; }
+
+.ky-sidebar {
+  background: linear-gradient(180deg, #111a24 0%, #0e1720 100%);
+  border-right: 1px solid var(--ky-border);
+  box-shadow: 8px 0 30px rgba(0,0,0,.11);
+}
+.ky-sidebar-nav { padding-block: 1.25rem; }
+.ky-nav-link { min-height: 2.625rem; border: 1px solid transparent; }
+.ky-nav-link:hover { background: #1b2936; border-color: rgba(159,180,203,.10); }
+.ky-nav-link[aria-current="page"] {
+  background: rgba(245,181,68,.085);
+  border-color: rgba(245,181,68,.17);
+  color: #f5c36e;
+}
+.ky-mobile-header { background: rgba(15,23,32,.96); border-color: var(--ky-border); }
+.ky-sidebar .sidebar-scroll::-webkit-scrollbar-thumb { background: rgba(159,180,203,.28); }
+
+.ky-button-primary {
+  background: #f4b646;
+  color: #101820;
+  border: 1px solid rgba(255,213,137,.45);
+  box-shadow: 0 5px 16px rgba(245,158,11,.11);
+  border-radius: .75rem;
+  font-weight: 700;
+}
+.ky-button-primary:not(:disabled):hover {
+  background: #ffcb6a;
+  box-shadow: 0 8px 24px rgba(245,158,11,.17);
+}
+.ky-button-secondary {
+  border-radius: .75rem;
+  border: 1px solid var(--ky-border-strong);
+  background: rgba(24,36,49,.78);
+  color: #e6edf4;
+}
+.ky-button-secondary:not(:disabled):hover { border-color: rgba(245,181,68,.34); background: #203041; }
+.ky-button-primary:disabled,.ky-button-secondary:disabled { opacity: .45; cursor: not-allowed; }
+
+.ky-page :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, textarea),
+.ky-dialog :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, textarea),
+.ky-auth-card :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, textarea) {
+  border-color: var(--ky-border-strong);
+  background-color: #0e1822;
+  color: #f5f7fa;
+  border-radius: .7rem;
+}
+.ky-page :is(input,select,textarea):focus-visible,
+.ky-dialog :is(input,select,textarea):focus-visible,
+.ky-auth-card :is(input,select,textarea):focus-visible {
+  outline: 2px solid rgba(245,181,68,.48);
+  outline-offset: 1px;
+}
+.ky-page :is(input,textarea)::placeholder,
+.ky-dialog :is(input,textarea)::placeholder { color: #91a1b2; opacity: .85; }
+.ky-form-area { border-color: var(--ky-border); }
+.ky-dialog {
+  background: #121c27;
+  border-color: var(--ky-border-strong);
+  box-shadow: 0 28px 75px rgba(0,0,0,.56);
+}
+.ky-dialog-header { background: #17222e; border-color: var(--ky-border); }
+.ky-dialog-footer { background: #131e29; border-color: var(--ky-border); }
+.ky-auth-card { background: #121d28; border-color: var(--ky-border-strong); box-shadow: 0 20px 65px rgba(0,0,0,.29); }
+
+.ky-marketing { isolation: isolate; }
+.ky-hero { position: relative; }
+.ky-hero h1 { letter-spacing: -.045em; line-height: 1.09; }
+.ky-marketing :where(h2) { letter-spacing: -.035em; }
+.ky-marketing :where(p.text-neutral-400) { color: #b8c4d1; }
+.ky-marketing :where(.surface) { border-color: var(--ky-border); }
+.ky-pricing-card {
+  border: 1px solid var(--ky-border);
+  border-radius: 1.2rem;
+  background: linear-gradient(155deg, rgba(255,255,255,.025),transparent 60%), #121d28;
+}
+.ky-marketing-cta { border-color: rgba(245,181,68,.28); background-color: #17222d; }
+
+@media (max-width: 639px) {
+  .ky-page { padding-bottom: 6rem; }
+  .ky-page h1 { font-size: 1.6rem; }
+  .ky-data-table { border-radius: .85rem; }
+  .ky-page-heading { gap: .75rem; }
+  .ky-hero h1 { font-size: clamp(2.1rem, 9vw, 3.5rem); }
+  .ky-dialog { border-radius: 1.2rem 1.2rem 0 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ky-nav-link,.ky-kpi,.ky-panel-interactive,.ky-data-table tr,
+  .ky-button-primary,.ky-button-secondary { transition: none !important; }
 }

@@ -29,7 +29,7 @@ export default function Card({
   className = "",
 }: CardProps) {
   const classes = [
-    "rounded-2xl border border-neutral-800 bg-neutral-900/30",
+    "ky-panel rounded-2xl border border-neutral-800 bg-neutral-900/30",
     PADDING_CLASSES[padding],
     surface ? "surface" : "",
     glow ? "card-amber-glow" : "",

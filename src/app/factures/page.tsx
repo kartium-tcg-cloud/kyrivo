@@ -455,7 +455,7 @@ async function confirmGenerateZip() {
 
   if (loading) {
     return (
-      <div className="p-4 sm:p-6 lg:p-8 max-w-5xl">
+      <div className="ky-page p-4 sm:p-6 lg:p-8 max-w-5xl">
         <div className="animate-pulse space-y-6">
           <div className="h-8 w-64 bg-neutral-800 rounded" />
           <div className="h-4 w-full max-w-96 bg-neutral-800/60 rounded" />
@@ -474,7 +474,7 @@ async function confirmGenerateZip() {
 
   if (errorMessage && !preferences) {
     return (
-      <div className="p-4 sm:p-6 lg:p-8 max-w-5xl">
+      <div className="ky-page p-4 sm:p-6 lg:p-8 max-w-5xl">
         <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-6">
           <p className="text-sm text-red-400">{errorMessage}</p>
         </div>
@@ -486,7 +486,7 @@ async function confirmGenerateZip() {
 
   return (
     <div className="pb-32">
-      <div className="p-4 sm:p-6 lg:p-8 max-w-5xl space-y-8">
+      <div className="ky-page p-4 sm:p-6 lg:p-8 max-w-5xl space-y-8">
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 pb-6 border-b border-neutral-800">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 mb-3">
@@ -805,7 +805,7 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-xl border border-neutral-800 bg-neutral-900/40 overflow-hidden">
+    <section className="ky-panel rounded-xl border border-neutral-800 bg-neutral-900/40 overflow-hidden">
       <div className="h-px w-full bg-gradient-to-r from-amber-500/40 via-amber-500/10 to-transparent" />
 
       <div className="p-5 sm:p-6">

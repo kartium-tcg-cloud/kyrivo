@@ -739,7 +739,7 @@ function VentesContent() {
   };
 
   return (
-    <div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8 max-w-[1440px]">
+    <div className="ky-page flex flex-col gap-6 p-4 sm:p-6 lg:p-8 max-w-[1500px]">
       <VentesHeader
         totalVentes={ventesFiltrees.length}
         totalMontant={totalMontant}

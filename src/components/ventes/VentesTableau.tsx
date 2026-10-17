@@ -120,7 +120,7 @@ export default function VentesTableau({
   }
 
   return (
-    <div className="rounded-xl border border-neutral-800/60 bg-neutral-900/40 shadow-sm shadow-black/20 overflow-hidden">
+    <div className="ky-data-table rounded-xl border border-neutral-800/60 bg-neutral-900/40 shadow-sm shadow-black/20 overflow-hidden">
       <div className="relative">
         <p className="border-b border-neutral-800/60 px-3 py-2 text-xs text-neutral-400 sm:hidden">Glissez horizontalement pour voir toutes les colonnes du tableau.</p>
         <div role="region" aria-label="Tableau des ventes, défilement horizontal" className="overflow-x-auto overscroll-x-contain">
@@ -294,7 +294,7 @@ export default function VentesTableau({
                   </td>
 
                   <td className="px-2 sm:px-4 py-3.5">
-                    <div className="flex items-center justify-center gap-0.5 opacity-100 md:opacity-0 md:translate-x-1 md:group-hover:opacity-100 md:group-hover:translate-x-0 focus-within:opacity-100 focus-within:translate-x-0 transition-all duration-200 ease-out">
+                    <div className="ky-row-actions flex items-center justify-center gap-0.5 opacity-100 md:opacity-0 md:translate-x-1 md:group-hover:opacity-100 md:group-hover:translate-x-0 focus-within:opacity-100 focus-within:translate-x-0 transition-all duration-200 ease-out">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();

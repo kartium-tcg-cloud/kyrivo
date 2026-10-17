@@ -378,7 +378,7 @@ const handlePortal = async () => {
 };
 
   return (
-    <div className="relative overflow-hidden">
+    <div className="ky-marketing relative overflow-hidden">
 
       {/* ═══ BANNIÈRE CANCELED ENCORE ACTIF ════════════════ */}
       {(isCanceled || cancellationScheduled) && (canceledEndsAt || subscriptionEndsAt) && (
@@ -433,7 +433,7 @@ const handlePortal = async () => {
         <div className="absolute -top-40 left-1/2 -translate-x-1/2 h-[500px] w-[900px] rounded-full opacity-[0.12] blur-3xl bg-glow-brand" />
       </div>
 
-      <div className="relative px-6 lg:px-10 py-10 lg:py-14 mx-auto max-w-6xl">
+      <div className="relative px-5 sm:px-6 lg:px-10 py-10 lg:py-14 mx-auto max-w-6xl">
 
         {/* ═══ HEADER ═══════════════════════════════════════ */}
         <header className="flex flex-col items-center text-center pb-8">
@@ -856,7 +856,7 @@ if (isAuthenticated) {
   return (
     <div
       className={`
-        relative rounded-2xl overflow-hidden
+        ky-pricing-card relative rounded-2xl overflow-hidden
         transition-all duration-300
         flex flex-col
         ${cardClasses}
@@ -1120,7 +1120,7 @@ function ValueProp({
   description: string;
 }) {
   return (
-    <div className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-5 hover:border-neutral-700 transition-colors duration-200">
+    <div className="ky-panel ky-panel-interactive rounded-xl border border-neutral-800 bg-neutral-900/40 p-5 hover:border-neutral-700 transition-colors duration-200">
 
       <span className="inline-flex items-center justify-center h-9 w-9 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 mb-4">
         {icon}

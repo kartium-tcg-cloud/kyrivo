@@ -243,7 +243,7 @@ export default async function DashboardPage() {
 
   // ── Rendu ─────────────────────────────────────────────────────
   return (
-    <div className="relative w-full max-w-[1500px] p-4 sm:p-6 lg:p-8 xl:p-10 space-y-8 overflow-hidden">
+    <div className="ky-page ky-dashboard relative w-full max-w-[1500px] p-4 sm:p-6 lg:p-8 xl:p-10 space-y-8 overflow-hidden">
       {companyId && company && firstMembership?.role === "owner" && !company.onboarding_completed_at && (
         <AccountSetupWizard
           companyId={companyId}
@@ -279,7 +279,7 @@ export default async function DashboardPage() {
       )}
 
       {/* ── HEADER ──────────────────────────────────────────── */}
-      <div className="surface flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl border border-neutral-800/80 bg-neutral-900/30 p-5">
+      <div className="ky-panel ky-page-heading surface flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl border border-neutral-800/80 bg-neutral-900/30 p-5">
         <div className="flex items-center gap-4 min-w-0">
           <div className="relative h-12 w-12 flex-shrink-0">
             <div className="absolute -inset-1.5 rounded-2xl bg-amber-500/20 blur-md" />
@@ -338,7 +338,7 @@ export default async function DashboardPage() {
         />
 
         {/* Quota avec progress bar */}
-        <div className="surface group rounded-xl border border-neutral-800 bg-neutral-900/40 p-4 transition-all duration-200 hover:border-neutral-700 hover:bg-neutral-900/60">
+        <div className="ky-kpi surface group rounded-xl border border-neutral-800 bg-neutral-900/40 p-4 transition-all duration-200 hover:border-neutral-700 hover:bg-neutral-900/60">
           <div className="flex items-center gap-3 mb-3">
             <span className="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border bg-gradient-to-br from-neutral-800 to-neutral-800/40 border-neutral-700 text-neutral-400 transition-transform duration-200 group-hover:scale-110">
               <QuotaIcon />
@@ -387,7 +387,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* ── Stock immobilisé ────────────────────────────────── */}
-      <div className="card-amber-glow surface relative overflow-hidden rounded-2xl border border-amber-500/15 bg-gradient-to-br from-amber-500/[0.06] via-neutral-900/40 to-neutral-900/40 p-5 flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4 transition-colors hover:border-amber-500/25">
+      <div className="ky-panel card-amber-glow surface relative overflow-hidden rounded-2xl border border-amber-500/15 bg-gradient-to-br from-amber-500/[0.06] via-neutral-900/40 to-neutral-900/40 p-5 flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4 transition-colors hover:border-amber-500/25">
         <div
           aria-hidden
           className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-amber-500/10 blur-3xl"
@@ -422,7 +422,7 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] xl:grid-cols-[1fr_320px] gap-6">
 
         {/* Activité récente */}
-        <div className="surface rounded-xl border border-neutral-800 bg-neutral-900/40 overflow-hidden transition-colors hover:border-neutral-700/80">
+        <div className="ky-panel surface rounded-xl border border-neutral-800 bg-neutral-900/40 overflow-hidden transition-colors hover:border-neutral-700/80">
           <div className="px-5 py-4 border-b border-neutral-800">
             <h2 className="text-sm font-semibold text-white">Activité récente</h2>
           </div>
@@ -504,7 +504,7 @@ export default async function DashboardPage() {
         <div className="space-y-4">
 
           {/* Accès rapide */}
-          <div className="surface rounded-xl border border-neutral-800 bg-neutral-900/40 overflow-hidden transition-colors hover:border-neutral-700/80">
+          <div className="ky-panel surface rounded-xl border border-neutral-800 bg-neutral-900/40 overflow-hidden transition-colors hover:border-neutral-700/80">
             <div className="px-5 py-4 border-b border-neutral-800">
               <h2 className="text-sm font-semibold text-white">Accès rapide</h2>
             </div>
@@ -518,7 +518,7 @@ export default async function DashboardPage() {
           </div>
 
           {/* Abonnement */}
-          <div className="surface card-amber-glow rounded-xl border border-amber-500/15 bg-gradient-to-b from-amber-500/[0.04] to-neutral-900/40 overflow-hidden transition-colors">
+          <div className="ky-panel surface card-amber-glow rounded-xl border border-amber-500/15 bg-gradient-to-b from-amber-500/[0.04] to-neutral-900/40 overflow-hidden transition-colors">
             <div className="px-5 py-4 border-b border-neutral-800/80">
               <h2 className="text-sm font-semibold text-white">Abonnement</h2>
             </div>
@@ -556,7 +556,7 @@ export default async function DashboardPage() {
           </div>
 
           {/* Support */}
-          <div className="surface rounded-xl border border-neutral-800 bg-neutral-900/40 p-4 flex items-center gap-3">
+          <div className="ky-panel surface rounded-xl border border-neutral-800 bg-neutral-900/40 p-4 flex items-center gap-3">
             <span className="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-neutral-800 text-neutral-500">
               <MailIcon />
             </span>
@@ -609,7 +609,7 @@ function StatTile({
           : { icon: "bg-neutral-800/60 border-neutral-700 text-neutral-400", value: "text-white" };
 
   return (
-    <div className="surface group rounded-xl border border-neutral-800 bg-neutral-900/40 p-4 transition-all duration-200 hover:border-neutral-700 hover:bg-neutral-900/60">
+    <div className="ky-kpi surface group rounded-xl border border-neutral-800 bg-neutral-900/40 p-4 transition-all duration-200 hover:border-neutral-700 hover:bg-neutral-900/60">
       <div className="flex items-center gap-3 mb-3">
         <span
           className={`inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border transition-transform duration-200 group-hover:scale-110 ${styles.icon}`}

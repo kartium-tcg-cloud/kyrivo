@@ -329,7 +329,7 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
       </div>
 
       {/* ── Sélecteurs de dates ──────────────────────────────── */}
-      <div className="surface space-y-3 rounded-xl border border-neutral-800 bg-neutral-900/30 p-3 sm:p-4">
+      <div className="ky-toolbar surface space-y-3 rounded-xl border border-neutral-800 bg-neutral-900/30 p-3 sm:p-4">
         <div className="flex flex-wrap gap-1.5">
           {presets.map((p) => (
             <button
@@ -431,7 +431,7 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
           <div className="grid grid-cols-1 min-[390px]:grid-cols-2 lg:grid-cols-4 gap-3">
 
             {/* Argent dépensé */}
-            <div className="surface rounded-xl border border-neutral-800 bg-neutral-900/40 p-4 flex flex-col gap-3 transition-colors hover:border-neutral-700">
+            <div className="ky-kpi surface rounded-xl border border-neutral-800 bg-neutral-900/40 p-4 flex flex-col gap-3 transition-colors hover:border-neutral-700">
               <div className="flex items-center gap-2">
                 <span className="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border border-rose-500/20 bg-rose-500/10 text-rose-400">
                   <ArrowDownIcon />
@@ -447,7 +447,7 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
             </div>
 
             {/* Argent rentré */}
-            <div className="surface rounded-xl border border-neutral-800 bg-neutral-900/40 p-4 flex flex-col gap-3 transition-colors hover:border-neutral-700">
+            <div className="ky-kpi surface rounded-xl border border-neutral-800 bg-neutral-900/40 p-4 flex flex-col gap-3 transition-colors hover:border-neutral-700">
               <div className="flex items-center gap-2">
                 <span className="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border border-emerald-500/20 bg-emerald-500/10 text-emerald-400">
                   <ArrowUpIcon />
@@ -538,7 +538,7 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
             className="animate-chart-fade grid grid-cols-1 xl:grid-cols-[1.4fr_1fr] gap-4"
           >
             {/* Graphique 1 — Évolution de la période */}
-            <div className="surface rounded-xl border border-neutral-700/60 bg-gradient-to-b from-neutral-800/50 to-neutral-900/50 p-4 sm:p-6">
+            <div className="ky-kpi surface rounded-xl border border-neutral-700/60 bg-gradient-to-b from-neutral-800/50 to-neutral-900/50 p-4 sm:p-6">
               <div className="mb-5 flex items-center justify-between gap-2">
                 <div>
                   <h3 className="text-base font-semibold text-neutral-100">Évolution de la période</h3>
@@ -552,7 +552,7 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
             </div>
 
             {/* Graphique 2 — Pont de rentabilité */}
-            <div className="surface rounded-xl border border-neutral-700/60 bg-gradient-to-b from-neutral-800/50 to-neutral-900/50 p-4 sm:p-6">
+            <div className="ky-kpi surface rounded-xl border border-neutral-700/60 bg-gradient-to-b from-neutral-800/50 to-neutral-900/50 p-4 sm:p-6">
               <div className="mb-5">
                 <h3 className="text-base font-semibold text-neutral-100">Répartition des flux</h3>
                 <p className="text-[11px] text-neutral-500 mt-0.5">Recettes, débours, TVA et solde estimé de la période</p>

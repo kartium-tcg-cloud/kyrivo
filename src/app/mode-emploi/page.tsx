@@ -469,7 +469,7 @@ export default function ModeEmploiPage() {
   }
 
   return (
-    <Container size="prose" className="relative py-10 lg:py-14">
+    <Container size="prose" className="ky-marketing relative py-10 lg:py-14">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqStructuredData) }}
