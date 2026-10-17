@@ -63,7 +63,7 @@ export default function VintedFiscalReviewModal({ achat, onFermer, onSaved }: Pr
       setErrors((e) => ({ ...e, [item.id]: "Confirmez le montant après avoir consulté le justificatif." }));
       return;
     }
-    if (!achat.documentUrl && !receiptFile) {
+    if (!receiptLink && !receiptFile) {
       setErrors((e) => ({ ...e, [item.id]: "Joignez un reçu Vinted ou un justificatif du prix vendeur." }));
       return;
     }
