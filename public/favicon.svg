@@ -1,13 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" rx="6" fill="#0F0F10"/>
-  <rect x="0.5" y="0.5" width="31" height="31" rx="5.5" fill="none" stroke="#F5B400" stroke-width="0.7" opacity="0.3"/>
-  <text
-    x="16.2" y="23.5"
-    text-anchor="middle"
-    font-family="Arial Black, Arial, Helvetica, sans-serif"
-    font-weight="900"
-    font-size="22"
-    letter-spacing="-0.5"
-    fill="#F5B400"
-  >K</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="95 65 1060 1080" role="img" aria-label="Kyrivo — carte et flux">
+  <defs><linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffcb4c"/><stop offset="1" stop-color="#f59e0b"/></linearGradient></defs>
+  <path fill="url(#gold)" d="M145 700 C117 516 206 352 343 258 C482 167 654 139 850 163 L845 128 Q838 91 856 95 Q871 94 888 109 C953 153 1026 237 1061 293 Q1080 329 1060 340 Q1054 346 1025 343 L840 341 Q799 339 801 320 Q800 312 810 298 L854 257 C664 222 518 253 393 321 C271 387 171 501 145 700 Z"/>
+  <path fill="#253241" d="M620 301 Q634 294 649 301 L748 355 L417 509 L300 457 Q277 449 293 439 Z"/>
+  <path fill="#273545" d="M784 370 Q797 363 811 370 L917 422 Q936 434 919 449 L592 599 Q578 607 562 599 L456 545 Q441 536 451 522 Z"/>
+  <path fill="#1e2a38" d="M290 471 Q282 473 283 488 L284 747 Q285 773 302 783 L543 954 Q578 980 579 945 L578 637 Q577 621 560 613 L304 478 Q292 469 290 471 Z"/>
+  <path fill="url(#gold)" d="M618 622 L938 471 Q966 458 967 486 L968 758 Q967 789 943 801 L641 962 Q604 982 604 946 L604 648 Q603 629 618 622 Z"/>
+  <path fill="#263342" d="M1111 634 C1098 843 994 980 804 1061 C659 1125 527 1125 407 1072 L405 1108 Q405 1149 381 1138 Q372 1136 362 1122 L224 970 Q211 954 215 936 Q217 920 237 915 L445 914 Q467 915 470 934 Q472 946 457 958 L418 993 C552 1041 656 1030 767 992 C956 928 1064 802 1111 634 Z"/>
 </svg>
