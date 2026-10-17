@@ -57,6 +57,7 @@ interface FormLine {
   quantity: string;
   unitPrice: string;
   purchaseCost: string;
+  economicPurchaseCost: string;
   vatRate: string;
   notes: string;
 }
@@ -76,6 +77,7 @@ function emptyLine(vatRate = 21): FormLine {
     quantity: "1",
     unitPrice: "",
     purchaseCost: "",
+    economicPurchaseCost: "",
     vatRate: String(vatRate),
     notes: "",
   };
@@ -219,6 +221,7 @@ useEffect(() => {
             quantity: "1",
             unitPrice: "",
             purchaseCost: String(prefillItem.unitCost),
+            economicPurchaseCost: String(prefillItem.economicUnitCost ?? prefillItem.unitCost),
             vatRate: String(defaultVatRate),
             notes: "",
           },
@@ -252,6 +255,9 @@ setForm({
             quantity: String(line.quantity),
             unitPrice: String(line.unitPrice),
             purchaseCost:
+              line.purchaseCost !== undefined ? String(line.purchaseCost) : "",
+            economicPurchaseCost:
+              line.economicPurchaseCost !== undefined ? String(line.economicPurchaseCost) :
               line.purchaseCost !== undefined ? String(line.purchaseCost) : "",
             vatRate: String(line.vatRate),
             notes: line.notes || "",
@@ -332,6 +338,7 @@ setForm({
                 purchaseItemId: undefined,
                 itemReference: undefined,
                 purchaseCost: "",
+                economicPurchaseCost: "",
               }
             : line
         )
@@ -356,6 +363,7 @@ setForm({
               itemReference: item.itemReference,
               itemName: item.itemName,
               purchaseCost: String(item.unitCost),
+              economicPurchaseCost: String(item.economicUnitCost ?? item.unitCost),
               quantity: "1",
             }
           : line
@@ -384,6 +392,8 @@ setForm({
         isTTC,
         purchaseCost:
           line.purchaseCost.trim() !== "" ? Number(line.purchaseCost) : undefined,
+        economicPurchaseCost:
+          line.economicPurchaseCost.trim() !== "" ? Number(line.economicPurchaseCost) : undefined,
         vatRate,
         notes: line.notes.trim() || undefined,
       };
@@ -397,6 +407,7 @@ setForm({
           unitPrice: line.unitPrice,
           quantity: line.quantity,
           purchaseCost: line.purchaseCost || 0,
+          economicPurchaseCost: line.economicPurchaseCost,
           vatRate: line.vatRate,
         })),
       });
@@ -411,7 +422,17 @@ setForm({
           isTTC: line.isTTC,
         })),
       }),
-      marginAmount: 0,
+      marginAmount: mappedLines.every((line) => line.economicPurchaseCost !== undefined)
+        ? Math.round((
+            calculateStandardSale({
+              lines: mappedLines.map((line) => ({
+                unitPrice: line.unitPrice, quantity: line.quantity,
+                vatRate: line.vatRate, isTTC: line.isTTC,
+              })),
+            }).subtotalHT -
+            mappedLines.reduce((sum, line) => sum + (line.economicPurchaseCost ?? 0) * line.quantity, 0)
+          ) * 100) / 100
+        : 0,
     };
   }, [form.vatMode, mappedLines]);
 
