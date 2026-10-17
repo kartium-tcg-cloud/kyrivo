@@ -14,6 +14,7 @@ interface AchatFormModalProps {
   achatInitial?: Achat | null;
   supplierContacts?: Array<{ id: string; name: string }>;
   existingCategories?: string[];
+  enableFees?: boolean;
 }
 
 interface AchatItem {
@@ -68,6 +69,7 @@ export default function AchatFormModal({
   achatInitial = null,
   supplierContacts = [],
   existingCategories = [],
+  enableFees = false,
 }: AchatFormModalProps) {
   const isEditing = Boolean(achatInitial);
 
@@ -86,6 +88,7 @@ export default function AchatFormModal({
   const [tauxTVA, setTauxTVA] = useState(21);
   const [defaultVatRate, setDefaultVatRate] = useState(21);
   const [avecStock, setAvecStock] = useState(true);
+  const [openFeesAfterSave, setOpenFeesAfterSave] = useState(false);
   const [items, setItems] = useState<AchatItem[]>([emptyItem()]);
   const [erreurs, setErreurs] = useState<Record<string, string>>({});
   const [documentFile, setDocumentFile] = useState<File | null>(null);
@@ -424,6 +427,7 @@ setForm({
     setModeMontant("ttc");
     setTauxTVA(defaultVatRate);
     setAvecStock(true);
+    setOpenFeesAfterSave(false);
     setItems([emptyItem()]);
     setDocumentFile(null);
     setErreurs({});
@@ -462,6 +466,7 @@ const buildPayload = (): Achat => {
     avecStock,
     saveSupplier: form.saveSupplier,
     supplierContactId,
+    openFeesAfterSave: !isEditing && enableFees && openFeesAfterSave,
   };
 };
 
@@ -1223,6 +1228,19 @@ const buildPayload = (): Achat => {
             </div>
           )}
 
+          {!isEditing && enableFees && (
+            <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-amber-500/25 bg-amber-500/5 px-4 py-3">
+              <input type="checkbox" className="mt-1 h-4 w-4 accent-amber-500"
+                checked={openFeesAfterSave} onChange={e => setOpenFeesAfterSave(e.target.checked)} />
+              <span className="text-sm text-neutral-200">
+                <strong>Ajouter des frais à cet achat après l'enregistrement</strong>
+                <span className="mt-1 block text-xs text-neutral-400">
+                  Transport, commissions, emballage… La fiche de frais s'ouvrira lorsque l'achat sera créé.
+                  Les frais ne changent pas automatiquement le prix fiscal ou le total de l'achat.
+                </span>
+              </span>
+            </label>
+          )}
           <div>
             <label className={labelClasses}>
               Commentaire{" "}
