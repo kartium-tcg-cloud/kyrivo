@@ -27,12 +27,12 @@ const client={
   return q;
  },
 };
-const module={exports:{}};
+const sandboxModule={exports:{}};
 vm.runInNewContext(compiled,{
- module,exports:module.exports,
+ module:sandboxModule,exports:sandboxModule.exports,
  require:id=>id==="@/lib/supabase/client"?{createClient:()=>client}:require(id),
 });
-const {getTransactionFees}=module.exports;
+const {getTransactionFees}=sandboxModule.exports;
 test("pagination complete: plus de 1 000 frais sans tronquer un export",async()=>{
  const fees=await getTransactionFees({companyId:"company-one",purchaseIds:["P1"]});
  assert.equal(fees.length,1002);
