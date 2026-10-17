@@ -189,7 +189,7 @@ export default function TransactionFeesModal({ ouvert, onFermer, companyId, purc
             )}
           </div>
         )}
-        <div className="space-y-3 rounded-xl border border-amber-500/20 bg-neutral-900/50 p-4">
+        <div className="ky-form-area space-y-3 rounded-xl border border-amber-500/20 bg-neutral-900/50 p-4 sm:p-5">
           <h3 className="text-sm font-semibold text-white">{editingId ? "Modifier le frais" : "Ajouter un frais"}</h3>
           <div className="grid gap-3 sm:grid-cols-2">
             {saleId && <label className="text-xs text-neutral-300">
