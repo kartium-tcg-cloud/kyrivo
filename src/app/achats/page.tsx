@@ -764,7 +764,7 @@ const modifierAchat = async (achatModifie: Achat) => {
         totalMontant={totalMontant}
         totalTVA={totalTVA}
         onAjouter={ouvrirAjout}
-        onImporterVinted={enableVinted ? ouvrirImportVinted : undefined}
+        onImporterVinted={undefined}
       />
 
       {achats.length === 0 ? (
@@ -779,7 +779,7 @@ const modifierAchat = async (achatModifie: Achat) => {
             Commencez par enregistrer votre premier achat. Tous vos achats PRO et particuliers seront centralisés ici.
           </p>
           <div className="flex flex-col sm:flex-row items-center gap-3">
-            {enableVinted && <button
+            {false && <button
               type="button"
               onClick={ouvrirImportVinted}
               title="Importer une commande Vinted"
@@ -840,7 +840,7 @@ const modifierAchat = async (achatModifie: Achat) => {
         }}
       />
 
-      {enableVinted && <VintedImportModal
+      {false && <VintedImportModal
         ouvert={vintedModalOuverte}
         onFermer={fermerVintedModal}
         onCreer={ajouterAchat}
