@@ -38,6 +38,7 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import { getCompanyPreferences } from "@/lib/preferences";
 import TransactionFeesModal from "@/components/fees/TransactionFeesModal";
+import { getTransactionFees } from "@/lib/feeQueries";
 
 import VentesHeader from "@/components/ventes/VentesHeader";
 import VentesFiltres from "@/components/ventes/VentesFiltres";
@@ -325,7 +326,10 @@ function VentesContent() {
 
     setExportingExcel(true);
     try {
-      await exportSalesToExcel(ventesFiltrees);
+      const fees = enableTransactionFees && companyIdForFees
+        ? await getTransactionFees({ companyId: companyIdForFees, saleIds: ventesFiltrees.map(v => v.id) })
+        : [];
+      await exportSalesToExcel(ventesFiltrees, fees);
       setExportConfirmOpen(false);
     } catch (error) {
       console.error(error);
