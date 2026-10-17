@@ -74,3 +74,23 @@ test("somme en centimes entiers sans accumulation de centimes fantômes", () => 
   }));
   assert.equal(summarizeTransactionFees(fees).expenseTTC, 1);
 });
+
+test("precision financière : refuse les fractions cachées de centime", () => {
+  assert.ok(validateTransactionFee(expense({ amountHT: 5.005 })).length > 0);
+  assert.ok(validateTransactionFee(expense({ amountTTC: 6.051 })).length > 0);
+});
+test("les frais client sont uniquement un mémo d'une ligne déjà facturée", () => {
+  assert.ok(validateTransactionFee(expense({
+    purchaseId: null, saleId: "sale-1", kind: "customer_charge",
+    recoverableVatAmount: 0, includedInParentTotal: false,
+  })).length > 0);
+});
+test("la TVA déclarée doit rester cohérente avec le taux", () => {
+  assert.ok(validateTransactionFee(expense({
+    vatRate: 0, amountHT: 5, vatAmount: 1.05, amountTTC: 6.05,
+  })).length > 0);
+  assert.ok(validateTransactionFee(expense({
+    vatRate: 21, amountHT: 6.04, vatAmount: 0.01, amountTTC: 6.05,
+    recoverableVatAmount: 0.01,
+  })).length > 0);
+});
