@@ -217,7 +217,7 @@ async function handleInvoicePrefixChange(value: string) {
 
   if (loading) {
     return (
-      <div className="p-4 sm:p-6 lg:p-8 max-w-4xl">
+      <div className="ky-page p-4 sm:p-6 lg:p-8 max-w-4xl">
         <div className="animate-pulse space-y-6">
           <div className="h-8 w-64 bg-neutral-800 rounded" />
           <div className="h-4 w-full max-w-96 bg-neutral-800/60 rounded" />
@@ -240,7 +240,7 @@ async function handleInvoicePrefixChange(value: string) {
 
   if (errorMessage && !preferences) {
     return (
-      <div className="p-4 sm:p-6 lg:p-8 max-w-4xl">
+      <div className="ky-page p-4 sm:p-6 lg:p-8 max-w-4xl">
         <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-6">
           <p className="text-sm text-red-400">{errorMessage}</p>
         </div>
@@ -626,7 +626,7 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-xl border border-neutral-800 bg-neutral-900/40 overflow-hidden">
+    <section className="ky-panel rounded-xl border border-neutral-800 bg-neutral-900/40 overflow-hidden">
 
       {/* Bande dorée discrète */}
       <div className="h-px w-full bg-gradient-to-r from-amber-500/40 via-amber-500/10 to-transparent" />
