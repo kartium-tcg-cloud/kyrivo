@@ -1,4 +1,5 @@
 import { Achat } from "@/types/achat";
+import type { TransactionFeeDraft } from "@/lib/transactionFees";
 
 // ── Colonnes ──────────────────────────────────────────────────────────────────
 // Ordre : identifiants → montants comptables groupés → article détail → divers
@@ -16,6 +17,9 @@ type PurchaseExportRow = {
   "Montant TTC achat": number | "";
   "Source achat": string;
   "Frais Vinted inclus TTC": number | "";
+  "Frais supplémentaires supportés TTC": number | "";
+  "Frais payés hors montant achat TTC": number | "";
+  "Débours global estimé TTC": number | "";
 
   // Qualification
   "Nature achat": string;
@@ -126,10 +130,15 @@ function applyStyles(ws: any, XLSX: any) {
 
 // ── Export principal ──────────────────────────────────────────────────────────
 
-export async function exportPurchasesToExcel(achats: Achat[]) {
+export async function exportPurchasesToExcel(achats: Achat[], fees: TransactionFeeDraft[] = []) {
   const XLSX = await import("xlsx");
 
   const rows: PurchaseExportRow[] = achats.flatMap((achat) => {
+    const purchaseFees = fees.filter((fee) => fee.purchaseId === achat.id && fee.kind === "expense");
+    const sumCents = (list: TransactionFeeDraft[]) =>
+      list.reduce((sum, fee) => sum + Math.round(fee.amountTTC * 100), 0);
+    const feesTotal = sumCents(purchaseFees) / 100;
+    const feesExternal = sumCents(purchaseFees.filter(fee => !fee.includedInParentTotal)) / 100;
     const nature      = getNatureAchat(achat);
     const impactStock = achat.avecStock !== false ? "Oui" : "Non";
     const articles    = achat.articles && achat.articles.length > 0
@@ -158,6 +167,9 @@ export async function exportPurchasesToExcel(achats: Achat[]) {
         "Taux TVA achat":    isFirst ? (achat.vatRate ?? 0) : "",
         "TVA déductible":    isFirst ? achat.prixTVA       : "",
         "Montant TTC achat": isFirst ? achat.prixTTC       : "",
+        "Frais supplémentaires supportés TTC": isFirst ? feesTotal : "",
+        "Frais payés hors montant achat TTC": isFirst ? feesExternal : "",
+        "Débours global estimé TTC": isFirst ? Math.round((achat.prixTTC + feesExternal) * 100) / 100 : "",
         "Source achat": isFirst ? (achat.source === "vinted_import" ? "Import Vinted" : "Manuel") : "",
         "Frais Vinted inclus TTC": isFirst && achat.source === "vinted_import" && achat.sourceDetails
           ? Math.round((achat.sourceDetails.shippingFee + achat.sourceDetails.buyerProtectionFee + achat.sourceDetails.otherFees) * 100) / 100
@@ -214,6 +226,18 @@ export async function exportPurchasesToExcel(achats: Achat[]) {
     const detailsSheet = XLSX.utils.json_to_sheet(detailsVinted);
     detailsSheet["!cols"] = Object.keys(detailsVinted[0]).map((key) => ({ wch: Math.min(45, key.length + 4) }));
     XLSX.utils.book_append_sheet(workbook, detailsSheet, "Détail Vinted");
+  }
+
+  if (fees.length) {
+    const details = fees.filter(f => f.purchaseId && achats.some(a => a.id === f.purchaseId))
+      .map(f => ({
+        "N° achat": achats.find(a => a.id === f.purchaseId)?.numInterne ?? "",
+        "Catégorie": f.category, "Libellé": f.label, "Frais supporté TTC": f.amountTTC,
+        "TVA indiquée": f.vatAmount, "TVA récupérable déclarée": f.recoverableVatAmount,
+        "Déjà inclus dans total achat": f.includedInParentTotal ? "Oui" : "Non",
+        "Notes": f.notes,
+      }));
+    if (details.length) XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(details), "Frais achats");
   }
 
   const today = new Date().toISOString().slice(0, 10);
