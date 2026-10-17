@@ -499,6 +499,26 @@ async function handleInvoicePrefixChange(value: string) {
           />
         </Section>
 
+        {/* ═══ VINTED / PLATEFORMES ════════════════════════ */}
+        <Section
+          title="Plateformes et imports"
+          description="Activez uniquement les outils spécifiques aux plateformes que vous utilisez."
+        >
+          <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-neutral-700/70 bg-neutral-900/50 p-4">
+            <input type="checkbox" checked={preferences.enableVinted}
+              onChange={(e) => update("enableVinted", e.target.checked)}
+              className="mt-0.5 h-5 w-5 accent-amber-500" />
+            <span className="space-y-1">
+              <span className="block text-sm font-semibold text-white">J'utilise Vinted</span>
+              <span className="block text-xs leading-relaxed text-neutral-400">
+                Activez l'import des commandes Vinted, la séparation du prix payé au vendeur,
+                des frais de livraison et de protection, et la revue du prix fiscal du stock.
+                Les achats existants et leurs données restent conservés si vous décochez cette option.
+              </span>
+            </span>
+          </label>
+        </Section>
+
         {/* ═══ SECTION 5 — TVA ════════════════════════════ */}
         <Section
           title="Fiscalité"
