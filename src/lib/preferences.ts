@@ -123,9 +123,25 @@ export async function getCompanyPreferences(
 export async function upsertCompanyPreferences(
   preferences: CompanyPreferences
 ) {
-  const cleanPrefix =
-    preferences.invoicePrefix.trim() ||
-    DEFAULT_COMPANY_PREFERENCES.invoicePrefix;
+  const cleanPrefix = preferences.invoicePrefix.trim();
+  if (!cleanPrefix || cleanPrefix.length > 8) {
+    throw new Error("Le préfixe de facture doit comporter entre 1 et 8 caractères.");
+  }
+
+  const methods = preferences.defaultPaymentMethods;
+  if (methods.length > 18 || methods.some((method) => !method.trim() || method.length > 40)) {
+    throw new Error("Maximum 18 modes de paiement de 40 caractères chacun.");
+  }
+  if (new Set(methods.map((method) => method.trim().toLowerCase())).size !== methods.length) {
+    throw new Error("Les modes de paiement doivent être uniques.");
+  }
+  const known = ["virement", "paypal", "bancontact", "cash", "vinted", "shopify", "cardmarket", "voggt"];
+  if (methods.filter((method) => !known.includes(method.trim().toLowerCase())).length > 10) {
+    throw new Error("Maximum 10 modes de paiement personnalisés.");
+  }
+  if (!Number.isFinite(preferences.defaultVatRate) || preferences.defaultVatRate < 0 || preferences.defaultVatRate > 100) {
+    throw new Error("Le taux de TVA doit être compris entre 0 % et 100 %.");
+  }
 
   const nextNumberForPrefix = await getPrefixNextNumber(
     preferences.companyId,
