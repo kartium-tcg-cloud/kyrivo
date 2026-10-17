@@ -30,6 +30,23 @@ function getPlanRank(plan: string | null | undefined): number {
   return 0;
 }
 
+// Calcule un mois civil de quota, même sur les forfaits facturés au trimestre.
+function addOneCalendarMonth(date: Date): Date {
+  const result = new Date(date);
+  const day = result.getUTCDate();
+  result.setUTCDate(1);
+  result.setUTCMonth(result.getUTCMonth() + 1);
+  const lastDay = new Date(Date.UTC(result.getUTCFullYear(), result.getUTCMonth() + 1, 0)).getUTCDate();
+  result.setUTCDate(Math.min(day, lastDay));
+  return result;
+}
+
+function quotaPeriodEnd(start: Date, entitlementEnd: Date, billingPeriod: string | null): Date {
+  return billingPeriod === "quarterly"
+    ? new Date(Math.min(addOneCalendarMonth(start).getTime(), entitlementEnd.getTime()))
+    : entitlementEnd;
+}
+
 function maxDate(...dates: Array<Date | null | undefined>): Date {
   const validDates = dates.filter(Boolean) as Date[];
 
@@ -61,6 +78,8 @@ type SubscriptionRow = {
   stripe_subscription_id: string | null;
   status: string;
   plan: string;
+  billing_period: string | null;
+  subscription_ends_at: string | null;
 };
 
 // Retrouve la ligne Supabase correspondant à l'événement Stripe.
@@ -74,7 +93,7 @@ async function findSubscriptionRow(
 ): Promise<SubscriptionRow | null> {
   const { data: byStripeSubId, error: byStripeSubIdError } = await supabaseAdmin
     .from("subscriptions")
-    .select("company_id, stripe_subscription_id, status, plan")
+    .select("company_id, stripe_subscription_id, status, plan, billing_period, subscription_ends_at")
     .eq("stripe_subscription_id", stripeSubscriptionId)
     .maybeSingle();
 
@@ -85,7 +104,7 @@ async function findSubscriptionRow(
 
   const { data: byCustomerId, error: byCustomerIdError } = await supabaseAdmin
     .from("subscriptions")
-    .select("company_id, stripe_subscription_id, status, plan")
+    .select("company_id, stripe_subscription_id, status, plan, billing_period, subscription_ends_at")
     .eq("stripe_customer_id", stripeCustomerId)
     .maybeSingle();
 
@@ -231,6 +250,99 @@ export async function POST(req: NextRequest) {
       const periodStart = new Date(renewalLine.period.start * 1000);
       const periodEnd = new Date(renewalLine.period.end * 1000);
 
+      // Une facture de renouvellement non réglée jusqu'à plusieurs jours après
+      // l'échéance ne doit pas faire perdre des jours de service au client.
+      // On utilise le vrai paid_at Stripe, jamais l'heure du webhook (rejouable).
+      // Le décalage n'est opéré que sur la période courante, pour un abonnement
+      // Stripe FLEXIBLE, sans résiliation programmée et sans autre facture due.
+      // Contrairement au mode classic, ce changement d'ancre en mode flexible
+      // avec proration_behavior=none ne crée pas de facture immédiate.
+      const paidAt = invoice.status_transitions?.paid_at ?? null;
+      const isLate = paidAt !== null && paidAt - renewalLine.period.start >= 24 * 3600;
+      let effectiveStart = periodStart;
+      let effectiveEnd = periodEnd;
+
+      if (isLate && paidAt !== null) {
+        const live = await stripe.subscriptions.retrieve(stripeSubId);
+        const liveItem = live.items.data[0];
+        const alreadyAdjusted = live.metadata?.kyrivo_late_invoice_id === invoice.id;
+        const liveStart = liveItem?.current_period_start ?? 0;
+        const liveEnd = liveItem?.current_period_end ?? 0;
+
+        if (live.status !== "active") {
+          // Une ancienne facture payée ne doit pas réactiver un compte qui
+          // possède une autre facture en souffrance.
+          return NextResponse.json({ received: true });
+        }
+
+        if (alreadyAdjusted && liveStart > 0 && liveEnd > liveStart) {
+          // Réception répétée du webhook : ne jamais décaler une seconde fois.
+          // Si le cycle Stripe est déjà passé au renouvellement suivant, cette
+          // facture historique ne doit plus changer les droits Kyrivo.
+          if (Math.abs(liveStart - paidAt) >= 24 * 3600) {
+            return NextResponse.json({ received: true });
+          }
+          effectiveStart = new Date(liveStart * 1000);
+          effectiveEnd = new Date(liveEnd * 1000);
+        } else {
+          // Ancienne facture après un autre renouvellement : ignorer et ne
+          // jamais remettre le statut "active" à tort.
+          if (liveStart > renewalLine.period.start + 300) {
+            return NextResponse.json({ received: true });
+          }
+          const isCurrentCycle =
+            Math.abs(liveStart - renewalLine.period.start) < 300 &&
+            Math.abs(liveEnd - renewalLine.period.end) < 300;
+          const isRecentPayment =
+            paidAt <= Math.floor(Date.now() / 1000) + 60 &&
+            Date.now() / 1000 - paidAt < 24 * 3600;
+          const safeToShift =
+            live.status === "active" &&
+            live.billing_mode.type === "flexible" &&
+            !live.cancel_at_period_end &&
+            isCurrentCycle &&
+            isRecentPayment &&
+            paidAt < renewalLine.period.end;
+
+          if (safeToShift) {
+            const updated = await stripe.subscriptions.update(
+              stripeSubId,
+              {
+                billing_cycle_anchor: "now",
+                proration_behavior: "none",
+                metadata: { kyrivo_late_invoice_id: invoice.id },
+              },
+              { idempotencyKey: `kyrivo-late-payment-${invoice.id}` }
+            );
+
+            const nextItem = updated.items.data[0];
+            if (!nextItem?.current_period_start || !nextItem?.current_period_end) {
+              throw new Error("[invoice.paid] Nouvelles dates Stripe manquantes après réalignement");
+            }
+            effectiveStart = new Date(nextItem.current_period_start * 1000);
+            effectiveEnd = new Date(nextItem.current_period_end * 1000);
+            console.log("[invoice.paid] Échéance Stripe réalignée après paiement tardif", {
+              invoiceId: invoice.id,
+              subscriptionId: stripeSubId,
+              effectiveStart: effectiveStart.toISOString(),
+              effectiveEnd: effectiveEnd.toISOString(),
+            });
+          } else {
+            // Pas de modification risquée du cycle classic, d'une résiliation,
+            // d'une facture d'un ancien cycle ou d'un paiement ancien.
+            console.warn("[invoice.paid] Paiement tardif : réalignement manuel nécessaire", {
+              invoiceId: invoice.id,
+              subscriptionId: stripeSubId,
+              billingMode: live.billing_mode.type,
+              stripeStatus: live.status,
+              currentCycle: isCurrentCycle,
+              recentPayment: isRecentPayment,
+              cancelAtPeriodEnd: live.cancel_at_period_end,
+            });
+          }
+        }
+      }
+
       // Plan dérivé du price_id de cette ligne (donnée immuable de la facture) —
       // pas d'appel à la subscription live, pour préserver le déterminisme ci-dessus.
       const linePriceId =
@@ -246,10 +358,25 @@ export async function POST(req: NextRequest) {
         throw new Error(`[invoice.paid] Plan payant introuvable : ${effectivePlan}`);
       }
 
+      // Ne jamais revenir en arrière en cas de redélivrance d'une ancienne
+      // facture après un réalignement / un renouvellement plus récent.
+      const previousEnd = row.subscription_ends_at
+        ? new Date(row.subscription_ends_at).getTime()
+        : 0;
+      if (previousEnd > effectiveEnd.getTime() && row.status === "active") {
+        console.log("[invoice.paid] Facture ancienne ignorée (droits plus récents)", {
+          invoiceId: invoice.id,
+          companyId: row.company_id,
+        });
+        return NextResponse.json({ received: true });
+      }
+
       const renewalUpdate: Record<string, unknown> = {
-        subscription_ends_at: periodEnd.toISOString(),
-        current_period_start: periodStart.toISOString(),
-        current_period_end: periodEnd.toISOString(),
+        subscription_ends_at: effectiveEnd.toISOString(),
+        current_period_start: effectiveStart.toISOString(),
+        current_period_end: quotaPeriodEnd(
+          effectiveStart, effectiveEnd, row.billing_period
+        ).toISOString(),
         status: "active",
         monthly_line_limit: monthlyLineLimit,
         stripe_customer_id: invoiceCustomerId,
@@ -263,10 +390,11 @@ export async function POST(req: NextRequest) {
         stripeCustomerId: invoiceCustomerId,
         companyId: row.company_id,
         status: "active",
-        currentPeriodEnd: periodEnd.toISOString(),
+        currentPeriodEnd: effectiveEnd.toISOString(),
       });
 
-      // Écriture déterministe — les dates viennent de invoice.id, fixe et immuable
+      // L'échéance est issue du cycle Stripe réel après éventuel réalignement.
+      // L'ID de facture est gardé dans la metadata Stripe pour l'idempotence.
       const { error: renewalError } = await supabaseAdmin
         .from("subscriptions")
         .update(renewalUpdate)
@@ -290,6 +418,23 @@ export async function POST(req: NextRequest) {
 
       if (!stripeSubId) return NextResponse.json({ received: true });
 
+      // Les webhooks peuvent arriver dans le désordre. Ne jamais suspendre
+      // un compte pour un échec d'une facture depuis payée.
+      const [currentInvoice, currentSubscription] = await Promise.all([
+        stripe.invoices.retrieve(invoice.id),
+        stripe.subscriptions.retrieve(stripeSubId),
+      ]);
+      const latestInvoiceId = typeof currentSubscription.latest_invoice === "string"
+        ? currentSubscription.latest_invoice
+        : currentSubscription.latest_invoice?.id ?? null;
+      if (
+        currentInvoice.status === "paid" ||
+        (latestInvoiceId && latestInvoiceId !== invoice.id) ||
+        ["canceled", "incomplete_expired"].includes(currentSubscription.status)
+      ) {
+        return NextResponse.json({ received: true });
+      }
+
       await supabaseAdmin
         .from("subscriptions")
         .update({
@@ -308,7 +453,11 @@ export async function POST(req: NextRequest) {
     // API dahlia : les dates de période ne sont plus sur la subscription mais
     // sur subscription.items.data[0] (un abonnement peut avoir plusieurs items).
     if (event.type === "customer.subscription.updated") {
-      const subscription = event.data.object as Stripe.Subscription;
+      const eventSubscription = event.data.object as Stripe.Subscription;
+      // Lire l'état Stripe ACTUEL : une notification ancienne, reçue après
+      // invoice.paid, ne doit pas remettre un compte en impayé ni raccourcir
+      // une période déjà réalignée.
+      const subscription = await stripe.subscriptions.retrieve(eventSubscription.id);
 
       const stripeCustomerId =
         typeof subscription.customer === "string"
@@ -366,24 +515,26 @@ export async function POST(req: NextRequest) {
         update.monthly_line_limit = monthlyLineLimit;
       }
 
-      // La programmation d'une résiliation ne modifie ni les droits prépayés
-      // (subscription_ends_at), ni les cycles de quotas Kyrivo (mensuels, y
-      // compris sur les offres de trois mois). Ces dates sont propres à Kyrivo
-      // et peuvent différer de la période de facturation chez Stripe.
-      // customer.subscription.deleted ferme l'abonnement à l'échéance.
-      if (!subscription.cancel_at_period_end) {
-        if (periodStart) update.current_period_start = periodStart.toISOString();
-
-        if (periodEnd) {
-          update.current_period_end = periodEnd.toISOString();
-
-          // L'accès (subscription_ends_at) ne s'étend que si Stripe confirme un
-          // abonnement actif — un échec de paiement ne doit jamais prolonger l'accès,
-          // et on ne raccourcit jamais un accès déjà acquis sur un statut non-actif.
-          if (mappedStatus === "active") {
-            update.subscription_ends_at = periodEnd.toISOString();
-          }
-        }
+      // Ne jamais raccourcir des droits acquis ni rembobiner les quotas à la
+      // réception d'un événement redélivré. Sur une offre 3 mois, le quota
+      // reste mensuel, distinct de la date de prélèvement Stripe.
+      // Une simple modification (annulation programmée, mode de paiement,
+      // mise à jour de metadata) ne remet pas le compteur à zéro.
+      const previousEntitlementEnd = row.subscription_ends_at
+        ? new Date(row.subscription_ends_at).getTime()
+        : 0;
+      if (
+        !subscription.cancel_at_period_end &&
+        mappedStatus === "active" &&
+        periodStart &&
+        periodEnd &&
+        periodEnd.getTime() > previousEntitlementEnd
+      ) {
+        update.current_period_start = periodStart.toISOString();
+        update.current_period_end = quotaPeriodEnd(
+          periodStart, periodEnd, row.billing_period
+        ).toISOString();
+        update.subscription_ends_at = periodEnd.toISOString();
       }
 
       if (plan) update.plan = plan;
