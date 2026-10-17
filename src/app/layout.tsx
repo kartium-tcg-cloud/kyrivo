@@ -83,6 +83,7 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       { url: "/brand/kyrivo-mark-2026.png", sizes: "256x256", type: "image/png" },
+      { url: "/brand/kyrivo-favicon.svg", type: "image/svg+xml" },
     ],
     shortcut: "/brand/kyrivo-mark-2026.png",
     apple: [
