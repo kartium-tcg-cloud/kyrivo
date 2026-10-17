@@ -39,6 +39,7 @@ import { createClient } from "@/lib/supabase/client";
 import { getCompanyPreferences } from "@/lib/preferences";
 import TransactionFeesModal from "@/components/fees/TransactionFeesModal";
 import { getTransactionFees } from "@/lib/feeQueries";
+import type { TransactionFeeDraft } from "@/lib/transactionFees";
 
 import VentesHeader from "@/components/ventes/VentesHeader";
 import VentesFiltres from "@/components/ventes/VentesFiltres";
@@ -180,6 +181,7 @@ function VentesContent() {
   const [enableTransactionFees, setEnableTransactionFees] = useState(false);
   const [companyIdForFees, setCompanyIdForFees] = useState("");
   const [saleForFees, setSaleForFees] = useState<Sale | null>(null);
+  const [feesBySale, setFeesBySale] = useState<Record<string, TransactionFeeDraft[]>>({});
 
   const [filtres, setFiltres] = useState<SaleFiltres>({
     recherche: "",
@@ -220,6 +222,13 @@ function VentesContent() {
 
     const mappedSales = sales.map((sale: any) => mapSale(sale, saleLines));
     setVentes(mappedSales);
+    const fees = await getTransactionFees({ companyId, saleIds });
+    const grouped: Record<string, TransactionFeeDraft[]> = {};
+    for (const fee of fees) {
+      if (!fee.saleId) continue;
+      (grouped[fee.saleId] ??= []).push(fee);
+    }
+    setFeesBySale(grouped);
   };
 
   useEffect(() => {
@@ -766,6 +775,7 @@ function VentesContent() {
             onModifier={ouvrirEdition}
             onSupprimer={supprimerVente}
             onManageFees={enableTransactionFees ? setSaleForFees : undefined}
+            feesBySale={feesBySale}
           />
         </>
       )}
@@ -776,6 +786,7 @@ function VentesContent() {
           companyId={companyIdForFees}
           saleId={saleForFees.id}
           onFermer={() => setSaleForFees(null)}
+          onSaved={() => refreshSales(companyIdForFees)}
         />
       )}
 
