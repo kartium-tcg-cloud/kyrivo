@@ -1,4 +1,5 @@
 "use client";
+import BrandLogo from "@/components/ui/BrandLogo";
 
 import Link from "next/link";
 import { Suspense, useState } from "react";
@@ -141,11 +142,7 @@ export default function LoginPage() {
 
       <div className="relative w-full max-w-md">
         <div className="mb-6 flex items-center justify-center">
-          <img
-            src="/brand/kyrivo-logo-primary-dark.svg"
-            alt="Kyrivo"
-            className="h-11"
-          />
+          <BrandLogo className="justify-center" />
         </div>
 
         <Suspense
