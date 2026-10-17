@@ -272,3 +272,98 @@ test("invoice.paid ne réactive pas une subscription annulée", async () => {
   assert.equal(h.row.status, "canceled");
   assert.equal(h.writes.length, 0);
 });
+
+function overdueFixture({ months = 1, mode = "flexible", cancel = false } = {}) {
+  const start = Math.floor(Date.parse("2026-10-12T00:29:03Z") / 1000);
+  const end = Math.floor(Date.parse(months === 3 ? "2027-01-12T00:29:03Z" : "2026-11-12T00:29:03Z") / 1000);
+  const paidAt = Math.floor(Date.parse("2026-10-15T02:00:00Z") / 1000);
+  const h = createHarness(
+    paidRenewal("price_pro", { start, end, paidAt }),
+    mockSubscriptionRow({ status: "past_due", billing_period: months === 3 ? "quarterly" : "monthly", subscription_ends_at: new Date(end*1000).toISOString() }),
+    {
+      intervalMonths: months,
+      liveSubscription: {
+        id: "sub_test", customer: "cus_test", status: "active",
+        billing_mode: { type: mode }, cancel_at_period_end: cancel,
+        metadata: {},
+        items: { data: [{ price: { id: "price_pro" }, current_period_start: start, current_period_end: end }] },
+      },
+    }
+  );
+  return { h, start, end };
+}
+
+test("paiement à l'heure : ne touche pas à l'ancre de Stripe", async () => {
+  const h = createHarness(paidRenewal());
+  assert.equal((await h.deliver()).status, 200);
+  assert.equal(h.stripeUpdates.length, 0);
+});
+
+test("paiement le 15 après échéance du 12 : nouvelle fin le 15 novembre, sans 2e facture", async () => {
+  const { h, start, end } = overdueFixture();
+  assert.equal((await h.deliver()).status, 200);
+  assert.equal(h.stripeUpdates.length, 1);
+  assert.equal(h.stripeUpdates[0].proration_behavior, "none");
+  assert.equal(h.row.status, "active");
+  assert.equal(h.row.current_period_start, "2026-10-15T04:00:00.000Z");
+  assert.equal(h.row.current_period_end, "2026-11-15T04:00:00.000Z");
+  assert.equal(h.row.subscription_ends_at, "2026-11-15T04:00:00.000Z");
+
+  assert.equal((await h.deliver()).status, 200);
+  assert.equal(h.stripeUpdates.length, 1, "réémission du webhook : pas de second décalage");
+
+  const stale = updatedSubscription("past_due");
+  stale.data.object.items.data[0].current_period_start = start;
+  stale.data.object.items.data[0].current_period_end = end;
+  assert.equal((await h.deliver(stale)).status, 200);
+  assert.equal(h.row.status, "active", "ancien statut ignoré");
+  assert.equal(h.row.subscription_ends_at, "2026-11-15T04:00:00.000Z");
+
+  const oldFailure = { type: "invoice.payment_failed", data: { object: {
+    id: "in_test", parent: { subscription_details: { subscription: "sub_test" } },
+  } } };
+  assert.equal((await h.deliver(oldFailure)).status, 200);
+  assert.equal(h.row.status, "active", "échec déjà régularisé ignoré");
+});
+
+test("forfait trois mois : l'échéance se décale, le quota reste mensuel", async () => {
+  const { h } = overdueFixture({ months: 3 });
+  assert.equal((await h.deliver()).status, 200);
+  assert.equal(h.stripeUpdates.length, 1);
+  assert.equal(h.row.subscription_ends_at, "2027-01-15T04:00:00.000Z");
+  assert.equal(h.row.current_period_end, "2026-11-15T04:00:00.000Z");
+});
+
+test("forfait trois mois sans retard : le quota s'arrête après le premier mois", async () => {
+  const start = Math.floor(Date.parse("2026-10-12T00:29:03Z")/1000);
+  const end = Math.floor(Date.parse("2027-01-12T00:29:03Z")/1000);
+  const h = createHarness(paidRenewal("price_pro",{start,end,paidAt:start+20}),
+    mockSubscriptionRow({ billing_period:"quarterly",status:"past_due" }));
+  assert.equal((await h.deliver()).status,200);
+  assert.equal(h.row.current_period_end,"2026-11-12T00:29:03.000Z");
+  assert.equal(h.row.subscription_ends_at,"2027-01-12T00:29:03.000Z");
+  assert.equal(h.stripeUpdates.length,0);
+});
+
+test("mode Stripe classic : refuse le décalage susceptible de refacturer", async () => {
+  const { h, end } = overdueFixture({ mode: "classic" });
+  assert.equal((await h.deliver()).status, 200);
+  assert.equal(h.stripeUpdates.length, 0);
+  assert.equal(h.row.subscription_ends_at, new Date(end*1000).toISOString());
+});
+
+test("résiliation déjà planifiée : ne change pas son échéance", async () => {
+  const { h } = overdueFixture({ cancel: true });
+  assert.equal((await h.deliver()).status, 200);
+  assert.equal(h.stripeUpdates.length, 0);
+});
+
+test("ancien événement d'échec reçu après régularisation : pas de nouvelle suspension", async () => {
+  const event = { type: "invoice.payment_failed", data: { object: {
+    id: "in_old", parent: { subscription_details: { subscription: "sub_test" } },
+  } } };
+  const h = createHarness(event, mockSubscriptionRow({ status:"active" }));
+  assert.equal((await h.deliver()).status,200);
+  assert.equal(h.row.status,"active");
+  assert.equal(h.writes.length,0);
+});
