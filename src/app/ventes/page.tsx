@@ -58,6 +58,7 @@ type VentePayload = {
   notes?: string;
   lines: SaleLineInput[];
   saveClient?: boolean;
+  openFeesAfterSave?: boolean;
 };
 
 function formatDateFr(value: string): string {
