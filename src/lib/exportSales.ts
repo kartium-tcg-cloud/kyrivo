@@ -1,4 +1,5 @@
-import { Sale } from "@/types/sale";
+import { Sale, SaleLine } from "@/types/sale";
+import { calculateMarginVAT } from "@/lib/saleCalculations";
 
 // ── Colonnes ──────────────────────────────────────────────────────────────────
 //
@@ -27,6 +28,7 @@ type SaleExportRow = {
   "TVA collectée": number | "";
   "TTC total vente": number | "";
   "Marge totale": number | "";
+  "Marge économique vérifiable après TVA": number | "";
 
   // Détail ligne article
   Article: string;
@@ -35,6 +37,8 @@ type SaleExportRow = {
   "Prix ligne HT": number | "";  // standard : HT ligne ; marge : vide
   "Prix ligne TTC": number | ""; // standard : TTC calculé ; marge : TTC saisi
   "Coût achat TTC": number | "";
+  "Coût économique achat TTC": number | "";
+  "Marge économique ligne après TVA": number | "";
   "Marge ligne": number | "";    // marginAmount stocké (HT net pour marge)
 
   // Divers
@@ -48,9 +52,12 @@ const AMOUNT_COLS = new Set<string>([
   "TVA collectée",
   "TTC total vente",
   "Marge totale",
+  "Marge économique vérifiable après TVA",
   "Prix ligne HT",
   "Prix ligne TTC",
   "Coût achat TTC",
+  "Coût économique achat TTC",
+  "Marge économique ligne après TVA",
   "Marge ligne",
 ]);
 
@@ -127,6 +134,24 @@ function applyStyles(ws: any, XLSX: any) {
   ws["!autofilter"] = { ref: `A1:${XLSX.utils.encode_col(range.e.c)}1` };
 }
 
+function economicProfit(sale: Sale, line: SaleLine): number | null {
+  // Pour l'historique antérieur au déploiement : pas de réinterprétation
+  // des coûts sans preuve. Laisser la cellule vide plutôt qu'inventer.
+  if (line.economicPurchaseCost === undefined || line.economicPurchaseCost === null) return null;
+  const cost = line.economicPurchaseCost * line.quantity;
+  if (sale.vatMode === "standard_vat") {
+    // totalPrice est HT en régime normal.
+    return round2(line.totalPrice - cost);
+  }
+  if (line.purchaseCost === undefined) return null;
+  const vat = calculateMarginVAT({
+    salePriceTTC: line.totalPrice,
+    purchaseCost: line.purchaseCost * line.quantity,
+    vatRate: line.vatRate,
+  }).vatAmount;
+  return round2(line.totalPrice - vat - cost);
+}
+
 // ── Export principal ──────────────────────────────────────────────────────────
 
 export async function exportSalesToExcel(ventes: Sale[]) {
@@ -136,6 +161,10 @@ export async function exportSalesToExcel(ventes: Sale[]) {
     const lines       = vente.lines && vente.lines.length > 0 ? vente.lines : [null];
     const isStandard  = vente.vatMode === "standard_vat";
     const firstVatRate = vente.lines?.[0]?.vatRate ?? 0;
+    const economicMargins = (vente.lines ?? []).map((line) => economicProfit(vente, line));
+    const totalEconomic = economicMargins.length > 0 && economicMargins.every((value) => value !== null)
+      ? round2(economicMargins.reduce((sum, value) => sum + (value ?? 0), 0))
+      : null;
 
     return lines.map((line, idx) => {
       const isFirst = idx === 0;
@@ -172,6 +201,7 @@ export async function exportSalesToExcel(ventes: Sale[]) {
         "TVA collectée":  isFirst ? vente.vatAmount     : "",
         "TTC total vente":isFirst ? vente.totalTTC      : "",
         "Marge totale":   isFirst ? vente.marginAmount  : "",
+        "Marge économique vérifiable après TVA": isFirst ? (totalEconomic ?? "") : "",
 
         // Détail ligne
         Article:           line?.itemName        ?? "",
@@ -180,6 +210,8 @@ export async function exportSalesToExcel(ventes: Sale[]) {
         "Prix ligne HT":   prixLigneHT,
         "Prix ligne TTC":  prixLigneTTC,
         "Coût achat TTC":  line?.purchaseCost    ?? "",
+        "Coût économique achat TTC": line?.economicPurchaseCost ?? "",
+        "Marge économique ligne après TVA": line ? (economicProfit(vente, line) ?? "") : "",
         "Marge ligne":     line?.marginAmount    ?? "",
 
         // Divers
