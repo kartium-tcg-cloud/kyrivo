@@ -69,8 +69,6 @@ export interface Achat {
   items?: AchatItemInput[];
   articles?: AchatArticle[];
   saveSupplier?: boolean;
-  /** Open optional fee editor after the purchase has been created successfully. */
-  openFeesAfterSave?: boolean;
   draftFees?: TransactionFeeDraft[];
   /** true = achat de stock (défaut), false = dépense sans stock */
   avecStock?: boolean;
