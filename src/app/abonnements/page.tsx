@@ -1120,7 +1120,7 @@ function ValueProp({
   description: string;
 }) {
   return (
-    <div className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-5 hover:border-neutral-700 transition-colors duration-200">
+    <div className="ky-panel ky-panel-interactive rounded-xl border border-neutral-800 bg-neutral-900/40 p-5 hover:border-neutral-700 transition-colors duration-200">
 
       <span className="inline-flex items-center justify-center h-9 w-9 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 mb-4">
         {icon}
