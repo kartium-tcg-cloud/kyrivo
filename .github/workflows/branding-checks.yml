@@ -1,0 +1,29 @@
+name: Kyrivo branding checks
+on:
+  pull_request:
+    paths:
+      - 'src/app/layout.tsx'
+      - 'src/components/Sidebar.tsx'
+      - 'src/components/ui/BrandLogo.tsx'
+      - 'src/app/login/page.tsx'
+      - 'src/app/register/page.tsx'
+      - 'src/app/icon.tsx'
+      - 'src/app/apple-icon.tsx'
+      - 'src/app/favicon.ico'
+      - 'public/brand/**'
+      - 'public/favicon.svg'
+      - 'tests/branding-refresh.test.cjs'
+      - '.github/workflows/branding-checks.yml'
+jobs:
+  brand:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx next typegen
+      - run: npx tsc --noEmit
+      - run: node --test tests/branding-refresh.test.cjs tests/design-regression.test.cjs tests/fees-always-on.test.cjs
