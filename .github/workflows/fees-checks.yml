@@ -1,0 +1,41 @@
+name: Optional transaction fees regression tests
+on:
+  pull_request:
+    paths:
+      - 'src/components/fees/**'
+      - 'src/lib/transactionFees.ts'
+      - 'src/lib/feeQueries.ts'
+      - 'src/lib/exportSales.ts'
+      - 'src/lib/exportPurchases.ts'
+      - 'src/app/achats/page.tsx'
+      - 'src/app/ventes/page.tsx'
+      - 'src/app/preferences/page.tsx'
+      - 'src/components/onboarding/AccountSetupWizard.tsx'
+      - 'src/components/achats/AchatsTableau.tsx'
+      - 'src/components/ventes/VentesTableau.tsx'
+      - 'src/types/preferences.ts'
+      - 'src/lib/preferences.ts'
+      - 'tests/transaction-fee*.test.cjs'
+      - 'src/lib/estimatedSaleProfit.ts'
+      - 'tests/estimated-sale-profit.test.cjs'
+      - 'tests/fee-queries.test.cjs'
+      - 'tests/vinted-import-disabled.test.cjs'
+      - 'src/components/dashboard/PeriodStats.tsx'
+      - 'src/components/dashboard/PeriodCharts.tsx'
+      - 'src/components/ventes/VenteFormModal.tsx'
+      - 'src/components/achats/AchatFormModal.tsx'
+      - '.github/workflows/fees-checks.yml'
+jobs:
+  fees:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx next typegen
+      - run: npx tsc --noEmit
+      - run: node --test tests/transaction-fees.test.cjs tests/transaction-fee-exports.test.cjs tests/estimated-sale-profit.test.cjs tests/fee-queries.test.cjs
+      - run: node --test tests/vinted-fiscal-cost.test.cjs tests/vinted-export-invoice.test.cjs tests/stripe-reactivation.test.cjs tests/vinted-import-disabled.test.cjs
