@@ -262,20 +262,6 @@ export default function AccountSetupWizard({
                   <h3 className="text-base font-semibold text-white">Quels modes de paiement utilisez-vous ?</h3>
                   <PaymentMethodsPicker value={preferences.defaultPaymentMethods}
                     onChange={(methods) => update("defaultPaymentMethods", methods)} />
-                  <div className="mt-6 rounded-xl border border-neutral-700 bg-neutral-900/45 p-4">
-                    <p className="mb-2 text-sm font-semibold text-white">Plateformes que vous utilisez</p>
-                    <label className="flex cursor-pointer items-start gap-3">
-                      <input type="checkbox" checked={preferences.enableVinted}
-                        onChange={(e) => update("enableVinted", e.target.checked)}
-                        className="mt-1 h-4 w-4 accent-amber-500" />
-                      <span className="text-sm text-neutral-200">
-                        <strong>J'utilise Vinted</strong>
-                        <span className="mt-1 block text-xs text-neutral-400">
-                          Activez l'import Vinted avec ventilation des frais et vérification du prix fiscal.
-                        </span>
-                      </span>
-                    </label>
-                  </div>
                 </>
               )}
               {error && <p role="alert" className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2.5 text-sm text-red-300">{error}</p>}
