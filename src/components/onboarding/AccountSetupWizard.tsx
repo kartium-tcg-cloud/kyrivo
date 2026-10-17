@@ -259,7 +259,7 @@ export default function AccountSetupWizard({
               )}
               {step === 2 && (
                 <>
-                  <h3 className="text-base font-semibold text-white">Quels modes utilisez-vous ?</h3>
+                  <h3 className="text-base font-semibold text-white">Quels modes de paiement utilisez-vous ?</h3>
                   <PaymentMethodsPicker value={preferences.defaultPaymentMethods}
                     onChange={(methods) => update("defaultPaymentMethods", methods)} />
                 </>
