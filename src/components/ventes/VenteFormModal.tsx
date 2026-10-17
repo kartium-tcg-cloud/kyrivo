@@ -140,6 +140,8 @@ prefillItem = null,
 
   const labelClasses =
     "block text-[11px] font-semibold text-neutral-500 mb-2 uppercase tracking-wider";
+  const lineLabelClasses =
+    "block text-xs font-medium leading-snug text-neutral-300 mb-1.5";
 useEffect(() => {
   async function loadPaymentMethods() {
     try {
@@ -503,11 +505,11 @@ setForm({
       titre={isEditing ? "Modifier la vente" : "Ajouter une vente"}
       maxWidthClassName="max-w-[1100px]"
       footer={
-        <div className="flex items-center justify-end gap-3">
+        <div className="flex w-full items-center gap-2 sm:justify-end sm:gap-3">
           <button
             type="button"
             onClick={handleFermer}
-            className="rounded-lg px-4 py-2 text-sm font-medium text-neutral-400 hover:bg-neutral-800/60 hover:text-neutral-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500/40"
+            className="flex-1 sm:flex-none rounded-lg px-3 sm:px-4 py-2.5 text-sm font-medium text-neutral-400 hover:bg-neutral-800/60 hover:text-neutral-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500/40"
           >
             Annuler
           </button>
@@ -515,7 +517,7 @@ setForm({
           <button
             type="button"
             onClick={handleSubmit}
-            className="rounded-lg px-5 py-2 text-sm font-semibold bg-amber-500 text-neutral-950 hover:bg-amber-400 active:scale-[0.97] transition-all duration-200 shadow-lg shadow-amber-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
+            className="flex-1 sm:flex-none rounded-lg px-3 sm:px-5 py-2.5 text-sm font-semibold bg-amber-500 text-neutral-950 hover:bg-amber-400 active:scale-[0.97] transition-all duration-200 shadow-lg shadow-amber-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
           >
             {isEditing ? "Enregistrer" : "Ajouter la vente"}
           </button>
@@ -672,8 +674,8 @@ setForm({
             </div>
           )}
 
-          <div className="rounded-xl border border-neutral-800 bg-neutral-900/30 overflow-hidden">
-            <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-neutral-800 bg-neutral-900/40">
+          <div className="rounded-xl border border-neutral-800 bg-neutral-900/30">
+            <div className="flex flex-col items-stretch gap-3 rounded-t-xl border-b border-neutral-800 bg-neutral-900/40 px-3 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-4">
               <div className="min-w-0 flex-1">
                 <h3 className="text-sm font-semibold text-white">
                   Lignes de vente
@@ -688,7 +690,7 @@ setForm({
               <button
                 type="button"
                 onClick={ajouterLigne}
-                className="flex-shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 rounded-lg border border-neutral-700 px-3 py-1.5 text-xs font-semibold text-neutral-300 hover:bg-neutral-800 hover:text-white active:scale-[0.97] transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
+                className="inline-flex w-full flex-shrink-0 items-center justify-center gap-1.5 rounded-lg border border-neutral-700 px-3 py-2 text-xs font-semibold text-neutral-300 sm:w-auto sm:py-1.5 hover:bg-neutral-800 hover:text-white active:scale-[0.97] transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
               >
                 <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -733,7 +735,7 @@ setForm({
                 return (
                 <div
                   key={line.id}
-                  className="rounded-lg border border-neutral-800 bg-neutral-900/40 overflow-hidden"
+                  className="min-w-0 rounded-lg border border-neutral-800 bg-neutral-900/40"
                 >
                   <div className="flex items-center justify-between px-3 py-1.5 border-b border-neutral-800/80 bg-neutral-900/40">
                     <span className="text-[10px] font-semibold text-neutral-500 uppercase tracking-wider">
@@ -752,7 +754,7 @@ setForm({
                     </button>
                   </div>
 
-                  <div className="p-3 space-y-2">
+                  <div className="min-w-0 p-3 space-y-3">
                     <div>
                       {line.purchaseItemId ? (
                         <div className="flex items-center gap-2 rounded-lg border border-neutral-700 bg-neutral-900/60 px-3 py-2">
@@ -902,10 +904,11 @@ setForm({
                       className={inputClasses}
                     />
 
-                    <div className="grid grid-cols-4 gap-2 sm:grid-cols-[56px_1fr_56px_100px]">
-                      <div>
-                        <label className={labelClasses}>Qté</label>
+                    <div className="grid min-w-0 grid-cols-2 gap-3 lg:grid-cols-[70px_minmax(0,1fr)_78px_minmax(116px,auto)]">
+                      <div className="order-1 min-w-0">
+                        <label htmlFor={`sale-quantity-${line.id}`} className={lineLabelClasses}>Quantité</label>
                         <input
+                          id={`sale-quantity-${line.id}`}
                           type="number"
                           min="1"
                           max="9999"
@@ -918,16 +921,12 @@ setForm({
                         />
                       </div>
 
-                      <div>
-                        <label className={labelClasses}>
-                          {form.vatMode === "margin_vat"
-                            ? "Prix vente unit. "
-                            : "Prix vente "}
-                          {form.vatMode === "standard_vat"
-                            ? modeMontantStandard.toUpperCase()
-                            : "TTC"}
+                      <div className="order-3 col-span-2 min-w-0 lg:order-2 lg:col-span-1">
+                        <label htmlFor={`sale-price-${line.id}`} className={lineLabelClasses}>
+                          Prix de vente unitaire {form.vatMode === "standard_vat" ? modeMontantStandard.toUpperCase() : "TTC"} (€)
                         </label>
                         <input
+                          id={`sale-price-${line.id}`}
                           type="number"
                           min="0"
                           max="999999"
@@ -942,9 +941,10 @@ setForm({
                         />
                       </div>
 
-                      <div>
-                        <label className={labelClasses}>TVA %</label>
+                      <div className="order-2 min-w-0 lg:order-3">
+                        <label htmlFor={`sale-vat-${line.id}`} className={lineLabelClasses}>TVA (%)</label>
                         <input
+                          id={`sale-vat-${line.id}`}
                           type="number"
                           min="0"
                           max="100"
@@ -958,9 +958,9 @@ setForm({
                         />
                       </div>
 
-                      <div>
-                        <label className={labelClasses}>Total ligne</label>
-                        <div className="rounded-lg border border-neutral-800/60 bg-neutral-900/30 px-2.5 py-2.5 text-sm text-neutral-200 font-medium tabular-nums text-right truncate">
+                      <div className="order-4 col-span-2 min-w-0 lg:col-span-1">
+                        <label className={lineLabelClasses}>Total de la ligne (TTC)</label>
+                        <div className="flex min-h-10 items-center justify-end rounded-lg border border-neutral-800/60 bg-neutral-900/30 px-2.5 py-2 text-base text-neutral-100 font-semibold tabular-nums text-right break-words lg:text-sm">
                           {ligneTotal.toLocaleString("fr-BE", {
                             style: "currency",
                             currency: "EUR",
