@@ -146,6 +146,11 @@ const [loadingPortal, setLoadingPortal] = useState(false);
 const [hasStripeCustomer, setHasStripeCustomer] = useState(false);
 const [isPastDue, setIsPastDue] = useState(false);
 const [isCanceled, setIsCanceled] = useState(false);
+const [cancellationScheduled, setCancellationScheduled] = useState(false);
+const [canCancel, setCanCancel] = useState(false);
+const [cancelConfirmOpen, setCancelConfirmOpen] = useState(false);
+const [cancelLoading, setCancelLoading] = useState(false);
+const [subscriptionEndsAt, setSubscriptionEndsAt] = useState<string | null>(null);
 const [canceledEndsAt, setCanceledEndsAt] = useState<string | null>(null);
 
   // ─── Meta Pixel — ViewContent ────────────────────────────
@@ -174,13 +179,16 @@ async function checkAuth() {
       setCurrentPlan(null);
       setHasStripeCustomer(false);
       setIsCanceled(false);
+      setCancellationScheduled(false);
+      setCanCancel(false);
+      setSubscriptionEndsAt(null);
       setCanceledEndsAt(null);
       return;
     }
 
     const { data: membership } = await supabase
       .from("memberships")
-      .select("company_id")
+      .select("company_id, role")
       .eq("user_id", user.id)
       .maybeSingle();
 
@@ -188,13 +196,16 @@ async function checkAuth() {
       setCurrentPlan(null);
       setHasStripeCustomer(false);
       setIsCanceled(false);
+      setCancellationScheduled(false);
+      setCanCancel(false);
+      setSubscriptionEndsAt(null);
       setCanceledEndsAt(null);
       return;
     }
 
     const { data: subscription } = await supabase
       .from("subscriptions")
-      .select("plan, status, current_period_end, subscription_ends_at, trial_ends_at, stripe_customer_id")
+      .select("plan, status, current_period_end, subscription_ends_at, trial_ends_at, stripe_customer_id, stripe_subscription_id, cancel_at_period_end")
       .eq("company_id", membership.company_id)
       .maybeSingle();
 
@@ -212,6 +223,14 @@ async function checkAuth() {
 
     const isCanceledStillActive =
       isPaidActive && subscription?.status === "canceled";
+    const scheduled = subscription?.cancel_at_period_end === true || isCanceledStillActive;
+    setCancellationScheduled(scheduled);
+    setSubscriptionEndsAt(subscription?.subscription_ends_at ?? null);
+    setCanCancel(membership.role === "owner" &&
+      !!subscription?.stripe_subscription_id &&
+      !!subscription?.stripe_customer_id &&
+      ["active", "past_due"].includes(subscription?.status ?? "") &&
+      !scheduled);
 
     const pastDue = subscription?.status === "past_due";
     setIsPastDue(pastDue);
@@ -227,6 +246,9 @@ async function checkAuth() {
       setCurrentPlan(null);
       setHasStripeCustomer(false);
       setIsCanceled(false);
+      setCancellationScheduled(false);
+      setCanCancel(false);
+      setSubscriptionEndsAt(null);
       setCanceledEndsAt(null);
     }
   } catch (error) {
@@ -234,6 +256,7 @@ async function checkAuth() {
     setIsAuthenticated(false);
     setCurrentPlan(null);
     setHasStripeCustomer(false);
+    setCanCancel(false);
   }
 }
 
@@ -302,6 +325,27 @@ const handleCheckout = async (planId: Plan["id"]) => {
   }
 };
 
+const handleCancelSubscription = async () => {
+  if (cancelLoading || !canCancel) return;
+  try {
+    setCancelLoading(true);
+    const response = await fetch("/api/stripe/cancel", { method: "POST" });
+    const result = await response.json();
+    if (!response.ok || !result.ok) {
+      throw new Error(result.error || "La résiliation n'a pas pu être enregistrée.");
+    }
+    setCanCancel(false);
+    setCancellationScheduled(true);
+    setCancelConfirmOpen(false);
+    if (result.endsAt) setSubscriptionEndsAt(result.endsAt);
+    toast.success("Le renouvellement automatique a été désactivé.");
+  } catch (error) {
+    toast.error(error instanceof Error ? error.message : "Impossible de résilier l'abonnement.");
+  } finally {
+    setCancelLoading(false);
+  }
+};
+
 const handlePortal = async () => {
   try {
     setLoadingPortal(true);
@@ -323,17 +367,17 @@ const handlePortal = async () => {
     <div className="relative overflow-hidden">
 
       {/* ═══ BANNIÈRE CANCELED ENCORE ACTIF ════════════════ */}
-      {isCanceled && canceledEndsAt && (
+      {(isCanceled || cancellationScheduled) && (canceledEndsAt || subscriptionEndsAt) && (
         <div className="flex items-start gap-3 border-b border-amber-500/20 bg-amber-500/8 px-6 py-3.5 lg:px-10">
           <svg className="h-4 w-4 text-amber-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9.303 3.376c.866 1.5-.217 3.374-1.948 3.374H2.645c-1.73 0-2.813-1.874-1.948-3.374L10.051 3.378c.866-1.5 3.032-1.5 3.898 0L21.303 16.126ZM12 15.75h.007v.008H12v-.008Z" />
           </svg>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-amber-300">Abonnement annulé</p>
+            <p className="text-sm font-semibold text-amber-300">{cancellationScheduled && !isCanceled ? "Résiliation programmée" : "Abonnement annulé"}</p>
             <p className="text-xs text-neutral-400 mt-0.5 leading-relaxed">
-              Votre abonnement a été annulé, mais votre accès reste actif jusqu'au{" "}
+              Le renouvellement automatique est désactivé. Votre accès Kyrivo reste actif jusqu'au{" "}
               <strong className="text-neutral-200">
-                {new Date(canceledEndsAt).toLocaleDateString("fr-BE", {
+                {new Date((canceledEndsAt || subscriptionEndsAt)!).toLocaleDateString("fr-BE", {
                   day: "2-digit",
                   month: "long",
                   year: "numeric",
@@ -574,7 +618,7 @@ onCheckout={handleCheckout}
 
         {/* ═══ PORTAIL CLIENT STRIPE ══════════════════════ */}
         {isAuthenticated && hasStripeCustomer && (
-          <section className="mb-8 flex justify-center">
+          <section className="mb-8 flex flex-col items-center gap-2">
             <button
               type="button"
               disabled={loadingPortal}
@@ -596,7 +640,43 @@ onCheckout={handleCheckout}
               }
               {loadingPortal ? "Ouverture…" : "Gérer mon abonnement"}
             </button>
+            {canCancel && (
+              <button
+                type="button"
+                onClick={() => setCancelConfirmOpen(true)}
+                className="rounded px-2 py-1 text-xs text-neutral-500 underline decoration-neutral-600 underline-offset-4 transition-colors hover:text-red-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-500"
+              >
+                Annuler mon abonnement
+              </button>
+            )}
+            {cancellationScheduled && (
+              <p className="text-center text-xs text-amber-400">Renouvellement automatique désactivé</p>
+            )}
           </section>
+        )}
+
+        {cancelConfirmOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/75 px-4 py-6 backdrop-blur-sm" role="presentation">
+            <div role="alertdialog" aria-modal="true" aria-labelledby="cancel-subscription-title" aria-describedby="cancel-subscription-description"
+              className="w-full max-w-md rounded-2xl border border-neutral-700 bg-neutral-950 p-5 shadow-2xl sm:p-6">
+              <h2 id="cancel-subscription-title" className="text-lg font-semibold text-white">Annuler mon abonnement ?</h2>
+              <p id="cancel-subscription-description" className="mt-3 text-sm leading-relaxed text-neutral-300">
+                Êtes-vous sûr de vouloir arrêter le renouvellement automatique ?
+                {subscriptionEndsAt && <> Votre accès Kyrivo restera actif jusqu&apos;au <strong className="text-white">{new Date(subscriptionEndsAt).toLocaleDateString("fr-BE", { day: "2-digit", month: "long", year: "numeric" })}</strong>.</>}
+                {" "}Vos factures déjà émises resteront disponibles dans Stripe.
+              </p>
+              <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                <button type="button" disabled={cancelLoading} onClick={() => setCancelConfirmOpen(false)}
+                  className="rounded-lg border border-neutral-700 px-4 py-2.5 text-sm font-semibold text-neutral-200 hover:bg-neutral-800 disabled:opacity-50">
+                  Conserver mon abonnement
+                </button>
+                <button type="button" disabled={cancelLoading} onClick={handleCancelSubscription}
+                  className="rounded-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-500 disabled:opacity-50">
+                  {cancelLoading ? "Annulation en cours…" : "Oui, annuler le renouvellement"}
+                </button>
+              </div>
+            </div>
+          </div>
         )}
 
         {/* ═══ NOTE EXPLICATIVE LIGNES ═════════════════════ */}

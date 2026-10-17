@@ -366,16 +366,23 @@ export async function POST(req: NextRequest) {
         update.monthly_line_limit = monthlyLineLimit;
       }
 
-      if (periodStart) update.current_period_start = periodStart.toISOString();
+      // La programmation d'une résiliation ne modifie ni les droits prépayés
+      // (subscription_ends_at), ni les cycles de quotas Kyrivo (mensuels, y
+      // compris sur les offres de trois mois). Ces dates sont propres à Kyrivo
+      // et peuvent différer de la période de facturation chez Stripe.
+      // customer.subscription.deleted ferme l'abonnement à l'échéance.
+      if (!subscription.cancel_at_period_end) {
+        if (periodStart) update.current_period_start = periodStart.toISOString();
 
-      if (periodEnd) {
-        update.current_period_end = periodEnd.toISOString();
+        if (periodEnd) {
+          update.current_period_end = periodEnd.toISOString();
 
-        // L'accès (subscription_ends_at) ne s'étend que si Stripe confirme un
-        // abonnement actif — un échec de paiement ne doit jamais prolonger l'accès,
-        // et on ne raccourcit jamais un accès déjà acquis sur un statut non-actif.
-        if (mappedStatus === "active") {
-          update.subscription_ends_at = periodEnd.toISOString();
+          // L'accès (subscription_ends_at) ne s'étend que si Stripe confirme un
+          // abonnement actif — un échec de paiement ne doit jamais prolonger l'accès,
+          // et on ne raccourcit jamais un accès déjà acquis sur un statut non-actif.
+          if (mappedStatus === "active") {
+            update.subscription_ends_at = periodEnd.toISOString();
+          }
         }
       }
 
