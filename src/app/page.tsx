@@ -609,8 +609,9 @@ function CredibilityFooter() {
           </p>
           <p className="text-[11px] text-neutral-400">France · Belgique · Luxembourg</p>
         </div>
-        <nav className="flex flex-wrap gap-x-4 gap-y-1.5" aria-label="Liens légaux">
+        <nav className="flex flex-wrap gap-x-4 gap-y-1.5" aria-label="Informations et liens utiles">
           {[
+            { href: "/mises-a-jour", label: "Mises à jour" },
             { href: "/mentions-legales", label: "Mentions légales" },
             { href: "/conditions-generales", label: "CGU / CGV" },
             { href: "/politique-confidentialite", label: "Confidentialité" },
