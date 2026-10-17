@@ -113,6 +113,8 @@ export interface AvailableStockItem {
   unitCost: number;
   status: ItemStatus;
   marginEligible: boolean;
+  /** L'article doit être revu (ancien achat Vinted ou absence de justificatif). */
+  fiscalCostReviewRequired?: boolean;
   quantity: number;
   stockQuantity: number;
   category?: string;
