@@ -101,7 +101,6 @@ export default function VenteFormModal({
 stockItems,
 clients = [],
 prefillItem = null,
-enableFees = false,
 }: VenteFormModalProps) {
   const isEditing = Boolean(venteInitiale);
 
