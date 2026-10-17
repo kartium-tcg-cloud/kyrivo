@@ -5,6 +5,7 @@ import { Achat, AchatFiltres, AchatItemInput } from "@/types/achat";
 import { ItemStatus, isItemStatus } from "@/types/item";
 import { createClient } from "@/lib/supabase/client";
 import { exportPurchasesToExcel } from "@/lib/exportPurchases";
+import VintedFiscalReviewModal from "@/components/achats/VintedFiscalReviewModal";
 import { validateVintedCosts } from "@/lib/vintedCosts";
 import { canCreateLines } from "@/lib/subscriptions";
 import { toast } from "sonner";
@@ -71,6 +72,8 @@ function mapPurchase(p: any, itemsByPurchaseId: Map<string, any[]>): Achat {
       item.total_cost !== null && item.quantity
         ? Number(item.total_cost) / Number(item.quantity)
         : undefined,
+    fiscalUnitCost: item.fiscal_unit_cost == null ? null : Number(item.fiscal_unit_cost),
+    fiscalCostReviewRequired: Boolean(item.fiscal_cost_review_required),
     statut: isItemStatus(item.status) ? item.status : "in_stock",
     notes: item.notes || undefined,
   }));
@@ -259,6 +262,7 @@ export default function AchatsPage() {
   const [achats, setAchats] = useState<Achat[]>([]);
   const [modalOuverte, setModalOuverte] = useState(false);
   const [achatEnEdition, setAchatEnEdition] = useState<Achat | null>(null);
+  const [achatFiscalReview, setAchatFiscalReview] = useState<Achat | null>(null);
   const [vintedModalOuverte, setVintedModalOuverte] = useState(false);
   const [supplierContacts, setSupplierContacts] = useState<Array<{ id: string; name: string }>>([]);
   const [existingCategories, setExistingCategories] = useState<string[]>([]);
@@ -411,10 +415,12 @@ export default function AchatsPage() {
   const fermerVintedModal = () => setVintedModalOuverte(false);
 
   const ouvrirEdition = (achat: Achat) => {
+    if (achat.articles?.some((article) => article.stockRestant > 0 && article.fiscalCostReviewRequired)) {
+      setAchatFiscalReview(achat);
+      return;
+    }
     if (achat.source === "vinted_import") {
-      toast.error(
-        "Les achats importés de Vinted doivent être corrigés depuis leur détail dédié pour conserver la ventilation fiscale. La modification sera proposée dans la prochaine étape."
-      );
+      toast.error("La ventilation fiscale d'un import Vinted vérifié ne peut pas être modifiée depuis le formulaire d'achat général.");
       return;
     }
     setAchatEnEdition(achat);
@@ -807,6 +813,15 @@ const modifierAchat = async (achatModifie: Achat) => {
         achatInitial={achatEnEdition}
         supplierContacts={supplierContacts}
         existingCategories={existingCategories}
+      />
+
+      <VintedFiscalReviewModal
+        achat={achatFiscalReview}
+        onFermer={() => setAchatFiscalReview(null)}
+        onSaved={async () => {
+          const companyId = await getCompanyId();
+          if (companyId) await refreshPurchases(companyId);
+        }}
       />
 
       <VintedImportModal
