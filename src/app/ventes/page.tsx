@@ -36,6 +36,8 @@ import {
 } from "@/types/sale";
 
 import { createClient } from "@/lib/supabase/client";
+import { getCompanyPreferences } from "@/lib/preferences";
+import TransactionFeesModal from "@/components/fees/TransactionFeesModal";
 
 import VentesHeader from "@/components/ventes/VentesHeader";
 import VentesFiltres from "@/components/ventes/VentesFiltres";
@@ -173,6 +175,9 @@ function VentesContent() {
   const [clients, setClients] = useState<{ id: string; name: string }[]>([]);
   const [exportConfirmOpen, setExportConfirmOpen] = useState(false);
   const [exportingExcel, setExportingExcel] = useState(false);
+  const [enableTransactionFees, setEnableTransactionFees] = useState(false);
+  const [companyIdForFees, setCompanyIdForFees] = useState("");
+  const [saleForFees, setSaleForFees] = useState<Sale | null>(null);
 
   const [filtres, setFiltres] = useState<SaleFiltres>({
     recherche: "",
@@ -220,6 +225,9 @@ function VentesContent() {
       try {
         const companyId = await getCompanyId();
         if (!companyId) return;
+        const prefs = await getCompanyPreferences(companyId);
+        setEnableTransactionFees(prefs.enableTransactionFees);
+        setCompanyIdForFees(companyId);
         await refreshSales(companyId);
         await refreshStock(companyId);
         const { data: contacts } = await createClient()
@@ -749,8 +757,18 @@ function VentesContent() {
             ventes={ventesFiltrees}
             onModifier={ouvrirEdition}
             onSupprimer={supprimerVente}
+            onManageFees={enableTransactionFees ? setSaleForFees : undefined}
           />
         </>
+      )}
+
+      {enableTransactionFees && companyIdForFees && saleForFees && (
+        <TransactionFeesModal
+          ouvert={true}
+          companyId={companyIdForFees}
+          saleId={saleForFees.id}
+          onFermer={() => setSaleForFees(null)}
+        />
       )}
 
       <VenteFormModal
