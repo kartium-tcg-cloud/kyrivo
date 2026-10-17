@@ -7,6 +7,7 @@ import RegisterCTA from "@/components/RegisterCTA";
 import Reveal from "@/components/ui/Reveal";
 import SectionHeader from "@/components/ui/SectionHeader";
 import SocialProofBadges from "@/components/SocialProofBadges";
+import { SOCIAL_PROOF_REVIEW_COUNTS } from "@/lib/socialProof";
 
 // Police d'accent réservée au hero — chargée uniquement sur cette page
 // (pas dans le layout racine) pour ne pas alourdir le reste du site.
@@ -597,7 +598,7 @@ function CredibilityFooter() {
           Développé par <span className="text-amber-400 font-semibold">Kartium TCG</span>, boutique e-commerce professionnelle.
         </p>
         <p className="mt-2 text-sm text-neutral-400">
-          Avis clients : Vinted (24 avis) · Google (7 avis)
+          Avis clients : Vinted ({SOCIAL_PROOF_REVIEW_COUNTS.vinted} avis) · Google ({SOCIAL_PROOF_REVIEW_COUNTS.google} avis)
         </p>
       </Reveal>
 
