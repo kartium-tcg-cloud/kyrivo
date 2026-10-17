@@ -460,7 +460,7 @@ export default function AchatsPage() {
         }
       }
       const companyId = await getCompanyId();
-      if (!companyId) return;
+      if (!companyId) return false;
 
 const usageCheck = await canCreateLines({
   companyId,
@@ -471,7 +471,7 @@ if (!usageCheck.allowed) {
 toast.error(
   `Limite mensuelle atteinte (${usageCheck.used}/${usageCheck.limit}).`
 );
-  return;
+  return false;
 }
 
       const supabase = createClient();
@@ -562,6 +562,7 @@ if (usageError) {
 
       await refreshPurchases(companyId);
       fermerModal();
+      return true;
     } catch (error: any) {
       console.error(error);
       if (error?.isStockItemError) {
@@ -571,6 +572,7 @@ if (usageError) {
       } else {
         toast.error("Une erreur est survenue lors de la création de l'achat.");
       }
+      return false;
     }
   };
 
@@ -783,7 +785,7 @@ const modifierAchat = async (achatModifie: Achat) => {
               type="button"
               onClick={ouvrirImportVinted}
               title="Importer une commande Vinted"
-              className="inline-flex items-center gap-2 rounded-lg border border-neutral-800 bg-neutral-900/40 pl-5 pr-3 py-2.5 text-sm font-semibold text-neutral-500 cursor-not-allowed"
+              className="inline-flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 pl-5 pr-3 py-2.5 text-sm font-semibold text-amber-300 hover:bg-amber-500/20"
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
