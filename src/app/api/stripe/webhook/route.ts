@@ -60,6 +60,7 @@ type SubscriptionRow = {
   company_id: string;
   stripe_subscription_id: string | null;
   status: string;
+  plan: string;
 };
 
 // Retrouve la ligne Supabase correspondant à l'événement Stripe.
@@ -73,7 +74,7 @@ async function findSubscriptionRow(
 ): Promise<SubscriptionRow | null> {
   const { data: byStripeSubId, error: byStripeSubIdError } = await supabaseAdmin
     .from("subscriptions")
-    .select("company_id, stripe_subscription_id, status")
+    .select("company_id, stripe_subscription_id, status, plan")
     .eq("stripe_subscription_id", stripeSubscriptionId)
     .maybeSingle();
 
@@ -84,7 +85,7 @@ async function findSubscriptionRow(
 
   const { data: byCustomerId, error: byCustomerIdError } = await supabaseAdmin
     .from("subscriptions")
-    .select("company_id, stripe_subscription_id, status")
+    .select("company_id, stripe_subscription_id, status, plan")
     .eq("stripe_customer_id", stripeCustomerId)
     .maybeSingle();
 
@@ -237,12 +238,20 @@ export async function POST(req: NextRequest) {
           ? renewalLine.pricing.price_details.price
           : null;
       const plan = getPlanFromPriceId(linePriceId);
+      // Si le prix n'est pas présent dans le payload, conserver le plan déjà
+      // enregistré pour rétablir les droits sans rétrograder vers un trial.
+      const effectivePlan = plan ?? row.plan;
+      const monthlyLineLimit = getMonthlyLineLimit(effectivePlan);
+      if (monthlyLineLimit <= 0) {
+        throw new Error(`[invoice.paid] Plan payant introuvable : ${effectivePlan}`);
+      }
 
       const renewalUpdate: Record<string, unknown> = {
         subscription_ends_at: periodEnd.toISOString(),
         current_period_start: periodStart.toISOString(),
         current_period_end: periodEnd.toISOString(),
         status: "active",
+        monthly_line_limit: monthlyLineLimit,
         stripe_customer_id: invoiceCustomerId,
         updated_at: new Date().toISOString(),
       };
@@ -343,6 +352,19 @@ export async function POST(req: NextRequest) {
         stripe_subscription_id: subscription.id,
         updated_at: new Date().toISOString(),
       };
+
+      // Une réactivation Stripe doit aussi restaurer le quota remis à zéro
+      // par refresh_subscription_cycles() lors de l'expiration.
+      if (mappedStatus === "active") {
+        const effectivePlan = plan ?? row.plan;
+        const monthlyLineLimit = getMonthlyLineLimit(effectivePlan);
+        if (monthlyLineLimit <= 0) {
+          throw new Error(
+            `[customer.subscription.updated] Plan payant introuvable : ${effectivePlan}`
+          );
+        }
+        update.monthly_line_limit = monthlyLineLimit;
+      }
 
       if (periodStart) update.current_period_start = periodStart.toISOString();
 
