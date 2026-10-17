@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "src/components/achats/VintedImportModal.tsx"
+      - "src/components/achats/VintedFiscalReviewModal.tsx"
       - "src/app/achats/page.tsx"
       - "src/lib/vintedCosts.ts"
       - "src/lib/purchases.ts"
