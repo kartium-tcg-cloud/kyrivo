@@ -17,7 +17,7 @@ on:
       - 'src/lib/preferences.ts'
       - 'tests/transaction-fee*.test.cjs'
       - 'src/lib/estimatedSaleProfit.ts'
-      - 'tests/estimated-sale-profit.test.cjs tests/fee-queries.test.cjs'
+      - 'tests/estimated-sale-profit.test.cjs'
       - 'tests/fee-queries.test.cjs'
       - 'src/components/dashboard/PeriodStats.tsx'
       - 'src/components/dashboard/PeriodCharts.tsx'
@@ -36,5 +36,5 @@ jobs:
       - run: npm ci
       - run: npx next typegen
       - run: npx tsc --noEmit
-      - run: node --test tests/transaction-fees.test.cjs tests/transaction-fee-exports.test.cjs tests/estimated-sale-profit.test.cjs
+      - run: node --test tests/transaction-fees.test.cjs tests/transaction-fee-exports.test.cjs tests/estimated-sale-profit.test.cjs tests/fee-queries.test.cjs
       - run: node --test tests/vinted-fiscal-cost.test.cjs tests/vinted-export-invoice.test.cjs tests/stripe-reactivation.test.cjs
