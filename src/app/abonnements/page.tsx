@@ -11,6 +11,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 import SocialProofBadges from "@/components/SocialProofBadges";
+import { blocksDuplicatePlanCheckout, type ExistingCheckoutSubscription } from "@/lib/checkoutEligibility";
 
 // ═══════════════════════════════════════════════════════════
 // TYPES
@@ -142,6 +143,7 @@ const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>("monthly");
 const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 const [loadingPlanId, setLoadingPlanId] = useState<string | null>(null);
 const [currentPlan, setCurrentPlan] = useState<CurrentPlan>(null);
+const [checkoutSubscription, setCheckoutSubscription] = useState<ExistingCheckoutSubscription | null>(null);
 const [loadingPortal, setLoadingPortal] = useState(false);
 const [hasStripeCustomer, setHasStripeCustomer] = useState(false);
 const [isPastDue, setIsPastDue] = useState(false);
@@ -177,6 +179,7 @@ async function checkAuth() {
 
     if (!user) {
       setCurrentPlan(null);
+      setCheckoutSubscription(null);
       setHasStripeCustomer(false);
       setIsCanceled(false);
       setCancellationScheduled(false);
@@ -194,6 +197,7 @@ async function checkAuth() {
 
     if (!membership?.company_id) {
       setCurrentPlan(null);
+      setCheckoutSubscription(null);
       setHasStripeCustomer(false);
       setIsCanceled(false);
       setCancellationScheduled(false);
@@ -208,6 +212,13 @@ async function checkAuth() {
       .select("plan, status, current_period_end, subscription_ends_at, trial_ends_at, stripe_customer_id, stripe_subscription_id, cancel_at_period_end")
       .eq("company_id", membership.company_id)
       .maybeSingle();
+
+    setCheckoutSubscription(subscription ? {
+      plan: subscription.plan === "enterprise" ? "entreprise" : subscription.plan,
+      status: subscription.status,
+      subscriptionEndsAt: subscription.subscription_ends_at,
+      stripeSubscriptionId: subscription.stripe_subscription_id,
+    } : null);
 
     const now = new Date();
 
@@ -244,6 +255,7 @@ async function checkAuth() {
       setCanceledEndsAt(isCanceledStillActive ? subscription.subscription_ends_at! : null);
     } else {
       setCurrentPlan(null);
+      setCheckoutSubscription(null);
       setHasStripeCustomer(false);
       setIsCanceled(false);
       setCancellationScheduled(false);
@@ -295,6 +307,7 @@ async function checkAuth() {
 }, []);
 
 const handleCheckout = async (planId: Plan["id"]) => {
+  if (blocksDuplicatePlanCheckout(checkoutSubscription, planId)) return;
   try {
     setLoadingPlanId(planId);
 
@@ -319,7 +332,7 @@ const handleCheckout = async (planId: Plan["id"]) => {
 
   } catch (error) {
     console.error(error);
-    toast.error("Impossible de démarrer le paiement.");
+    toast.error(error instanceof Error ? error.message : "Impossible de démarrer le paiement.");
   } finally {
     setLoadingPlanId(null);
   }
@@ -611,6 +624,7 @@ const handlePortal = async () => {
                 isAuthenticated={isAuthenticated}
                 loadingPlanId={loadingPlanId}
                 currentPlan={currentPlan}
+                checkoutSubscription={checkoutSubscription}
 onCheckout={handleCheckout}
                 />
           ))}
@@ -741,6 +755,7 @@ function PlanCard({
   isAuthenticated,
   loadingPlanId,
 currentPlan,
+checkoutSubscription,
 onCheckout,
 }: {
   plan: Plan;
@@ -748,6 +763,7 @@ onCheckout,
   isAuthenticated: boolean | null;
   loadingPlanId: string | null;
   currentPlan: CurrentPlan;
+  checkoutSubscription: ExistingCheckoutSubscription | null;
   onCheckout: (planId: Plan["id"]) => void;
 }) {
 
@@ -761,10 +777,7 @@ onCheckout,
     currentPlan !== "trial" &&
     planRank < currentRank;
 
-  const isSameActivePlan =
-    currentPlan !== null &&
-    currentPlan !== "trial" &&
-    currentPlan === plan.id;
+  const isSameActivePlan = blocksDuplicatePlanCheckout(checkoutSubscription, plan.id);
 
   const isUpgrade =
     currentPlan !== null &&
@@ -811,15 +824,23 @@ if (isAuthenticated) {
     };
   }
 
+  if (isSameActivePlan) {
+    return {
+      label: checkoutSubscription?.status === "past_due"
+        ? "Paiement à régulariser"
+        : "Abonnement actif",
+      href: null,
+      disabled: true,
+    };
+  }
+
   return {
     label:
       loadingPlanId === plan.id
         ? "Préparation…"
-        : isSameActivePlan
-          ? "Prolonger mon abonnement"
-          : isUpgrade
-            ? "Upgrade mon compte"
-            : "Choisir ce plan",
+        : isUpgrade
+          ? "Upgrade mon compte"
+          : "Choisir ce plan",
     href: null,
     disabled: loadingPlanId !== null,
   };
