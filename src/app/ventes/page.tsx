@@ -326,7 +326,7 @@ function VentesContent() {
 
     setExportingExcel(true);
     try {
-      const fees = enableTransactionFees && companyIdForFees
+      const fees = companyIdForFees
         ? await getTransactionFees({ companyId: companyIdForFees, saleIds: ventesFiltrees.map(v => v.id) })
         : [];
       await exportSalesToExcel(ventesFiltrees, fees);
