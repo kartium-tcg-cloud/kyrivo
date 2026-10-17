@@ -1,0 +1,30 @@
+name: Vinted fiscal cost regression tests
+
+on:
+  pull_request:
+    paths:
+      - "src/components/achats/VintedImportModal.tsx"
+      - "src/app/achats/page.tsx"
+      - "src/lib/vintedCosts.ts"
+      - "src/lib/purchases.ts"
+      - "src/lib/sales.ts"
+      - "src/components/ventes/VenteFormModal.tsx"
+      - "src/types/achat.ts"
+      - "src/types/sale.ts"
+      - "tests/vinted-fiscal-cost.test.cjs"
+      - ".github/workflows/vinted-fiscal-checks.yml"
+
+jobs:
+  validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npx next typegen
+      - run: npx tsc --noEmit
+      - run: node --test tests/vinted-fiscal-cost.test.cjs
+      - run: node --test tests/stripe-reactivation.test.cjs
