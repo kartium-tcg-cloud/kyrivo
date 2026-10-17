@@ -107,7 +107,7 @@ export default function TransactionFeesInline({ fees, onChange, isSale }: Props)
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h3 className="text-sm font-semibold text-white">Frais de {isSale ? "cette vente" : "cet achat"}</h3>
-          <p className="mt-1 text-xs text-neutral-400">Facultatifs · suivis pour la rentabilité, sans modifier automatiquement la TVA ni la facture.</p>
+          <p className="mt-1 text-xs text-neutral-400">Suivi des frais pour la rentabilité, sans modification automatique de la TVA ni de la facture.</p>
         </div>
         {!expanded && (
           <button type="button" onClick={() => setExpanded(true)}

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { createClient } from "@/lib/supabase/server";
 import { calculateUpgradeCreditPreview } from "@/lib/billing";
+import { blocksDuplicatePlanCheckout } from "@/lib/checkoutEligibility";
 import { STRIPE_PRICE_IDS as PRICE_IDS } from "@/lib/stripe-plans";
 import type { BillingPeriod, PaidSubscriptionPlan } from "@/types/subscription";
 
@@ -71,7 +72,7 @@ export async function POST(req: NextRequest) {
 
     const { data: existingSubscription, error: existingSubscriptionError } = await supabase
       .from("subscriptions")
-      .select("plan, status, stripe_customer_id, billing_period, current_period_start, current_period_end, subscription_ends_at")
+      .select("plan, status, stripe_customer_id, stripe_subscription_id, billing_period, current_period_start, current_period_end, subscription_ends_at")
       .eq("company_id", membership.company_id)
       .maybeSingle();
 
@@ -80,6 +81,26 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { ok: false, error: "Impossible de vérifier l'abonnement actuel." },
         { status: 500 }
+      );
+    }
+
+    // Do not create another recurring Stripe subscription for a plan already
+    // active (monthly or quarterly), including a cancellation scheduled at
+    // period end. Also block past_due: the customer must fix their payment.
+    if (blocksDuplicatePlanCheckout(
+      existingSubscription ? {
+        plan: existingSubscription.plan,
+        status: existingSubscription.status,
+        subscriptionEndsAt: existingSubscription.subscription_ends_at,
+        stripeSubscriptionId: existingSubscription.stripe_subscription_id,
+      } : null,
+      plan
+    )) {
+      return NextResponse.json(
+        { ok: false, error: existingSubscription?.status === "past_due"
+          ? "Ce forfait nécessite une régularisation de paiement dans « Gérer mon abonnement »."
+          : "Ce forfait est déjà actif. Son renouvellement se gère dans « Gérer mon abonnement »." },
+        { status: 409 }
       );
     }
 

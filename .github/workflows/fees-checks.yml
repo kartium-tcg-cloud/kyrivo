@@ -1,4 +1,4 @@
-name: Optional transaction fees regression tests
+name: Transaction fees regression tests
 on:
   pull_request:
     paths:
@@ -17,8 +17,12 @@ on:
       - 'src/lib/preferences.ts'
       - 'tests/transaction-fee*.test.cjs'
       - 'tests/fees-always-on.test.cjs'
+      - 'tests/checkout-eligibility.test.cjs'
       - 'tests/stripe-trial-conversion.test.cjs'
       - 'src/app/api/stripe/webhook/route.ts'
+      - 'src/app/api/stripe/checkout/route.ts'
+      - 'src/app/abonnements/page.tsx'
+      - 'src/lib/checkoutEligibility.ts'
       - 'src/lib/estimatedSaleProfit.ts'
       - 'tests/estimated-sale-profit.test.cjs'
       - 'tests/fee-queries.test.cjs'
@@ -40,5 +44,5 @@ jobs:
       - run: npm ci
       - run: npx next typegen
       - run: npx tsc --noEmit
-      - run: node --test tests/transaction-fees.test.cjs tests/transaction-fee-exports.test.cjs tests/estimated-sale-profit.test.cjs tests/fee-queries.test.cjs tests/fees-always-on.test.cjs
+      - run: node --test tests/transaction-fees.test.cjs tests/transaction-fee-exports.test.cjs tests/estimated-sale-profit.test.cjs tests/fee-queries.test.cjs tests/fees-always-on.test.cjs tests/checkout-eligibility.test.cjs
       - run: node --test tests/vinted-fiscal-cost.test.cjs tests/vinted-export-invoice.test.cjs tests/stripe-reactivation.test.cjs tests/stripe-trial-conversion.test.cjs tests/vinted-import-disabled.test.cjs
