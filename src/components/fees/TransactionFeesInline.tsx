@@ -103,7 +103,7 @@ export default function TransactionFeesInline({ fees, onChange, isSale }: Props)
   const totals = fees.length ? summarizeTransactionFees(fees) : null;
 
   return (
-    <section className="space-y-3 rounded-xl border border-amber-500/25 bg-amber-500/5 p-4">
+    <section className="ky-panel space-y-3 rounded-xl border border-amber-500/25 bg-amber-500/5 p-4 sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h3 className="text-sm font-semibold text-white">Frais de {isSale ? "cette vente" : "cet achat"}</h3>
@@ -138,7 +138,7 @@ export default function TransactionFeesInline({ fees, onChange, isSale }: Props)
         </p>
       )}
       {expanded && (
-        <div className="space-y-3 rounded-lg border border-neutral-700 bg-neutral-900/60 p-3">
+        <div className="ky-form-area space-y-3 rounded-xl border border-neutral-700 bg-neutral-900/60 p-4">
           <div className="grid gap-3 sm:grid-cols-2">
             {isSale && (
               <label className="text-xs text-neutral-300">Nature
