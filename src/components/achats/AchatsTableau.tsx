@@ -50,6 +50,7 @@ interface AchatsTableauProps {
   achats: Achat[];
   onModifier: (achat: Achat) => void;
   onSupprimer: (id: string) => void;
+  onManageFees?: (achat: Achat) => void;
 }
 
 function formatEuro(montant: number): string {
@@ -71,6 +72,7 @@ export default function AchatsTableau({
   achats,
   onModifier,
   onSupprimer,
+  onManageFees,
 }: AchatsTableauProps) {
   const [ligneOuverte, setLigneOuverte] = useState<string | null>(null);
   const [sortConfig, setSortConfig] = useState<SortConfig<AchatSortKey>>({
@@ -319,6 +321,13 @@ export default function AchatsTableau({
                       </svg>
                     </button>
 
+                    {onManageFees && (
+                      <button type="button" title="Frais de cet achat"
+                        onClick={(e) => { e.stopPropagation(); onManageFees(achat); }}
+                        className="rounded-md border border-amber-500/30 px-2 py-1 text-xs font-semibold text-amber-300 hover:bg-amber-500/10">
+                        Frais
+                      </button>
+                    )}
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
