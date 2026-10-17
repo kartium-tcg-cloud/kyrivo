@@ -8,9 +8,9 @@ const src = fs.readFileSync(path.join(__dirname, "../src/lib/checkoutEligibility
 const compiled = ts.transpileModule(src, { compilerOptions: {
   module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022,
 }}).outputText;
-const module = { exports: {} };
-vm.runInNewContext(compiled, { module, exports: module.exports, Date, Number });
-const { blocksDuplicatePlanCheckout } = module.exports;
+const harnessModule = { exports: {} };
+vm.runInNewContext(compiled, { module: harnessModule, exports: harnessModule.exports, Date, Number });
+const { blocksDuplicatePlanCheckout } = harnessModule.exports;
 const now = new Date("2026-10-17T18:00:00Z");
 
 function subscription(overrides = {}) {
