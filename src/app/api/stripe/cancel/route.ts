@@ -1,10 +1,17 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { createClient } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase/admin";
 
 // Résiliation à l'échéance uniquement. Aucun abonnement n'est annulé immédiatement.
-export async function POST() {
+export async function POST(request: NextRequest) {
   try {
+    // La mutation doit provenir de l'interface Kyrivo, pas d'un site tiers.
+    const origin = request.headers.get("origin");
+    if (origin && origin !== new URL(request.url).origin) {
+      return NextResponse.json({ ok: false, error: "Origine de requête non autorisée." }, { status: 403 });
+    }
+
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
@@ -60,13 +67,14 @@ export async function POST() {
     // Le webhook customer.subscription.updated synchronise Supabase, y compris
     // en cas de résiliation depuis le portail Stripe. Ici, synchronisation immédiate
     // pour éviter de présenter de nouveau l'action après une requête réussie.
-    const { error: syncError } = await supabase
+    const { error: syncError } = await supabaseAdmin
       .from("subscriptions")
       .update({ cancel_at_period_end: true, updated_at: new Date().toISOString() })
       .eq("company_id", membership.company_id)
       .eq("stripe_subscription_id", updatedSubscription.id);
 
     if (syncError) {
+      // La résiliation Stripe reste effective ; le webhook mettra la base à jour.
       console.error("[Stripe cancel] Synchronisation locale différée au webhook:", syncError);
     }
 
