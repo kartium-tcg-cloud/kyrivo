@@ -89,6 +89,11 @@ export default function TransactionFeesModal({ ouvert, onFermer, companyId, purc
     if (busy || loading) return;
     const gross = Number(amountTTC);
     const rate = Number(vatRate);
+    if (!Number.isFinite(gross) || gross <= 0 ||
+        Math.abs(gross * 100 - Math.round(gross * 100)) > 1e-7) {
+      toast.error("Saisissez un montant TTC positif avec deux décimales maximum.");
+      return;
+    }
     // Centimes sur les résultats, sans cumul de nombres flottants.
     const cents = Math.round(gross * 100);
     const vatCents = rate > 0 ? Math.round(cents * rate / (100 + rate)) : 0;
