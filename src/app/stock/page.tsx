@@ -315,7 +315,7 @@ export default function StockPage() {
   // ── Loading ─────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="p-4 sm:p-6 lg:p-8 max-w-[1440px]">
+      <div className="ky-page p-4 sm:p-6 lg:p-8 max-w-[1500px]">
         <div className="animate-pulse space-y-6">
           <div className="h-8 w-40 rounded bg-neutral-800" />
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -332,7 +332,7 @@ export default function StockPage() {
 
   if (error) {
     return (
-      <div className="p-4 sm:p-6 lg:p-8 max-w-[1440px]">
+      <div className="ky-page p-4 sm:p-6 lg:p-8 max-w-[1500px]">
         <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-6">
           <p className="text-sm text-red-400">{error}</p>
         </div>
@@ -343,7 +343,7 @@ export default function StockPage() {
   // ── Empty (aucun article du tout) ────────────────────────
   if (items.length === 0) {
     return (
-      <div className="p-4 sm:p-6 lg:p-8 max-w-[1440px] flex flex-col gap-6">
+      <div className="ky-page p-4 sm:p-6 lg:p-8 max-w-[1500px] flex flex-col gap-6">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-white">
             Stock
@@ -381,7 +381,7 @@ export default function StockPage() {
   // ── Page principale ──────────────────────────────────────
   return (
     <>
-      <div className="p-4 sm:p-6 lg:p-8 max-w-[1440px] flex flex-col gap-6">
+      <div className="ky-page p-4 sm:p-6 lg:p-8 max-w-[1500px] flex flex-col gap-6">
         {/* Header */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -441,7 +441,7 @@ export default function StockPage() {
         </div>
 
         {/* Barre de filtres */}
-        <div className="rounded-xl border border-neutral-800/60 bg-neutral-800/20 p-4 flex flex-col gap-3">
+        <div className="ky-toolbar rounded-xl border border-neutral-800/60 bg-neutral-800/20 p-4 flex flex-col gap-3">
           {/* Ligne 1 : toggle + compteur */}
           <div className="flex flex-wrap items-center gap-3">
             <button
