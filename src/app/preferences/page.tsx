@@ -6,6 +6,8 @@ import React, {
   useState,
 } from "react";
 import { toast } from "sonner";
+import AccountSetupWizard from "@/components/onboarding/AccountSetupWizard";
+import PaymentMethodsPicker, { validatePaymentMethods } from "@/components/preferences/PaymentMethodsPicker";
 import { createClient } from "@/lib/supabase/client";
 import {
   getCompanyPreferences,
@@ -30,7 +32,7 @@ export default function PreferencesPage() {
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
-  const [newPaymentMethod, setNewPaymentMethod] = useState("");
+  const [setupOpen, setSetupOpen] = useState(false);
 
   // ─────────────────────────────────────────────────────────
   // CHARGEMENT INITIAL — récupère companyId puis preferences
@@ -146,38 +148,20 @@ async function handleInvoicePrefixChange(value: string) {
   }
 }
 
- function removePaymentMethod(method: string) {
-  if (!preferences) return;
-
-  const current = preferences.defaultPaymentMethods ?? [];
-  const next = current.filter((m) => m !== method);
-
-  update("defaultPaymentMethods", next);
-}
-
-function addPaymentMethod() {
-  if (!preferences) return;
-
-  const cleanValue = newPaymentMethod.trim();
-
-  if (!cleanValue) return;
-
-  const current = preferences.defaultPaymentMethods ?? DEFAULT_COMPANY_PREFERENCES.defaultPaymentMethods;
-
-  if (current.includes(cleanValue)) {
-    setNewPaymentMethod("");
-    return;
-  }
-
-  update("defaultPaymentMethods", [...current, cleanValue]);
-  setNewPaymentMethod("");
-}
   // ─────────────────────────────────────────────────────────
   // SAVE
   // ─────────────────────────────────────────────────────────
 
   async function handleSave() {
     if (!preferences || !isDirty) return;
+
+    const paymentError = validatePaymentMethods(preferences.defaultPaymentMethods);
+    if (paymentError) { setErrorMessage(paymentError); setSaveStatus("error"); return; }
+    if (!preferences.invoicePrefix.trim() || preferences.invoicePrefix.trim().length > 8) {
+      setErrorMessage("Le préfixe de facture doit comporter entre 1 et 8 caractères.");
+      setSaveStatus("error");
+      return;
+    }
 
     setSaveStatus("saving");
     setErrorMessage(null);
@@ -272,6 +256,18 @@ function addPaymentMethod() {
 
   return (
     <div className="pb-32"> {/* padding bottom pour ne pas être caché par la barre sticky */}
+      <AccountSetupWizard
+        companyId={preferences.companyId}
+        companyName={preferences.invoiceCompanyName}
+        open={setupOpen}
+        onClose={() => setSetupOpen(false)}
+        onSaved={(updated) => {
+          setPreferences(updated);
+          setOriginal(updated);
+          setSaveStatus("idle");
+          toast.success("Préférences mises à jour.");
+        }}
+      />
 
       <div className="p-4 sm:p-6 lg:p-8 pb-36 sm:pb-28 max-w-4xl space-y-8">
 
@@ -295,6 +291,26 @@ function addPaymentMethod() {
             Configurez les informations qui apparaîtront sur vos factures et la numérotation automatique des documents.
           </p>
         </div>
+
+        {/* ═══ CONFIGURATION RAPIDE ═══════════════════════ */}
+        <section className="rounded-2xl border border-amber-500/35 bg-gradient-to-br from-amber-500/12 to-neutral-900/50 p-5 sm:p-7">
+          <span className="text-xs font-semibold uppercase tracking-wider text-amber-400">Assistant de démarrage</span>
+          <h2 className="mt-2 text-xl font-bold text-white sm:text-2xl">Configurer en un clic</h2>
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-neutral-300">
+            Renseignez votre société, les mentions de facture, la TVA et les modes de paiement en trois étapes.
+            Vous pourrez toujours modifier ces informations ci-dessous.
+          </p>
+          <button type="button" onClick={() => {
+            if (isDirty) {
+              toast.error("Enregistrez ou annulez d'abord les modifications en cours.");
+              return;
+            }
+            setSetupOpen(true);
+          }}
+            className="mt-4 inline-flex w-full justify-center rounded-lg bg-amber-500 px-5 py-3 text-sm font-bold text-neutral-950 hover:bg-amber-400 sm:w-auto">
+            Configurer mon compte en un clic →
+          </button>
+        </section>
 
         {/* ═══ SECTION 1 — SOCIÉTÉ ════════════════════════ */}
         <Section
@@ -426,7 +442,8 @@ function addPaymentMethod() {
   type="text"
   value={preferences.invoicePrefix}
   onChange={(e) => handleInvoicePrefixChange(e.target.value)}
-  placeholder="F-"
+  maxLength={8}
+  placeholder="FAC"
   className={`${inputClasses} font-mono`}
 />
                 <p className={helperTextClasses}>
@@ -476,74 +493,10 @@ function addPaymentMethod() {
             </svg>
           }
         >
-<div className="space-y-4">
-  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-    {(preferences.defaultPaymentMethods?.length
-      ? preferences.defaultPaymentMethods
-      : DEFAULT_COMPANY_PREFERENCES.defaultPaymentMethods
-    ).map((method) => (
-      <div
-        key={method}
-        className="
-          relative flex items-center justify-between gap-2
-          rounded-lg px-3 py-2.5 text-sm font-medium
-          border transition-all duration-150
-          bg-amber-500/10 text-amber-400 border-amber-500/30
-        "
-      >
-        <span>{method}</span>
-
-        <button
-          type="button"
-          onClick={() => removePaymentMethod(method)}
-          className="
-            absolute -top-2 -right-2
-            inline-flex h-5 w-5 items-center justify-center
-            rounded-full
-            bg-neutral-950 border border-neutral-700
-            text-neutral-400
-            hover:text-red-400 hover:border-red-500/50
-            transition-colors
-          "
-          aria-label={`Supprimer ${method}`}
-        >
-          ×
-        </button>
-      </div>
-    ))}
-  </div>
-
-  <div className="flex flex-col sm:flex-row gap-2">
-    <input
-      type="text"
-      value={newPaymentMethod}
-      onChange={(e) => setNewPaymentMethod(e.target.value)}
-      onKeyDown={(e) => {
-        if (e.key === "Enter") {
-          e.preventDefault();
-          addPaymentMethod();
-        }
-      }}
-      placeholder="Ajouter un mode de paiement"
-      className={inputClasses}
-    />
-
-    <button
-      type="button"
-      onClick={addPaymentMethod}
-      className="
-        rounded-lg px-4 py-2.5
-        text-sm font-semibold
-        bg-amber-500 text-neutral-950
-        hover:bg-amber-400
-        transition-colors
-        whitespace-nowrap
-      "
-    >
-      Ajouter
-    </button>
-  </div>
-</div>
+          <PaymentMethodsPicker
+            value={preferences.defaultPaymentMethods}
+            onChange={(methods) => update("defaultPaymentMethods", methods)}
+          />
         </Section>
 
         {/* ═══ SECTION 5 — TVA ════════════════════════════ */}
