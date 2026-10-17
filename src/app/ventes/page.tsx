@@ -60,6 +60,7 @@ type VentePayload = {
   lines: SaleLineInput[];
   saveClient?: boolean;
   openFeesAfterSave?: boolean;
+  draftFees?: TransactionFeeDraft[];
 };
 
 function formatDateFr(value: string): string {
