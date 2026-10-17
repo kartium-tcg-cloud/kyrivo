@@ -7,7 +7,6 @@ interface AchatsHeaderProps {
   totalMontant: number;
   totalTVA?: number;
   onAjouter: () => void;
-  onImporterVinted?: () => void;
 }
 
 export default function AchatsHeader({
@@ -15,7 +14,6 @@ export default function AchatsHeader({
   totalMontant,
   totalTVA,
   onAjouter,
-  onImporterVinted,
 }: AchatsHeaderProps) {
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -61,32 +59,6 @@ export default function AchatsHeader({
       </div>
 
       <div className="flex items-center gap-2">
-        {onImporterVinted && <button
-          type="button"
-          onClick={onImporterVinted}
-          title="Importer une commande Vinted"
-          className="
-            inline-flex items-center gap-2
-            rounded-lg pl-4 pr-2.5 py-2
-            border border-amber-500/30 bg-amber-500/5 text-amber-300
-            text-sm font-semibold hover:bg-amber-500/10
-          "
-        >
-          <svg
-            className="h-4 w-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.8}
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"
-            />
-          </svg>
-          Importer depuis Vinted
-        </button>}
 
         <button
           onClick={onAjouter}
