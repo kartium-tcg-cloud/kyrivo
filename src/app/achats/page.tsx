@@ -572,6 +572,9 @@ if (usageError) {
 
       await refreshPurchases(companyId);
       fermerModal();
+      if (nouvelAchat.openFeesAfterSave && enableTransactionFees) {
+        setPurchaseForFees({ id: created.id } as Achat);
+      }
     } catch (error: any) {
       console.error(error);
       if (error?.isStockItemError) {
@@ -849,6 +852,7 @@ const modifierAchat = async (achatModifie: Achat) => {
         achatInitial={achatEnEdition}
         supplierContacts={supplierContacts}
         existingCategories={existingCategories}
+        enableFees={enableTransactionFees}
       />
 
       <VintedFiscalReviewModal
