@@ -504,7 +504,7 @@ export default async function DashboardPage() {
         <div className="space-y-4">
 
           {/* Accès rapide */}
-          <div className="surface rounded-xl border border-neutral-800 bg-neutral-900/40 overflow-hidden transition-colors hover:border-neutral-700/80">
+          <div className="ky-panel surface rounded-xl border border-neutral-800 bg-neutral-900/40 overflow-hidden transition-colors hover:border-neutral-700/80">
             <div className="px-5 py-4 border-b border-neutral-800">
               <h2 className="text-sm font-semibold text-white">Accès rapide</h2>
             </div>
@@ -518,7 +518,7 @@ export default async function DashboardPage() {
           </div>
 
           {/* Abonnement */}
-          <div className="surface card-amber-glow rounded-xl border border-amber-500/15 bg-gradient-to-b from-amber-500/[0.04] to-neutral-900/40 overflow-hidden transition-colors">
+          <div className="ky-panel surface card-amber-glow rounded-xl border border-amber-500/15 bg-gradient-to-b from-amber-500/[0.04] to-neutral-900/40 overflow-hidden transition-colors">
             <div className="px-5 py-4 border-b border-neutral-800/80">
               <h2 className="text-sm font-semibold text-white">Abonnement</h2>
             </div>
@@ -556,7 +556,7 @@ export default async function DashboardPage() {
           </div>
 
           {/* Support */}
-          <div className="surface rounded-xl border border-neutral-800 bg-neutral-900/40 p-4 flex items-center gap-3">
+          <div className="ky-panel surface rounded-xl border border-neutral-800 bg-neutral-900/40 p-4 flex items-center gap-3">
             <span className="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-neutral-800 text-neutral-500">
               <MailIcon />
             </span>
@@ -609,7 +609,7 @@ function StatTile({
           : { icon: "bg-neutral-800/60 border-neutral-700 text-neutral-400", value: "text-white" };
 
   return (
-    <div className="surface group rounded-xl border border-neutral-800 bg-neutral-900/40 p-4 transition-all duration-200 hover:border-neutral-700 hover:bg-neutral-900/60">
+    <div className="ky-kpi surface group rounded-xl border border-neutral-800 bg-neutral-900/40 p-4 transition-all duration-200 hover:border-neutral-700 hover:bg-neutral-900/60">
       <div className="flex items-center gap-3 mb-3">
         <span
           className={`inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border transition-transform duration-200 group-hover:scale-110 ${styles.icon}`}
