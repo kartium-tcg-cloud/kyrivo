@@ -527,6 +527,9 @@ function VentesContent() {
       await refreshStock(companyId);
 
       fermerModal();
+      if (vente.openFeesAfterSave && enableTransactionFees && createdSale) {
+        setSaleForFees({ id: createdSale.id } as Sale);
+      }
     } catch (error: any) {
       console.error(error);
       if (error?.isSaleCreationError) {
@@ -784,6 +787,7 @@ function VentesContent() {
 stockItems={stockItems}
 clients={clients}
 prefillItem={prefillItem}
+enableFees={enableTransactionFees}
       />
 
       {exportConfirmOpen && (
