@@ -26,7 +26,6 @@ import AchatsHeader from "@/components/achats/AchatsHeader";
 import AchatsFiltres from "@/components/achats/AchatsFiltres";
 import AchatsTableau from "@/components/achats/AchatsTableau";
 import AchatFormModal from "@/components/achats/AchatFormModal";
-import VintedImportModal from "@/components/achats/VintedImportModal";
 import TransactionFeesModal from "@/components/fees/TransactionFeesModal";
 import { getTransactionFees } from "@/lib/feeQueries";
 
@@ -272,8 +271,6 @@ export default function AchatsPage() {
   const [modalOuverte, setModalOuverte] = useState(false);
   const [achatEnEdition, setAchatEnEdition] = useState<Achat | null>(null);
   const [achatFiscalReview, setAchatFiscalReview] = useState<Achat | null>(null);
-  const [vintedModalOuverte, setVintedModalOuverte] = useState(false);
-  const [enableVinted, setEnableVinted] = useState(false);
   const [enableTransactionFees, setEnableTransactionFees] = useState(false);
   const [companyIdForFees, setCompanyIdForFees] = useState("");
   const [purchaseForFees, setPurchaseForFees] = useState<Achat | null>(null);
@@ -332,7 +329,6 @@ export default function AchatsPage() {
     );
 
     const prefs = await getCompanyPreferences(companyId);
-    setEnableVinted(prefs.enableVinted);
     setEnableTransactionFees(prefs.enableTransactionFees);
     setCompanyIdForFees(companyId);
     const purchases = await getPurchases(companyId);
@@ -430,15 +426,6 @@ export default function AchatsPage() {
     setAchatEnEdition(null);
     setModalOuverte(true);
   };
-
-  const ouvrirImportVinted = () => {
-    if (!enableVinted) {
-      toast.error("Activez le mode Vinted dans Préférences → Plateformes et imports.");
-      return;
-    }
-    setVintedModalOuverte(true);
-  };
-  const fermerVintedModal = () => setVintedModalOuverte(false);
 
   const ouvrirEdition = (achat: Achat) => {
     if (achat.articles?.some((article) => article.stockRestant > 0 && article.fiscalCostReviewRequired)) {
@@ -777,7 +764,6 @@ const modifierAchat = async (achatModifie: Achat) => {
         totalMontant={totalMontant}
         totalTVA={totalTVA}
         onAjouter={ouvrirAjout}
-        onImporterVinted={undefined}
       />
 
       {achats.length === 0 ? (
@@ -792,20 +778,6 @@ const modifierAchat = async (achatModifie: Achat) => {
             Commencez par enregistrer votre premier achat. Tous vos achats PRO et particuliers seront centralisés ici.
           </p>
           <div className="flex flex-col sm:flex-row items-center gap-3">
-            {false && <button
-              type="button"
-              onClick={ouvrirImportVinted}
-              title="Importer une commande Vinted"
-              className="inline-flex items-center gap-2 rounded-lg border border-neutral-800 bg-neutral-900/40 pl-5 pr-3 py-2.5 text-sm font-semibold text-neutral-500 cursor-not-allowed"
-            >
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
-              </svg>
-              Importer depuis Vinted
-              <span className="rounded-full bg-neutral-800 px-2 py-0.5 text-[10px] font-semibold text-neutral-400">
-                Actif
-              </span>
-            </button>}
             <button
               type="button"
               onClick={ouvrirAjout}
@@ -863,13 +835,6 @@ const modifierAchat = async (achatModifie: Achat) => {
           if (companyId) await refreshPurchases(companyId);
         }}
       />
-
-      {false && <VintedImportModal
-        ouvert={vintedModalOuverte}
-        onFermer={fermerVintedModal}
-        onCreer={ajouterAchat}
-        existingCategories={existingCategories}
-      />}
 
       {exportConfirmOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
