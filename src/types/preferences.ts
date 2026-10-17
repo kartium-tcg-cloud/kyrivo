@@ -16,6 +16,8 @@ export interface CompanyPreferences {
 
   defaultPaymentMethods: string[];
   defaultVatRate: number;
+  /** Affiche le suivi optionnel des frais internes et facturés, sans modifier les historiques. */
+  enableTransactionFees: boolean;
 }
 
 export const DEFAULT_COMPANY_PREFERENCES: Omit<
@@ -35,6 +37,7 @@ export const DEFAULT_COMPANY_PREFERENCES: Omit<
   invoiceNextNumber: 1,
 
   defaultVatRate: 0,
+  enableTransactionFees: false,
 
   defaultPaymentMethods: [
     "Virement",

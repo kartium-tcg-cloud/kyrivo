@@ -42,6 +42,7 @@ function mapPreference(row: any): CompanyPreferences {
     defaultVatRate: Number.isFinite(Number(row.default_vat_rate))
       ? Number(row.default_vat_rate)
       : DEFAULT_COMPANY_PREFERENCES.defaultVatRate,
+    enableTransactionFees: row.enable_transaction_fees === true,
   };
 }
 
@@ -174,6 +175,7 @@ export async function upsertCompanyPreferences(
 
         default_payment_methods: preferences.defaultPaymentMethods,
         default_vat_rate: preferences.defaultVatRate,
+        enable_transaction_fees: preferences.enableTransactionFees,
 
         updated_at: new Date().toISOString(),
       },
