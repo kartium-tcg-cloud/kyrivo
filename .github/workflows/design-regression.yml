@@ -1,0 +1,24 @@
+name: Global design regression
+on:
+  pull_request:
+    paths:
+      - 'src/app/globals.css'
+      - 'src/app/layout.tsx'
+      - 'src/app/**/page.tsx'
+      - 'src/app/page.tsx'
+      - 'src/components/**'
+      - 'tests/design-regression.test.cjs'
+      - '.github/workflows/design-regression.yml'
+jobs:
+  design:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx next typegen
+      - run: npx tsc --noEmit
+      - run: node --test tests/design-regression.test.cjs tests/fees-always-on.test.cjs tests/vinted-import-disabled.test.cjs
