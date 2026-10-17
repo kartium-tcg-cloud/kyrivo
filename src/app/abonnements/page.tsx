@@ -378,7 +378,7 @@ const handlePortal = async () => {
 };
 
   return (
-    <div className="relative overflow-hidden">
+    <div className="ky-marketing relative overflow-hidden">
 
       {/* ═══ BANNIÈRE CANCELED ENCORE ACTIF ════════════════ */}
       {(isCanceled || cancellationScheduled) && (canceledEndsAt || subscriptionEndsAt) && (
@@ -856,7 +856,7 @@ if (isAuthenticated) {
   return (
     <div
       className={`
-        relative rounded-2xl overflow-hidden
+        ky-pricing-card relative rounded-2xl overflow-hidden
         transition-all duration-300
         flex flex-col
         ${cardClasses}
