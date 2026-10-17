@@ -1,4 +1,6 @@
 "use client";
+import { saveDraftTransactionFees } from "@/lib/saveDraftTransactionFees";
+
 
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -60,6 +62,7 @@ type VentePayload = {
   lines: SaleLineInput[];
   saveClient?: boolean;
   openFeesAfterSave?: boolean;
+  draftFees?: TransactionFeeDraft[];
 };
 
 function formatDateFr(value: string): string {
@@ -533,11 +536,21 @@ function VentesContent() {
         );
       }
 
+      let feesSaveFailed = false;
+      if (enableTransactionFees && vente.draftFees?.length && createdSale) {
+        try {
+          await saveDraftTransactionFees({ companyId, saleId: createdSale.id, fees: vente.draftFees });
+        } catch (feeError) {
+          console.error("Vente créée, mais frais non enregistrés :", feeError);
+          feesSaveFailed = true;
+          toast.error("Vente enregistrée, mais les frais n'ont pas pu être sauvegardés. Ajoutez-les dans la fiche Frais de cette vente.");
+        }
+      }
       await refreshSales(companyId);
       await refreshStock(companyId);
 
       fermerModal();
-      if (vente.openFeesAfterSave && enableTransactionFees && createdSale) {
+      if ((feesSaveFailed || vente.openFeesAfterSave) && enableTransactionFees && createdSale) {
         setSaleForFees({ id: createdSale.id } as Sale);
       }
     } catch (error: any) {
