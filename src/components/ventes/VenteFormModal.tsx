@@ -34,7 +34,6 @@ interface VenteFormModalProps {
   stockItems: AvailableStockItem[];
   clients?: { id: string; name: string }[];
   prefillItem?: AvailableStockItem | null;
-  enableFees?: boolean;
 }
 
 type VentePayload = {
@@ -50,7 +49,6 @@ type VentePayload = {
   notes?: string;
   lines: SaleLineInput[];
   saveClient?: boolean;
-  openFeesAfterSave?: boolean;
   draftFees?: TransactionFeeDraft[];
 };
 
@@ -122,7 +120,6 @@ enableFees = false,
 
   const [defaultVatRate, setDefaultVatRate] = useState(21);
   const [lines, setLines] = useState<FormLine[]>([emptyLine()]);
-  const [openFeesAfterSave, setOpenFeesAfterSave] = useState(false);
   const [draftFees, setDraftFees] = useState<TransactionFeeDraft[]>([]);
   const [erreurs, setErreurs] = useState<string[]>([]);
   const [paymentMethods, setPaymentMethods] = useState<string[]>([
@@ -457,7 +454,6 @@ setForm({
     });
     setModeMontantStandard("ttc");
     setLines([emptyLine(vatRate)]);
-    setOpenFeesAfterSave(false);
     setDraftFees([]);
     setErreurs([]);
   };
@@ -527,8 +523,7 @@ setForm({
       notes: form.notes.trim() || undefined,
       lines: mappedLines,
       saveClient: form.saveClient,
-      openFeesAfterSave: !isEditing && enableFees && openFeesAfterSave,
-      draftFees: !isEditing && enableFees ? draftFees : undefined,
+      draftFees: !isEditing ? draftFees : undefined,
     };
 
     if (isEditing) {
@@ -1214,7 +1209,7 @@ setForm({
             </label>
           </div>
 
-          {!isEditing && enableFees && (
+          {!isEditing && (
             <TransactionFeesInline fees={draftFees} onChange={setDraftFees} isSale={true} />
           )}
           <div>
