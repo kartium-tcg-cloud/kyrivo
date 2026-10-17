@@ -5,6 +5,7 @@ import { Achat, AchatFiltres, AchatItemInput } from "@/types/achat";
 import { ItemStatus, isItemStatus } from "@/types/item";
 import { createClient } from "@/lib/supabase/client";
 import { exportPurchasesToExcel } from "@/lib/exportPurchases";
+import { getCompanyPreferences } from "@/lib/preferences";
 import VintedFiscalReviewModal from "@/components/achats/VintedFiscalReviewModal";
 import { validateVintedCosts } from "@/lib/vintedCosts";
 import { canCreateLines } from "@/lib/subscriptions";
@@ -264,6 +265,7 @@ export default function AchatsPage() {
   const [achatEnEdition, setAchatEnEdition] = useState<Achat | null>(null);
   const [achatFiscalReview, setAchatFiscalReview] = useState<Achat | null>(null);
   const [vintedModalOuverte, setVintedModalOuverte] = useState(false);
+  const [enableVinted, setEnableVinted] = useState(false);
   const [supplierContacts, setSupplierContacts] = useState<Array<{ id: string; name: string }>>([]);
   const [existingCategories, setExistingCategories] = useState<string[]>([]);
   const [exportConfirmOpen, setExportConfirmOpen] = useState(false);
@@ -318,6 +320,8 @@ export default function AchatsPage() {
       )
     );
 
+    const prefs = await getCompanyPreferences(companyId);
+    setEnableVinted(prefs.enableVinted);
     const purchases = await getPurchases(companyId);
     const purchaseIds = purchases.map((p: any) => p.id);
     const purchaseItems = await getPurchaseItems(purchaseIds);
@@ -411,7 +415,13 @@ export default function AchatsPage() {
     setModalOuverte(true);
   };
 
-  const ouvrirImportVinted = () => setVintedModalOuverte(true);
+  const ouvrirImportVinted = () => {
+    if (!enableVinted) {
+      toast.error("Activez le mode Vinted dans Préférences → Plateformes et imports.");
+      return;
+    }
+    setVintedModalOuverte(true);
+  };
   const fermerVintedModal = () => setVintedModalOuverte(false);
 
   const ouvrirEdition = (achat: Achat) => {
@@ -748,7 +758,7 @@ const modifierAchat = async (achatModifie: Achat) => {
         totalMontant={totalMontant}
         totalTVA={totalTVA}
         onAjouter={ouvrirAjout}
-        onImporterVinted={ouvrirImportVinted}
+        onImporterVinted={enableVinted ? ouvrirImportVinted : undefined}
       />
 
       {achats.length === 0 ? (
@@ -763,10 +773,10 @@ const modifierAchat = async (achatModifie: Achat) => {
             Commencez par enregistrer votre premier achat. Tous vos achats PRO et particuliers seront centralisés ici.
           </p>
           <div className="flex flex-col sm:flex-row items-center gap-3">
-            <button
+            {enableVinted && <button
               type="button"
-              disabled
-              title="Import Vinted bientôt disponible"
+              onClick={ouvrirImportVinted}
+              title="Importer une commande Vinted"
               className="inline-flex items-center gap-2 rounded-lg border border-neutral-800 bg-neutral-900/40 pl-5 pr-3 py-2.5 text-sm font-semibold text-neutral-500 cursor-not-allowed"
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
@@ -774,9 +784,9 @@ const modifierAchat = async (achatModifie: Achat) => {
               </svg>
               Importer depuis Vinted
               <span className="rounded-full bg-neutral-800 px-2 py-0.5 text-[10px] font-semibold text-neutral-400">
-                Bientôt
+                Actif
               </span>
-            </button>
+            </button>}
             <button
               type="button"
               onClick={ouvrirAjout}
@@ -824,12 +834,12 @@ const modifierAchat = async (achatModifie: Achat) => {
         }}
       />
 
-      <VintedImportModal
+      {enableVinted && <VintedImportModal
         ouvert={vintedModalOuverte}
         onFermer={fermerVintedModal}
         onCreer={ajouterAchat}
         existingCategories={existingCategories}
-      />
+      />}
 
       {exportConfirmOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
