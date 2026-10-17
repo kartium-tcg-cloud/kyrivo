@@ -48,6 +48,7 @@ interface VentesTableauProps {
   ventes: Sale[];
   onModifier: (vente: Sale) => void;
   onSupprimer: (id: string) => void;
+  onManageFees?: (vente: Sale) => void;
 }
 
 function formatEuro(montant: number): string {
@@ -69,6 +70,7 @@ export default function VentesTableau({
   ventes,
   onModifier,
   onSupprimer,
+  onManageFees,
 }: VentesTableauProps) {
   const [ligneOuverte, setLigneOuverte] = useState<string | null>(null);
   const [sortConfig, setSortConfig] = useState<SortConfig<VenteSortKey>>({
@@ -333,6 +335,13 @@ export default function VentesTableau({
                         </svg>
                       </button>
 
+                      {onManageFees && (
+                        <button type="button" title="Frais de cette vente"
+                          onClick={(e) => { e.stopPropagation(); onManageFees(vente); }}
+                          className="rounded-md border border-amber-500/30 px-2 py-1 text-xs font-semibold text-amber-300 hover:bg-amber-500/10">
+                          Frais
+                        </button>
+                      )}
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
