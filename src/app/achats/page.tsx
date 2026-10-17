@@ -7,7 +7,6 @@ import { Achat, AchatFiltres, AchatItemInput } from "@/types/achat";
 import { ItemStatus, isItemStatus } from "@/types/item";
 import { createClient } from "@/lib/supabase/client";
 import { exportPurchasesToExcel } from "@/lib/exportPurchases";
-import { getCompanyPreferences } from "@/lib/preferences";
 import VintedFiscalReviewModal from "@/components/achats/VintedFiscalReviewModal";
 import { validateVintedCosts } from "@/lib/vintedCosts";
 import { canCreateLines } from "@/lib/subscriptions";
@@ -273,7 +272,6 @@ export default function AchatsPage() {
   const [modalOuverte, setModalOuverte] = useState(false);
   const [achatEnEdition, setAchatEnEdition] = useState<Achat | null>(null);
   const [achatFiscalReview, setAchatFiscalReview] = useState<Achat | null>(null);
-  const [enableTransactionFees, setEnableTransactionFees] = useState(false);
   const [companyIdForFees, setCompanyIdForFees] = useState("");
   const [purchaseForFees, setPurchaseForFees] = useState<Achat | null>(null);
   const [supplierContacts, setSupplierContacts] = useState<Array<{ id: string; name: string }>>([]);
@@ -330,8 +328,6 @@ export default function AchatsPage() {
       )
     );
 
-    const prefs = await getCompanyPreferences(companyId);
-    setEnableTransactionFees(prefs.enableTransactionFees);
     setCompanyIdForFees(companyId);
     const purchases = await getPurchases(companyId);
     const purchaseIds = purchases.map((p: any) => p.id);
@@ -560,7 +556,7 @@ if (usageError) {
 }
 
       let feesSaveFailed = false;
-      if (enableTransactionFees && nouvelAchat.draftFees?.length) {
+      if (nouvelAchat.draftFees?.length) {
         try {
           await saveDraftTransactionFees({ companyId, purchaseId: created.id, fees: nouvelAchat.draftFees });
         } catch (feeError) {
@@ -571,7 +567,7 @@ if (usageError) {
       }
       await refreshPurchases(companyId);
       fermerModal();
-      if (feesSaveFailed || (nouvelAchat.openFeesAfterSave && enableTransactionFees)) {
+      if (feesSaveFailed) {
         setPurchaseForFees({ id: created.id } as Achat);
       }
     } catch (error: any) {
@@ -814,12 +810,12 @@ const modifierAchat = async (achatModifie: Achat) => {
             achats={achatsFiltres}
             onModifier={ouvrirEdition}
             onSupprimer={supprimerAchat}
-            onManageFees={enableTransactionFees ? setPurchaseForFees : undefined}
+            onManageFees={setPurchaseForFees}
           />
         </>
       )}
 
-      {enableTransactionFees && companyIdForFees && purchaseForFees && (
+      {companyIdForFees && purchaseForFees && (
         <TransactionFeesModal
           ouvert={true}
           companyId={companyIdForFees}
@@ -836,7 +832,6 @@ const modifierAchat = async (achatModifie: Achat) => {
         achatInitial={achatEnEdition}
         supplierContacts={supplierContacts}
         existingCategories={existingCategories}
-        enableFees={enableTransactionFees}
       />
 
       <VintedFiscalReviewModal
