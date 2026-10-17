@@ -5,6 +5,7 @@ import { Achat, AchatFiltres, AchatItemInput } from "@/types/achat";
 import { ItemStatus, isItemStatus } from "@/types/item";
 import { createClient } from "@/lib/supabase/client";
 import { exportPurchasesToExcel } from "@/lib/exportPurchases";
+import { validateVintedCosts } from "@/lib/vintedCosts";
 import { canCreateLines } from "@/lib/subscriptions";
 import { toast } from "sonner";
 
@@ -90,6 +91,8 @@ function mapPurchase(p: any, itemsByPurchaseId: Map<string, any[]>): Achat {
     numFacture: "",
     commentaire: p.comment || undefined,
     documentUrl: p.document_url || undefined,
+    source: p.source === "vinted_import" ? "vinted_import" : "manual",
+    sourceDetails: p.source_details ?? undefined,
     articles,
     avecStock: articles.length > 0,
   };
@@ -151,6 +154,9 @@ function buildPurchaseItems(params: {
       stock_quantity: quantity,
       unit_cost: unitCostHT,
       total_cost: Math.round(unitCostTTC * quantity * 100) / 100,
+      fiscal_unit_cost: achat.source === "vinted_import" ? unitCostTTC : null,
+      fiscal_cost_review_required:
+        achat.source === "vinted_import" && !achat.documentFile && !achat.documentUrl,
       vat_type: achat.type,
       vat_rate: vatRate,
       margin_eligible: achat.type === "particulier",
@@ -416,6 +422,15 @@ export default function AchatsPage() {
 
   const ajouterAchat = async (nouvelAchat: Achat) => {
     try {
+      if (nouvelAchat.source === "vinted_import") {
+        const detail = nouvelAchat.sourceDetails;
+        if (!detail || validateVintedCosts(detail).length ||
+            nouvelAchat.items?.length !== 1 ||
+            Math.round((nouvelAchat.items[0]?.cout ?? 0) * 100) !== Math.round(detail.sellerPrice * 100) ||
+            Math.round(nouvelAchat.prixTTC * 100) !== Math.round(detail.paidTotal * 100)) {
+          throw new Error("La ventilation du prix Vinted n'est pas cohérente.");
+        }
+      }
       const companyId = await getCompanyId();
       if (!companyId) return;
 
@@ -465,6 +480,8 @@ toast.error(
         vat_amount: nouvelAchat.prixTVA,
         amount_ttc: nouvelAchat.prixTTC,
         comment: nouvelAchat.commentaire,
+        source: nouvelAchat.source ?? "manual",
+        source_details: nouvelAchat.source === "vinted_import" ? { ...nouvelAchat.sourceDetails } : null,
       });
 
       let documentPath: string | undefined = undefined;
