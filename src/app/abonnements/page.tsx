@@ -433,7 +433,7 @@ const handlePortal = async () => {
         <div className="absolute -top-40 left-1/2 -translate-x-1/2 h-[500px] w-[900px] rounded-full opacity-[0.12] blur-3xl bg-glow-brand" />
       </div>
 
-      <div className="relative px-6 lg:px-10 py-10 lg:py-14 mx-auto max-w-6xl">
+      <div className="relative px-5 sm:px-6 lg:px-10 py-10 lg:py-14 mx-auto max-w-6xl">
 
         {/* ═══ HEADER ═══════════════════════════════════════ */}
         <header className="flex flex-col items-center text-center pb-8">
