@@ -33,13 +33,28 @@ function mockSubscriptionRow(overrides = {}) {
     plan: "pro",
     status: "expired",
     monthly_line_limit: 0,
+    billing_period: "monthly",
+    subscription_ends_at: null,
     ...overrides,
   };
 }
 
-function createHarness(event, row = mockSubscriptionRow()) {
-  const writes = [];
+function createHarness(event, row = mockSubscriptionRow(), options = {}) {
+  const writes = [], stripeUpdates = [];
   const module = { exports: {} };
+  let currentEvent = event;
+  const nowSec = options.nowSec ?? Math.floor(Date.parse("2026-10-15T04:00:00Z")/1000);
+  const FixedDate = class extends Date {
+    constructor(...args) { super(...(args.length ? args : [nowSec*1000])); }
+    static now() { return nowSec*1000; }
+  };
+  const source = event.type === "customer.subscription.updated" ? event.data.object : null;
+  const liveSubscription = options.liveSubscription ?? {
+    id: "sub_test", customer: "cus_test", status: source?.status ?? "active",
+    billing_mode: { type: "flexible" }, cancel_at_period_end: false, metadata: {},
+    items: { data: [{ price: { id: "price_pro" }, current_period_start: START, current_period_end: END }] },
+    ...(source ?? {}),
+  };
 
   const supabaseAdmin = {
     from(table) {
@@ -57,6 +72,8 @@ function createHarness(event, row = mockSubscriptionRow()) {
                         stripe_subscription_id: row.stripe_subscription_id,
                         status: row.status,
                         plan: row.plan,
+                        billing_period: row.billing_period,
+                        subscription_ends_at: row.subscription_ends_at,
                       },
                       error: null,
                     };
@@ -82,10 +99,25 @@ function createHarness(event, row = mockSubscriptionRow()) {
     },
   };
   const stripe = {
-    webhooks: { constructEvent: () => event },
+    webhooks: { constructEvent: () => currentEvent },
     invoices: {
-      listLineItems: async () => {
-        throw new Error("Unexpected invoice line lookup");
+      retrieve: async () => ({ status: options.liveInvoiceStatus ?? "paid" }),
+      listLineItems: async () => { throw new Error("Unexpected invoice line lookup"); },
+    },
+    subscriptions: {
+      retrieve: async () => liveSubscription,
+      update: async (id, args, reqOptions) => {
+        assert.equal(id, "sub_test");
+        assert.equal(args.billing_cycle_anchor, "now");
+        assert.equal(args.proration_behavior, "none");
+        assert.ok(reqOptions.idempotencyKey.includes(args.metadata.kyrivo_late_invoice_id));
+        stripeUpdates.push(args);
+        const start = new Date(nowSec*1000), end = new Date(nowSec*1000);
+        end.setUTCMonth(end.getUTCMonth()+(options.intervalMonths ?? 1));
+        liveSubscription.metadata = { ...liveSubscription.metadata, ...args.metadata };
+        liveSubscription.items.data[0].current_period_start = nowSec;
+        liveSubscription.items.data[0].current_period_end = Math.floor(end.getTime()/1000);
+        return liveSubscription;
       },
     },
   };
@@ -116,24 +148,27 @@ function createHarness(event, row = mockSubscriptionRow()) {
     require: mockRequire,
     process: { env: { STRIPE_WEBHOOK_SECRET: "whsec_unit_test_only" } },
     console: { log() {}, warn() {}, error() {} },
+    Date: FixedDate,
   }, { filename: "route.ts" });
 
-  async function deliver() {
+  async function deliver(nextEvent) {
+    if (nextEvent) currentEvent = nextEvent;
     return module.exports.POST({
       text: async () => "mock-body",
       headers: { get: (name) => name === "stripe-signature" ? "mock-signature" : null },
     });
   }
-  return { row, writes, deliver };
+  return { row, writes, deliver, stripeUpdates, liveSubscription };
 }
 
-function paidRenewal(priceId = "price_pro") {
+function paidRenewal(priceId = "price_pro", options = {}) {
   return {
     type: "invoice.paid",
     data: {
       object: {
-        id: "in_test",
+        id: options.invoiceId ?? "in_test",
         billing_reason: "subscription_cycle",
+        status_transitions: { paid_at: options.paidAt ?? START+20 },
         customer: "cus_test",
         parent: { subscription_details: { subscription: "sub_test" } },
         lines: {
@@ -144,7 +179,7 @@ function paidRenewal(priceId = "price_pro") {
               subscription_item_details: { proration: false },
             },
             pricing: { price_details: { price: priceId } },
-            period: { start: START, end: END },
+            period: { start: options.start ?? START, end: options.end ?? END },
           }],
         },
       },
