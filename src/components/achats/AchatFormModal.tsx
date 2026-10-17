@@ -16,7 +16,6 @@ interface AchatFormModalProps {
   achatInitial?: Achat | null;
   supplierContacts?: Array<{ id: string; name: string }>;
   existingCategories?: string[];
-  enableFees?: boolean;
 }
 
 interface AchatItem {
@@ -71,7 +70,6 @@ export default function AchatFormModal({
   achatInitial = null,
   supplierContacts = [],
   existingCategories = [],
-  enableFees = false,
 }: AchatFormModalProps) {
   const isEditing = Boolean(achatInitial);
 
@@ -90,7 +88,6 @@ export default function AchatFormModal({
   const [tauxTVA, setTauxTVA] = useState(21);
   const [defaultVatRate, setDefaultVatRate] = useState(21);
   const [avecStock, setAvecStock] = useState(true);
-  const [openFeesAfterSave, setOpenFeesAfterSave] = useState(false);
   const [draftFees, setDraftFees] = useState<TransactionFeeDraft[]>([]);
   const [items, setItems] = useState<AchatItem[]>([emptyItem()]);
   const [erreurs, setErreurs] = useState<Record<string, string>>({});
@@ -430,7 +427,6 @@ setForm({
     setModeMontant("ttc");
     setTauxTVA(defaultVatRate);
     setAvecStock(true);
-    setOpenFeesAfterSave(false);
     setDraftFees([]);
     setItems([emptyItem()]);
     setDocumentFile(null);
@@ -470,8 +466,7 @@ const buildPayload = (): Achat => {
     avecStock,
     saveSupplier: form.saveSupplier,
     supplierContactId,
-    openFeesAfterSave: !isEditing && enableFees && openFeesAfterSave,
-    draftFees: !isEditing && enableFees ? draftFees : undefined,
+    draftFees: !isEditing ? draftFees : undefined,
   };
 };
 
@@ -1233,7 +1228,7 @@ const buildPayload = (): Achat => {
             </div>
           )}
 
-          {!isEditing && enableFees && (
+          {!isEditing && (
             <TransactionFeesInline fees={draftFees} onChange={setDraftFees} isSale={false} />
           )}
           <div>
