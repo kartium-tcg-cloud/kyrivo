@@ -1224,7 +1224,7 @@ function FormField({
 
 function inputClass(error?: string) {
   return `
-    w-full rounded-lg px-3 py-2.5 text-sm
+    w-full rounded-lg px-3 py-2.5 text-base sm:text-sm
     bg-neutral-900/60 text-neutral-200
     border ${error ? "border-red-500/50" : "border-neutral-800"}
     placeholder:text-neutral-400
