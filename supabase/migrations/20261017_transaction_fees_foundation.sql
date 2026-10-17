@@ -35,6 +35,15 @@ CREATE TABLE public.transaction_fees (
   updated_at timestamptz NOT NULL DEFAULT now(),
   CONSTRAINT fee_one_parent CHECK (num_nonnulls(purchase_id, sale_id) = 1),
   CONSTRAINT fee_customer_charges_sale_only CHECK (kind = 'expense' OR sale_id IS NOT NULL),
+  -- In this version, customer-charge entries only describe fees ALREADY in
+  -- the sale's invoice lines. They must never create extra hidden revenue.
+  CONSTRAINT fee_customer_charge_record_only CHECK (
+    kind <> 'customer_charge' OR included_in_parent_total = true
+  ),
+  CONSTRAINT fee_zero_rate_no_vat CHECK (vat_rate <> 0 OR vat_amount = 0),
+  CONSTRAINT fee_vat_rate_matches_amount CHECK (
+    abs(vat_amount - round(amount_ttc * vat_rate / (100 + vat_rate), 2)) <= 0.01
+  ),
   CONSTRAINT fee_amount_sum CHECK (amount_ht + vat_amount = amount_ttc),
   CONSTRAINT fee_tax_recovery_limit CHECK (
     recoverable_vat_amount >= 0
