@@ -79,6 +79,8 @@ function mapSaleLine(line: any): SaleLine {
       line.purchase_cost !== null && line.purchase_cost !== undefined
         ? Number(line.purchase_cost)
         : undefined,
+    economicPurchaseCost:
+      line.economic_purchase_cost == null ? undefined : Number(line.economic_purchase_cost),
     marginAmount:
       line.margin_amount !== null && line.margin_amount !== undefined
         ? Number(line.margin_amount)
@@ -149,6 +151,7 @@ function buildSaleLineInsert(params: {
     unit_price: unitPriceStored,
     total_price: totalPriceStored,
     purchase_cost: line.purchaseCost,
+    economic_purchase_cost: line.economicPurchaseCost,
     margin_amount: line.marginAmount,
     vat_rate: line.vatRate,
     notes: line.notes,
@@ -627,6 +630,7 @@ function VentesContent() {
                 unit_price: line.unitPrice,
                 total_price: line.totalPrice,
                 purchase_cost: line.purchaseCost,
+                economic_purchase_cost: line.economicPurchaseCost,
                 margin_amount: line.marginAmount,
                 vat_rate: line.vatRate,
                 notes: line.notes,
