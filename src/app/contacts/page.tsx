@@ -697,7 +697,38 @@ function ContactsTable({
 
   return (
     <div className="overflow-hidden rounded-xl border border-neutral-800/60 bg-neutral-800/20">
-      <div className="overflow-x-auto">
+      {/* Sur téléphone, les contacts doivent rester consultables sans défilement latéral. */}
+      <div className="divide-y divide-neutral-800/60 md:hidden">
+        {sortedContacts.map((contact) => (
+          <div key={contact.id} className="space-y-3 p-4">
+            <div className="flex min-w-0 items-start justify-between gap-3">
+              <div className="min-w-0 space-y-2">
+                <ContactTypeBadge type={contact.type} />
+                <Link
+                  href={`/contacts/${contact.id}`}
+                  className="block break-words text-sm font-semibold text-white underline decoration-amber-400/30 underline-offset-2 hover:text-amber-400"
+                >
+                  {contact.name}
+                </Link>
+              </div>
+              <div className="flex shrink-0 items-center gap-1">
+                <button type="button" onClick={() => onEdit(contact)} aria-label={`Modifier ${contact.name}`}
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-neutral-300 hover:bg-neutral-700/50 hover:text-blue-400">
+                  <EditIcon className="h-4 w-4" />
+                </button>
+                <button type="button" onClick={() => onDelete(contact)} aria-label={`Supprimer ${contact.name}`}
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-neutral-300 hover:bg-red-500/10 hover:text-red-400">
+                  <TrashIcon className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+            {contact.email && <p className="break-all text-xs text-neutral-400">{contact.email}</p>}
+            {contact.phone && <p className="break-words text-xs text-neutral-400">{contact.phone}</p>}
+            {contact.vat_number && <p className="break-words font-mono text-xs text-neutral-500">TVA : {contact.vat_number}</p>}
+          </div>
+        ))}
+      </div>
+      <div className="hidden overflow-x-auto md:block">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-neutral-700/50">
@@ -753,7 +784,7 @@ function ContactsTable({
                   <ContactTypeBadge type={contact.type} />
                 </td>
 
-                <td className="max-w-[220px] truncate px-4 py-3.5font-medium">
+                <td className="max-w-[220px] truncate px-4 py-3.5 font-medium">
                   <Link
                     href={`/contacts/${contact.id}`}
                     className="text-white underline decoration-amber-400/30 underline-offset-2 hover:text-amber-400 hover:decoration-amber-400/60 transition-colors"
@@ -762,7 +793,7 @@ function ContactsTable({
                   </Link>
                 </td>
 
-                <td className="max-w-[220px] truncate px-4 py-3.5text-neutral-400">
+                <td className="max-w-[220px] truncate px-4 py-3.5 text-neutral-400">
                   {contact.email || <span className="text-neutral-700">—</span>}
                 </td>
 
@@ -958,18 +989,19 @@ function ContactFormModal({
   return (
     <>
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 p-0 backdrop-blur-sm sm:items-center sm:p-4"
     >
       <div
         className="
-          relative max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl
+          relative flex max-h-[100dvh] w-full max-w-xl flex-col overflow-hidden rounded-t-2xl
           border border-neutral-800 bg-neutral-950 shadow-2xl shadow-black/50
+          sm:max-h-[90vh] sm:rounded-2xl
         "
         onClick={(event) => event.stopPropagation()}
       >
         <div className={`h-0.5 w-full ${isClient ? "bg-amber-500" : "bg-blue-500"}`} />
 
-        <div className="flex items-center justify-between border-b border-neutral-800 px-6 py-4">
+        <div className="flex shrink-0 items-center justify-between gap-2 border-b border-neutral-800 px-4 py-3 sm:px-6 sm:py-4">
           <div className="flex items-center gap-3">
             <span
               className={`
@@ -1005,7 +1037,7 @@ function ContactFormModal({
           </button>
         </div>
 
-        <div className="space-y-5 p-6">
+        <div className="min-h-0 space-y-5 overflow-y-auto p-4 sm:p-6">
           <FormField label="Nom" required error={errors.name}>
             <input
               type="text"
@@ -1078,13 +1110,13 @@ function ContactFormModal({
           </FormField>
         </div>
 
-        <div className="flex items-center justify-end gap-3 border-t border-neutral-800 bg-neutral-950 px-6 py-4">
+        <div className="flex shrink-0 items-center gap-2 border-t border-neutral-800 bg-neutral-950 px-3 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sm:justify-end sm:px-6 sm:py-4">
           <button
             type="button"
             onClick={handleClose}
             disabled={submitting}
             className="
-              rounded-lg px-4 py-2 text-sm font-medium text-neutral-400
+              flex-1 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-400 sm:flex-none sm:px-4
               transition-colors hover:bg-neutral-800/60 hover:text-neutral-200
               disabled:opacity-50
             "
@@ -1097,7 +1129,7 @@ function ContactFormModal({
             onClick={handleSubmit}
             disabled={submitting}
             className="
-              inline-flex items-center gap-2 rounded-lg bg-amber-500 px-5 py-2
+              inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-amber-500 px-3 py-2.5 sm:flex-none sm:px-5
               text-sm font-semibold text-neutral-950 shadow-lg shadow-amber-500/10
               transition-all duration-200 hover:bg-amber-400 active:scale-[0.97]
               disabled:cursor-not-allowed disabled:opacity-60
