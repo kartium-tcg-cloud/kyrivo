@@ -38,6 +38,8 @@ export interface AchatArticle {
   stockRestant: number;
   coutHT: number;
   coutTTC?: number;
+  fiscalUnitCost?: number | null;
+  fiscalCostReviewRequired?: boolean;
   statut: ItemStatus;
   notes?: string;
 }
