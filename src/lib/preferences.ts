@@ -39,6 +39,7 @@ function mapPreference(row: any): CompanyPreferences {
       ? row.default_payment_methods
       : DEFAULT_COMPANY_PREFERENCES.defaultPaymentMethods,
 
+    enableVinted: row.enable_vinted === true,
     defaultVatRate: Number.isFinite(Number(row.default_vat_rate))
       ? Number(row.default_vat_rate)
       : DEFAULT_COMPANY_PREFERENCES.defaultVatRate,
@@ -174,6 +175,7 @@ export async function upsertCompanyPreferences(
 
         default_payment_methods: preferences.defaultPaymentMethods,
         default_vat_rate: preferences.defaultVatRate,
+        enable_vinted: preferences.enableVinted,
 
         updated_at: new Date().toISOString(),
       },
