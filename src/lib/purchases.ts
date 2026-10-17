@@ -101,6 +101,7 @@ export async function createPurchaseItems(
     unit_cost: number;
     total_cost: number;
     fiscal_unit_cost?: number | null;
+    economic_unit_cost?: number | null;
     fiscal_cost_review_required?: boolean;
     vat_type?: string;
     vat_rate: number;
