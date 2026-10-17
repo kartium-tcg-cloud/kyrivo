@@ -52,3 +52,21 @@ test("TVA sur marge plancher zéro par article, pas compensation des pertes entr
 test("aucune fraction de centime ne peut être réconciliée silencieusement", () => {
  assert.ok(validateVintedCosts(details({ sellerPrice: 100.001 })).length > 0);
 });
+
+test("rentabilité Vinted après TVA : prix 150, coût 108, prix fiscal 100 = 33,67 €", () => {
+ const sale = calculateMarginSale({ lines: [
+   { unitPrice: 150, quantity: 1, purchaseCost: 100, economicPurchaseCost: 108, vatRate: 20 },
+ ]});
+ assert.equal(sale.vatAmount, 8.33);
+ assert.equal(sale.totalTTC, 150);
+ assert.equal(sale.marginAmount, 33.67);
+});
+
+test("vente à perte + vente gagnante : TVA par ligne, charges économiques non compensées fiscalement", () => {
+ const sale = calculateMarginSale({ lines: [
+   { unitPrice: 80, quantity: 1, purchaseCost: 100, economicPurchaseCost: 120, vatRate: 20 },
+   { unitPrice: 150, quantity: 1, purchaseCost: 100, economicPurchaseCost: 108, vatRate: 20 },
+ ]});
+ assert.equal(sale.vatAmount, 8.33);
+ assert.equal(sale.marginAmount, -6.33);
+});
