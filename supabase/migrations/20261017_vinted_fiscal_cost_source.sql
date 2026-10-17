@@ -28,7 +28,9 @@ COMMENT ON COLUMN public.purchases.source_details IS
 
 ALTER TABLE public.purchase_items
  ADD COLUMN IF NOT EXISTS fiscal_unit_cost numeric(14,2),
- ADD COLUMN IF NOT EXISTS fiscal_cost_review_required boolean NOT NULL DEFAULT false;
+ ADD COLUMN IF NOT EXISTS fiscal_cost_review_required boolean NOT NULL DEFAULT false,
+ ADD COLUMN IF NOT EXISTS fiscal_cost_reviewed_at timestamptz,
+ ADD COLUMN IF NOT EXISTS fiscal_cost_reviewed_by uuid REFERENCES auth.users(id);
 
 ALTER TABLE public.purchase_items
  ADD CONSTRAINT purchase_items_fiscal_cost_nonnegative_chk
