@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { getCompanyPreferences } from "@/lib/preferences";
 import { getTransactionFees } from "@/lib/feeQueries";
 import { EvolutionChart, ProfitBridge, type EvolutionPoint } from "./PeriodCharts";
 
@@ -189,13 +188,11 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
         if (eV) throw eV;
         if (cancelled) return;
 
-        const prefs = await getCompanyPreferences(companyId);
-        const fees = prefs.enableTransactionFees
-          ? await Promise.all([
-              getTransactionFees({ companyId, purchaseIds: (achats ?? []).map(a => String(a.id)) }),
-              getTransactionFees({ companyId, saleIds: (ventes ?? []).map(v => String(v.id)) }),
-            ]).then(([a, b]) => [...a, ...b])
-          : [];
+        // Existing fees remain part of reports even if the optional input UI is hidden.
+        const fees = await Promise.all([
+          getTransactionFees({ companyId, purchaseIds: (achats ?? []).map(a => String(a.id)) }),
+          getTransactionFees({ companyId, saleIds: (ventes ?? []).map(v => String(v.id)) }),
+        ]).then(([a, b]) => [...a, ...b]);
         const purchaseDates = new Map((achats ?? []).map(p => [p.id, p.purchase_date]));
         const saleDates = new Map((ventes ?? []).map(v => [v.id, v.sale_date]));
         // Expense at purchase already included in its TTC total: never deduct twice.
