@@ -781,7 +781,9 @@ setForm({
                         </div>
                       ) : (
                         <div className="relative">
+                          <label htmlFor={`sale-search-${line.id}`} className={lineLabelClasses}>Rechercher un article en stock</label>
                           <input
+                            id={`sale-search-${line.id}`}
                             type="text"
                             value={lineSearchQueries[line.id] || ""}
                             onChange={(e) =>
@@ -893,7 +895,10 @@ setForm({
                       )}
                     </div>
 
+                    <div className="min-w-0">
+                      <label htmlFor={`sale-name-${line.id}`} className={lineLabelClasses}>Nom de l’article</label>
                     <input
+                      id={`sale-name-${line.id}`}
                       type="text"
                       value={line.itemName}
                       maxLength={MAX_TEXT.itemName}
@@ -903,6 +908,7 @@ setForm({
                       placeholder="Nom de l'article"
                       className={inputClasses}
                     />
+                    </div>
 
                     <div className="grid min-w-0 grid-cols-2 gap-3 lg:grid-cols-[70px_minmax(0,1fr)_78px_minmax(116px,auto)]">
                       <div className="order-1 min-w-0">
@@ -970,12 +976,13 @@ setForm({
                     </div>
 
                     {form.vatMode === "margin_vat" && (
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <label className={labelClasses}>
-                            Coût achat unit. TTC
+                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                        <div className="min-w-0">
+                          <label htmlFor={`sale-purchase-cost-${line.id}`} className={lineLabelClasses}>
+                            Coût d'achat unitaire TTC (€)
                           </label>
                           <input
+                            id={`sale-purchase-cost-${line.id}`}
                             type="number"
                             min="0"
                             max="999999"
@@ -990,9 +997,9 @@ setForm({
                           />
                         </div>
 
-                        <div>
-                          <label className={labelClasses}>Marge ligne</label>
-                          <div className="rounded-lg border border-neutral-800/60 bg-neutral-900/30 px-2.5 py-2.5 text-sm text-emerald-400 font-medium tabular-nums text-right truncate">
+                        <div className="min-w-0">
+                          <label className={lineLabelClasses}>Marge de la ligne</label>
+                          <div className="flex min-h-10 items-center justify-end rounded-lg border border-neutral-800/60 bg-neutral-900/30 px-2.5 py-2 text-sm text-emerald-400 font-medium tabular-nums text-right break-words">
                             {ligneMarge.toLocaleString("fr-BE", {
                               style: "currency",
                               currency: "EUR",
