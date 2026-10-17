@@ -129,7 +129,7 @@ export default function RootLayout({
           </p>
         </div>
   <Sidebar />
-  <main className="min-h-screen pt-24 lg:pt-8 lg:pl-64 overflow-x-hidden">
+  <main className="ky-workspace min-h-screen pt-24 lg:pt-8 lg:pl-64 overflow-x-hidden">
     {children}
   </main>
   <Toaster
