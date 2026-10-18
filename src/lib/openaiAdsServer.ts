@@ -43,6 +43,7 @@ export async function sendOpenAISubscriptionConversion(data: SubscriptionConvers
       timestamp_ms: data.timestampMs,
       source_url: "https://kyrivo.fr/abonnements",
       action_source: "web",
+      opt_out: true,
       data: {
         type: "plan_enrollment",
         plan_id: `${data.plan}_${data.billingPeriod}`,
