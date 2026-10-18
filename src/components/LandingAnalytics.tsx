@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { storeUtmsInSession, trackFunnel, trackMeta } from "@/lib/analytics";
+import { storeUtmsInSession, storeOpenAIAdsClickReference, trackFunnel, trackMeta } from "@/lib/analytics";
 
 // Composant null-render monté sur la landing.
 // Ordre d'exécution intentionnel :
@@ -11,6 +11,7 @@ import { storeUtmsInSession, trackFunnel, trackMeta } from "@/lib/analytics";
 export default function LandingAnalytics() {
   useEffect(() => {
     storeUtmsInSession();
+    storeOpenAIAdsClickReference();
     trackFunnel("landing_view");
     trackMeta("ViewContent", { content_name: "Landing Kyrivo" });
   }, []);
