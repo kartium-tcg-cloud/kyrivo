@@ -1,4 +1,5 @@
 import { hasMarketingConsent } from "@/lib/analytics";
+import { KYRIVO_OPENAI_ADS_PIXEL_ID } from "@/lib/openaiAdsConfig";
 
 /** Événements normalisés documentés dans l'API OpenAI Ads. */
 export type OpenAIAdsEvent =
@@ -13,6 +14,7 @@ type PixelData = {
   plan_id?: string;
   amount?: number;
   currency?: string;
+  contents?: { id: string; name: string; content_type: "page" | "plan" | "product" }[];
 };
 
 declare global {
@@ -31,10 +33,13 @@ export function trackOpenAIAds(
   eventId?: string
 ): void {
   if (typeof window === "undefined" || !hasMarketingConsent()) return;
-  if (!process.env.NEXT_PUBLIC_OPENAI_ADS_PIXEL_ID || !window.oaiq) return;
+  if (!KYRIVO_OPENAI_ADS_PIXEL_ID || !window.oaiq) return;
   try {
-    if (eventId) window.oaiq("measure", event, data, { event_id: eventId });
-    else window.oaiq("measure", event, data);
+    // OpenAI measurement is only used for advertising attribution, not future user-level personalization.
+    window.oaiq("measure", event, data, {
+      opt_out: true,
+      ...(eventId ? { event_id: eventId } : {}),
+    });
   } catch {
     // Un incident de mesure ne bloque jamais les inscriptions ou paiements.
   }

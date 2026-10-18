@@ -1,4 +1,5 @@
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { KYRIVO_OPENAI_ADS_PIXEL_ID } from "@/lib/openaiAdsConfig";
 
 type SubscriptionConversion = {
   companyId: string;
@@ -16,7 +17,7 @@ type SubscriptionConversion = {
  * perturbation du paiement, des droits, des quotas ou des stocks.
  */
 export async function sendOpenAISubscriptionConversion(data: SubscriptionConversion): Promise<void> {
-  const pixelId = process.env.OPENAI_ADS_PIXEL_ID ?? process.env.NEXT_PUBLIC_OPENAI_ADS_PIXEL_ID;
+  const pixelId = KYRIVO_OPENAI_ADS_PIXEL_ID;
   const apiKey = process.env.OPENAI_ADS_CONVERSIONS_API_KEY;
   if (!pixelId || !apiKey) return;
   if (Date.now() - data.timestampMs > 7 * 86400000) return;
