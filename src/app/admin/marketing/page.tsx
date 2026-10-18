@@ -29,6 +29,7 @@ export default async function MarketingReportPage() {
     .maybeSingle();
   if (!internalCompany?.created_by || user.id !== internalCompany.created_by) notFound();
 
+  const capiConfigured = Boolean(process.env.OPENAI_ADS_CONVERSIONS_API_KEY?.trim());
   const since = new Date(Date.now() - 30 * 86400000).toISOString();
   const [eventsQuery, companiesQuery, subscriptionsQuery, usersQuery] = await Promise.all([
     supabaseAdmin.from("funnel_events").select("event_name,utm_source,utm_campaign,created_at")
@@ -91,6 +92,33 @@ export default async function MarketingReportPage() {
         inscriptions et abonnements actifs attribués à ces nouvelles inscriptions.
         Les clients et comptes historiques ne sont pas comptés comme de nouvelles conversions.
       </p>
+
+      <section aria-label="État des mesures publicitaires" className="mt-7 rounded-2xl border border-neutral-700 bg-neutral-900/60 p-5 sm:p-6">
+        <h2 className="text-lg font-semibold text-white">État du suivi ChatGPT Ads</h2>
+        <div className="mt-3 flex flex-wrap items-center gap-3">
+          <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-300">
+            Pixel navigateur intégré
+          </span>
+          <span className={capiConfigured
+            ? "rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-300"
+            : "rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-300"}>
+            {capiConfigured ? "Clé Conversions API configurée" : "Clé Conversions API manquante"}
+          </span>
+        </div>
+        <p className="mt-3 max-w-3xl text-xs leading-6 text-neutral-400">
+          Le Pixel mesure les actions consenties depuis le navigateur. La clé serveur
+          OPENAI_ADS_CONVERSIONS_API_KEY permet d&apos;envoyer à OpenAI l&apos;événement
+          subscription_created après confirmation d&apos;un nouveau paiement par Stripe.
+          Le simple fait que la clé soit présente ne garantit pas que l&apos;API l&apos;accepte :
+          un événement réel ou un test de validation est nécessaire.
+        </p>
+        {!capiConfigured && (
+          <p className="mt-2 text-sm text-amber-200">
+            Ajoutez la clé privée dans Vercel → Projet Kyrivo → Settings → Environment Variables,
+            cible Production, puis redéployez. Ne la collez jamais dans ce site ou dans un message.
+          </p>
+        )}
+      </section>
 
       <section className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-label="Entonnoir des conversions">
         {[

@@ -56,6 +56,9 @@ test("private report restricted to internal owner and no data mutations", () => 
   assert.match(report, /robots: \{ index: false/);
   assert.doesNotMatch(report, /\.insert\(|\.update\(|\.upsert\(|\.delete\(/);
   assert.match(report, /AdBudgetCalculator/);
+  assert.match(report, /capiConfigured/);
+  assert.match(report, /OPENAI_ADS_CONVERSIONS_API_KEY/);
+  assert.match(report, /Clé Conversions API manquante/);
 });
 
 test("privacy and easy consent withdrawal present", () => {
