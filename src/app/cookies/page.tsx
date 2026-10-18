@@ -21,7 +21,7 @@ export default function CookiesPage() {
     <LegalPage
       title="Politique relative aux cookies"
       subtitle="Informations sur les cookies et technologies similaires utilisés par Kyrivo."
-      lastUpdated="juin 2026"
+      lastUpdated="octobre 2026"
     >
       <div>
 
@@ -92,6 +92,22 @@ export default function CookiesPage() {
                 contact@kartium-tcg.com
               </a>.
             </p>
+          </LegalSubSection>
+
+          <LegalSubSection title="2.5 Mesure publicitaire — ChatGPT Ads (OpenAI)">
+            <p>
+              Si une campagne ChatGPT Ads est activée, Kyrivo peut utiliser le Pixel OpenAI
+              pour mesurer les visites, les inscriptions, les essais et les souscriptions
+              issus de ses publicités. Le pixel ne se charge qu&apos;après consentement marketing.
+              Le paramètre de clic <strong className="text-neutral-100">oppref</strong>
+              peut être conservé temporairement en session pour mesurer une conversion.
+            </p>
+            <InfoCard>
+              <p><strong className="text-neutral-100">Prestataire :</strong> OpenAI</p>
+              <p><strong className="text-neutral-100">Finalité :</strong> attribution et mesure des campagnes ChatGPT Ads</p>
+              <p><strong className="text-neutral-100">Données :</strong> identifiant publicitaire opaque, événements et, le cas échéant, type et valeur de l&apos;abonnement ; aucun contenu métier (achats, clients, stock) transmis</p>
+              <p><strong className="text-neutral-100">Base légale :</strong> consentement marketing explicite (RGPD art. 6.1.a)</p>
+            </InfoCard>
           </LegalSubSection>
 
         </LegalSection>
