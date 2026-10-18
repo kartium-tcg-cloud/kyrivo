@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { storeOpenAIAdsClickReference } from "@/lib/analytics";
 
 const CONSENT_KEY = "kyrivo_cookie_consent";
 
@@ -20,6 +21,7 @@ export default function CookieConsent() {
     try {
       localStorage.setItem(CONSENT_KEY, JSON.stringify({ marketing: true }));
       window.dispatchEvent(new Event("kyrivo:consent"));
+      storeOpenAIAdsClickReference();
     } catch { /* ignore */ }
     setVisible(false);
   };
@@ -27,6 +29,8 @@ export default function CookieConsent() {
   const refuse = () => {
     try {
       localStorage.setItem(CONSENT_KEY, JSON.stringify({ marketing: false }));
+      sessionStorage.removeItem("kyrivo_ads_oppref");
+      window.dispatchEvent(new Event("kyrivo:consent"));
     } catch { /* ignore */ }
     setVisible(false);
   };
@@ -37,9 +41,9 @@ export default function CookieConsent() {
     <div className="fixed bottom-0 left-0 right-0 z-[100] border-t border-neutral-800 bg-neutral-950/98 backdrop-blur-sm px-4 py-4 pb-[calc(1rem+env(safe-area-inset-bottom))] sm:px-6 lg:pl-[calc(16rem+1.5rem)]">
       <div className="mx-auto max-w-5xl flex flex-col sm:flex-row items-start sm:items-center gap-4">
         <p className="flex-1 text-sm text-neutral-400 leading-relaxed">
-          Kyrivo utilise des cookies publicitaires (
-          <span className="text-neutral-300">Meta Pixel</span>
-          ) pour mesurer l'efficacité de ses campagnes marketing.{" "}
+          Kyrivo utilise, avec votre accord, des outils de mesure publicitaire
+          (<span className="text-neutral-300">Meta Pixel et OpenAI Ads Pixel</span>)
+          pour suivre les inscriptions et abonnements issus de ses campagnes.{" "}
           <Link
             href="/cookies"
             className="text-amber-400 underline underline-offset-2 hover:text-amber-300 transition-colors"
