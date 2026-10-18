@@ -19,6 +19,9 @@ Variables d'environnement de Production (et Preview si vous voulez tester) :
 
 - `OPENAI_ADS_CONVERSIONS_API_KEY` : clé secrète Conversions API obtenue dans Ads Manager, à enregistrer **uniquement côté serveur**.
 
+Le menu Conversions d’Ads Manager permet de provisionner la clé. La clé est sensible : la copier dans Vercel côté serveur et ne pas la transmettre via chat, GitHub ou variable NEXT_PUBLIC_.
+Après ajout et redéploiement, le statut **Clé Conversions API configurée** apparaît sur `/admin/marketing` pour le propriétaire du compte interne. Ce statut n’est pas un test de livraison ; confirmer par un événement réel dans le flux et les diagnostics.
+
 Ne jamais préfixer la clé API par NEXT_PUBLIC_, ne jamais la déposer dans GitHub.
 Après ajout de la clé serveur, redéployer la production pour activer l’API Conversions. La clé n’est pas nécessaire pour le Pixel navigateur.
 
