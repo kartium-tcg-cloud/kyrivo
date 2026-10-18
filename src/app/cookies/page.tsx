@@ -1,6 +1,7 @@
 // src/app/cookies/page.tsx
 
 import { Metadata } from "next"
+import MarketingConsentSettings from "@/components/MarketingConsentSettings"
 import LegalPage, {
   LegalSection,
   LegalSubSection,
@@ -129,6 +130,7 @@ export default function CookiesPage() {
           <p>
             Vous pouvez à tout moment configurer votre navigateur pour refuser ou supprimer les cookies.
           </p>
+          <MarketingConsentSettings />
           <LegalList items={[
             "Google Chrome : Paramètres → Confidentialité et sécurité → Cookies et autres données des sites",
             "Mozilla Firefox : Paramètres → Vie privée et sécurité → Cookies et données du site",
