@@ -7,7 +7,15 @@ const read = p => fs.readFileSync(path.join(root, p), "utf8");
 
 test("OpenAI Pixel consent before initialization and environment guard", () => {
   const pixel = read("src/components/OpenAIAdsPixel.tsx");
-  assert.match(pixel, /NEXT_PUBLIC_OPENAI_ADS_PIXEL_ID/);
+  const config = read("src/lib/openaiAdsConfig.ts");
+  assert.match(config, /Xz1uJN6tAvvzkgpenWANvG/);
+  assert.match(pixel, /KYRIVO_OPENAI_ADS_PIXEL_ID/);
+  assert.match(pixel, /onReady=\{\(\) => trackPage\(window.location.pathname\)\}/);
+  assert.match(pixel, /MARKETING_PAGES/);
+  assert.match(pixel, /page_viewed/);
+  assert.match(pixel, /lastTrackedPath.current === path/);
+  const tracker = read("src/lib/openaiAds.ts");
+  assert.match(tracker, /opt_out: true/);
   assert.match(pixel, /hasMarketingConsent/);
   assert.match(pixel, /oaiq\("consent",true\);oaiq\("init"/);
   assert.match(pixel, /bzrcdn.openai.com/);
