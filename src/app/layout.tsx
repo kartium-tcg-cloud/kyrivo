@@ -7,6 +7,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Sidebar from "@/components/Sidebar";
 import MetaPixel from "@/components/MetaPixel";
+import OpenAIAdsPixel from "@/components/OpenAIAdsPixel";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import CookieConsent from "@/components/CookieConsent";
 import { Toaster } from "sonner";
@@ -113,6 +114,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationStructuredData) }}
         />
         <MetaPixel />
+        <OpenAIAdsPixel />
         <GoogleAnalytics />
         {/* ── Barre d'annonce/support ── */}
         <div className="fixed top-0 left-0 right-0 z-[60] flex h-8 items-center justify-center border-b border-neutral-800/40 bg-neutral-950/98 px-4 backdrop-blur-sm">

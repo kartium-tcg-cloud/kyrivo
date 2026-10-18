@@ -6,6 +6,8 @@
 
 "use client";
 
+import { trackOpenAIAds } from "@/lib/openaiAds";
+import { trackFunnel } from "@/lib/analytics";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
@@ -329,6 +331,8 @@ const handleCheckout = async (planId: Plan["id"]) => {
       throw new Error(data.error || "Erreur checkout");
     }
 
+    trackFunnel("checkout_started", { plan: planId, billing_period: billingPeriod });
+    trackOpenAIAds("checkout_started", { type: "contents" });
     window.location.href = data.url;
 
   } catch (error) {

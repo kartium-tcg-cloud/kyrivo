@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
 import { stripe } from "@/lib/stripe";
+import { sendOpenAISubscriptionConversion } from "@/lib/openaiAdsServer";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { getPlanFromPriceId } from "@/lib/stripe-plans";
 
@@ -744,6 +745,20 @@ export async function POST(req: NextRequest) {
         // ferait re-tenter Stripe, causant un second upsert et une tentative
         // d'annulation sur une subscription déjà annulée → boucle infinie.
       }
+    }
+
+    // Comptabiliser un NOUVEL abonnement payant, jamais un renouvellement.
+    // CAPI est optionnelle, consentie et isolée de la logique Stripe.
+    if (isTrialConversion || !existingSubscription) {
+      await sendOpenAISubscriptionConversion({
+        companyId,
+        stripeSubscriptionId,
+        plan,
+        billingPeriod,
+        amountCents: session.amount_total ?? null,
+        currency: session.currency || "eur",
+        timestampMs: event.created * 1000,
+      });
     }
 
     return NextResponse.json({ received: true });

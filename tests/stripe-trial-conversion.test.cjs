@@ -91,6 +91,7 @@ function createHarness({ period = "monthly", plan = "pro" } = {}) {
     };
     if (id === "@/lib/stripe") return { stripe };
     if (id === "@/lib/supabase/admin") return { supabaseAdmin };
+    if (id === "@/lib/openaiAdsServer") return { sendOpenAISubscriptionConversion: async () => {} };
     if (id === "@/lib/stripe-plans") return { getPlanFromPriceId: () => null };
     throw new Error("Module inattendu : " + id);
   };

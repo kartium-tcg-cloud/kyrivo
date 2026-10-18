@@ -133,6 +133,7 @@ function createHarness(event, row = mockSubscriptionRow(), options = {}) {
     }
     if (name === "@/lib/stripe") return { stripe };
     if (name === "@/lib/supabase/admin") return { supabaseAdmin };
+    if (name === "@/lib/openaiAdsServer") return { sendOpenAISubscriptionConversion: async () => {} };
     if (name === "@/lib/stripe-plans") {
       return {
         getPlanFromPriceId: (id) =>

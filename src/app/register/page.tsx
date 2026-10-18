@@ -10,8 +10,12 @@ import {
   sendMetaCapi,
   hasMarketingConsent,
   getUtmParams,
+  getSignupAttribution,
+  storeUtmsInSession,
+  storeOpenAIAdsClickReference,
 } from "@/lib/analytics";
 import Field from "@/components/ui/Field";
+import { trackOpenAIAds } from "@/lib/openaiAds";
 import Button from "@/components/ui/Button";
 
 export default function RegisterPage() {
@@ -27,6 +31,8 @@ export default function RegisterPage() {
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
+    storeUtmsInSession();
+    storeOpenAIAdsClickReference();
     trackFunnel("register_view");
     trackMetaCustom("ViewRegister");
   }, []);
@@ -53,6 +59,7 @@ export default function RegisterPage() {
       options: {
         data: {
           company_name: companyName.trim(),
+          kyrivo_campaign_attribution: getSignupAttribution(),
         },
       },
     });
@@ -74,6 +81,9 @@ export default function RegisterPage() {
     setSuccess(true);
     // Tracking interne — toujours, indépendamment du consentement
     trackFunnel("registration_success");
+    // Événements standard OpenAI Ads, envoyés uniquement avec consentement et Pixel configuré.
+    trackOpenAIAds("registration_completed", { type: "customer_action" });
+    trackOpenAIAds("trial_started", { type: "plan_enrollment", plan_id: "trial_7_days" });
 
     // Meta Pixel + CAPI uniquement si consentement marketing accordé
     if (hasMarketingConsent()) {

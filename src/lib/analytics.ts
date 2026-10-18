@@ -20,7 +20,8 @@ export type FunnelEvent =
   | "landing_view"
   | "cta_register_click"
   | "register_view"
-  | "registration_success";
+  | "registration_success"
+  | "checkout_started";
 
 // ─── Consentement ──────────────────────────────────────────────
 export function hasMarketingConsent(): boolean {
@@ -94,8 +95,47 @@ export function getUtmParams(): Record<string, string> {
   return { ...fromSession, ...fromUrl };
 }
 
+/**
+ * Enregistre l'identifiant de clic OpenAI uniquement après consentement marketing.
+ * Les UTM non sensibles restent conservés en session pour la mesure interne.
+ */
+export function storeOpenAIAdsClickReference(): void {
+  if (typeof window === "undefined" || !hasMarketingConsent()) return;
+  try {
+    const value = new URLSearchParams(window.location.search).get("oppref");
+    if (value && value.length <= 1024) sessionStorage.setItem("kyrivo_ads_oppref", value);
+  } catch { /* stockage indisponible */ }
+}
+
+export function getOpenAIAdsClickReference(): string | null {
+  if (typeof window === "undefined" || !hasMarketingConsent()) return null;
+  storeOpenAIAdsClickReference();
+  try {
+    const value = sessionStorage.getItem("kyrivo_ads_oppref");
+    return value && value.length <= 1024 ? value : null;
+  } catch { return null; }
+}
+
+/** Attribution figée à l'inscription pour relier ensuite les paiements Stripe. */
+export function getSignupAttribution(): Record<string, string | boolean> {
+  storeUtmsInSession();
+  const utms = getUtmParams();
+  const attribution: Record<string, string | boolean> = {
+    marketing_consent: hasMarketingConsent(),
+  };
+  for (const key of UTM_KEYS) {
+    const v = utms[key];
+    if (v) attribution[key] = v.slice(0, 150);
+  }
+  const clickRef = getOpenAIAdsClickReference();
+  if (clickRef) attribution.oppref = clickRef;
+  return attribution;
+}
+
 export function buildRegisterUrl(): string {
   const utms = getUtmParams();
+  const oppref = getOpenAIAdsClickReference();
+  if (oppref) utms.oppref = oppref;
   const qs = new URLSearchParams(utms).toString();
   return qs ? `/register?${qs}` : "/register";
 }

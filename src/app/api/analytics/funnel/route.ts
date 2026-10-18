@@ -6,6 +6,7 @@ const ALLOWED_EVENTS = new Set([
   "cta_register_click",
   "register_view",
   "registration_success",
+  "checkout_started",
 ]);
 
 // Tronque un champ texte et rejette les non-strings

@@ -21,7 +21,7 @@ export default function PolitiqueConfidentialitePage() {
     <LegalPage
       title="Politique de confidentialité"
       subtitle="Comment Kyrivo traite vos données personnelles. Conformément au Règlement Général sur la Protection des Données (RGPD – UE 2016/679)."
-      lastUpdated="mai 2026"
+      lastUpdated="octobre 2026"
     >
       <div>
 
@@ -106,7 +106,25 @@ export default function PolitiqueConfidentialitePage() {
             ))}
           </div>
           <p className="text-neutral-400 text-sm mt-3">
-            Kyrivo n&apos;utilise pas vos données à des fins publicitaires ou de marketing et ne les revend à aucun tiers.
+            Les données métier (achats, ventes et contacts) ne servent pas à des campagnes publicitaires et ne sont pas revendues. Avec consentement, les données limitées d'attribution et les événements d'inscription ou de souscription peuvent être utilisés pour mesurer les campagnes Meta et ChatGPT Ads (OpenAI).
+          </p>
+        </LegalSection>
+
+        <LegalSection title="3 bis. Mesure des campagnes publicitaires">
+          <p>
+            Kyrivo peut conserver les paramètres UTM associés à une visite et, pour
+            comprendre les performances de ses campagnes, les associer à la création
+            d&apos;un compte et à l&apos;activation d&apos;un abonnement. Avec votre accord
+            explicite, le Pixel OpenAI et le paramètre de clic oppref peuvent être utilisés
+            pour mesurer les conversions ChatGPT Ads ; des événements d&apos;abonnement
+            payant peuvent également être transmis via l&apos;API Conversions d&apos;OpenAI.
+          </p>
+          <p className="mt-3">
+            Seuls des informations de campagne, des identifiants de mesure et le type
+            ou le montant du forfait sont concernés : jamais vos articles, vos factures,
+            vos contacts ou vos autres données de gestion. Vous pouvez refuser ces
+            mesures via le bandeau de consentement. Pour toute question, contactez
+            contact@kartium-tcg.com.
           </p>
         </LegalSection>
 
