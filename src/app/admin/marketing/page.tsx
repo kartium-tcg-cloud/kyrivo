@@ -19,8 +19,15 @@ function fromChatGPT(source: unknown): boolean {
 export default async function MarketingReportPage() {
   const client = await createClient();
   const { data: { user } } = await client.auth.getUser();
-  const expectedAdmin = process.env.KYRIVO_MARKETING_ADMIN_USER_ID;
-  if (!user || !expectedAdmin || user.id !== expectedAdmin) notFound();
+  if (!user) notFound();
+  // Seul le propriétaire du compte interne Kartium TCG peut lire les résultats.
+  // Vérification serveur contre un identifiant de société immuable (pas son nom).
+  const { data: internalCompany } = await supabaseAdmin
+    .from("companies")
+    .select("created_by")
+    .eq("id", "9ce7f9e0-101a-4a8b-9861-670702881812")
+    .maybeSingle();
+  if (!internalCompany?.created_by || user.id !== internalCompany.created_by) notFound();
 
   const since = new Date(Date.now() - 30 * 86400000).toISOString();
   const [eventsQuery, companiesQuery, subscriptionsQuery, usersQuery] = await Promise.all([
