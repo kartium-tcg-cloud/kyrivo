@@ -1,20 +1,47 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import Script from "next/script";
 import { hasMarketingConsent } from "@/lib/analytics";
+import { trackOpenAIAds } from "@/lib/openaiAds";
+import { KYRIVO_OPENAI_ADS_PIXEL_ID } from "@/lib/openaiAdsConfig";
 
-const PIXEL_ID = process.env.NEXT_PUBLIC_OPENAI_ADS_PIXEL_ID;
+const PIXEL_ID = KYRIVO_OPENAI_ADS_PIXEL_ID;
 
-/** Le SDK ne se charge jamais avant consentement. */
+/** On ne mesure pas les pages métiers des clients ou les données de leur compte. */
+const MARKETING_PAGES: Record<string, string> = {
+  "/": "Accueil Kyrivo",
+  "/register": "Inscription Kyrivo",
+  "/abonnements": "Tarifs Kyrivo",
+  "/mode-emploi": "Mode d'emploi Kyrivo",
+};
+
+/**
+ * Charge le SDK et mesure les pages publiques UNIQUEMENT après consentement.
+ * Le Pixel est unique et partagé par toutes les pages Next.js.
+ */
 export default function OpenAIAdsPixel() {
   const [enabled, setEnabled] = useState(false);
+  const pathname = usePathname();
+  const lastTrackedPath = useRef<string | null>(null);
+
+  const trackPage = useCallback((path: string) => {
+    if (!hasMarketingConsent() || !window.oaiq || !MARKETING_PAGES[path]) return;
+    if (lastTrackedPath.current === path) return;
+    lastTrackedPath.current = path;
+    trackOpenAIAds("page_viewed", {
+      type: "contents",
+      contents: [{ id: path, name: MARKETING_PAGES[path], content_type: "page" }],
+    });
+  }, []);
 
   useEffect(() => {
     const updateConsent = () => {
       const granted = hasMarketingConsent();
       setEnabled(granted);
-      // En cas de retrait du consentement après un chargement antérieur.
+      if (!granted) lastTrackedPath.current = null;
+      // Le SDK supprime également ses cookies publicitaires quand le consentement est retiré.
       if (!granted && window.oaiq) window.oaiq("consent", false);
       if (granted && window.oaiq) window.oaiq("consent", true);
     };
@@ -23,11 +50,21 @@ export default function OpenAIAdsPixel() {
     return () => window.removeEventListener("kyrivo:consent", updateConsent);
   }, []);
 
+  // Sur navigation client-side, la racine est persistante : compter chaque page
+  // publique consultée, sans envoyer de double événement au premier chargement.
+  useEffect(() => {
+    if (enabled) trackPage(pathname);
+  }, [enabled, pathname, trackPage]);
+
   if (!PIXEL_ID || !enabled) return null;
 
   return (
-    <Script id="kyrivo-openai-ads-pixel" strategy="afterInteractive">
-      {`(function(w,d,s,u){if(w.oaiq)return;var q=function(){q.q.push(arguments)};q.q=[];w.oaiq=q;var js=d.createElement(s);js.async=true;js.src=u;var f=d.getElementsByTagName(s)[0];f.parentNode.insertBefore(js,f)})(window,document,"script","https://bzrcdn.openai.com/sdk/oaiq.min.js");oaiq("consent",true);oaiq("init",{pixelId:${JSON.stringify(PIXEL_ID)}});`}
+    <Script
+      id="kyrivo-openai-ads-pixel"
+      strategy="afterInteractive"
+      onReady={() => trackPage(window.location.pathname)}
+    >
+      {`(function(w,d,s,u){if(w.oaiq)return;var q=function(){q.q.push(arguments)};q.q=[];w.oaiq=q;var js=d.createElement(s);js.async=true;js.src=u;var f=d.getElementsByTagName(s)[0];f.parentNode.insertBefore(js,f)})(window,document,"script","https://bzrcdn.openai.com/sdk/oaiq.min.js");oaiq("consent",true);oaiq("init",{pixelId:${JSON.stringify(PIXEL_ID)},debug:true});`}
     </Script>
   );
 }
