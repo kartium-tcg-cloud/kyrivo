@@ -611,7 +611,7 @@ function CredibilityFooter() {
         </div>
         <nav className="flex flex-wrap gap-x-4 gap-y-1.5" aria-label="Informations et liens utiles">
           {[
-            { href: "/mises-a-jour", label: "Mises à jour" },
+            { href: "/nouveautes", label: "Nouveautés" },
             { href: "/mentions-legales", label: "Mentions légales" },
             { href: "/conditions-generales", label: "CGU / CGV" },
             { href: "/politique-confidentialite", label: "Confidentialité" },
