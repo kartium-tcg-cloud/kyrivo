@@ -451,7 +451,7 @@ export default function AchatsTableau({
                                 href={`/items/${article.id}`}
                                 className="
                                   flex flex-col items-start gap-1.5
-                                  sm:grid sm:grid-cols-[120px_1fr_90px_100px_100px] sm:items-center sm:gap-3
+                                  sm:grid sm:grid-cols-[120px_minmax(0,1fr)_90px_100px_130px] sm:items-center sm:gap-3
                                   rounded-lg bg-neutral-950/60 border border-neutral-800/60
                                   px-3 py-2.5 text-sm
                                   hover:border-amber-500/30 hover:bg-neutral-900/80
@@ -474,8 +474,18 @@ export default function AchatsTableau({
 
                                 <ItemStatusBadge status={article.statut} />
 
-                                <span className="sm:text-right text-white font-semibold tabular-nums sm:min-w-[80px]">
-                                  {formatEuro(article.coutHT)}
+                                <span className="sm:text-right tabular-nums sm:min-w-[110px]">
+                                  <span className="block text-[10px] font-medium text-neutral-500">Coût unitaire TTC</span>
+                                  <span className="block font-semibold text-white">
+                                    {article.coutTTC != null && Number.isFinite(article.coutTTC)
+                                      ? formatEuro(article.coutTTC)
+                                      : "—"}
+                                  </span>
+                                  {achat.type === "pro" && Number(achat.vatRate ?? 0) > 0 && (
+                                    <span className="block text-[11px] text-neutral-500">
+                                      {formatEuro(article.coutHT)} HT
+                                    </span>
+                                  )}
                                 </span>
                               </Link>
                             ))}
