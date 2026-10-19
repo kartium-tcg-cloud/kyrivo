@@ -1,0 +1,21 @@
+name: Item detail TTC display
+on:
+  pull_request:
+    paths:
+      - 'src/app/items/[id]/page.tsx'
+      - 'src/lib/itemPurchaseDisplayPrices.ts'
+      - 'tests/item-detail-ttc.test.cjs'
+      - '.github/workflows/item-detail-ttc.yml'
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx next typegen
+      - run: npx tsc --noEmit
+      - run: node --test tests/item-detail-ttc.test.cjs
