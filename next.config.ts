@@ -26,6 +26,7 @@ const nextConfig: NextConfig = {
     return [
       { source: "/mises-a-jour", destination: "/nouveautes", permanent: true },
       { source: "/mises-a-jour/v1-1", destination: "/nouveautes/v1-1", permanent: true },
+      { source: "/mode-emploi", destination: "/nouveautes/guide-demarrage", permanent: true },
     ];
   },
 

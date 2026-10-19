@@ -5,8 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { buildRegisterUrl, trackFunnel, trackMetaCustom } from "@/lib/analytics";
-import Container from "@/components/ui/Container";
 import Button from "@/components/ui/Button";
+import { onboardingGuide } from "@/lib/news";
 
 // ═══════════════════════════════════════════════════════════
 // IMAGE AVEC FALLBACK
@@ -63,44 +63,45 @@ function HelpImage({
 }
 
 // ═══════════════════════════════════════════════════════════
-// ACCORDÉON — ENTRÉE UNIQUE
-// <details>/<summary> natifs (contenu toujours dans le DOM, donc
-// indexable) avec name partagé pour un accordéon exclusif sans JS —
-// même pattern que FAQSection sur la page d'accueil.
+// SECTIONS DU TUTORIEL — CONTENU VISIBLE ET ACCESSIBLE
 // ═══════════════════════════════════════════════════════════
 
-type AccordionItem = {
+type GuideStep = {
   question: string;
   answer: React.ReactNode;
   screenshot?: { src: string; alt: string; width: number; height: number };
 };
 
-function AccordionEntry({ item }: { item: AccordionItem }) {
+const SECTION_IDS = [
+  "preparer-son-compte",
+  "encoder-un-achat",
+  "encoder-une-vente",
+  "exporter-vers-excel",
+  "generer-ses-factures",
+  "suivre-son-activite",
+  "choisir-son-abonnement",
+] as const;
+
+function GuideSection({ item, index }: { item: GuideStep; index: number }) {
   return (
-    <details
-      name="mode-emploi-accordion"
-      className="group rounded-xl border border-neutral-800 overflow-hidden transition-colors duration-150 open:border-amber-500/30 hover:border-neutral-700"
+    <section
+      id={SECTION_IDS[index]}
+      aria-labelledby={`${SECTION_IDS[index]}-title`}
+      className="scroll-mt-24 overflow-hidden rounded-2xl border border-neutral-800/90 bg-neutral-900/45 shadow-[0_12px_48px_rgba(0,0,0,0.12)]"
     >
-      <summary className="flex w-full min-h-[56px] cursor-pointer list-none items-center justify-between gap-4 bg-neutral-900/40 px-5 py-4 text-left transition-colors duration-150 marker:content-none group-open:bg-amber-500/5 hover:bg-neutral-900/60 [&::-webkit-details-marker]:hidden">
-        <h2 className="text-sm font-semibold leading-snug text-white group-open:text-amber-400">
-          {item.question}
-        </h2>
-
-        {/* Chevron */}
-        <svg
-          className="h-5 w-5 flex-shrink-0 text-neutral-500 transition-transform duration-200 group-open:rotate-180 group-open:text-amber-400"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth={2}
-          stroke="currentColor"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-        </svg>
-      </summary>
-
-      {/* Réponse — toujours dans le DOM, seulement masquée par le navigateur */}
-      <div className="px-5 pb-6 pt-4 bg-neutral-900/20 border-t border-neutral-800/50">
-        <div className="text-sm text-neutral-300 leading-relaxed">
+      <div className="flex items-start gap-4 border-b border-neutral-800/70 bg-gradient-to-r from-amber-500/[0.08] to-transparent px-5 py-5 sm:px-7 sm:py-6">
+        <span aria-hidden="true" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-amber-500/25 bg-amber-500/10 text-sm font-bold text-amber-300">
+          {String(index + 1).padStart(2, "0")}
+        </span>
+        <div>
+          <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-amber-400/90">Étape {index + 1}</span>
+          <h2 id={`${SECTION_IDS[index]}-title`} className="mt-1 text-xl font-semibold leading-snug text-white sm:text-2xl">
+            {item.question.replace(/^\d+\.\s*/, "")}
+          </h2>
+        </div>
+      </div>
+      <div className="px-5 pb-7 pt-5 sm:px-7 sm:pb-8 sm:pt-6">
+        <div className="space-y-4 text-[15px] leading-7 text-neutral-300">
           {item.answer}
         </div>
         {item.screenshot && (
@@ -112,7 +113,7 @@ function AccordionEntry({ item }: { item: AccordionItem }) {
           />
         )}
       </div>
-    </details>
+    </section>
   );
 }
 
@@ -120,7 +121,7 @@ function AccordionEntry({ item }: { item: AccordionItem }) {
 // CONTENU DES 7 QUESTIONS
 // ═══════════════════════════════════════════════════════════
 
-const ITEMS: AccordionItem[] = [
+const ITEMS: GuideStep[] = [
   {
     question: "1. Comment préparer Kyrivo avant d'encoder mes transactions ?",
     answer: (
@@ -458,7 +459,7 @@ const faqStructuredData = {
 // PAGE PRINCIPALE
 // ═══════════════════════════════════════════════════════════
 
-export default function ModeEmploiPage() {
+export default function GuideDemarragePage() {
   const router = useRouter();
 
   function handleRegisterClick(e: React.MouseEvent<HTMLAnchorElement>) {
@@ -469,42 +470,85 @@ export default function ModeEmploiPage() {
   }
 
   return (
-    <Container size="prose" className="ky-marketing relative py-10 lg:py-14">
+    <main className="ky-marketing mx-auto w-full max-w-6xl px-5 pb-20 pt-9 sm:px-8 lg:pt-14">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqStructuredData) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@graph": [
+              {
+                "@type": "Article",
+                headline: onboardingGuide.title,
+                description: onboardingGuide.summary,
+                datePublished: onboardingGuide.dateISO,
+                dateModified: onboardingGuide.dateISO,
+                inLanguage: "fr",
+                author: { "@type": "Organization", name: "Équipe Kyrivo" },
+                publisher: { "@type": "Organization", name: "Kyrivo", url: "https://kyrivo.fr" },
+                mainEntityOfPage: `https://kyrivo.fr${onboardingGuide.href}`,
+              },
+              { "@type": "FAQPage", mainEntity: faqStructuredData.mainEntity },
+            ],
+          }),
+        }}
       />
 
-      {/* ─── En-tête ────────────────────────────────────── */}
-      <div className="mb-10">
-        <div className="flex w-fit items-center gap-2 rounded-full bg-amber-500/10 border border-amber-500/20 px-3 py-1 mb-5">
-          <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
-          <span className="text-[11px] font-semibold text-amber-400 tracking-widest uppercase">
-            Guide
+      <nav aria-label="Fil d’Ariane" className="mb-7 text-sm text-neutral-400">
+        <Link href="/nouveautes" className="transition-colors hover:text-amber-300">Nouveautés</Link>
+        <span aria-hidden="true" className="mx-2 text-neutral-600">/</span>
+        <span aria-current="page" className="text-neutral-200">Guide de démarrage</span>
+      </nav>
+
+      <header className="relative mb-10 overflow-hidden rounded-3xl border border-amber-500/20 bg-gradient-to-br from-amber-500/[0.11] via-neutral-900/80 to-neutral-950 p-6 sm:p-9 lg:p-12">
+        <div aria-hidden="true" className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-amber-500/[0.07] blur-3xl" />
+        <div className="relative flex flex-wrap items-center gap-3 text-sm">
+          <span className="rounded-md border border-amber-500/35 bg-amber-500/10 px-3 py-1.5 text-xs font-bold text-amber-300">
+            {onboardingGuide.category}
           </span>
+          <time dateTime={onboardingGuide.dateISO} className="text-neutral-300">{onboardingGuide.dateLabel}</time>
+          <span aria-hidden="true" className="text-neutral-600">·</span>
+          <span className="text-neutral-400">7 étapes illustrées</span>
         </div>
-
-        <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight mb-4 leading-tight">
-          Mode d&apos;emploi Kyrivo — gérer achats, ventes, stock et marges
+        <p className="relative mt-7 text-xs font-bold uppercase tracking-[0.2em] text-amber-300">Prendre en main Kyrivo</p>
+        <h1 className="relative mt-3 max-w-4xl text-3xl font-bold leading-tight tracking-tight text-white sm:text-4xl lg:text-5xl">
+          {onboardingGuide.title}
         </h1>
-
-        <p className="text-base text-neutral-300 leading-relaxed max-w-2xl">
-          Ce guide explique comment utiliser Kyrivo pour gérer une activité d&apos;achat-revente : configuration du compte, encodage des achats, encodage des ventes, suivi du stock, analyse des marges, exports Excel et génération de factures.
+        <p className="relative mt-5 max-w-3xl text-base leading-8 text-neutral-300 sm:text-lg">
+          {onboardingGuide.summary} Suis les étapes dans l&apos;ordre ou accède directement au sujet qui t&apos;intéresse.
         </p>
-      </div>
+        <a href="#etapes" className="relative mt-7 inline-flex min-h-11 items-center gap-2 rounded-xl bg-amber-500 px-5 py-2.5 text-sm font-bold text-neutral-950 transition-colors hover:bg-amber-400">
+          Explorer le tutoriel
+          <svg aria-hidden="true" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="m6 9 6 6 6-6" /></svg>
+        </a>
+      </header>
 
-      {/* ─── Accordéon ──────────────────────────────────── */}
-      <div className="space-y-2" role="list">
-        {ITEMS.map((item, i) => (
-          <div key={i} role="listitem">
-            <AccordionEntry item={item} />
-          </div>
-        ))}
+      <div id="etapes" className="grid scroll-mt-10 items-start gap-8 lg:grid-cols-[245px_minmax(0,1fr)] lg:gap-10">
+        <nav aria-label="Sommaire du tutoriel" className="rounded-2xl border border-neutral-800 bg-neutral-900/55 p-5 lg:sticky lg:top-8">
+          <p className="mb-4 text-xs font-bold uppercase tracking-[0.16em] text-neutral-400">Dans ce tutoriel</p>
+          <ol className="space-y-1">
+            {ITEMS.map((item, index) => (
+              <li key={SECTION_IDS[index]}>
+                <a href={`#${SECTION_IDS[index]}`} className="flex items-start gap-3 rounded-lg px-2 py-2.5 text-sm leading-5 text-neutral-300 transition-colors hover:bg-amber-500/10 hover:text-amber-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400">
+                  <span className="shrink-0 font-mono text-xs text-amber-400">{String(index + 1).padStart(2, "0")}</span>
+                  <span>{item.question.replace(/^\d+\.\s*/, "")}</span>
+                </a>
+              </li>
+            ))}
+          </ol>
+          <Link href="/nouveautes" className="mt-5 inline-flex items-center gap-2 border-t border-neutral-800 pt-5 text-sm font-medium text-amber-300 hover:text-amber-200">
+            ← Toutes les nouveautés
+          </Link>
+        </nav>
+
+        <article aria-label="Étapes du guide" className="min-w-0 space-y-6">
+          {ITEMS.map((item, index) => <GuideSection key={SECTION_IDS[index]} item={item} index={index} />)}
+        </article>
       </div>
 
       {/* ─── CTA bas de page ────────────────────────────── */}
       <div
-        className="mt-14 rounded-2xl border border-amber-500/20 px-6 py-8 text-center"
+        className="mt-14 rounded-2xl border border-amber-500/20 px-6 py-9 text-center sm:py-11"
         style={{
           background:
             "linear-gradient(135deg, rgba(245,158,11,0.06) 0%, rgba(23,23,23,0.3) 100%)",
@@ -529,6 +573,6 @@ export default function ModeEmploiPage() {
         </div>
       </div>
 
-    </Container>
+    </main>
   );
 }

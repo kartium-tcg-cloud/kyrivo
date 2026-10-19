@@ -27,12 +27,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     },
     {
-      url: `${BASE}/mode-emploi`,
-      lastModified,
-      changeFrequency: 'monthly',
-      priority: 0.7,
-    },
-    {
       url: `${BASE}/nouveautes`,
       lastModified,
       changeFrequency: 'monthly',
@@ -41,6 +35,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     {
       url: `${BASE}/nouveautes/v1-1`,
       lastModified: new Date('2026-10-17T00:00:00+02:00'),
+      changeFrequency: 'yearly',
+      priority: 0.65,
+    },
+    {
+      url: `${BASE}/nouveautes/guide-demarrage`,
+      lastModified: new Date('2026-08-15T00:00:00+02:00'),
       changeFrequency: 'yearly',
       priority: 0.65,
     },

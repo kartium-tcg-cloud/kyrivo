@@ -436,8 +436,8 @@ function WorkflowSection() {
         </div>
 
         <p className="mt-8 text-center">
-          <Link href="/mode-emploi" className="text-xs text-neutral-500 hover:text-amber-400 transition-colors">
-            Voir le mode d&apos;emploi →
+          <Link href="/nouveautes/guide-demarrage" className="text-xs text-neutral-500 hover:text-amber-400 transition-colors">
+            Découvrir le tutoriel de démarrage →
           </Link>
         </p>
       </section>

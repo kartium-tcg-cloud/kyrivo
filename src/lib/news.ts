@@ -15,6 +15,17 @@ export type NewsArticle = {
   eyebrow?: string;
 };
 
+export const onboardingGuide: NewsArticle = {
+  slug: "guide-demarrage",
+  href: "/nouveautes/guide-demarrage",
+  category: "Tutoriels",
+  title: "Bien démarrer avec Kyrivo : le guide complet",
+  summary: "Configure ton compte, enregistre tes achats et tes ventes, suis ton stock et tes marges, puis découvre les exports et la facturation grâce à sept étapes illustrées.",
+  dateISO: "2026-08-15",
+  dateLabel: "15 août 2026",
+  eyebrow: "Guide pas à pas",
+};
+
 /** Articles publics : ajouter une entrée ici pour qu'elle apparaisse dans Nouveautés. */
 export const newsArticles: NewsArticle[] = [
   {
@@ -27,4 +38,5 @@ export const newsArticles: NewsArticle[] = [
     dateLabel: latestRelease.dateLabel,
     eyebrow: `Version ${latestRelease.version}`,
   },
+  onboardingGuide,
 ];

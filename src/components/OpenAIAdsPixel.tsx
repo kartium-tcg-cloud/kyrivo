@@ -14,7 +14,9 @@ const MARKETING_PAGES: Record<string, string> = {
   "/": "Accueil Kyrivo",
   "/register": "Inscription Kyrivo",
   "/abonnements": "Tarifs Kyrivo",
-  "/mode-emploi": "Mode d'emploi Kyrivo",
+  "/nouveautes": "Nouveautés Kyrivo",
+  "/nouveautes/v1-1": "Mise à jour Kyrivo v1.1",
+  "/nouveautes/guide-demarrage": "Tutoriel de démarrage Kyrivo",
 };
 
 /**

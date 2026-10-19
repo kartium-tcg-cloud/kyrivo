@@ -17,7 +17,6 @@ const PUBLIC_PREFIXES = [
   "/politique-confidentialite",
   "/cookies",
   "/donnees-personnelles",
-  "/mode-emploi",
   "/nouveautes",
   "/api/analytics",
   "/api/meta",
