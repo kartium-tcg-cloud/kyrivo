@@ -3,7 +3,7 @@ import Link from "next/link";
 import { latestRelease } from "@/lib/releases";
 
 const release = latestRelease;
-const CANONICAL = "https://kyrivo.fr/mises-a-jour/v1-1";
+const CANONICAL = "https://kyrivo.fr/nouveautes/v1-1";
 
 export const metadata: Metadata = {
   title: `Kyrivo v${release.version} — Nouveautés et corrections du ${release.dateLabel}`,
@@ -36,7 +36,7 @@ export default function VersionOneOnePage() {
     <main className="ky-marketing mx-auto w-full max-w-5xl px-5 py-9 pb-20 sm:px-8 lg:py-14">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredArticle) }} />
       <nav aria-label="Fil d’Ariane" className="mb-7 text-sm text-neutral-400">
-        <Link className="hover:text-amber-300" href="/mises-a-jour">Mises à jour</Link>
+        <Link className="hover:text-amber-300" href="/nouveautes">Nouveautés</Link>
         <span aria-hidden="true" className="mx-2 text-neutral-600">/</span>
         <span aria-current="page" className="text-neutral-200">Version {release.version}</span>
       </nav>
@@ -125,8 +125,8 @@ export default function VersionOneOnePage() {
             </a>.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <Link href="/mises-a-jour" className="ky-button-secondary inline-flex items-center rounded-xl border border-neutral-700 px-5 py-3 text-sm font-semibold">
-              Toutes les mises à jour
+            <Link href="/nouveautes" className="ky-button-secondary inline-flex items-center rounded-xl border border-neutral-700 px-5 py-3 text-sm font-semibold">
+              Toutes les nouveautés
             </Link>
             <Link href="/dashboard" className="ky-button-primary inline-flex items-center rounded-xl bg-amber-500 px-5 py-3 text-sm font-semibold text-neutral-950">
               Accéder à Kyrivo

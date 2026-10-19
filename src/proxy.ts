@@ -18,7 +18,7 @@ const PUBLIC_PREFIXES = [
   "/cookies",
   "/donnees-personnelles",
   "/mode-emploi",
-  "/mises-a-jour",
+  "/nouveautes",
   "/api/analytics",
   "/api/meta",
   "/api/cron",

@@ -22,6 +22,13 @@ const nextConfig: NextConfig = {
     formats: ["image/avif", "image/webp"],
   },
 
+  async redirects() {
+    return [
+      { source: "/mises-a-jour", destination: "/nouveautes", permanent: true },
+      { source: "/mises-a-jour/v1-1", destination: "/nouveautes/v1-1", permanent: true },
+    ];
+  },
+
   async headers() {
     return [
       {

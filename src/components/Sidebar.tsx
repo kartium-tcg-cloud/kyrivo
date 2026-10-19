@@ -506,23 +506,23 @@ className={`
                 )}
               </Link>
 
-              {/* Journal des mises à jour — public, après Abonnement */}
+              {/* Nouveautés — public, après Abonnement */}
               <Link
-                href="/mises-a-jour"
-                aria-current={isActive("/mises-a-jour") ? "page" : undefined}
-                className={`ky-nav-link relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150 group ${isActive("/mises-a-jour") ? "bg-amber-500/10 text-amber-400" : "text-neutral-400 hover:bg-neutral-900/60 hover:text-neutral-200"}`}
+                href="/nouveautes"
+                aria-current={isActive("/nouveautes") ? "page" : undefined}
+                className={`ky-nav-link relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150 group ${isActive("/nouveautes") ? "bg-amber-500/10 text-amber-400" : "text-neutral-400 hover:bg-neutral-900/60 hover:text-neutral-200"}`}
               >
-                {isActive("/mises-a-jour") && (
+                {isActive("/nouveautes") && (
                   <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-0.5 rounded-r-full bg-amber-400" />
                 )}
-                <span className={`shrink-0 ${isActive("/mises-a-jour") ? "text-amber-400" : "text-neutral-500 group-hover:text-neutral-300"}`}>
+                <span className={`shrink-0 ${isActive("/nouveautes") ? "text-amber-400" : "text-neutral-500 group-hover:text-neutral-300"}`}>
                   <svg aria-hidden="true" className="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M8 3.75h8A2.25 2.25 0 0 1 18.25 6v12A2.25 2.25 0 0 1 16 20.25H8A2.25 2.25 0 0 1 5.75 18V6A2.25 2.25 0 0 1 8 3.75Z" />
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 8.25h6m-6 4h6m-6 4h4" />
                   </svg>
                 </span>
-                <span className="flex-1">Mises à jour</span>
-                {isActive("/mises-a-jour") && (
+                <span className="flex-1">Nouveautés</span>
+                {isActive("/nouveautes") && (
                   <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
                 )}
               </Link>
