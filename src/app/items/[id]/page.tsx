@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { isItemStatus } from "@/types/item";
 import ItemStatusBadge from "@/components/items/ItemStatusBadge";
 import CopyLinkButton from "@/components/items/CopyLinkButton";
+import { getItemPurchaseDisplayPrices } from "@/lib/itemPurchaseDisplayPrices";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -45,6 +46,7 @@ export default async function ItemDetailPage({ params }: PageProps) {
   const stockQuantity = Number(item.stock_quantity ?? item.quantity);
   const initialQuantity = Number(item.quantity);
   const status = isItemStatus(item.status) ? item.status : "in_stock";
+  const prices = getItemPurchaseDisplayPrices(item);
 
   const formatEuro = (n: number) =>
     Number(n).toLocaleString("fr-BE", {
@@ -151,12 +153,18 @@ export default async function ItemDetailPage({ params }: PageProps) {
 
           <div className="text-right flex-shrink-0">
             <p className="text-[11px] text-neutral-500 uppercase tracking-wider mb-1">
-              Coût unitaire
+              Coût unitaire TTC
             </p>
 
             <p className="text-2xl font-bold text-amber-400 tabular-nums">
-              {formatEuro(Number(item.unit_cost))}
+              {prices.unitTTC === null ? "—" : formatEuro(prices.unitTTC)}
             </p>
+
+            {prices.unitHT !== null && (
+              <p className="text-xs text-neutral-400 mt-1">
+                {formatEuro(prices.unitHT)} HT
+              </p>
+            )}
 
             <p className="text-xs text-neutral-400 mt-1">
               Stock restant : {stockQuantity} / {initialQuantity}
@@ -218,8 +226,11 @@ export default async function ItemDetailPage({ params }: PageProps) {
             <DetailRow label="Référence" value={item.item_reference} mono />
             <DetailRow label="Quantité initiale" value={String(initialQuantity)} />
             <DetailRow label="Stock restant" value={String(stockQuantity)} />
-            <DetailRow label="Coût HT" value={formatEuro(Number(item.unit_cost))} />
-            <DetailRow label="Coût total" value={formatEuro(Number(item.total_cost))} />
+            <DetailRow label="Coût unitaire TTC" value={prices.unitTTC === null ? "—" : formatEuro(prices.unitTTC)} />
+            {prices.unitHT !== null && (
+              <DetailRow label="Coût unitaire HT" value={formatEuro(prices.unitHT)} />
+            )}
+            <DetailRow label="Coût total TTC" value={prices.totalTTC === null ? "—" : formatEuro(prices.totalTTC)} />
             <DetailRow label="Type TVA" value={item.vat_type ?? "—"} />
             <DetailRow
               label="Marge éligible"
