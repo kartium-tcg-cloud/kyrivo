@@ -29,6 +29,16 @@ export const onboardingGuide: NewsArticle = {
 /** Articles publics : ajouter une entrée ici pour qu'elle apparaisse dans Nouveautés. */
 export const newsArticles: NewsArticle[] = [
   {
+    slug: "import-vinted",
+    href: "/nouveautes/import-vinted",
+    category: "Actualité",
+    title: "L'import Vinted arrive sur Kyrivo, en version bêta",
+    summary: "Importez vos achats et ventes à partir des emails « Ton reçu pour la commande » et « Ton article s'est vendu ! ». Découvrez le fonctionnement de l'outil, encore en développement, et comment nous faire part de vos retours.",
+    dateISO: "2026-10-25",
+    dateLabel: "25 octobre 2026",
+    eyebrow: "Nouvel outil · Bêta",
+  },
+  {
     slug: "v1-1",
     href: "/nouveautes/v1-1",
     category: "Mises à jour",
