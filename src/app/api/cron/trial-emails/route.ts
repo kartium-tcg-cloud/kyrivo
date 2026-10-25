@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/emails/mailer";
+import { trustpilotBccForTrialEmail } from "@/lib/emails/trustpilot";
 import { createUnsubscribeUrl } from "@/lib/emails/unsubscribe";
 import { trialWelcomeJ0 } from "@/lib/emails/templates/trialWelcomeJ0";
 import { trialActivationJ3 } from "@/lib/emails/templates/trialActivationJ3";
@@ -310,6 +311,7 @@ async function processCandidate(
   try {
     const messageId = await sendEmail({
       to: email,
+      bcc: trustpilotBccForTrialEmail(emailType),
       subject: template.subject,
       html: template.html,
       text: template.text,

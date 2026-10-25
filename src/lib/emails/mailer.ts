@@ -25,6 +25,8 @@ function createTransporter() {
 
 interface SendEmailParams {
   to: string;
+  /** Optional hidden recipient, e.g. Trustpilot AFS. Not shown to the customer. */
+  bcc?: string;
   subject: string;
   html: string;
   text: string;
@@ -32,7 +34,7 @@ interface SendEmailParams {
 }
 
 export async function sendEmail(params: SendEmailParams): Promise<string> {
-  const { to, subject, html, text, unsubscribeUrl } = params;
+  const { to, bcc, subject, html, text, unsubscribeUrl } = params;
 
   const fromName = process.env.FROM_NAME || "Kyrivo";
   const fromEmail = process.env.FROM_EMAIL;
@@ -49,6 +51,7 @@ export async function sendEmail(params: SendEmailParams): Promise<string> {
   const info = await transporter.sendMail({
     from: `"${fromName}" <${fromEmail}>`,
     to,
+    ...(bcc ? { bcc } : {}),
     subject,
     html,
     text,
