@@ -33,6 +33,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.7,
     },
     {
+      url: `${BASE}/nouveautes/import-vinted`,
+      lastModified: new Date('2026-10-25T00:00:00+02:00'),
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
       url: `${BASE}/nouveautes/v1-1`,
       lastModified: new Date('2026-10-17T00:00:00+02:00'),
       changeFrequency: 'yearly',
