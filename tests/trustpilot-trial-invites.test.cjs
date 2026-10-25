@@ -21,13 +21,11 @@ function compile(file, mockRequire) {
 
 const AFS = "kyrivo.fr+7c93e07014@invite.trustpilot.com";
 
-test("Trustpilot AFS is copied only on the last-day trial email", () => {
-  const code = source("src/lib/emails/trustpilot.ts");
-  assert.match(code, /trial_last_day/);
+test("Trustpilot AFS is copied on welcome J0 only, not J3 or end of trial", () => {
   const m = compile("src/lib/emails/trustpilot.ts", () => { throw Error("No dependencies expected"); });
-  assert.equal(m.trustpilotBccForTrialEmail("trial_welcome_j0"), undefined);
+  assert.equal(m.trustpilotBccForTrialEmail("trial_welcome_j0"), AFS);
   assert.equal(m.trustpilotBccForTrialEmail("trial_activation_j3"), undefined);
-  assert.equal(m.trustpilotBccForTrialEmail("trial_last_day"), AFS);
+  assert.equal(m.trustpilotBccForTrialEmail("trial_last_day"), undefined);
 });
 
 test("SMTP sends hidden copy without changing the visible recipient", async () => {
@@ -58,7 +56,7 @@ test("SMTP sends hidden copy without changing the visible recipient", async () =
   });
   const id = await mod.exports.sendEmail({
     to: "customer@example.net", bcc: AFS,
-    subject: "Fin d'essai", html: "<p>Essai terminé</p>", text: "Essai terminé",
+    subject: "Bienvenue sur Kyrivo", html: "<p>Bienvenue</p>", text: "Bienvenue",
   });
   assert.equal(id, "test-message");
   assert.equal(call.to, "customer@example.net");
@@ -77,7 +75,7 @@ test("Existing trial email filtering/deduplication and opt-out are preserved", (
   assert.match(code, /const unsubscribed = await isUnsubscribed\(email\)/);
   assert.match(code, /if \(dryRun\)/);
   assert.match(code, /bcc: trustpilotBccForTrialEmail\(emailType\)/);
-  assert.match(code, /emailType: "trial_last_day"/);
+  assert.match(code, /emailType: "trial_welcome_j0"/);
   // The candidate selector must never require a purchase or a sale.
   assert.doesNotMatch(code, /\.from\("purchases"\)|\.from\("sales"\)/);
 });
