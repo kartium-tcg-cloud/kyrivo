@@ -414,7 +414,7 @@ function VentesContent() {
       if (importPrefill) {
         const { data: duplicates, error: duplicateError } = await supabase.from("sales")
           .select("id").eq("company_id", companyId)
-          .ilike("notes", "%[Vinted import: " + importPrefill.key + "]%").limit(1);
+          .contains("source_details", { importKey: importPrefill.key }).limit(1);
         if (duplicateError) throw duplicateError;
         if (duplicates?.length) {
           toast.error("Cette vente Vinted est déjà enregistrée. Import annulé.");
@@ -481,9 +481,8 @@ function VentesContent() {
           vat_amount: vente.vatAmount,
           total_ttc: vente.totalTTC,
           margin_amount: vente.marginAmount,
-          notes: importPrefill && !vente.notes?.includes("[Vinted import: " + importPrefill.key + "]")
-            ? (vente.notes ? vente.notes + "\\n" : "") + "[Vinted import: " + importPrefill.key + "]"
-            : vente.notes,
+          notes: vente.notes,
+          source_details: importPrefill ? { importKey: importPrefill.key, conversationReference: importPrefill.orderReference } : null,
           contact_id: resolvedContactId,
         });
 
