@@ -23,7 +23,6 @@ export default function ImportVintedPage() {
   const [files, setFiles] = useState<File[]>([]);
   const [items, setItems] = useState<VintedQueueItem[]>([]);
   const [existingKeys, setExistingKeys] = useState<Set<string>>(new Set());
-  const [overrideKeys, setOverrideKeys] = useState<Set<string>>(new Set());
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -95,8 +94,8 @@ export default function ImportVintedPage() {
   }
   function openDraft(item: VintedQueueItem) {
     if (!companyId || item.state === "saved") return;
-    if (existingKeys.has(item.draft.key) && !overrideKeys.has(item.draft.key)) {
-      setMessage("Cette transaction semble déjà enregistrée. Confirmez explicitement si vous souhaitez la ressaisir.");
+    if (existingKeys.has(item.draft.key)) {
+      setMessage("Cette transaction semble déjà enregistrée dans Kyrivo. Vérifiez les opérations existantes pour éviter un doublon.");
       return;
     }
     activateVintedDraft(companyId, item.draft.key);
@@ -155,7 +154,7 @@ export default function ImportVintedPage() {
           </div>
           {items.length > 0 && <button type="button" onClick={() => {
             if (window.confirm("Effacer la file locale Vinted ? Les achats/ventes déjà enregistrés restent dans Kyrivo.")) {
-              clearVintedQueue(companyId); setItems([]); setOverrideKeys(new Set());
+              clearVintedQueue(companyId); setItems([]);
             }
           }} className="rounded-lg border border-neutral-700 px-3 py-2 text-xs text-neutral-300 hover:bg-neutral-800">
             Vider la file
@@ -195,19 +194,19 @@ export default function ImportVintedPage() {
                     </div>
                     <div className="flex flex-col items-end gap-2">
                       <strong className="text-xl text-white">{fmt(d.paidTotal)}</strong>
-                      <button type="button" disabled={item.state === "saved" || (duplicate && !overrideKeys.has(d.key))}
+                      <button type="button" disabled={item.state === "saved" || duplicate}
                         onClick={() => openDraft(item)}
                         className="rounded-lg bg-amber-500 px-4 py-2 text-xs font-bold text-neutral-950 hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-40">
                         Ouvrir le formulaire
                       </button>
                     </div>
                   </div>
-                  {duplicate && item.state !== "saved" && <label className="mt-3 flex items-start gap-2 text-xs text-red-200">
-                    <input type="checkbox" checked={overrideKeys.has(d.key)} onChange={e => setOverrideKeys(prev => {
-                      const next = new Set(prev); if (e.target.checked) next.add(d.key); else next.delete(d.key); return next;
-                    })} />
-                    Cette transaction semble déjà enregistrée : je souhaite tout de même la ressaisir.
-                  </label>}
+                  {duplicate && item.state !== "saved" && (
+                    <p className="mt-3 text-xs text-red-300">
+                      Déjà présent dans les opérations de Kyrivo : évitez un second encodage.
+                    </p>
+                  )}
+
                 </article>
               );
             })}
