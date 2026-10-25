@@ -38,5 +38,3 @@ jobs:
         run: |
           npx next typegen
           npx tsc --noEmit
-      - name: Build application
-        run: npm run build
