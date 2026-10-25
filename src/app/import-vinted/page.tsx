@@ -46,9 +46,8 @@ export default function ImportVintedPage() {
           if (details?.orderReference) dbKeys.add("purchase:" + details.orderReference);
         }
         for (const sale of sales) {
-          const note = (sale.notes as string | null) || "";
-          const match = note.match(/\[Vinted import: ([^\]]+)\]/);
-          if (match) dbKeys.add(match[1]);
+          const detail = sale.source_details as { importKey?: string } | null;
+          if (detail?.importKey) dbKeys.add(detail.importKey);
         }
         setExistingKeys(dbKeys);
         setCompanyId(cid);
