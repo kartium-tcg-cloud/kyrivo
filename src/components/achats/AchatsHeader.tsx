@@ -60,10 +60,13 @@ export default function AchatsHeader({
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <Link href="/import-vinted"
-          className="inline-flex items-center justify-center rounded-lg border border-amber-500/30 bg-neutral-900/40 px-3 py-2 text-xs font-semibold text-amber-300 hover:bg-amber-500/10">
-          Importer Vinted
+          className="inline-flex items-center justify-center gap-2 rounded-lg border border-amber-500/30 bg-neutral-900/40 px-3 py-2 text-xs font-semibold text-amber-300 hover:bg-amber-500/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400">
+          <span>Importer Vinted</span>
+          <span aria-label="Fonctionnalité en bêta" className="rounded border border-amber-400/30 bg-amber-500/15 px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide leading-none text-amber-200">
+            Bêta
+          </span>
         </Link>
         <button
           onClick={onAjouter}
