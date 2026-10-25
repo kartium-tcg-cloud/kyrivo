@@ -108,11 +108,11 @@ function parseOne(raw: string): VintedDraft | null {
   const vinted = /\bVinted\b/i.test(text);
   const purchase = vinted
     && /(?:Ton reçu pour la commande|Reçu pour (?:ta|votre) commande Vinted|Ton paiement a été reçu|Votre paiement a été reçu)/i.test(text)
-    && /\bMontant payé\b/i.test(text)
+    && /\bMontant payé/i.test(text)
     && /^\s*\|?\s*(?:\*\*)?Vendeur\b/im.test(text)
     && !/\ba acheté\s*\n/i.test(text);
   const sold = vinted
-    && /\ba acheté\b/i.test(text)
+    && /\ba acheté(?=\s|$)/i.test(text)
     && /(?:Ton article s['’]est vendu|Nous transférerons le paiement)/i.test(text);
   if (!purchase && !sold) return null;
   const kind: VintedKind = purchase ? "purchase" : "sale";
