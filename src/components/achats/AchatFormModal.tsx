@@ -7,6 +7,8 @@ import { Achat, AchatItemInput, TypeAchat } from "@/types/achat";
 import Modal from "@/components/ui/Modal";
 import TransactionFeesInline from "@/components/fees/TransactionFeesInline";
 import type { TransactionFeeDraft } from "@/lib/transactionFees";
+import type { VintedDraft } from "@/lib/vintedEmailParser";
+import { validateVintedCosts } from "@/lib/vintedCosts";
 
 interface AchatFormModalProps {
   ouvert: boolean;
@@ -16,6 +18,7 @@ interface AchatFormModalProps {
   achatInitial?: Achat | null;
   supplierContacts?: Array<{ id: string; name: string }>;
   existingCategories?: string[];
+  importPrefill?: VintedDraft | null;
 }
 
 interface AchatItem {
@@ -70,6 +73,7 @@ export default function AchatFormModal({
   achatInitial = null,
   supplierContacts = [],
   existingCategories = [],
+  importPrefill = null,
 }: AchatFormModalProps) {
   const isEditing = Boolean(achatInitial);
 
@@ -89,6 +93,7 @@ export default function AchatFormModal({
   const [defaultVatRate, setDefaultVatRate] = useState(21);
   const [avecStock, setAvecStock] = useState(true);
   const [draftFees, setDraftFees] = useState<TransactionFeeDraft[]>([]);
+  const [vintedConfirmed, setVintedConfirmed] = useState(false);
   const [items, setItems] = useState<AchatItem[]>([emptyItem()]);
   const [erreurs, setErreurs] = useState<Record<string, string>>({});
   const [documentFile, setDocumentFile] = useState<File | null>(null);
@@ -99,6 +104,8 @@ export default function AchatFormModal({
   "Cash",
 ]);
   const isDirtyRef = useRef(false);
+  const importModeRef = useRef(false);
+  useEffect(() => { importModeRef.current = importPrefill?.kind === "purchase"; }, [importPrefill]);
   const [showUnsavedModal, setShowUnsavedModal] = useState(false);
   const [supplierContactId, setSupplierContactId] = useState<string | null>(null);
   const [showSupplierDropdown, setShowSupplierDropdown] = useState(false);
@@ -154,7 +161,7 @@ useEffect(() => {
 
       if (Number.isFinite(prefs.defaultVatRate)) {
         setDefaultVatRate(prefs.defaultVatRate);
-        setTauxTVA(prefs.defaultVatRate);
+        if (!importModeRef.current && !isDirtyRef.current) setTauxTVA(prefs.defaultVatRate);
       }
     } catch (e) {
       console.error(e);
@@ -171,6 +178,42 @@ useEffect(() => {
 
     if (!achatInitial) {
       resetForm();
+      if (importPrefill?.kind === "purchase") {
+        const d = importPrefill;
+        const seller = d.sellerPrice ?? 0;
+        const itemNames = d.items.length ? d.items : [d.title || "Article Vinted"];
+        const totalCents = Math.round(seller * 100);
+        const unitCents = Math.floor(totalCents / itemNames.length);
+        const remainder = totalCents % itemNames.length;
+        setForm({
+          date: d.date || dateAujourdhui(), fournisseur: d.counterparty || "Vendeur Vinted",
+          produit: "Vinted", type: "particulier", prixHT: String(d.paidTotal ?? seller),
+          commentaire: d.orderReference ? "Commande Vinted n° " + d.orderReference : "Achat importé de Vinted",
+          paiement: d.paymentDescription.toLowerCase().includes("bancontact") && !d.paymentDescription.toLowerCase().includes("porte-monnaie")
+            ? "Bancontact" : "Vinted",
+          saveSupplier: false,
+        });
+        setTauxTVA(0);
+        setAvecStock(true);
+        setItems(itemNames.map((nom, index) => ({
+          id: genId(), nom: nom.slice(0, 150), quantite: "1",
+          cout: ((unitCents + (index < remainder ? 1 : 0)) / 100).toFixed(2),
+          modeMontant: "ttc" as const, notes: "",
+        })));
+        const newFees: TransactionFeeDraft[] = [];
+        for (const [category, label, amount] of [
+          ["shipping", "Frais de port Vinted", d.shippingFee],
+          ["marketplace", "Frais Vinted", d.vintedFee],
+        ] as const) {
+          if (amount !== null && amount > 0) newFees.push({
+            kind: "expense", category, label, amountHT: amount, vatRate: 0,
+            vatAmount: 0, amountTTC: amount, recoverableVatAmount: 0,
+            includedInParentTotal: true, vatTreatment: "pending_review", notes: "",
+          });
+        }
+        setDraftFees(newFees);
+        setVintedConfirmed(false);
+      }
       return;
     }
 
@@ -217,7 +260,7 @@ setForm({
 
     setDocumentFile(null);
     setErreurs({});
-  }, [ouvert, achatInitial]);
+  }, [ouvert, achatInitial, importPrefill]);
 
   const updateChamp = (champ: string, valeur: string) => {
     isDirtyRef.current = true;
@@ -337,6 +380,31 @@ setForm({
   montantTVA = Math.round(montantTVA * 100) / 100;
   prixTTC = Math.round(prixTTC * 100) / 100;
 
+  const currentVintedDetails = (): Achat["sourceDetails"] | undefined => {
+    if (importPrefill?.kind !== "purchase") return undefined;
+    const sellerPrice = avecStock
+      ? Math.round(items.reduce((sum, item) => {
+          const q = Number(item.quantite) || 1;
+          const unit = Number(item.cout) || 0;
+          return sum + q * (item.modeMontant === "ht" ? unit * (1 + tauxTVAEffectif / 100) : unit);
+        }, 0) * 100) / 100
+      : Math.max(0, Math.round((prixTTC - draftFees.reduce((s, fee) => s + (fee.includedInParentTotal ? fee.amountTTC : 0), 0)) * 100) / 100);
+    const feeAmount = (category: string) => Math.round(draftFees
+      .filter(fee => fee.category === category && fee.kind === "expense" && fee.includedInParentTotal)
+      .reduce((sum, fee) => sum + fee.amountTTC, 0) * 100) / 100;
+    const shippingFee = feeAmount("shipping");
+    const buyerProtectionFee = feeAmount("marketplace");
+    const otherFees = Math.round(draftFees
+      .filter(fee => fee.category !== "shipping" && fee.category !== "marketplace" &&
+        fee.kind === "expense" && fee.includedInParentTotal)
+      .reduce((sum, fee) => sum + fee.amountTTC, 0) * 100) / 100;
+    return {
+      sellerPrice, shippingFee, buyerProtectionFee, otherFees, paidTotal: prixTTC,
+      orderReference: importPrefill.orderReference || undefined,
+      importKey: importPrefill.key, amountsConfirmed: vintedConfirmed,
+    };
+  };
+
   const valider = (): boolean => {
     const errs: Record<string, string> = {};
 
@@ -408,6 +476,13 @@ setForm({
       }
     }
 
+    if (importPrefill?.kind === "purchase") {
+      const details = currentVintedDetails();
+      if (details) {
+        const errors = validateVintedCosts(details);
+        if (errors.length) errs.vinted = errors.join(" ");
+      }
+    }
     setErreurs(errs);
     return Object.keys(errs).length === 0;
   };
@@ -428,6 +503,7 @@ setForm({
     setTauxTVA(defaultVatRate);
     setAvecStock(true);
     setDraftFees([]);
+    setVintedConfirmed(false);
     setItems([emptyItem()]);
     setDocumentFile(null);
     setErreurs({});
@@ -467,6 +543,8 @@ const buildPayload = (): Achat => {
     saveSupplier: form.saveSupplier,
     supplierContactId,
     draftFees: !isEditing ? draftFees : undefined,
+    source: importPrefill?.kind === "purchase" && !isEditing ? "vinted_import" : achatInitial?.source ?? "manual",
+    sourceDetails: !isEditing ? currentVintedDetails() : achatInitial?.sourceDetails,
   };
 };
 
@@ -519,6 +597,24 @@ const buildPayload = (): Achat => {
         </div>
       }
     >
+      {importPrefill?.kind === "purchase" && !isEditing && (
+        <div className="mb-4 space-y-3 rounded-xl border border-amber-500/30 bg-amber-500/5 p-4">
+          <p className="text-sm font-semibold text-amber-300">Achat Vinted prérempli — vérification obligatoire</p>
+          <p className="text-xs leading-5 text-neutral-300">
+            Vérifiez le régime TVA, le total payé, chaque prix d'article, les frais et le paiement.
+            Pour un achat à un particulier, choisissez « Particulier » (pas de TVA déductible sur l'article).
+            Les frais de livraison et les frais Vinted sont inclus dans le total, sans déduction de TVA présumée.
+          </p>
+          {importPrefill.warnings.map((warning, index) => (
+            <p key={index} className="text-xs text-amber-200/80">• {warning}</p>
+          ))}
+          <label className="flex items-start gap-2 text-sm text-neutral-200">
+            <input type="checkbox" checked={vintedConfirmed} onChange={e => setVintedConfirmed(e.target.checked)} />
+            J'ai vérifié et corrigé les montants à partir de mon reçu Vinted.
+          </label>
+          {erreurs.vinted && <p role="alert" className="text-xs text-red-300">{erreurs.vinted}</p>}
+        </div>
+      )}
       <div className="ky-form-area grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_340px] gap-5 items-start">
         <div className="min-w-0 flex flex-col gap-5">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

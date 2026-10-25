@@ -3,6 +3,9 @@ import { saveDraftTransactionFees } from "@/lib/saveDraftTransactionFees";
 
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import type { VintedDraft } from "@/lib/vintedEmailParser";
+import { clearActiveVintedDraft, getActiveVintedDraft, markVintedDraftSaved } from "@/lib/vintedImportSession";
 import { Achat, AchatFiltres, AchatItemInput } from "@/types/achat";
 import { ItemStatus, isItemStatus } from "@/types/item";
 import { createClient } from "@/lib/supabase/client";
@@ -134,6 +137,11 @@ function buildPurchaseItems(params: {
           },
         ];
 
+  const sellerCents = Math.round((achat.sourceDetails?.sellerPrice ?? achat.prixTTC) * 100);
+  const extraCents = achat.source === "vinted_import"
+    ? Math.max(0, Math.round(achat.prixTTC * 100) - sellerCents) : 0;
+  let allocatedExtra = 0;
+
   return itemsToCreate.map((item, index) => {
     const quantity = Number(item.quantite) || 1;
 
@@ -151,6 +159,17 @@ function buildPurchaseItems(params: {
     unitCostHT = Math.round(unitCostHT * 100) / 100;
     unitCostTTC = Math.round(unitCostTTC * 100) / 100;
 
+    // Vinted fees belong to the full economic cost, not the fiscal seller price.
+    // Spread the order's shipping/protection once over all stock rows, including lots.
+    const lineSellerCents = Math.round(unitCostTTC * quantity * 100);
+    const feeShare = achat.source === "vinted_import"
+      ? index === itemsToCreate.length - 1
+        ? extraCents - allocatedExtra
+        : sellerCents > 0 ? Math.round(extraCents * lineSellerCents / sellerCents) : 0
+      : 0;
+    allocatedExtra += feeShare;
+    const lineEconomicCents = lineSellerCents + feeShare;
+
     return {
       purchase_document_id: purchaseId,
       company_id: companyId,
@@ -160,13 +179,12 @@ function buildPurchaseItems(params: {
       quantity,
       stock_quantity: quantity,
       unit_cost: unitCostHT,
-      // total_cost sert aux écrans stock et au coût de revient : garder le
-      // total Vinted avec frais, tandis que unit_cost reste le prix fiscal.
       total_cost: achat.source === "vinted_import"
-        ? achat.prixTTC
+        ? lineEconomicCents / 100
         : Math.round(unitCostTTC * quantity * 100) / 100,
       fiscal_unit_cost: achat.source === "vinted_import" ? unitCostTTC : null,
-      economic_unit_cost: achat.source === "vinted_import" ? achat.prixTTC : null,
+      economic_unit_cost: achat.source === "vinted_import"
+        ? Math.round(lineEconomicCents * 100 / quantity) / 10000 : null,
       fiscal_cost_review_required:
         achat.source === "vinted_import" && !achat.documentFile && !achat.documentUrl,
       vat_type: achat.type,
@@ -268,6 +286,8 @@ async function createPurchaseItemsWithRetry(params: {
 }
 
 export default function AchatsPage() {
+  const router = useRouter();
+  const [importPrefill, setImportPrefill] = useState<VintedDraft | null>(null);
   const [achats, setAchats] = useState<Achat[]>([]);
   const [modalOuverte, setModalOuverte] = useState(false);
   const [achatEnEdition, setAchatEnEdition] = useState<Achat | null>(null);
@@ -350,6 +370,12 @@ export default function AchatsPage() {
         const companyId = await getCompanyId();
         if (!companyId) return;
         await refreshPurchases(companyId);
+        const active = getActiveVintedDraft(companyId, "purchase");
+        if (active) {
+          setAchatEnEdition(null);
+          setImportPrefill(active);
+          setModalOuverte(true);
+        }
       } catch (error) {
         console.error(error);
         toast.error("Erreur lors du chargement des achats.");
@@ -421,6 +447,7 @@ export default function AchatsPage() {
   };
 
   const ouvrirAjout = () => {
+    setImportPrefill(null);
     setAchatEnEdition(null);
     setModalOuverte(true);
   };
@@ -441,15 +468,24 @@ export default function AchatsPage() {
   const fermerModal = () => {
     setModalOuverte(false);
     setAchatEnEdition(null);
+    if (importPrefill) {
+      void getCompanyId().then(cid => { if (cid) clearActiveVintedDraft(cid); });
+      setImportPrefill(null);
+      router.push("/import-vinted");
+    }
   };
 
   const ajouterAchat = async (nouvelAchat: Achat) => {
     try {
       if (nouvelAchat.source === "vinted_import") {
         const detail = nouvelAchat.sourceDetails;
+        const summedCents = (nouvelAchat.items ?? []).reduce((sum, item) => {
+          const rate = calcVatRate(nouvelAchat) / 100;
+          return sum + Math.round(item.cout * (Number(item.quantite) || 1) *
+            (item.modeMontant === "ht" ? (1 + rate) : 1) * 100);
+        }, 0);
         if (!detail || validateVintedCosts(detail).length ||
-            nouvelAchat.items?.length !== 1 ||
-            Math.round((nouvelAchat.items[0]?.cout ?? 0) * 100) !== Math.round(detail.sellerPrice * 100) ||
+            (nouvelAchat.avecStock !== false && summedCents !== Math.round(detail.sellerPrice * 100)) ||
             Math.round(nouvelAchat.prixTTC * 100) !== Math.round(detail.paidTotal * 100)) {
           throw new Error("La ventilation du prix Vinted n'est pas cohérente.");
         }
@@ -470,6 +506,17 @@ toast.error(
 }
 
       const supabase = createClient();
+      // A repeated receipt must never silently create a second purchase/stock.
+      if (nouvelAchat.sourceDetails?.importKey) {
+        const { data: duplicates, error: duplicateError } = await supabase.from("purchases")
+          .select("id").eq("company_id", companyId)
+          .contains("source_details", { importKey: nouvelAchat.sourceDetails.importKey }).limit(1);
+        if (duplicateError) throw duplicateError;
+        if (duplicates?.length) {
+          toast.error("Cette transaction Vinted a déjà été enregistrée. Import annulé.");
+          return;
+        }
+      }
 
       let resolvedSupplierContactId: string | null =
         nouvelAchat.supplierContactId ?? null;
@@ -566,7 +613,14 @@ if (usageError) {
         }
       }
       await refreshPurchases(companyId);
-      fermerModal();
+      if (importPrefill) {
+        markVintedDraftSaved(companyId, importPrefill.key);
+        setImportPrefill(null);
+        setModalOuverte(false);
+        if (!feesSaveFailed) router.push("/import-vinted");
+      } else {
+        fermerModal();
+      }
       if (feesSaveFailed) {
         setPurchaseForFees({ id: created.id } as Achat);
       }
@@ -830,6 +884,7 @@ const modifierAchat = async (achatModifie: Achat) => {
         onAjouter={ajouterAchat}
         onModifier={modifierAchat}
         achatInitial={achatEnEdition}
+        importPrefill={importPrefill}
         supplierContacts={supplierContacts}
         existingCategories={existingCategories}
       />

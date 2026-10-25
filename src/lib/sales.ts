@@ -91,6 +91,7 @@ export async function createSale(payload: {
   margin_amount: number;
   notes?: string;
   contact_id?: string | null;
+  source_details?: { importKey: string; conversationReference?: string | null } | null;
 }) {
   const {
     data: { user },

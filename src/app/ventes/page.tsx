@@ -3,6 +3,8 @@ import { saveDraftTransactionFees } from "@/lib/saveDraftTransactionFees";
 
 
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import type { VintedDraft } from "@/lib/vintedEmailParser";
+import { clearActiveVintedDraft, getActiveVintedDraft, markVintedDraftSaved } from "@/lib/vintedImportSession";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { exportSalesToExcel } from "@/lib/exportSales";
@@ -176,6 +178,7 @@ function VentesContent() {
   const [modalOuverte, setModalOuverte] = useState(false);
   const [venteEnEdition, setVenteEnEdition] = useState<Sale | null>(null);
   const [prefillItem, setPrefillItem] = useState<AvailableStockItem | null>(null);
+  const [importPrefill, setImportPrefill] = useState<VintedDraft | null>(null);
   const [clients, setClients] = useState<{ id: string; name: string }[]>([]);
   const [exportConfirmOpen, setExportConfirmOpen] = useState(false);
   const [exportingExcel, setExportingExcel] = useState(false);
@@ -249,6 +252,13 @@ function VentesContent() {
         setClients(
           (contacts || []).map((c) => ({ id: c.id as string, name: c.name as string }))
         );
+        const active = getActiveVintedDraft(companyId, "sale");
+        if (active) {
+          setPrefillItem(null);
+          setVenteEnEdition(null);
+          setImportPrefill(active);
+          setModalOuverte(true);
+        }
       } catch (error) {
         console.error(error);
       } finally {
@@ -348,6 +358,7 @@ function VentesContent() {
   };
 
   const ouvrirAjout = () => {
+    setImportPrefill(null);
     setVenteEnEdition(null);
     setModalOuverte(true);
   };
@@ -361,6 +372,11 @@ function VentesContent() {
     setModalOuverte(false);
     setVenteEnEdition(null);
     setPrefillItem(null);
+    if (importPrefill) {
+      void getCompanyId().then(cid => { if (cid) clearActiveVintedDraft(cid); });
+      setImportPrefill(null);
+      router.push("/import-vinted");
+    }
   };
 
   const ajouterVente = async (vente: VentePayload) => {
@@ -393,6 +409,18 @@ function VentesContent() {
       }
 
       const supabase = createClient();
+
+      // A sale receipt may be delivered again. Never silently sell stock twice.
+      if (importPrefill) {
+        const { data: duplicates, error: duplicateError } = await supabase.from("sales")
+          .select("id").eq("company_id", companyId)
+          .contains("source_details", { importKey: importPrefill.key }).limit(1);
+        if (duplicateError) throw duplicateError;
+        if (duplicates?.length) {
+          toast.error("Cette vente Vinted est déjà enregistrée. Import annulé.");
+          return;
+        }
+      }
 
       // Résolution du contact_id : priorité au saveClient, sinon contactId déjà connu
       let resolvedContactId: string | null = vente.contactId ?? null;
@@ -454,6 +482,7 @@ function VentesContent() {
           total_ttc: vente.totalTTC,
           margin_amount: vente.marginAmount,
           notes: vente.notes,
+          source_details: importPrefill ? { importKey: importPrefill.key, conversationReference: importPrefill.orderReference } : null,
           contact_id: resolvedContactId,
         });
 
@@ -544,7 +573,14 @@ function VentesContent() {
       await refreshSales(companyId);
       await refreshStock(companyId);
 
-      fermerModal();
+      if (importPrefill) {
+        markVintedDraftSaved(companyId, importPrefill.key);
+        setImportPrefill(null);
+        setModalOuverte(false);
+        if (!feesSaveFailed) router.push("/import-vinted");
+      } else {
+        fermerModal();
+      }
       if (feesSaveFailed && createdSale) {
         setSaleForFees({ id: createdSale.id } as Sale);
       }
@@ -807,6 +843,7 @@ function VentesContent() {
 stockItems={stockItems}
 clients={clients}
 prefillItem={prefillItem}
+importPrefill={importPrefill}
       />
 
       {exportConfirmOpen && (

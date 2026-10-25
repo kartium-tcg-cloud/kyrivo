@@ -7,6 +7,7 @@ import { getCompanyPreferences } from "@/lib/preferences";
 import Modal from "@/components/ui/Modal";
 import TransactionFeesInline from "@/components/fees/TransactionFeesInline";
 import type { TransactionFeeDraft } from "@/lib/transactionFees";
+import type { VintedDraft } from "@/lib/vintedEmailParser";
 import {
   AvailableStockItem,
   Sale,
@@ -34,6 +35,7 @@ interface VenteFormModalProps {
   stockItems: AvailableStockItem[];
   clients?: { id: string; name: string }[];
   prefillItem?: AvailableStockItem | null;
+  importPrefill?: VintedDraft | null;
 }
 
 type VentePayload = {
@@ -101,6 +103,7 @@ export default function VenteFormModal({
 stockItems,
 clients = [],
 prefillItem = null,
+importPrefill = null,
 }: VenteFormModalProps) {
   const isEditing = Boolean(venteInitiale);
 
@@ -120,6 +123,7 @@ prefillItem = null,
   const [defaultVatRate, setDefaultVatRate] = useState(21);
   const [lines, setLines] = useState<FormLine[]>([emptyLine()]);
   const [draftFees, setDraftFees] = useState<TransactionFeeDraft[]>([]);
+  const [importStockChoice, setImportStockChoice] = useState<"yes" | "no" | null>(null);
   const [erreurs, setErreurs] = useState<string[]>([]);
   const [paymentMethods, setPaymentMethods] = useState<string[]>([
   "Virement",
@@ -201,7 +205,24 @@ useEffect(() => {
     setShowUnsavedModal(false);
 
     if (!venteInitiale) {
-      if (prefillItem) {
+      if (importPrefill?.kind === "sale") {
+        const d = importPrefill;
+        setForm({
+          date: d.date || dateAujourdhui(), customerName: d.counterparty || "Acheteur Vinted",
+          contactId: null, vatMode: "standard_vat", paymentMethod: "Vinted",
+          notes: "",
+          saveClient: false,
+        });
+        setModeMontantStandard("ttc");
+        setLines([{
+          ...emptyLine(defaultVatRate),
+          itemName: d.title || "Article vendu sur Vinted",
+          unitPrice: String(d.sellerPrice ?? ""),
+        }]);
+        setDraftFees([]);
+        setImportStockChoice(null);
+        setErreurs([]);
+      } else if (prefillItem) {
         const vatMode: SaleVatMode = prefillItem.marginEligible
           ? "margin_vat"
           : "standard_vat";
@@ -271,7 +292,16 @@ setForm({
 
     setErreurs([]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ouvert, venteInitiale, prefillItem]);
+  }, [ouvert, venteInitiale, prefillItem, importPrefill]);
+
+  // Imported prices default to the company's VAT rate, even when preferences
+  // arrive after the modal opens. Never overwrite a manually edited rate.
+  useEffect(() => {
+    if (ouvert && importPrefill?.kind === "sale" && !isDirtyRef.current) {
+      setLines(prev => prev.map(line =>
+        line.vatRate === String(defaultVatRate) ? line : { ...line, vatRate: String(defaultVatRate) }));
+    }
+  }, [ouvert, importPrefill, defaultVatRate]);
 
   const stockItemsFiltres = useMemo(() => {
     return stockItems.filter((item) =>
@@ -454,6 +484,7 @@ setForm({
     setModeMontantStandard("ttc");
     setLines([emptyLine(vatRate)]);
     setDraftFees([]);
+    setImportStockChoice(null);
     setErreurs([]);
   };
 
@@ -491,6 +522,16 @@ setForm({
   };
 
   const handleSubmit = () => {
+    if (importPrefill?.kind === "sale") {
+      if (!importStockChoice) {
+        setErreurs(["Indiquez si les articles vendus se trouvent dans votre stock Kyrivo."]);
+        return;
+      }
+      if (importStockChoice === "yes" && mappedLines.some(line => !line.purchaseItemId)) {
+        setErreurs(["Sélectionnez dans votre stock chaque article vendu ou choisissez « Non »."]);
+        return;
+      }
+    }
     const validation = validateSale({
       customerName: form.customerName,
       vatMode: form.vatMode,
@@ -559,6 +600,44 @@ setForm({
         </div>
       }
     >
+      {importPrefill?.kind === "sale" && !isEditing && (
+        <div className="mb-4 space-y-3 rounded-xl border border-amber-500/30 bg-amber-500/5 p-4">
+          <p className="text-sm font-semibold text-amber-300">Vente Vinted préremplie — à vérifier</p>
+          <p className="text-xs text-neutral-300">
+            Commande annoncée, pas nécessairement finalisée. Vérifiez la date, le prix, les frais vendeur
+            éventuels et le régime TVA. Les frais payés par l'acheteur à Vinted ne sont pas des frais vendeur.
+          </p>
+          {importPrefill.warnings.map((warning, index) =>
+            <p key={index} className="text-xs text-amber-200/80">• {warning}</p>
+          )}
+          <fieldset className="space-y-2">
+            <legend className="text-sm font-semibold text-white">Les articles vendus se trouvent-ils dans votre stock Kyrivo ?</legend>
+            <div className="flex gap-4">
+              {(["yes", "no"] as const).map(choice => (
+                <label key={choice} className="flex items-center gap-2 text-sm text-neutral-200">
+                  <input type="radio" name="vinted-stock-choice" checked={importStockChoice === choice}
+                    onChange={() => {
+                      setImportStockChoice(choice);
+                      if (choice === "no") setLines(prev => prev.map(line => ({
+                        ...line, purchaseItemId: undefined, itemReference: undefined,
+                      })));
+                    }} />
+                  {choice === "yes" ? "Oui, sélectionner dans le stock" : "Non, vente sans stock"}
+                </label>
+              ))}
+            </div>
+            {importStockChoice === "yes" && (
+              <p className="text-xs text-neutral-400">Utilisez « Rechercher un article en stock » pour chaque ligne.
+                Ajustez les quantités et ajoutez une ligne si plusieurs articles ont été vendus.</p>
+            )}
+          </fieldset>
+          {importPrefill.sellerPrice !== null && Math.round(totals.totalTTC * 100) !== Math.round(importPrefill.sellerPrice * 100) && (
+            <p className="text-xs text-amber-300">
+              Total actuel différent du prix annoncé sur Vinted ({importPrefill.sellerPrice.toFixed(2)} €) : vérifiez la répartition.
+            </p>
+          )}
+        </div>
+      )}
       <div className="ky-form-area grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_340px] gap-5 items-start">
         <div className="min-w-0 flex flex-col gap-5">
           <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 px-4 py-3">
@@ -815,7 +894,7 @@ setForm({
                           </button>
                         </div>
                       ) : (
-                        <div className="relative">
+                        <div className={"relative " + (importPrefill?.kind === "sale" && importStockChoice !== "yes" ? "hidden" : "")}>
                           <label htmlFor={`sale-search-${line.id}`} className={lineLabelClasses}>Rechercher un article en stock</label>
                           <input
                             id={`sale-search-${line.id}`}

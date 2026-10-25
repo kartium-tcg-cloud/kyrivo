@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 interface VentesHeaderProps {
   totalVentes: number;
   totalMontant: number;
@@ -76,6 +78,10 @@ export default function VentesHeader({
       </div>
 
       <div className="flex items-center gap-2">
+        <Link href="/import-vinted"
+          className="inline-flex items-center justify-center rounded-lg border border-amber-500/30 bg-neutral-900/40 px-3 py-2 text-xs font-semibold text-amber-300 hover:bg-amber-500/10">
+          Importer Vinted
+        </Link>
         <button
           onClick={onAjouter}
           className="
