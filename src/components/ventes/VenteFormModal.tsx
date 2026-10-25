@@ -619,7 +619,11 @@ setForm({
                     onChange={() => {
                       setImportStockChoice(choice);
                       if (choice === "no") setLines(prev => prev.map(line => ({
-                        ...line, purchaseItemId: undefined, itemReference: undefined,
+                        ...line,
+                        purchaseItemId: undefined,
+                        itemReference: undefined,
+                        purchaseCost: "",
+                        economicPurchaseCost: "",
                       })));
                     }} />
                   {choice === "yes" ? "Oui, sélectionner dans le stock" : "Non, vente sans stock"}
