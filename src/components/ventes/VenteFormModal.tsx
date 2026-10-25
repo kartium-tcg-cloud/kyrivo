@@ -210,8 +210,7 @@ useEffect(() => {
         setForm({
           date: d.date || dateAujourdhui(), customerName: d.counterparty || "Acheteur Vinted",
           contactId: null, vatMode: "standard_vat", paymentMethod: "Vinted",
-          notes: "[Vinted import: " + d.key + "]" +
-            (d.orderReference ? "\nConversation Vinted : " + d.orderReference : ""),
+          notes: "",
           saveClient: false,
         });
         setModeMontantStandard("ttc");
