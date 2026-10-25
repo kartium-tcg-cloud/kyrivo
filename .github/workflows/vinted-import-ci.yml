@@ -5,6 +5,9 @@ on:
     paths:
       - "src/lib/vintedEmailParser.ts"
       - "src/lib/vintedImportSession.ts"
+      - "src/lib/vintedImportLookup.ts"
+      - "supabase/migrations/*vinted*"
+      - "tests/vinted-import-optimization.test.cjs"
       - "src/app/import-vinted/**"
       - "src/app/nouveautes/import-vinted/**"
       - "src/components/achats/AchatsHeader.tsx"

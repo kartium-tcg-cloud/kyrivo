@@ -4,8 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { getPurchases } from "@/lib/purchases";
-import { getSales } from "@/lib/sales";
+import { findExistingVintedKeys } from "@/lib/vintedImportLookup";
 import { parseVintedEmails, type VintedDraft } from "@/lib/vintedEmailParser";
 import {
   activateVintedDraft, addVintedDrafts, clearVintedQueue,
@@ -37,21 +36,14 @@ export default function ImportVintedPage() {
           .select("company_id").eq("user_id", user.id).maybeSingle();
         if (!membership) throw new Error("Votre entreprise est introuvable.");
         const cid = membership.company_id as string;
-        const [purchases, sales] = await Promise.all([getPurchases(cid), getSales(cid)]);
+        const currentQueue = readVintedQueue(cid);
+        const dbKeys = currentQueue.length
+          ? await findExistingVintedKeys(supabase, cid, currentQueue.map(item => item.draft))
+          : new Set<string>();
         if (canceled) return;
-        const dbKeys = new Set<string>();
-        for (const p of purchases) {
-          const details = p.source_details as { importKey?: string; orderReference?: string } | null;
-          if (details?.importKey) dbKeys.add(details.importKey);
-          if (details?.orderReference) dbKeys.add("purchase:" + details.orderReference);
-        }
-        for (const sale of sales) {
-          const detail = sale.source_details as { importKey?: string } | null;
-          if (detail?.importKey) dbKeys.add(detail.importKey);
-        }
         setExistingKeys(dbKeys);
         setCompanyId(cid);
-        setItems(readVintedQueue(cid));
+        setItems(currentQueue);
       } catch (error) {
         setMessage(error instanceof Error ? error.message : "Impossible de charger l'import Vinted.");
       } finally {
@@ -68,6 +60,9 @@ export default function ImportVintedPage() {
     setMessage("");
     try {
       if (files.length > 30) throw new Error("Maximum 30 fichiers par import.");
+      if (inputText.length > 1024 * 1024) {
+        throw new Error("Le texte collé est trop volumineux (1 Mo maximum). Répartissez vos emails en plusieurs imports.");
+      }
       const parts = [inputText];
       for (const file of files) {
         if (!/\.(?:txt|eml|html|htm|md)$/i.test(file.name) || file.size > 1024 * 1024) {
@@ -79,6 +74,8 @@ export default function ImportVintedPage() {
       if (!parsed.length) throw new Error("Aucun email d'achat ou de vente Vinted reconnu.");
       const countBefore = readVintedQueue(companyId).length;
       const next = addVintedDrafts(companyId, parsed);
+      const dbKeys = await findExistingVintedKeys(createClient(), companyId, next.map(item => item.draft));
+      setExistingKeys(dbKeys);
       setItems(next);
       setMessage(String(next.length - countBefore) + " nouvelle(s) transaction(s) ajoutée(s). Vérifiez chaque opération avant de l'enregistrer.");
       setInputText("");

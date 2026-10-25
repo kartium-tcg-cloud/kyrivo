@@ -116,3 +116,15 @@ test("Vinted: lot vendu et doublons d'import", () => {
 test("Vinted: texte non reconnu ignoré", () => {
   assert.deepEqual(parseVintedEmails("Newsletter du mois sans transaction"), []);
 });
+
+test("Vinted: rejeter un email marchand générique qui parle d'un achat", () => {
+  assert.deepEqual(parseVintedEmails("Bonjour, alice a acheté un article à 15,00 €. Votre paiement a été reçu."), []);
+  assert.deepEqual(parseVintedEmails("Ton article s'est vendu !"), []);
+  assert.deepEqual(parseVintedEmails("Ton reçu pour la commande"), []);
+  assert.deepEqual(parseVintedEmails("Notification Vinted : votre paiement a été reçu pour une annonce publicitaire."), []);
+});
+test("Vinted: un reçu copié depuis le corps du message reste reconnu sans objet", () => {
+  const [draft] = parseVintedEmails(lotSale);
+  assert.equal(draft.kind, "sale");
+  assert.equal(draft.counterparty, "thibaut.u");
+});

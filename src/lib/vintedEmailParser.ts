@@ -102,9 +102,18 @@ function purchaseItems(list: string[]): string[] {
 function parseOne(raw: string): VintedDraft | null {
   const text = normalize(raw);
   const list = rows(text);
-  const purchase = /(?:Ton reçu pour la commande|Reçu pour (?:ta|votre) commande Vinted|Ton paiement a été reçu|Votre paiement a été reçu|N°\s*de transaction)/i.test(text)
-    && !/(?:a acheté)\s*\n/i.test(text);
-  const sold = /(?:Ton article s['’]est vendu|a acheté)/i.test(text);
+  // Identify Vinted transaction templates, not an arbitrary newsletter that
+  // happens to mention "a acheté" or "Votre paiement a été reçu".
+  // Full email bodies are expected; an email subject on its own is insufficient.
+  const vinted = /\bVinted\b/i.test(text);
+  const purchase = vinted
+    && /(?:Ton reçu pour la commande|Reçu pour (?:ta|votre) commande Vinted|Ton paiement a été reçu|Votre paiement a été reçu)/i.test(text)
+    && /\bMontant payé/i.test(text)
+    && /^\s*\|?\s*(?:\*\*)?Vendeur\b/im.test(text)
+    && !/\ba acheté\s*\n/i.test(text);
+  const sold = vinted
+    && /\ba acheté(?=\s|$)/i.test(text)
+    && /(?:Ton article s['’]est vendu|Nous transférerons le paiement)/i.test(text);
   if (!purchase && !sold) return null;
   const kind: VintedKind = purchase ? "purchase" : "sale";
   const warnings: string[] = [];
