@@ -481,7 +481,9 @@ function VentesContent() {
           vat_amount: vente.vatAmount,
           total_ttc: vente.totalTTC,
           margin_amount: vente.marginAmount,
-          notes: vente.notes,
+          notes: importPrefill && !vente.notes?.includes("[Vinted import: " + importPrefill.key + "]")
+            ? (vente.notes ? vente.notes + "\\n" : "") + "[Vinted import: " + importPrefill.key + "]"
+            : vente.notes,
           contact_id: resolvedContactId,
         });
 
