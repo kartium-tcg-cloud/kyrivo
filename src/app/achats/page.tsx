@@ -137,6 +137,11 @@ function buildPurchaseItems(params: {
           },
         ];
 
+  const sellerCents = Math.round((achat.sourceDetails?.sellerPrice ?? achat.prixTTC) * 100);
+  const extraCents = achat.source === "vinted_import"
+    ? Math.max(0, Math.round(achat.prixTTC * 100) - sellerCents) : 0;
+  let allocatedExtra = 0;
+
   return itemsToCreate.map((item, index) => {
     const quantity = Number(item.quantite) || 1;
 
@@ -154,6 +159,17 @@ function buildPurchaseItems(params: {
     unitCostHT = Math.round(unitCostHT * 100) / 100;
     unitCostTTC = Math.round(unitCostTTC * 100) / 100;
 
+    // Vinted fees belong to the full economic cost, not the fiscal seller price.
+    // Spread the order's shipping/protection once over all stock rows, including lots.
+    const lineSellerCents = Math.round(unitCostTTC * quantity * 100);
+    const feeShare = achat.source === "vinted_import"
+      ? index === itemsToCreate.length - 1
+        ? extraCents - allocatedExtra
+        : sellerCents > 0 ? Math.round(extraCents * lineSellerCents / sellerCents) : 0
+      : 0;
+    allocatedExtra += feeShare;
+    const lineEconomicCents = lineSellerCents + feeShare;
+
     return {
       purchase_document_id: purchaseId,
       company_id: companyId,
@@ -163,13 +179,12 @@ function buildPurchaseItems(params: {
       quantity,
       stock_quantity: quantity,
       unit_cost: unitCostHT,
-      // total_cost sert aux écrans stock et au coût de revient : garder le
-      // total Vinted avec frais, tandis que unit_cost reste le prix fiscal.
       total_cost: achat.source === "vinted_import"
-        ? achat.prixTTC
+        ? lineEconomicCents / 100
         : Math.round(unitCostTTC * quantity * 100) / 100,
       fiscal_unit_cost: achat.source === "vinted_import" ? unitCostTTC : null,
-      economic_unit_cost: achat.source === "vinted_import" ? achat.prixTTC : null,
+      economic_unit_cost: achat.source === "vinted_import"
+        ? Math.round(lineEconomicCents * 100 / quantity) / 10000 : null,
       fiscal_cost_review_required:
         achat.source === "vinted_import" && !achat.documentFile && !achat.documentUrl,
       vat_type: achat.type,
