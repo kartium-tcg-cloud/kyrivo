@@ -10,6 +10,7 @@ export interface VintedSourceDetails {
   otherFees: number;
   paidTotal: number;
   orderReference?: string;
+  importKey?: string;
   /** Price split manually checked against a Vinted order recap. */
   amountsConfirmed: boolean;
 }
