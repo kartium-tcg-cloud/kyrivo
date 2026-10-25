@@ -15,7 +15,7 @@ test("le bouton Vinted Bêta est prominent et identique pour achats et ventes", 
     assert.match(source, /import VintedImportCTA from/);
     assert.match(source, /<VintedImportCTA \/>/);
     assert.match(source, /sm:flex-row sm:items-stretch/);
-    assert.match(source, /Ajouter une (?:vente|achat)/);
+    assert.match(source, /Ajouter un(?:e)? (?:vente|achat)/);
   }
   assert.match(cta, /href="\/import-vinted"/);
   assert.match(cta, /Importer Vinted/);
