@@ -23,3 +23,14 @@ test("index garantissant l'unicité des achats Vinted par entreprise", () => {
   assert.match(sql, /where source = 'vinted_import'/);
   assert.doesNotMatch(sql, /\b(?:drop|delete|truncate)\b/i);
 });
+
+test("une vente Vinted passée en mode sans stock perd ses anciens coûts de stock", () => {
+  const modal = read("src/components/ventes/VenteFormModal.tsx");
+  const start = modal.indexOf('if (choice === "no") setLines(');
+  assert.ok(start >= 0, "bascule Vinted sans stock");
+  const code = modal.slice(start, start + 380);
+  assert.match(code, /purchaseItemId: undefined/);
+  assert.match(code, /itemReference: undefined/);
+  assert.match(code, /purchaseCost: ""/);
+  assert.match(code, /economicPurchaseCost: ""/);
+});
