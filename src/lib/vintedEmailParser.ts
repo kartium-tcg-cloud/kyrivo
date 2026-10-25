@@ -141,7 +141,7 @@ function parseOne(raw: string): VintedDraft | null {
     if (!date) warnings.push("Date du paiement non reconnue.");
     if (!orderReference) warnings.push("Numéro de transaction absent.");
   } else {
-    const buyer = text.match(/\b([A-Za-z0-9_.-]{2,45})\s+a acheté\b/i);
+    const buyer = text.match(/\b([A-Za-z0-9_.-]{2,45})\s+a acheté(?=\s|$)/i);
     counterparty = buyer?.[1] ?? "";
     const begin = list.findIndex(l => /\ba acheté\b/i.test(l));
     const saleRow = list.slice(begin + 1).find(line =>
