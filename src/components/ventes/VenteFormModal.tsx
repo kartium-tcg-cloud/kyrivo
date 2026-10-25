@@ -295,6 +295,15 @@ setForm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ouvert, venteInitiale, prefillItem, importPrefill]);
 
+  // Imported prices default to the company's VAT rate, even when preferences
+  // arrive after the modal opens. Never overwrite a manually edited rate.
+  useEffect(() => {
+    if (ouvert && importPrefill?.kind === "sale" && !isDirtyRef.current) {
+      setLines(prev => prev.map(line =>
+        line.vatRate === String(defaultVatRate) ? line : { ...line, vatRate: String(defaultVatRate) }));
+    }
+  }, [ouvert, importPrefill, defaultVatRate]);
+
   const stockItemsFiltres = useMemo(() => {
     return stockItems.filter((item) =>
       form.vatMode === "margin_vat"
