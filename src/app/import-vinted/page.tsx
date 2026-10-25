@@ -107,19 +107,62 @@ export default function ImportVintedPage() {
     <div className="ky-marketing mx-auto max-w-5xl px-4 pb-16 pt-8 text-neutral-200 sm:px-8">
       <div className="mb-8">
         <Link href="/dashboard" className="text-xs text-amber-400 hover:underline">← Tableau de bord</Link>
-        <h1 className="mt-3 text-2xl font-bold text-white sm:text-3xl">Importer depuis Vinted</h1>
+        <div className="mt-3 flex flex-wrap items-center gap-3">
+          <h1 className="text-2xl font-bold text-white sm:text-3xl">Importer depuis Vinted</h1>
+          <span className="rounded-md border border-amber-500/40 bg-amber-500/10 px-2 py-1 text-[10px] font-extrabold uppercase tracking-widest text-amber-300">Bêta</span>
+        </div>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-neutral-400">
           Collez les reçus Vinted ou déposez vos emails exportés. Kyrivo prépare les achats et les ventes :
           vous contrôlez chaque champ avant de l'enregistrer. Aucune opération n'est créée automatiquement.
         </p>
       </div>
 
+      <aside aria-label="Outil en bêta" className="mb-7 rounded-xl border border-amber-500/25 bg-amber-500/[0.06] p-4 sm:p-5">
+        <p className="text-sm font-semibold text-amber-200">Outil en cours de développement (bêta)</p>
+        <p className="mt-2 text-sm leading-6 text-neutral-300">
+          Certaines informations peuvent être mal reconnues : vérifiez toujours les montants et les données avant tout enregistrement.
+          Vous avez repéré un bug ou avez une suggestion ? Tous vos retours sont appréciés à{" "}
+          <a href="mailto:contact@kartium-tcg.com?subject=Retour%20import%20Vinted%20b%C3%AAta"
+            className="font-semibold text-amber-300 underline underline-offset-4 hover:text-amber-200">contact@kartium-tcg.com</a>.
+        </p>
+        <Link href="/nouveautes/import-vinted" className="mt-3 inline-flex text-xs font-semibold text-amber-300 hover:text-amber-200 hover:underline">
+          Lire le guide de l&apos;import Vinted
+        </Link>
+      </aside>
+
       <section className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-5 sm:p-6">
-        <h2 className="font-semibold text-white">1. Fournir les emails</h2>
-        <p className="mt-1 text-xs text-neutral-400">Un email par fichier. Pour plusieurs emails collés, séparez-les par une ligne contenant ---.</p>
+        <h2 className="font-semibold text-white">1. Copier les bons emails Vinted</h2>
+        <p className="mt-2 text-sm leading-6 text-neutral-300">
+          Utilisez <strong className="text-white">exactement ces deux types d&apos;emails reçus de Vinted</strong>,
+          selon que vous avez acheté ou vendu un article :
+        </p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <div className="rounded-lg border border-blue-500/25 bg-blue-500/[0.06] p-4">
+            <p className="text-xs font-bold uppercase tracking-wide text-blue-300">Pour importer un achat</p>
+            <p className="mt-2 text-base font-semibold text-white">« Ton reçu pour la commande »</p>
+            <p className="mt-2 text-xs leading-5 text-neutral-300">
+              Retrouvez ce mail de reçu d&apos;achat dans votre messagerie, ouvrez-le et copiez-en tout le contenu.
+            </p>
+          </div>
+          <div className="rounded-lg border border-emerald-500/25 bg-emerald-500/[0.06] p-4">
+            <p className="text-xs font-bold uppercase tracking-wide text-emerald-300">Pour importer une vente</p>
+            <p className="mt-2 text-base font-semibold text-white">« Ton article s&apos;est vendu ! »</p>
+            <p className="mt-2 text-xs leading-5 text-neutral-300">
+              Retrouvez le mail annonçant votre vente, ouvrez-le et copiez-en tout le contenu.
+            </p>
+          </div>
+        </div>
+        <p className="mt-4 text-sm leading-6 text-neutral-300">
+          <strong className="text-white">Copiez-collez le contenu entier de l&apos;email ci-dessous</strong> :
+          le titre du mail seul ne suffit pas pour extraire la transaction.
+          Pour plusieurs emails collés, séparez chaque message par une ligne contenant uniquement <code className="rounded bg-neutral-800 px-1.5 py-0.5 text-amber-200">---</code>.
+          Vous pouvez aussi déposer chaque email enregistré dans un fichier compatible.
+        </p>
+        <label htmlFor="vinted-import-text" className="mt-5 block text-sm font-semibold text-white">Contenu des emails Vinted</label>
         <textarea
+          id="vinted-import-text"
           rows={7} value={inputText} onChange={e => setInputText(e.target.value)}
-          placeholder="Collez ici le contenu d'un email Vinted : « Ton reçu pour la commande » ou « Ton article s'est vendu ! »..."
+          placeholder="Collez ici le contenu complet de l'email Vinted « Ton reçu pour la commande » (achat) ou « Ton article s'est vendu ! » (vente)…"
           className="mt-4 w-full rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-3 text-sm text-neutral-100 outline-none focus:border-amber-500/50"
         />
         <label className="mt-3 block text-sm text-neutral-300" htmlFor="vinted-import-files">
@@ -136,10 +179,10 @@ export default function ImportVintedPage() {
           {busy ? "Analyse…" : "Analyser les documents"}
         </button>
         {message && <p role="status" className="mt-3 text-sm text-amber-200">{message}</p>}
-        <p className="mt-3 text-xs text-neutral-500">
-          Cette première version analyse le texte des emails, sans connexion à votre compte Vinted.
+        <p className="mt-3 text-xs leading-5 text-neutral-500">
+          Cette bêta analyse le texte de ces emails sans connexion à votre compte Vinted.
           Les textes originaux et les coordonnées complètes des acheteurs ne sont pas conservés dans la file.
-          Les PDF et images ne sont pas encore pris en charge.
+          Les PDF et images ne sont pas encore pris en charge. Les annulations et remboursements restent à encoder manuellement.
         </p>
       </section>
 
