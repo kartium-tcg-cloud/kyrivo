@@ -3,6 +3,9 @@ import { saveDraftTransactionFees } from "@/lib/saveDraftTransactionFees";
 
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import type { VintedDraft } from "@/lib/vintedEmailParser";
+import { clearActiveVintedDraft, getActiveVintedDraft, markVintedDraftSaved } from "@/lib/vintedImportSession";
 import { Achat, AchatFiltres, AchatItemInput } from "@/types/achat";
 import { ItemStatus, isItemStatus } from "@/types/item";
 import { createClient } from "@/lib/supabase/client";
@@ -268,6 +271,8 @@ async function createPurchaseItemsWithRetry(params: {
 }
 
 export default function AchatsPage() {
+  const router = useRouter();
+  const [importPrefill, setImportPrefill] = useState<VintedDraft | null>(null);
   const [achats, setAchats] = useState<Achat[]>([]);
   const [modalOuverte, setModalOuverte] = useState(false);
   const [achatEnEdition, setAchatEnEdition] = useState<Achat | null>(null);
@@ -350,6 +355,12 @@ export default function AchatsPage() {
         const companyId = await getCompanyId();
         if (!companyId) return;
         await refreshPurchases(companyId);
+        const active = getActiveVintedDraft(companyId, "purchase");
+        if (active) {
+          setAchatEnEdition(null);
+          setImportPrefill(active);
+          setModalOuverte(true);
+        }
       } catch (error) {
         console.error(error);
         toast.error("Erreur lors du chargement des achats.");
@@ -421,6 +432,7 @@ export default function AchatsPage() {
   };
 
   const ouvrirAjout = () => {
+    setImportPrefill(null);
     setAchatEnEdition(null);
     setModalOuverte(true);
   };
@@ -441,15 +453,24 @@ export default function AchatsPage() {
   const fermerModal = () => {
     setModalOuverte(false);
     setAchatEnEdition(null);
+    if (importPrefill) {
+      void getCompanyId().then(cid => { if (cid) clearActiveVintedDraft(cid); });
+      setImportPrefill(null);
+      router.push("/import-vinted");
+    }
   };
 
   const ajouterAchat = async (nouvelAchat: Achat) => {
     try {
       if (nouvelAchat.source === "vinted_import") {
         const detail = nouvelAchat.sourceDetails;
+        const summedCents = (nouvelAchat.items ?? []).reduce((sum, item) => {
+          const rate = calcVatRate(nouvelAchat) / 100;
+          return sum + Math.round(item.cout * (Number(item.quantite) || 1) *
+            (item.modeMontant === "ht" ? (1 + rate) : 1) * 100);
+        }, 0);
         if (!detail || validateVintedCosts(detail).length ||
-            nouvelAchat.items?.length !== 1 ||
-            Math.round((nouvelAchat.items[0]?.cout ?? 0) * 100) !== Math.round(detail.sellerPrice * 100) ||
+            (nouvelAchat.avecStock !== false && summedCents !== Math.round(detail.sellerPrice * 100)) ||
             Math.round(nouvelAchat.prixTTC * 100) !== Math.round(detail.paidTotal * 100)) {
           throw new Error("La ventilation du prix Vinted n'est pas cohérente.");
         }
@@ -470,6 +491,17 @@ toast.error(
 }
 
       const supabase = createClient();
+      // A repeated receipt must never silently create a second purchase/stock.
+      if (nouvelAchat.sourceDetails?.importKey) {
+        const { data: duplicates, error: duplicateError } = await supabase.from("purchases")
+          .select("id").eq("company_id", companyId)
+          .contains("source_details", { importKey: nouvelAchat.sourceDetails.importKey }).limit(1);
+        if (duplicateError) throw duplicateError;
+        if (duplicates?.length) {
+          toast.error("Cette transaction Vinted a déjà été enregistrée. Import annulé.");
+          return;
+        }
+      }
 
       let resolvedSupplierContactId: string | null =
         nouvelAchat.supplierContactId ?? null;
@@ -566,7 +598,14 @@ if (usageError) {
         }
       }
       await refreshPurchases(companyId);
-      fermerModal();
+      if (importPrefill) {
+        markVintedDraftSaved(companyId, importPrefill.key);
+        setImportPrefill(null);
+        setModalOuverte(false);
+        if (!feesSaveFailed) router.push("/import-vinted");
+      } else {
+        fermerModal();
+      }
       if (feesSaveFailed) {
         setPurchaseForFees({ id: created.id } as Achat);
       }
@@ -830,6 +869,7 @@ const modifierAchat = async (achatModifie: Achat) => {
         onAjouter={ajouterAchat}
         onModifier={modifierAchat}
         achatInitial={achatEnEdition}
+        importPrefill={importPrefill}
         supplierContacts={supplierContacts}
         existingCategories={existingCategories}
       />
