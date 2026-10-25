@@ -104,6 +104,8 @@ export default function AchatFormModal({
   "Cash",
 ]);
   const isDirtyRef = useRef(false);
+  const importModeRef = useRef(false);
+  useEffect(() => { importModeRef.current = importPrefill?.kind === "purchase"; }, [importPrefill]);
   const [showUnsavedModal, setShowUnsavedModal] = useState(false);
   const [supplierContactId, setSupplierContactId] = useState<string | null>(null);
   const [showSupplierDropdown, setShowSupplierDropdown] = useState(false);
@@ -159,7 +161,7 @@ useEffect(() => {
 
       if (Number.isFinite(prefs.defaultVatRate)) {
         setDefaultVatRate(prefs.defaultVatRate);
-        setTauxTVA(prefs.defaultVatRate);
+        if (!importModeRef.current && !isDirtyRef.current) setTauxTVA(prefs.defaultVatRate);
       }
     } catch (e) {
       console.error(e);
