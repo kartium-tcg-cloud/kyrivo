@@ -1,4 +1,4 @@
-import Link from "next/link";
+import VintedImportCTA from "@/components/vinted/VintedImportCTA";
 
 // Header de la page Achats
 // Titre, compteur, total et bouton d'ajout
@@ -18,7 +18,7 @@ export default function AchatsHeader({
   onAjouter,
 }: AchatsHeaderProps) {
   return (
-    <div className="ky-page-heading flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div className="ky-page-heading flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
       {/* Titre + stats */}
       <div>
         <h1 className="text-2xl font-semibold text-white tracking-tight">
@@ -60,18 +60,12 @@ export default function AchatsHeader({
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2">
-        <Link href="/import-vinted"
-          className="inline-flex items-center justify-center gap-2 rounded-lg border border-amber-500/30 bg-neutral-900/40 px-3 py-2 text-xs font-semibold text-amber-300 hover:bg-amber-500/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400">
-          <span>Importer Vinted</span>
-          <span aria-label="Fonctionnalité en bêta" className="rounded border border-amber-400/30 bg-amber-500/15 px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide leading-none text-amber-200">
-            Bêta
-          </span>
-        </Link>
+      <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-stretch lg:w-auto">
+        <VintedImportCTA />
         <button
           onClick={onAjouter}
           className="
-            ky-button-primary inline-flex items-center gap-2
+            ky-button-primary inline-flex min-h-[60px] w-full items-center justify-center gap-2 sm:w-auto
             rounded-lg px-4 py-2
             bg-amber-500 text-neutral-950
             text-sm font-semibold
