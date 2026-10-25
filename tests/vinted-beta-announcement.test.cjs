@@ -5,17 +5,27 @@ const path = require("node:path");
 
 const read = name => fs.readFileSync(path.join(__dirname, "..", name), "utf8");
 
-test("les deux boutons Importer Vinted portent un badge bêta visible", () => {
+test("le bouton Vinted Bêta est prominent et identique pour achats et ventes", () => {
+  const cta = read("src/components/vinted/VintedImportCTA.tsx");
   for (const page of [
     "src/components/achats/AchatsHeader.tsx",
     "src/components/ventes/VentesHeader.tsx",
   ]) {
     const source = read(page);
-    assert.match(source, /href="\/import-vinted"/);
-    assert.match(source, /Importer Vinted/);
-    assert.match(source, /Bêta/);
-    assert.match(source, /aria-label="Fonctionnalité en bêta"/);
+    assert.match(source, /import VintedImportCTA from/);
+    assert.match(source, /<VintedImportCTA \/>/);
+    assert.match(source, /sm:flex-row sm:items-stretch/);
+    assert.match(source, /Ajouter une (?:vente|achat)/);
   }
+  assert.match(cta, /href="\/import-vinted"/);
+  assert.match(cta, /Importer Vinted/);
+  assert.match(cta, /Testez avec un email/);
+  assert.match(cta, /Bêta/);
+  assert.match(cta, /aria-label="Fonctionnalité en bêta"/);
+  assert.match(cta, /bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-300/);
+  assert.match(cta, /min-h-\[60px\] w-full/);
+  assert.match(cta, /sm:w-auto/);
+  assert.match(cta, /focus-visible:outline/);
 });
 
 test("l'import indique les deux emails exacts et exige leur contenu complet", () => {
