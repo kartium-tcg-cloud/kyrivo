@@ -18,6 +18,7 @@ interface StockItem {
   id: string;
   item_reference: string;
   item_name: string;
+  item_size: string | null;
   category: string | null;
   quantity: number;
   stock_quantity: number;
@@ -47,6 +48,7 @@ function formatDate(iso: string) {
 type StockSortKey =
   | "item_reference"
   | "item_name"
+  | "item_size"
   | "category"
   | "stock_quantity"
   | "unit_cost_ttc"
@@ -74,6 +76,8 @@ function getStockSortValue(item: StockItem, key: StockSortKey) {
       return item.item_reference;
     case "item_name":
       return item.item_name;
+    case "item_size":
+      return item.item_size;
     case "category":
       return item.category;
     case "stock_quantity":
@@ -150,7 +154,7 @@ export default function StockPage() {
         const { data, error: dbError } = await supabase
           .from("purchase_items")
           .select(
-            `id, item_reference, item_name, category,
+            `id, item_reference, item_name, item_size, category,
              quantity, stock_quantity, unit_cost, total_cost,
              status, notes, created_at,
              purchases:purchase_document_id ( purchase_date )`
@@ -196,7 +200,7 @@ export default function StockPage() {
     if (search.trim()) {
       const q = search.trim().toLowerCase();
       result = result.filter((item) =>
-        [item.item_reference, item.item_name, item.category ?? ""].some((s) =>
+        [item.item_reference, item.item_name, item.item_size ?? "", item.category ?? ""].some((s) =>
           s.toLowerCase().includes(q)
         )
       );
@@ -239,13 +243,14 @@ export default function StockPage() {
     return { articlesEnStock, quantiteTotale, argentImmobilise };
   }, [items]);
 
-  function handleStockUpdated(itemId: string, newStock: number) {
+  function handleStockUpdated(itemId: string, newStock: number, itemSize: string | null) {
     setItems((prev) =>
       prev.map((item) =>
         item.id === itemId
           ? {
               ...item,
               stock_quantity: newStock,
+              item_size: itemSize,
               status: newStock > 0 ? "in_stock" : "sold",
             }
           : item
@@ -558,6 +563,11 @@ export default function StockPage() {
                       </Link>
                       <p className="mt-1 break-words text-sm font-semibold text-neutral-100">{item.item_name}</p>
                       {item.category && <p className="mt-1 break-words text-xs text-neutral-500">{item.category}</p>}
+                      {item.item_size && (
+                        <p className="mt-1 text-xs font-semibold text-amber-300">
+                          Taille / Pointure : {item.item_size}
+                        </p>
+                      )}
                     </div>
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <StockAvailabilityBadge qty={stockQty} />
@@ -618,6 +628,13 @@ export default function StockPage() {
                       sortConfig={sortConfig}
                       onSort={handleSort}
                       className="px-4 py-3.5 text-left text-[11px] font-semibold text-neutral-500 uppercase tracking-wider"
+                    />
+                    <SortableTh
+                      label="Taille / Pointure"
+                      sortKey="item_size"
+                      sortConfig={sortConfig}
+                      onSort={handleSort}
+                      className="px-4 py-3.5 text-left text-[11px] font-semibold text-neutral-500 uppercase tracking-wider whitespace-nowrap"
                     />
                     <SortableTh
                       label="Stock"
@@ -705,6 +722,10 @@ export default function StockPage() {
                           {item.category || (
                             <span className="text-neutral-700">—</span>
                           )}
+                        </td>
+
+                        <td className="px-4 py-3.5 text-xs font-semibold text-neutral-300 whitespace-nowrap">
+                          {item.item_size || <span className="text-neutral-700">—</span>}
                         </td>
 
                         <td className="px-4 py-3.5 text-right tabular-nums whitespace-nowrap">
@@ -817,11 +838,12 @@ function StockEditModal({
   item: StockItem;
   companyId: string;
   onClose: () => void;
-  onSuccess: (itemId: string, newStock: number) => void;
+  onSuccess: (itemId: string, newStock: number, itemSize: string | null) => void;
 }) {
   const [newStock, setNewStock] = useState(
     String(Math.round(Number(item.stock_quantity)))
   );
+  const [itemSize, setItemSize] = useState(item.item_size ?? "");
   const [fieldError, setFieldError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -851,6 +873,11 @@ function StockEditModal({
 
     const parsed = parseInt(trimmed, 10);
 
+    if (itemSize.trim().length > 32) {
+      setFieldError("La taille / pointure ne peut pas dépasser 32 caractères.");
+      return;
+    }
+
     if (parsed < 0) {
       setFieldError("La quantité ne peut pas être négative.");
       return;
@@ -866,13 +893,13 @@ function StockEditModal({
 
       const { error: dbError } = await supabase
         .from("purchase_items")
-        .update({ stock_quantity: parsed, status: newStatus })
+        .update({ stock_quantity: parsed, status: newStatus, item_size: itemSize.trim() || null })
         .eq("id", item.id)
         .eq("company_id", companyId);
 
       if (dbError) throw dbError;
 
-      onSuccess(item.id, parsed);
+      onSuccess(item.id, parsed, itemSize.trim() || null);
       onClose();
     } catch (e) {
       setFieldError(
@@ -901,7 +928,7 @@ function StockEditModal({
             </span>
             <div>
               <h2 className="text-base font-bold tracking-tight text-white">
-                Modifier le stock
+                Modifier l'article
               </h2>
               <p className="text-[11px] text-neutral-500 font-mono mt-0.5">
                 {item.item_reference}
@@ -950,6 +977,21 @@ function StockEditModal({
               uniquement à corriger une erreur, une perte, un don ou un
               ajustement réel.
             </p>
+          </div>
+
+          <div>
+            <label htmlFor="stock-item-size" className="block text-[11px] font-semibold text-neutral-500 mb-2 uppercase tracking-wider">
+              Taille / Pointure (facultatif)
+            </label>
+            <input
+              id="stock-item-size"
+              type="text"
+              maxLength={32}
+              value={itemSize}
+              onChange={(e) => setItemSize(e.target.value)}
+              placeholder="Ex. S, M, XL, 42, 42,5"
+              className="w-full rounded-lg border border-neutral-800 bg-neutral-900/60 px-3 py-2.5 text-base text-neutral-200 placeholder:text-neutral-400 focus:border-amber-500/40 focus:outline-none focus:ring-1 focus:ring-amber-500/15 sm:text-sm"
+            />
           </div>
 
           {/* Champ nouvelle quantité */}
