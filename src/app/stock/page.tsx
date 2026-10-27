@@ -365,7 +365,7 @@ export default function StockPage() {
 
           <Link
             href="/achats"
-            className="inline-flex items-center gap-2 rounded-lg bg-amber-500 px-5 py-2.5 text-sm font-semibold text-neutral-950 hover:bg-amber-400 transition-colors shadow-lg shadow-amber-500/10"
+            className="min-h-11 inline-flex items-center gap-2 rounded-lg bg-amber-500 px-5 py-2.5 text-sm font-semibold text-neutral-950 hover:bg-amber-400 transition-colors shadow-lg shadow-amber-500/10"
           >
             Encoder un achat
           </Link>
@@ -537,7 +537,7 @@ export default function StockPage() {
         {/* Tableau */}
         {filteredItems.length > 0 && (
           <div className="ky-data-table overflow-hidden rounded-xl border border-neutral-800/60 bg-neutral-800/20">
-            <div className="divide-y divide-neutral-800/60 md:hidden">
+            <div className="divide-y divide-neutral-800/60 lg:hidden">
               {sortedItems.map((item) => {
                 const stockQty = Number(item.stock_quantity ?? 0);
                 const unitCostTTC = Number(item.quantity) > 0
@@ -579,14 +579,14 @@ export default function StockPage() {
                         type="button"
                         disabled={stockQty <= 0}
                         onClick={() => router.push(`/ventes?itemId=${item.id}`)}
-                        className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-lg border border-neutral-700 px-3 text-xs font-semibold text-neutral-200 disabled:opacity-40"
+                        className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-lg border border-neutral-700 px-3 text-xs font-semibold text-neutral-200 disabled:opacity-40"
                       >
                         <SellIcon className="h-4 w-4" /> Vendre
                       </button>
                       <button
                         type="button"
                         onClick={() => setEditingItem(item)}
-                        className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-lg border border-neutral-700 px-3 text-xs font-semibold text-neutral-200"
+                        className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-lg border border-neutral-700 px-3 text-xs font-semibold text-neutral-200"
                       >
                         <PencilIcon className="h-4 w-4" /> Modifier
                       </button>
@@ -595,7 +595,7 @@ export default function StockPage() {
                 );
               })}
             </div>
-            <div className="hidden overflow-x-auto md:block">
+            <div className="hidden overflow-x-auto lg:block">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-neutral-700/50">
@@ -845,7 +845,10 @@ function StockEditModal({
   onCloseRef.current = onClose;
 
   useEffect(() => {
-    inputRef.current?.focus();
+    // Ne pas ouvrir automatiquement le clavier virtuel sur téléphone/tablette.
+    if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+      inputRef.current?.focus();
+    }
 
     function handleEscape(e: KeyboardEvent) {
       if (e.key === "Escape") onCloseRef.current();
@@ -957,7 +960,8 @@ function StockEditModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-1.5 text-neutral-500 transition-colors hover:bg-neutral-800 hover:text-neutral-200"
+            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg p-2 text-neutral-500 transition-colors hover:bg-neutral-800 hover:text-neutral-200"
+            aria-label="Fermer la modification"
           >
             <CrossIcon className="h-5 w-5" />
           </button>
@@ -1039,7 +1043,7 @@ function StockEditModal({
               onWheel={(e) => e.currentTarget.blur()}
               placeholder="0"
               className={`
-                w-full rounded-lg px-3 py-2.5 text-sm
+                w-full rounded-lg px-3 py-2.5 text-base sm:text-sm
                 bg-neutral-900/60 text-neutral-200
                 border ${fieldError ? "border-red-500/50" : "border-neutral-800"}
                 placeholder:text-neutral-400
@@ -1065,7 +1069,7 @@ function StockEditModal({
             onClick={onClose}
             disabled={saving}
             className="
-              flex-1 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-400 sm:flex-none sm:px-4
+              min-h-11 flex-1 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-400 sm:flex-none sm:px-4
               transition-colors hover:bg-neutral-800/60 hover:text-neutral-200
               disabled:opacity-50
             "
@@ -1078,7 +1082,7 @@ function StockEditModal({
             onClick={handleConfirm}
             disabled={saving}
             className="
-              inline-flex items-center gap-2 rounded-lg bg-amber-500 px-5 py-2
+              min-h-11 inline-flex items-center gap-2 rounded-lg bg-amber-500 px-5 py-2
               text-sm font-semibold text-neutral-950
               hover:bg-amber-400 active:scale-[0.97]
               transition-all duration-200 shadow-lg shadow-amber-500/10
@@ -1209,7 +1213,7 @@ function QrPrintModal({
             onClick={onCancel}
             disabled={generating}
             className="
-              flex-1 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-400 sm:flex-none sm:px-4
+              min-h-11 flex-1 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-400 sm:flex-none sm:px-4
               transition-colors hover:bg-neutral-800/60 hover:text-neutral-200
               disabled:opacity-50
             "
@@ -1222,7 +1226,7 @@ function QrPrintModal({
             onClick={onConfirm}
             disabled={generating || selectedIds.size === 0}
             className="
-              inline-flex items-center gap-2 rounded-lg bg-amber-500 px-5 py-2
+              min-h-11 inline-flex items-center gap-2 rounded-lg bg-amber-500 px-5 py-2
               text-sm font-semibold text-neutral-950
               hover:bg-amber-400 active:scale-[0.97]
               transition-all duration-200 shadow-lg shadow-amber-500/10
