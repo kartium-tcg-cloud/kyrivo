@@ -251,7 +251,9 @@ export default function StockPage() {
               ...item,
               stock_quantity: newStock,
               item_size: itemSize,
-              status: newStock > 0 ? "in_stock" : "sold",
+              status: Number(item.stock_quantity) === newStock
+                ? item.status
+                : newStock > 0 ? "in_stock" : "sold",
             }
           : item
       )
@@ -889,11 +891,14 @@ function StockEditModal({
 
       const supabase = createClient();
 
+      const stockChanged = parsed !== Number(item.stock_quantity);
       const newStatus = parsed > 0 ? "in_stock" : "sold";
 
       const { error: dbError } = await supabase
         .from("purchase_items")
-        .update({ stock_quantity: parsed, status: newStatus, item_size: itemSize.trim() || null })
+        .update(stockChanged
+          ? { stock_quantity: parsed, status: newStatus, item_size: itemSize.trim() || null }
+          : { item_size: itemSize.trim() || null })
         .eq("id", item.id)
         .eq("company_id", companyId);
 
