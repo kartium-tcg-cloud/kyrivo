@@ -8,6 +8,7 @@ import Modal from "@/components/ui/Modal";
 import TransactionFeesInline from "@/components/fees/TransactionFeesInline";
 import type { TransactionFeeDraft } from "@/lib/transactionFees";
 import type { VintedDraft } from "@/lib/vintedEmailParser";
+import { suggestedVatModeForStock } from "@/lib/saleStockVatMode";
 import {
   AvailableStockItem,
   Sale,
@@ -304,14 +305,6 @@ setForm({
     }
   }, [ouvert, importPrefill, defaultVatRate]);
 
-  const stockItemsFiltres = useMemo(() => {
-    return stockItems.filter((item) =>
-      form.vatMode === "margin_vat"
-        ? item.marginEligible
-        : !item.marginEligible
-    );
-  }, [stockItems, form.vatMode]);
-
   const updateForm = (champ: keyof typeof form, valeur: string) => {
     isDirtyRef.current = true;
     setForm((prev) => ({
@@ -384,10 +377,12 @@ setForm({
     const item = stockItems.find((stockItem) => stockItem.id === itemId);
     if (!item) return;
 
-    if (!isEditing && form.vatMode === "margin_vat" && item.fiscalCostReviewRequired) {
-      setErreurs(["Ce stock Vinted doit faire vérifier son prix vendeur fiscal et son justificatif avant une vente sous TVA sur marge. Retrouvez son achat dans Achats."]);
-      return;
-    }
+    // Le régime initial sert de suggestion : tous les articles restent
+    // sélectionnables, quel que soit le bouton TVA coché au départ.
+    // L'utilisateur peut ensuite changer manuellement le régime.
+    const suggestedVatMode = suggestedVatModeForStock(item.marginEligible);
+    setForm((prev) => ({ ...prev, vatMode: suggestedVatMode }));
+    setErreurs([]);
 
     setLines((prev) =>
       prev.map((line) =>
@@ -545,13 +540,8 @@ setForm({
     });
 
     const stockErrors = validateStock();
-    const fiscalReviewErrors = !isEditing && form.vatMode === "margin_vat" && mappedLines.some((line) =>
-      stockItems.some((item) => item.id === line.purchaseItemId && item.fiscalCostReviewRequired)
-    ) ? ["Un article Vinted sélectionné doit être vérifié avant de calculer une TVA sur marge."] : [];
-    const allErrors = [...validation.errors, ...stockErrors, ...fiscalReviewErrors];
-
-    if (!validation.valid || stockErrors.length > 0 || fiscalReviewErrors.length > 0) {
-      setErreurs(allErrors);
+    if (!validation.valid || stockErrors.length > 0) {
+      setErreurs([...validation.errors, ...stockErrors]);
       return;
     }
 
@@ -742,6 +732,17 @@ setForm({
               })}
             </div>
 
+            {form.vatMode === "margin_vat" && lines.some((line) =>
+              line.purchaseItemId && stockItems.some((item) =>
+                item.id === line.purchaseItemId && !item.marginEligible
+              )
+            ) && (
+              <p className="mt-2 text-xs text-amber-300/80">
+                Un article sélectionné n'est pas identifié comme éligible au régime sur marge.
+                Vérifiez le régime TVA avant l'enregistrement.
+              </p>
+            )}
+
             {form.vatMode === "margin_vat" && (
               <div className="mt-2 flex items-start gap-2.5 rounded-lg border border-blue-500/20 bg-blue-500/5 px-3 py-2.5">
                 <svg className="h-3.5 w-3.5 text-blue-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
@@ -800,9 +801,8 @@ setForm({
                   Lignes de vente
                 </h3>
                 <p className="text-[11px] text-neutral-500 mt-0.5">
-                  {form.vatMode === "margin_vat"
-                    ? "Sélectionnez un article acheté à un particulier."
-                    : "Sélectionnez un article acheté à un pro ou encodez une ligne manuelle."}
+                  Sélectionnez un article en stock ou saisissez une ligne manuelle.
+                  Le régime TVA s'adapte à l'article choisi et reste modifiable.
                 </p>
               </div>
 
@@ -923,18 +923,18 @@ setForm({
                           {openDropdownId === line.id && (() => {
                             const q = (lineSearchQueries[line.id] || "").toLowerCase().trim();
                             const filtered = q
-                              ? stockItemsFiltres.filter(
+                              ? stockItems.filter(
                                   (item) =>
                                     (item.itemReference || "").toLowerCase().includes(q) ||
                                     (item.itemName || "").toLowerCase().includes(q) ||
                                     (item.category || "").toLowerCase().includes(q)
                                 )
-                              : stockItemsFiltres;
+                              : stockItems;
                             const visible = filtered.slice(0, 50);
 
                             return (
                               <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-72 overflow-y-auto rounded-lg border border-neutral-700 bg-neutral-900 shadow-2xl">
-                                {stockItemsFiltres.length === 0 ? (
+                                {stockItems.length === 0 ? (
                                   <div className="px-4 py-6 text-center text-sm text-neutral-500">
                                     Aucun article en stock disponible.
                                   </div>
@@ -946,8 +946,8 @@ setForm({
                                   <>
                                     <button
                                       type="button"
-                                      onMouseDown={(e) => {
-                                        e.preventDefault();
+                                      onMouseDown={(e) => e.preventDefault()}
+                                      onClick={() => {
                                         choisirItemStock(line.id, "");
                                         setLineSearchQueries((prev) => ({ ...prev, [line.id]: "" }));
                                         setOpenDropdownId(null);
@@ -961,8 +961,8 @@ setForm({
                                       <button
                                         key={item.id}
                                         type="button"
-                                        onMouseDown={(e) => {
-                                          e.preventDefault();
+                                        onMouseDown={(e) => e.preventDefault()}
+                                        onClick={() => {
                                           choisirItemStock(line.id, item.id);
                                           setLineSearchQueries((prev) => ({ ...prev, [line.id]: "" }));
                                           setOpenDropdownId(null);
@@ -1114,6 +1114,13 @@ setForm({
                             placeholder="Coût unitaire"
                             className={inputClasses}
                           />
+                            {line.purchaseItemId && stockItems.some((stockItem) =>
+                              stockItem.id === line.purchaseItemId && stockItem.fiscalCostReviewRequired
+                            ) && (
+                              <p className="mt-1 text-[11px] leading-relaxed text-neutral-500">
+                                Coût repris de l'achat enregistré. Vous pouvez l'ajuster ici selon votre justificatif.
+                              </p>
+                            )}
                         </div>
 
                         <div className="min-w-0">
