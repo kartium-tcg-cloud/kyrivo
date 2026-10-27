@@ -71,6 +71,7 @@ function mapPurchase(p: any, itemsByPurchaseId: Map<string, any[]>): Achat {
     id: item.id,
     reference: item.item_reference,
     nom: item.item_name,
+    taille: item.item_size ?? undefined,
     quantite: Number(item.quantity),
     stockRestant: Number(item.stock_quantity ?? item.quantity),
     coutHT: Number(item.unit_cost),
@@ -175,6 +176,7 @@ function buildPurchaseItems(params: {
       company_id: companyId,
       item_reference: `${purchaseYear}-${String(startRef + index).padStart(7, "0")}`,
       item_name: item.nom,
+      item_size: item.taille?.trim() || null,
       category: normalizeCategory(achat.produit),
       quantity,
       stock_quantity: quantity,
@@ -736,6 +738,7 @@ const modifierAchat = async (achatModifie: Achat) => {
         .from("purchase_items")
         .update({
           item_name: item.nom,
+          item_size: item.taille?.trim() || null,
           category: normalizeCategory(achatModifie.produit),
           quantity: newQuantity,
           stock_quantity: newStock,
