@@ -523,6 +523,10 @@ setForm({
   };
 
   const handleSubmit = () => {
+    if (importPrefill?.key.includes(":vinted-web:") && !form.date) {
+      setErreurs(["Renseignez la date réelle de la vente : l'extension ne peut pas la confirmer."]);
+      return;
+    }
     if (importPrefill?.kind === "sale") {
       if (!importStockChoice) {
         setErreurs(["Indiquez si les articles vendus se trouvent dans votre stock Kyrivo."]);
