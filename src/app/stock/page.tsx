@@ -841,17 +841,18 @@ function StockEditModal({
   const [fieldError, setFieldError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   useEffect(() => {
     inputRef.current?.focus();
-    inputRef.current?.select();
 
     function handleEscape(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") onCloseRef.current();
     }
     window.addEventListener("keydown", handleEscape);
     return () => window.removeEventListener("keydown", handleEscape);
-  }, [onClose]);
+  }, []);
 
   async function handleConfirm() {
     const trimmed = newStock.trim();
@@ -969,6 +970,7 @@ function StockEditModal({
             </label>
             <input
               id="stock-item-name"
+              ref={inputRef}
               type="text"
               maxLength={150}
               value={itemName}
@@ -1026,7 +1028,6 @@ function StockEditModal({
               Quantité en stock
             </label>
             <input
-              ref={inputRef}
               type="number"
               min={0}
               step={1}
