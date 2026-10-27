@@ -20,7 +20,7 @@ interface Props {
 }
 
 const inputClass =
-  "w-full rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2.5 text-base text-neutral-100 placeholder:text-neutral-500 focus:border-amber-500/60 focus:outline-none sm:text-sm";
+  "w-full rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2.5 text-base text-neutral-100 placeholder:text-neutral-500 focus:border-amber-500/60 focus:outline-none lg:text-sm";
 
 export default function VintedItemsEditModal({ achat, onFermer, onSaved }: Props) {
   const [articles, setArticles] = useState<EditArticle[]>([]);
