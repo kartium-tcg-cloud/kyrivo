@@ -243,20 +243,9 @@ export default function StockPage() {
     return { articlesEnStock, quantiteTotale, argentImmobilise };
   }, [items]);
 
-  function handleStockUpdated(itemId: string, newStock: number, itemSize: string | null) {
+  function handleStockUpdated(itemId: string, changes: Partial<StockItem>) {
     setItems((prev) =>
-      prev.map((item) =>
-        item.id === itemId
-          ? {
-              ...item,
-              stock_quantity: newStock,
-              item_size: itemSize,
-              status: Number(item.stock_quantity) === newStock
-                ? item.status
-                : newStock > 0 ? "in_stock" : "sold",
-            }
-          : item
-      )
+      prev.map((item) => item.id === itemId ? { ...item, ...changes } : item)
     );
   }
 
@@ -840,26 +829,30 @@ function StockEditModal({
   item: StockItem;
   companyId: string;
   onClose: () => void;
-  onSuccess: (itemId: string, newStock: number, itemSize: string | null) => void;
+  onSuccess: (itemId: string, changes: Partial<StockItem>) => void;
 }) {
   const [newStock, setNewStock] = useState(
     String(Math.round(Number(item.stock_quantity)))
   );
   const [itemSize, setItemSize] = useState(item.item_size ?? "");
+  const [itemName, setItemName] = useState(item.item_name);
+  const [itemCategory, setItemCategory] = useState(item.category ?? "");
+  const [itemNotes, setItemNotes] = useState(item.notes ?? "");
   const [fieldError, setFieldError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   useEffect(() => {
     inputRef.current?.focus();
-    inputRef.current?.select();
 
     function handleEscape(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") onCloseRef.current();
     }
     window.addEventListener("keydown", handleEscape);
     return () => window.removeEventListener("keydown", handleEscape);
-  }, [onClose]);
+  }, []);
 
   async function handleConfirm() {
     const trimmed = newStock.trim();
@@ -875,6 +868,14 @@ function StockEditModal({
 
     const parsed = parseInt(trimmed, 10);
 
+    if (!itemName.trim() || itemName.trim().length > 150) {
+      setFieldError("Indiquez un nom d'article (150 caractères maximum).");
+      return;
+    }
+    if (itemCategory.trim().length > 120 || itemNotes.trim().length > 1000) {
+      setFieldError("Catégorie : 120 caractères maximum. Notes : 1 000 caractères maximum.");
+      return;
+    }
     if (itemSize.trim().length > 32) {
       setFieldError("L’information ne peut pas dépasser 32 caractères.");
       return;
@@ -892,19 +893,31 @@ function StockEditModal({
       const supabase = createClient();
 
       const stockChanged = parsed !== Number(item.stock_quantity);
-      const newStatus = parsed > 0 ? "in_stock" : "sold";
+      const changes: Partial<StockItem> = {
+        item_name: itemName.trim(),
+        item_size: itemSize.trim() || null,
+        category: itemCategory.trim() || null,
+        notes: itemNotes.trim() || null,
+        ...(stockChanged ? {
+          stock_quantity: parsed,
+          status: parsed > 0 ? "in_stock" : "sold",
+        } : {}),
+      };
 
-      const { error: dbError } = await supabase
+      // Ne pas toucher aux coûts fiscaux, aux achats ni aux ventes passées.
+      // En l'absence de changement de quantité, conserver le statut actuel.
+      const { data: updated, error: dbError } = await supabase
         .from("purchase_items")
-        .update(stockChanged
-          ? { stock_quantity: parsed, status: newStatus, item_size: itemSize.trim() || null }
-          : { item_size: itemSize.trim() || null })
+        .update(changes)
         .eq("id", item.id)
-        .eq("company_id", companyId);
+        .eq("company_id", companyId)
+        .select("id");
 
-      if (dbError) throw dbError;
+      if (dbError || !updated?.length) {
+        throw new Error(dbError?.message || "Article introuvable ou modification non autorisée.");
+      }
 
-      onSuccess(item.id, parsed, itemSize.trim() || null);
+      onSuccess(item.id, changes);
       onClose();
     } catch (e) {
       setFieldError(
@@ -951,37 +964,33 @@ function StockEditModal({
         </div>
 
         <div className="min-h-0 space-y-5 overflow-y-auto p-4 sm:p-6">
-          {/* Infos article */}
-          <div className="rounded-lg border border-neutral-800 bg-neutral-900/40 px-4 py-3 space-y-2 text-sm">
-            <div className="flex items-center justify-between gap-4">
-              <span className="text-neutral-500 text-xs">Article</span>
-              <span className="text-neutral-200 text-right truncate max-w-[200px]">
-                {item.item_name}
-              </span>
-            </div>
-            <div className="flex items-center justify-between gap-4">
-              <span className="text-neutral-500 text-xs">Stock actuel</span>
-              <span
-                className={`font-semibold tabular-nums ${
-                  Number(item.stock_quantity) > 0
-                    ? "text-emerald-400"
-                    : "text-neutral-700"
-                }`}
-              >
-                {Math.round(Number(item.stock_quantity))}
-              </span>
-            </div>
+          <div>
+            <label htmlFor="stock-item-name" className="block text-[11px] font-semibold text-neutral-500 mb-2 uppercase tracking-wider">
+              Nom de l'article
+            </label>
+            <input
+              id="stock-item-name"
+              ref={inputRef}
+              type="text"
+              maxLength={150}
+              value={itemName}
+              onChange={(e) => setItemName(e.target.value)}
+              className="w-full rounded-lg border border-neutral-800 bg-neutral-900/60 px-3 py-2.5 text-base text-neutral-200 focus:border-amber-500/40 focus:outline-none sm:text-sm"
+            />
           </div>
 
-          {/* Avertissement */}
-          <div className="flex items-start gap-3 rounded-lg border border-amber-500/20 bg-amber-500/5 px-4 py-3">
-            <WarningIcon className="h-4 w-4 text-amber-400 flex-shrink-0 mt-0.5" />
-            <p className="text-[11px] text-amber-200/70 leading-relaxed">
-              Attention, modifier le stock manuellement peut créer un écart entre
-              vos achats, vos ventes et vos marges. Cette action doit servir
-              uniquement à corriger une erreur, une perte, un don ou un
-              ajustement réel.
-            </p>
+          <div>
+            <label htmlFor="stock-item-category" className="block text-[11px] font-semibold text-neutral-500 mb-2 uppercase tracking-wider">
+              Catégorie (facultatif)
+            </label>
+            <input
+              id="stock-item-category"
+              type="text"
+              maxLength={120}
+              value={itemCategory}
+              onChange={(e) => setItemCategory(e.target.value)}
+              className="w-full rounded-lg border border-neutral-800 bg-neutral-900/60 px-3 py-2.5 text-base text-neutral-200 focus:border-amber-500/40 focus:outline-none sm:text-sm"
+            />
           </div>
 
           <div>
@@ -999,13 +1008,26 @@ function StockEditModal({
             />
           </div>
 
+          <div>
+            <label htmlFor="stock-item-notes" className="block text-[11px] font-semibold text-neutral-500 mb-2 uppercase tracking-wider">
+              Notes (facultatif)
+            </label>
+            <textarea
+              id="stock-item-notes"
+              rows={2}
+              maxLength={1000}
+              value={itemNotes}
+              onChange={(e) => setItemNotes(e.target.value)}
+              className="w-full rounded-lg border border-neutral-800 bg-neutral-900/60 px-3 py-2.5 text-base text-neutral-200 focus:border-amber-500/40 focus:outline-none sm:text-sm"
+            />
+          </div>
+
           {/* Champ nouvelle quantité */}
           <div>
             <label className="block text-[11px] font-semibold text-neutral-500 mb-2 uppercase tracking-wider">
-              Nouvelle quantité en stock
+              Quantité en stock
             </label>
             <input
-              ref={inputRef}
               type="number"
               min={0}
               step={1}
@@ -1025,10 +1047,15 @@ function StockEditModal({
                 transition-colors duration-150
               `}
             />
-            {fieldError && (
-              <p className="mt-1.5 text-[11px] text-red-400">{fieldError}</p>
-            )}
           </div>
+
+          {Number(newStock) !== Number(item.stock_quantity) && (
+            <p className="rounded-lg border border-amber-500/20 bg-amber-500/5 px-3 py-2.5 text-xs leading-relaxed text-amber-200/80">
+              Une modification manuelle de la quantité peut créer un écart avec les ventes enregistrées.
+            </p>
+          )}
+
+          {fieldError && <p role="alert" className="text-xs text-red-400">{fieldError}</p>}
         </div>
 
         {/* Footer */}
@@ -1335,14 +1362,6 @@ function SearchIcon({ className = "h-4 w-4" }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-    </svg>
-  );
-}
-
-function WarningIcon({ className = "h-4 w-4" }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
     </svg>
   );
 }

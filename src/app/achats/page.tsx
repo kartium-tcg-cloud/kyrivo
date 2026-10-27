@@ -11,6 +11,7 @@ import { ItemStatus, isItemStatus } from "@/types/item";
 import { createClient } from "@/lib/supabase/client";
 import { exportPurchasesToExcel } from "@/lib/exportPurchases";
 import VintedFiscalReviewModal from "@/components/achats/VintedFiscalReviewModal";
+import VintedItemsEditModal from "@/components/achats/VintedItemsEditModal";
 import { validateVintedCosts } from "@/lib/vintedCosts";
 import { canCreateLines } from "@/lib/subscriptions";
 import { toast } from "sonner";
@@ -294,6 +295,7 @@ export default function AchatsPage() {
   const [modalOuverte, setModalOuverte] = useState(false);
   const [achatEnEdition, setAchatEnEdition] = useState<Achat | null>(null);
   const [achatFiscalReview, setAchatFiscalReview] = useState<Achat | null>(null);
+  const [vintedItemsForEdit, setVintedItemsForEdit] = useState<Achat | null>(null);
   const [companyIdForFees, setCompanyIdForFees] = useState("");
   const [purchaseForFees, setPurchaseForFees] = useState<Achat | null>(null);
   const [supplierContacts, setSupplierContacts] = useState<Array<{ id: string; name: string }>>([]);
@@ -455,12 +457,10 @@ export default function AchatsPage() {
   };
 
   const ouvrirEdition = (achat: Achat) => {
-    if (achat.articles?.some((article) => article.stockRestant > 0 && article.fiscalCostReviewRequired)) {
-      setAchatFiscalReview(achat);
-      return;
-    }
+    // Une simple modification d'article ne doit jamais imposer
+    // la vérification fiscale Vinted. Les prix importés restent protégés.
     if (achat.source === "vinted_import") {
-      toast.error("La ventilation fiscale d'un import Vinted vérifié ne peut pas être modifiée depuis le formulaire d'achat général.");
+      setVintedItemsForEdit(achat);
       return;
     }
     setAchatEnEdition(achat);
@@ -868,6 +868,7 @@ const modifierAchat = async (achatModifie: Achat) => {
             onModifier={ouvrirEdition}
             onSupprimer={supprimerAchat}
             onManageFees={setPurchaseForFees}
+            onReviewFiscal={setAchatFiscalReview}
           />
         </>
       )}
@@ -890,6 +891,15 @@ const modifierAchat = async (achatModifie: Achat) => {
         importPrefill={importPrefill}
         supplierContacts={supplierContacts}
         existingCategories={existingCategories}
+      />
+
+      <VintedItemsEditModal
+        achat={vintedItemsForEdit}
+        onFermer={() => setVintedItemsForEdit(null)}
+        onSaved={async () => {
+          const companyId = await getCompanyId();
+          if (companyId) await refreshPurchases(companyId);
+        }}
       />
 
       <VintedFiscalReviewModal
