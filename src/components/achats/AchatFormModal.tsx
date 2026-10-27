@@ -1029,7 +1029,7 @@ const buildPayload = (): Achat => {
                 </div>
 
                 <div className="min-w-0 p-3 space-y-3">
-                  <div className="grid min-w-0 grid-cols-[80px_minmax(0,1fr)] gap-3">
+                  <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-[80px_minmax(0,1fr)]">
                     <div className="min-w-0">
                       <label htmlFor={`purchase-quantity-${item.id}`} className={lineLabelClasses}>Quantité</label>
                       <input
