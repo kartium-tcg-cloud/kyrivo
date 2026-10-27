@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "Kyrivo — Import Vinted (prototype)",
+  "version": "0.1.0",
+  "description": "Prépare des articles visibles sur votre page Vinted pour une vérification manuelle dans Kyrivo.",
+  "permissions": ["activeTab", "scripting", "storage"],
+  "action": {
+    "default_title": "Kyrivo — Import Vinted",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [{
+    "matches": [
+      "https://kyrivo.fr/import-vinted*",
+      "https://www.kyrivo.fr/import-vinted*",
+      "https://kyrivo.kartium-tcg.com/import-vinted*"
+    ],
+    "js": ["bridge.js"],
+    "run_at": "document_idle"
+  }]
+}

@@ -14,7 +14,7 @@ test("Achat: le mapping fournit le vrai TTC unitaire à partir du total TTC enre
 
 test("Liste d'achats: les articles détaillés affichent TTC plutôt que HT en montant principal", () => {
   const tableau = read("src/components/achats/AchatsTableau.tsx");
-  const articles = tableau.slice(tableau.indexOf("{achat.articles.map((article) => ("));
+  const articles = tableau.slice(tableau.lastIndexOf("{achat.articles.map((article) => ("));
   const end = articles.indexOf("</Link>");
   const row = articles.slice(0, end);
   assert.match(row, /Coût unitaire TTC/);

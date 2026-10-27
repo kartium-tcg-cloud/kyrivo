@@ -183,15 +183,16 @@ useEffect(() => {
       resetForm();
       if (importPrefill?.kind === "purchase") {
         const d = importPrefill;
+        const fromExtension = d.key.includes(":vinted-web:");
         const seller = d.sellerPrice ?? 0;
         const itemNames = d.items.length ? d.items : [d.title || "Article Vinted"];
         const totalCents = Math.round(seller * 100);
         const unitCents = Math.floor(totalCents / itemNames.length);
         const remainder = totalCents % itemNames.length;
         setForm({
-          date: d.date || dateAujourdhui(), fournisseur: d.counterparty || "Vendeur Vinted",
-          produit: "Vinted", type: "particulier", prixHT: String(d.paidTotal ?? seller),
-          commentaire: d.orderReference ? "Commande Vinted n° " + d.orderReference : "Achat importé de Vinted",
+          date: d.date || (fromExtension ? "" : dateAujourdhui()), fournisseur: d.counterparty || "Vendeur Vinted",
+          produit: "Vinted", type: "particulier", prixHT: fromExtension && d.paidTotal === null ? "" : String(d.paidTotal ?? seller),
+          commentaire: d.orderReference ? "Commande Vinted n° " + d.orderReference : fromExtension ? "Article repéré sur Vinted (extension, montants à vérifier)" : "Achat importé de Vinted",
           paiement: d.paymentDescription.toLowerCase().includes("bancontact") && !d.paymentDescription.toLowerCase().includes("porte-monnaie")
             ? "Bancontact" : "Vinted",
           saveSupplier: false,
@@ -200,7 +201,7 @@ useEffect(() => {
         setAvecStock(true);
         setItems(itemNames.map((nom, index) => ({
           id: genId(), nom: nom.slice(0, 150), quantite: "1",
-          cout: ((unitCents + (index < remainder ? 1 : 0)) / 100).toFixed(2),
+          cout: fromExtension && d.sellerPrice === null ? "" : ((unitCents + (index < remainder ? 1 : 0)) / 100).toFixed(2),
           modeMontant: "ttc" as const, notes: "", taille: "",
         })));
         const newFees: TransactionFeeDraft[] = [];
