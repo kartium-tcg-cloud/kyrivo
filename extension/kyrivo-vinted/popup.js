@@ -102,7 +102,7 @@ function captureCurrentVintedPage() {
     takeItem(match[1], title, location.origin + location.pathname, price);
   }
   // Récapitulatif avec liens d'articles, y compris les commandes en lot.
-  for (const anchor of document.querySelectorAll("a[href*='/items/']")) {
+  if (!match) for (const anchor of document.querySelectorAll("a[href*='/items/']")) {
     if (items.length >= 60) break;
     if (!anchor.getClientRects().length) continue;
     let url;
