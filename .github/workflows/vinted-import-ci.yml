@@ -7,6 +7,7 @@ on:
       - "src/lib/vintedExtensionCapture.ts"
       - "extension/kyrivo-vinted/**"
       - "tests/vinted-chrome-extension.test.mjs"
+      - "tests/vinted-bundle-extension.test.mjs"
       - "src/lib/vintedImportSession.ts"
       - "src/app/import-vinted/**"
       - "src/app/nouveautes/import-vinted/**"
