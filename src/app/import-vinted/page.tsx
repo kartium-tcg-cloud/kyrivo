@@ -46,7 +46,7 @@ export default function ImportVintedPage() {
         const queue = addVintedDrafts(companyId, drafts);
         setItems(queue);
         setExtensionStatus(
-          (queue.length - before) + " nouvel(le)(s) article(s) détecté(s) depuis l'extension. " +
+          (queue.length - before) + " commande(s) détectée(s) depuis l'extension. " +
           "Vérifiez les prix, les dates et les détails avant chaque enregistrement."
         );
         window.postMessage({ type: "KYRIVO_VINTED_ACCEPTED_V1", transferId }, origin);
