@@ -161,7 +161,7 @@ export default function ImportVintedPage() {
           <span className="rounded-md border border-amber-500/40 bg-amber-500/10 px-2 py-1 text-[10px] font-extrabold uppercase tracking-widest text-amber-300">Bêta</span>
         </div>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-neutral-400">
-          Importez depuis l'extension Chrome en test, collez les reçus Vinted ou déposez vos emails exportés. Kyrivo prépare les achats et les ventes :
+          Collez les reçus Vinted ou déposez vos emails exportés. Kyrivo prépare les achats et les ventes :
           vous contrôlez chaque champ avant de l'enregistrer. Aucune opération n'est créée automatiquement.
         </p>
       </div>
@@ -179,24 +179,12 @@ export default function ImportVintedPage() {
         </Link>
       </aside>
 
-      <section className="mb-6 rounded-xl border border-teal-500/30 bg-teal-500/[0.06] p-4 sm:p-6">
-        <div className="flex flex-wrap items-center gap-2">
-          <h2 className="font-semibold text-white">Tester l'extension Chrome Kyrivo</h2>
-          <span className="rounded-md bg-neutral-950 px-2 py-1 text-[10px] font-bold uppercase text-teal-300">Prototype</span>
-        </div>
-        <p className="mt-2 text-sm leading-6 text-neutral-300">
-          Sur ordinateur, l'extension lit les fiches d'articles visibles dans votre onglet Vinted,
-          puis prépare des brouillons dans cette liste. Elle ne lit pas votre historique complet.
-          Le prix affiché sur une fiche n'est jamais assimilé à un prix réellement payé ou encaissé :
-          contrôlez les justificatifs et complétez les informations.
+      {/* La réception privée reste active ; aucune promotion visible avant validation. */}
+      {extensionStatus && (
+        <p role="status" className="mb-6 rounded-lg border border-teal-500/20 bg-neutral-900/40 p-3 text-sm text-teal-200">
+          {extensionStatus}
         </p>
-        <p className="mt-2 text-xs leading-5 text-neutral-400">
-          Installation expérimentale depuis le dossier <code>extension/kyrivo-vinted</code> du dépôt Kyrivo.
-          Dans Chrome : Extensions → Mode développeur → Charger l'extension non empaquetée.
-          Utilisez ensuite le bouton de l'extension depuis une page Vinted.
-        </p>
-        {extensionStatus && <p role="status" className="mt-3 rounded-lg border border-teal-500/20 bg-neutral-950/60 p-3 text-sm text-teal-200">{extensionStatus}</p>}
-      </section>
+      )}
 
       <section className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-5 sm:p-6">
         <h2 className="font-semibold text-white">1. Copier les bons emails Vinted</h2>
@@ -272,7 +260,7 @@ export default function ImportVintedPage() {
         </div>
         {!items.length ? (
           <p className="rounded-xl border border-dashed border-neutral-800 p-8 text-center text-sm text-neutral-500">
-            Aucune transaction dans la file. Utilisez l'extension de test ou importez un reçu Vinted.
+            Aucune transaction importée. Commencez par fournir un ou plusieurs reçus Vinted.
           </p>
         ) : (
           <div className="space-y-3">
