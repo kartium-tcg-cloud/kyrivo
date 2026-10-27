@@ -110,8 +110,7 @@ function captureCurrentVintedPage() {
     const id = url.pathname.match(itemPattern)?.[1];
     if (!id || !hostPattern.test(url.hostname)) continue;
     const card = anchor.closest("[data-testid*='item'], [data-testid*='product'], article") || anchor;
-    const own = text(anchor.querySelector("[data-testid*='title'], h2, h3")) ||
-      text(anchor.querySelector("img[alt]")?.getAttribute ? null : null);
+    const own = text(anchor.querySelector("[data-testid*='title'], h2, h3"));
     const imgTitle = anchor.querySelector("img[alt]")?.getAttribute("alt") || "";
     const title = own || imgTitle || text(anchor).split("€")[0];
     takeItem(id, title, url.origin + url.pathname, priceFrom(card));
