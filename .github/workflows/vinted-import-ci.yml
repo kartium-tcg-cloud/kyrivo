@@ -49,3 +49,15 @@ jobs:
         run: |
           npx next typegen
           npx tsc --noEmit
+      - name: Préparer l'extension Chrome installable
+        if: success()
+        run: |
+          cd extension/kyrivo-vinted
+          zip -r ../../kyrivo-vinted-chrome-prototype.zip manifest.json popup.html popup.css popup.js bridge.js README.md
+      - name: Télécharger le prototype Chrome depuis les artefacts du job
+        if: success()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: kyrivo-vinted-chrome-prototype
+          path: kyrivo-vinted-chrome-prototype.zip
+          retention-days: 14
