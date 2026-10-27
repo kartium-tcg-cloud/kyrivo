@@ -115,7 +115,7 @@ export default function AchatFormModal({
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
 
   const inputClasses = `
-    w-full min-w-0 rounded-lg px-3 py-2.5 text-base sm:text-sm
+    w-full min-w-0 rounded-lg px-3 py-2.5 text-base lg:text-sm
     bg-neutral-900/60 text-neutral-200
     border border-neutral-800
     placeholder:text-neutral-400
@@ -1029,7 +1029,7 @@ const buildPayload = (): Achat => {
                 </div>
 
                 <div className="min-w-0 p-3 space-y-3">
-                  <div className="grid min-w-0 grid-cols-[80px_minmax(0,1fr)] gap-3">
+                  <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-[80px_minmax(0,1fr)]">
                     <div className="min-w-0">
                       <label htmlFor={`purchase-quantity-${item.id}`} className={lineLabelClasses}>Quantité</label>
                       <input

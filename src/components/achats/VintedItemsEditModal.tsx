@@ -20,7 +20,7 @@ interface Props {
 }
 
 const inputClass =
-  "w-full rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2.5 text-base text-neutral-100 placeholder:text-neutral-500 focus:border-amber-500/60 focus:outline-none sm:text-sm";
+  "w-full rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2.5 text-base text-neutral-100 placeholder:text-neutral-500 focus:border-amber-500/60 focus:outline-none lg:text-sm";
 
 export default function VintedItemsEditModal({ achat, onFermer, onSaved }: Props) {
   const [articles, setArticles] = useState<EditArticle[]>([]);
@@ -113,13 +113,13 @@ export default function VintedItemsEditModal({ achat, onFermer, onSaved }: Props
       titre="Modifier les articles"
       maxWidthClassName="max-w-xl"
       footer={
-        <div className="flex justify-end gap-2">
+        <div className="flex w-full gap-2 sm:justify-end">
           <button type="button" onClick={onFermer} disabled={saving}
-            className="rounded-lg border border-neutral-700 px-4 py-2.5 text-sm text-neutral-300 disabled:opacity-50">
+            className="min-h-11 flex-1 rounded-lg border border-neutral-700 px-3 py-2.5 text-sm text-neutral-300 disabled:opacity-50 sm:flex-none sm:px-4">
             Annuler
           </button>
           <button type="button" onClick={save} disabled={saving}
-            className="rounded-lg bg-amber-500 px-4 py-2.5 text-sm font-semibold text-neutral-950 hover:bg-amber-400 disabled:opacity-50">
+            className="min-h-11 flex-1 rounded-lg bg-amber-500 px-3 py-2.5 text-sm font-semibold text-neutral-950 hover:bg-amber-400 disabled:opacity-50 sm:flex-none sm:px-4">
             {saving ? "Enregistrement…" : "Enregistrer"}
           </button>
         </div>
