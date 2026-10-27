@@ -51,6 +51,7 @@ interface AchatsTableauProps {
   onModifier: (achat: Achat) => void;
   onSupprimer: (id: string) => void;
   onManageFees?: (achat: Achat) => void;
+  onReviewFiscal?: (achat: Achat) => void;
 }
 
 function formatEuro(montant: number): string {
@@ -73,6 +74,7 @@ export default function AchatsTableau({
   onModifier,
   onSupprimer,
   onManageFees,
+  onReviewFiscal,
 }: AchatsTableauProps) {
   const [ligneOuverte, setLigneOuverte] = useState<string | null>(null);
   const [sortConfig, setSortConfig] = useState<SortConfig<AchatSortKey>>({
@@ -454,6 +456,21 @@ export default function AchatsTableau({
                               </span>
                             </span>
                           </div>
+
+                          {onReviewFiscal && achat.articles.some((article) =>
+                            article.stockRestant > 0 && article.fiscalCostReviewRequired
+                          ) && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onReviewFiscal(achat);
+                              }}
+                              className="mb-3 text-xs text-neutral-400 underline underline-offset-2 decoration-neutral-600 hover:text-amber-400"
+                            >
+                              TVA sur marge : vérifier le prix vendeur
+                            </button>
+                          )}
 
                           <div className="space-y-2">
                             {achat.articles.map((article) => (
