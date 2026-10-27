@@ -10,6 +10,8 @@ export type VintedDraft = {
   kind: VintedKind;
   title: string;
   items: string[];
+  /** Prix individuels suggérés par les fiches Vinted ; à confirmer avant validation. */
+  itemPrices?: Array<number | null>;
   counterparty: string;
   date: string | null;
   sellerPrice: number | null;
