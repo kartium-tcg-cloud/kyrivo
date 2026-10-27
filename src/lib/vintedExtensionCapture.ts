@@ -41,7 +41,7 @@ function groupKey(kind: VintedKind, ids: string[]): string {
     hash ^= input.charCodeAt(i);
     hash = Math.imul(hash, 16777619);
   }
-  return kind + ":vinted-group:" + ids[0] + ":" + (hash >>> 0).toString(36);
+  return kind + ":vinted-group:" + [...ids].sort()[0] + ":" + (hash >>> 0).toString(36);
 }
 
 function groupDraft(capture: GroupCapture): VintedDraft | null {
