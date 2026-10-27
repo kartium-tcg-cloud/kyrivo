@@ -66,7 +66,7 @@ export default function Modal({
             type="button"
             aria-label="Fermer la fenêtre"
             onClick={onFermer}
-            className="rounded-lg p-1.5 text-neutral-500 hover:bg-neutral-800 hover:text-neutral-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
+            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg p-2 text-neutral-500 hover:bg-neutral-800 hover:text-neutral-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
           >
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
