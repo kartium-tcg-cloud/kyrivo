@@ -16,3 +16,5 @@ ul{list-style:none;padding:0;max-height:180px;overflow:auto}
 li{display:flex;align-items:start;gap:8px;border-bottom:1px solid #304050;padding:9px 0;font-size:12px;overflow-wrap:anywhere}
 li span{flex:1}li button{font-size:12px;min-height:28px;padding:2px 7px}
 .disclaimer{font-size:11px;color:#98aabb;margin-top:15px}
+
+.amount-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.amount-grid label{font-size:11px;color:#cbd5df}.amount-grid input,.price-input{width:100%;margin-top:4px;background:#111b26;border:1px solid #506172;color:#fff;border-radius:6px;padding:7px;font-size:16px}.price-input{max-width:130px;font-size:14px}li{flex-wrap:wrap}li .price-input{margin:0 0 0 auto}
