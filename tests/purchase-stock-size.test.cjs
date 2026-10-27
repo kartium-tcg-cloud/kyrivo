@@ -48,3 +48,10 @@ test("base : champ nullable, limité à 32 caractères, aucune migration de donn
   assert.match(sql, /char_length\(item_size\) <= 32/);
   assert.doesNotMatch(sql, /UPDATE\s+public\.purchase_items/i);
 });
+
+test("modifier la taille seule ne change ni quantité ni statut", () => {
+  const stock = source("src/app/stock/page.tsx");
+  assert.match(stock, /const stockChanged = parsed !== Number\(item\.stock_quantity\)/);
+  assert.match(stock, /status: Number\(item\.stock_quantity\) === newStock/);
+  assert.match(stock, /: \{ item_size: itemSize\.trim\(\) \|\| null \}/);
+});
