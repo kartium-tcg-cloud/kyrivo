@@ -208,7 +208,7 @@ useEffect(() => {
     if (!venteInitiale) {
       if (importPrefill?.kind === "sale") {
         const d = importPrefill;
-        const fromExtension = d.key.includes(":vinted-web:");
+        const fromExtension = d.key.includes(":vinted-web:") || d.key.includes(":vinted-group:");
         setForm({
           date: d.date || (fromExtension ? "" : dateAujourdhui()), customerName: d.counterparty || "Acheteur Vinted",
           contactId: null, vatMode: "standard_vat", paymentMethod: "Vinted",
@@ -216,11 +216,15 @@ useEffect(() => {
           saveClient: false,
         });
         setModeMontantStandard("ttc");
-        setLines([{
+        setLines((d.items.length ? d.items : [d.title || "Article vendu sur Vinted"]).map((title, index, all) => ({
           ...emptyLine(defaultVatRate),
-          itemName: d.title || "Article vendu sur Vinted",
-          unitPrice: String(d.sellerPrice ?? ""),
-        }]);
+          itemName: title,
+          // Une vente en lot possède plusieurs lignes, jamais une seule ligne pour tout le lot.
+          // Le prix suggéré de chaque fiche est éditable ; un prix inconnu reste vide.
+          unitPrice: d.itemPrices
+            ? String(d.itemPrices[index] ?? "")
+            : all.length === 1 ? String(d.sellerPrice ?? "") : "",
+        })));
         setDraftFees([]);
         setImportStockChoice(null);
         setErreurs([]);
@@ -518,7 +522,7 @@ setForm({
   };
 
   const handleSubmit = () => {
-    if (importPrefill?.key.includes(":vinted-web:") && !form.date) {
+    if ((importPrefill?.key.includes(":vinted-web:") || importPrefill?.key.includes(":vinted-group:")) && !form.date) {
       setErreurs(["Renseignez la date réelle de la vente : l'extension ne peut pas la confirmer."]);
       return;
     }
