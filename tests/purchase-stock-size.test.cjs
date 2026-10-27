@@ -61,9 +61,12 @@ test("base : champ nullable, limité à 32 caractères, aucune migration de donn
   assert.doesNotMatch(sql, /UPDATE\s+public\.purchase_items/i);
 });
 
-test("modifier la taille seule ne change ni quantité ni statut", () => {
+test("modifier les infos seules ne change ni la quantité ni le statut", () => {
   const stock = source("src/app/stock/page.tsx");
   assert.match(stock, /const stockChanged = parsed !== Number\(item\.stock_quantity\)/);
-  assert.match(stock, /status: Number\(item\.stock_quantity\) === newStock/);
-  assert.match(stock, /: \{ item_size: itemSize\.trim\(\) \|\| null \}/);
+  assert.match(stock, /\.\.\.\(stockChanged \? \{/);
+  assert.match(stock, /stock_quantity: parsed,/);
+  assert.match(stock, /status: parsed > 0 \? "in_stock" : "sold"/);
+  assert.match(stock, /item_size: itemSize\.trim\(\) \|\| null/);
+  assert.doesNotMatch(stock, /fiscal_unit_cost:/);
 });
