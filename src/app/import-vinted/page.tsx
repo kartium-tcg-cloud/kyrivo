@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { getPurchases } from "@/lib/purchases";
 import { getSales } from "@/lib/sales";
 import { parseVintedEmails, type VintedDraft } from "@/lib/vintedEmailParser";
+import { parseVintedExtensionCapture } from "@/lib/vintedExtensionCapture";
 import {
   activateVintedDraft, addVintedDrafts, clearVintedQueue,
   readVintedQueue, type VintedQueueItem,
@@ -25,6 +26,54 @@ export default function ImportVintedPage() {
   const [existingKeys, setExistingKeys] = useState<Set<string>>(new Set());
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
+  const [extensionStatus, setExtensionStatus] = useState("");
+
+  // Le transfert a lieu dans cet onglet uniquement après le clic sur l'extension.
+  // Le site ne récupère jamais cookies, mots de passe ou session Vinted.
+  useEffect(() => {
+    if (!companyId || new URLSearchParams(window.location.search).get("extension") !== "1") return;
+
+    let received = false;
+    let attempts = 0;
+    const origin = window.location.origin;
+    const onExtensionMessage = (event: MessageEvent) => {
+      if (event.source !== window || event.origin !== origin ||
+          !event.data || event.data.type !== "KYRIVO_VINTED_CAPTURE_V1" || received) return;
+      received = true;
+      try {
+        const { transferId, drafts } = parseVintedExtensionCapture(event.data.payload);
+        const before = readVintedQueue(companyId).length;
+        const queue = addVintedDrafts(companyId, drafts);
+        setItems(queue);
+        setExtensionStatus(
+          (queue.length - before) + " nouvel(le)(s) article(s) détecté(s) depuis l'extension. " +
+          "Vérifiez les prix, les dates et les détails avant chaque enregistrement."
+        );
+        window.postMessage({ type: "KYRIVO_VINTED_ACCEPTED_V1", transferId }, origin);
+        window.history.replaceState(window.history.state, "", "/import-vinted");
+      } catch (error) {
+        setExtensionStatus(error instanceof Error ? error.message : "Transfert de l'extension non reconnu.");
+      }
+    };
+
+    window.addEventListener("message", onExtensionMessage);
+    // Petit handshake : le script de l'extension peut se charger avant ou après React.
+    const timer = window.setInterval(() => {
+      if (received || ++attempts > 12) {
+        window.clearInterval(timer);
+        if (!received && attempts > 12)
+          setExtensionStatus("Extension non détectée. Vérifiez qu'elle est installée et rechargez l'onglet depuis son bouton.");
+        return;
+      }
+      window.postMessage({ type: "KYRIVO_VINTED_REQUEST_V1" }, origin);
+    }, 500);
+    window.postMessage({ type: "KYRIVO_VINTED_REQUEST_V1" }, origin);
+
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener("message", onExtensionMessage);
+    };
+  }, [companyId]);
 
   useEffect(() => {
     let canceled = false;
@@ -112,7 +161,7 @@ export default function ImportVintedPage() {
           <span className="rounded-md border border-amber-500/40 bg-amber-500/10 px-2 py-1 text-[10px] font-extrabold uppercase tracking-widest text-amber-300">Bêta</span>
         </div>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-neutral-400">
-          Collez les reçus Vinted ou déposez vos emails exportés. Kyrivo prépare les achats et les ventes :
+          Importez depuis l'extension Chrome en test, collez les reçus Vinted ou déposez vos emails exportés. Kyrivo prépare les achats et les ventes :
           vous contrôlez chaque champ avant de l'enregistrer. Aucune opération n'est créée automatiquement.
         </p>
       </div>
@@ -129,6 +178,25 @@ export default function ImportVintedPage() {
           Lire le guide de l&apos;import Vinted
         </Link>
       </aside>
+
+      <section className="mb-6 rounded-xl border border-teal-500/30 bg-teal-500/[0.06] p-4 sm:p-6">
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 className="font-semibold text-white">Tester l'extension Chrome Kyrivo</h2>
+          <span className="rounded-md bg-neutral-950 px-2 py-1 text-[10px] font-bold uppercase text-teal-300">Prototype</span>
+        </div>
+        <p className="mt-2 text-sm leading-6 text-neutral-300">
+          Sur ordinateur, l'extension lit les fiches d'articles visibles dans votre onglet Vinted,
+          puis prépare des brouillons dans cette liste. Elle ne lit pas votre historique complet.
+          Le prix affiché sur une fiche n'est jamais assimilé à un prix réellement payé ou encaissé :
+          contrôlez les justificatifs et complétez les informations.
+        </p>
+        <p className="mt-2 text-xs leading-5 text-neutral-400">
+          Installation expérimentale depuis le dossier <code>extension/kyrivo-vinted</code> du dépôt Kyrivo.
+          Dans Chrome : Extensions → Mode développeur → Charger l'extension non empaquetée.
+          Utilisez ensuite le bouton de l'extension depuis une page Vinted.
+        </p>
+        {extensionStatus && <p role="status" className="mt-3 rounded-lg border border-teal-500/20 bg-neutral-950/60 p-3 text-sm text-teal-200">{extensionStatus}</p>}
+      </section>
 
       <section className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-5 sm:p-6">
         <h2 className="font-semibold text-white">1. Copier les bons emails Vinted</h2>
@@ -204,7 +272,7 @@ export default function ImportVintedPage() {
         </div>
         {!items.length ? (
           <p className="rounded-xl border border-dashed border-neutral-800 p-8 text-center text-sm text-neutral-500">
-            Aucune transaction importée. Commencez par fournir un ou plusieurs emails Vinted.
+            Aucune transaction dans la file. Utilisez l'extension de test ou importez un reçu Vinted.
           </p>
         ) : (
           <div className="space-y-3">
