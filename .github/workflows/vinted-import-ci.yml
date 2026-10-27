@@ -43,6 +43,7 @@ jobs:
         run: |
           node --experimental-strip-types --test tests/vinted-email-parser.test.mjs
           node --experimental-strip-types --test tests/vinted-chrome-extension.test.mjs
+          node --experimental-strip-types --test tests/vinted-bundle-extension.test.mjs
           # Existing public-changelog tests assert obsolete /mises-a-jour routes on main.
           # Keep all other baseline regression checks while fixing that unrelated suite separately.
           node --test $(find tests -maxdepth 1 -name '*.test.cjs' ! -name 'public-changelog.test.cjs' | sort)
