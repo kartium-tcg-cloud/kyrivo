@@ -946,8 +946,8 @@ setForm({
                                   <>
                                     <button
                                       type="button"
-                                      onMouseDown={(e) => {
-                                        e.preventDefault();
+                                      onMouseDown={(e) => e.preventDefault()}
+                                      onClick={() => {
                                         choisirItemStock(line.id, "");
                                         setLineSearchQueries((prev) => ({ ...prev, [line.id]: "" }));
                                         setOpenDropdownId(null);
