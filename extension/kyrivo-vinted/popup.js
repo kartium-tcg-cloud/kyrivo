@@ -8,6 +8,7 @@ const captureBtn = document.getElementById("capture");
 const sendBtn = document.getElementById("send");
 const STORAGE_KEY = "kyrivoVintedPendingV1";
 let snapshot = null;
+let selected = new Set();
 
 function status(message) { statusNode.textContent = message; }
 function isVintedHost(name) {
@@ -48,6 +49,7 @@ function readVisibleVintedItems() {
 
 captureBtn.addEventListener("click", async () => {
   snapshot = null;
+  selected = new Set();
   preview.hidden = true;
   status("");
   captureBtn.disabled = true;
@@ -55,6 +57,10 @@ captureBtn.addEventListener("click", async () => {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (!tab?.id || !tab.url || !isVintedHost(new URL(tab.url).hostname)) {
       throw new Error("Ouvrez un onglet Vinted connecté puis réessayez.");
+    }
+    const locationPath = new URL(tab.url).pathname;
+    if (locationPath === "/" || /^\/(?:catalog|search)(?:\/|$)/i.test(locationPath)) {
+      throw new Error("Ouvrez l'historique des achats ou ventes, et non le catalogue ou l'accueil Vinted.");
     }
     const results = await chrome.scripting.executeScript({
       target: { tabId: tab.id }, func: readVisibleVintedItems
@@ -64,13 +70,27 @@ captureBtn.addEventListener("click", async () => {
       throw new Error("Aucun article identifiable. Ouvrez vos achats ou ventes sur Vinted, puis rechargez la page. La présentation peut varier selon les comptes.");
     }
     snapshot = entries;
+    selected = new Set(entries.map(item => item.itemId));
     count.textContent = String(entries.length);
     list.replaceChildren();
     for (const item of entries) {
       const li = document.createElement("li");
-      li.textContent = item.title + (item.displayPrice ? " — prix affiché : " + item.displayPrice : "");
+      const label = document.createElement("label");
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.checked = true;
+      checkbox.addEventListener("change", () => {
+        if (checkbox.checked) selected.add(item.itemId);
+        else selected.delete(item.itemId);
+        sendBtn.disabled = selected.size === 0;
+      });
+      const title = document.createElement("span");
+      title.textContent = item.title + (item.displayPrice ? " — prix affiché : " + item.displayPrice : "");
+      label.append(checkbox, title);
+      li.append(label);
       list.append(li);
     }
+    sendBtn.disabled = false;
     preview.hidden = false;
     status(entries.length + " article(s) trouvé(s). Vérifiez la liste avant de poursuivre.");
   } catch (err) {
@@ -81,7 +101,7 @@ captureBtn.addEventListener("click", async () => {
 });
 
 sendBtn.addEventListener("click", async () => {
-  if (!snapshot?.length) return;
+  if (!snapshot?.length || !selected.size) return;
   sendBtn.disabled = true;
   try {
     const kind = document.querySelector("input[name=kind]:checked")?.value;
@@ -91,7 +111,7 @@ sendBtn.addEventListener("click", async () => {
       transferId: crypto.randomUUID(),
       timestamp: Date.now(),
       kind,
-      items: snapshot
+      items: snapshot.filter(item => selected.has(item.itemId))
     };
     await chrome.storage.local.set({ [STORAGE_KEY]: transfer });
     await chrome.tabs.create({ url: "https://kyrivo.fr/import-vinted?extension=1" });
