@@ -8,6 +8,7 @@ import Modal from "@/components/ui/Modal";
 import TransactionFeesInline from "@/components/fees/TransactionFeesInline";
 import type { TransactionFeeDraft } from "@/lib/transactionFees";
 import type { VintedDraft } from "@/lib/vintedEmailParser";
+import { suggestedVatModeForStock } from "@/lib/saleStockVatMode";
 import {
   AvailableStockItem,
   Sale,
@@ -379,9 +380,7 @@ setForm({
     // Le régime initial sert de suggestion : tous les articles restent
     // sélectionnables, quel que soit le bouton TVA coché au départ.
     // L'utilisateur peut ensuite changer manuellement le régime.
-    const suggestedVatMode: SaleVatMode = item.marginEligible
-      ? "margin_vat"
-      : "standard_vat";
+    const suggestedVatMode = suggestedVatModeForStock(item.marginEligible);
     setForm((prev) => ({ ...prev, vatMode: suggestedVatMode }));
     setErreurs([]);
 
