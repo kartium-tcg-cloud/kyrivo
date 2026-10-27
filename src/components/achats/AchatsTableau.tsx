@@ -121,7 +121,174 @@ export default function AchatsTableau({
 
   return (
     <div className="ky-data-table rounded-xl border border-neutral-800/60 bg-neutral-900/40 shadow-sm shadow-black/20 overflow-hidden">
-      <div className="relative">
+      {/* Présentation dédiée aux téléphones et tablettes : sans défilement horizontal. */}
+      <div className="divide-y divide-neutral-800/60 lg:hidden" role="list" aria-label="Liste des achats">
+        {achatsTries.map((achat) => {
+          const detailsOpen = ligneOuverte === achat.id;
+          const needsFiscalReview = achat.articles?.some(
+            (article) => article.stockRestant > 0 && article.fiscalCostReviewRequired
+          );
+
+          return (
+            <article key={achat.id} role="listitem" className="min-w-0 space-y-3 p-3 sm:p-4">
+              <div className="flex min-w-0 items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-xs text-neutral-400">
+                    {formatDate(achat.date)}
+                    <span className="ml-2 font-mono text-[11px] text-neutral-500">{achat.numInterne}</span>
+                  </p>
+                  <p className="mt-1 break-words text-sm font-semibold text-neutral-100">
+                    {achat.fournisseur}
+                  </p>
+                </div>
+                <div className="shrink-0 text-right">
+                  <p className="text-[10px] font-semibold uppercase text-neutral-500">Total TTC</p>
+                  <p className="font-semibold tabular-nums text-white">{formatEuro(achat.prixTTC)}</p>
+                </div>
+              </div>
+
+              <div className="min-w-0 rounded-lg border border-neutral-800/70 bg-neutral-950/40 px-3 py-2.5">
+                {achat.articles?.length ? (
+                  <div className="space-y-1.5">
+                    {achat.articles.map((article) => (
+                      <p key={article.id} className="break-words text-sm text-neutral-200">
+                        {article.nom}
+                        {article.taille && <span className="ml-1 text-xs text-amber-300">· {article.taille}</span>}
+                      </p>
+                    ))}
+                    {achat.produit && (
+                      <p className="pt-1 text-xs text-neutral-400">{achat.produit}</p>
+                    )}
+                  </div>
+                ) : (
+                  <p className="break-words text-sm text-neutral-200">{achat.produit}</p>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => toggleDetails(achat.id)}
+                  aria-expanded={detailsOpen}
+                  aria-controls={`achat-mobile-details-${achat.id}`}
+                  className="inline-flex min-h-11 items-center justify-center rounded-lg border border-neutral-700 px-3 py-2 text-sm font-medium text-neutral-200 hover:bg-neutral-800"
+                >
+                  {detailsOpen ? "Masquer les détails" : "Détails"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onModifier(achat)}
+                  className="inline-flex min-h-11 items-center justify-center rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm font-semibold text-amber-300 hover:bg-amber-500/15"
+                >
+                  Modifier
+                </button>
+                {onManageFees && (
+                  <button
+                    type="button"
+                    onClick={() => onManageFees(achat)}
+                    className="inline-flex min-h-11 items-center justify-center rounded-lg border border-neutral-700 px-3 py-2 text-sm text-neutral-200 hover:bg-neutral-800"
+                  >
+                    Frais
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => onSupprimer(achat.id)}
+                  className="inline-flex min-h-11 items-center justify-center rounded-lg border border-red-500/20 px-3 py-2 text-sm text-red-300 hover:bg-red-500/10"
+                >
+                  Supprimer
+                </button>
+              </div>
+
+              {detailsOpen && (
+                <div
+                  id={`achat-mobile-details-${achat.id}`}
+                  className="min-w-0 space-y-3 rounded-lg border border-neutral-800 bg-neutral-950/60 p-3 text-sm"
+                >
+                  <dl className="grid grid-cols-1 gap-2 text-sm min-[400px]:grid-cols-2">
+                    <div>
+                      <dt className="text-xs text-neutral-500">Paiement</dt>
+                      <dd className="break-words text-neutral-200">{achat.paiement}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs text-neutral-500">Réf. facture</dt>
+                      <dd className="break-all font-mono text-xs text-neutral-200">{achat.numFacture || "—"}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs text-neutral-500">Régime TVA</dt>
+                      <dd className="text-neutral-200">{achat.type === "pro" ? "TVA déductible" : "Achat à un particulier"}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs text-neutral-500">Montant HT / TVA</dt>
+                      <dd className="text-neutral-200">{formatEuro(achat.prixHT)} / {formatEuro(achat.prixTVA)}</dd>
+                    </div>
+                  </dl>
+
+                  {achat.documentUrl && (
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const newWindow = window.open("about:blank", "_blank");
+                        try {
+                          const url = await getPurchaseDocumentSignedUrl(achat.documentUrl!);
+                          if (newWindow) newWindow.location.href = url;
+                          else window.location.assign(url);
+                        } catch {
+                          newWindow?.close();
+                          window.alert("Impossible d'ouvrir le document pour le moment.");
+                        }
+                      }}
+                      className="inline-flex min-h-11 items-center text-sm font-medium text-amber-400 underline underline-offset-2"
+                    >
+                      Ouvrir le justificatif
+                    </button>
+                  )}
+
+                  {achat.commentaire && (
+                    <div>
+                      <p className="text-xs text-neutral-500">Commentaire</p>
+                      <p className="break-words text-neutral-200">{achat.commentaire}</p>
+                    </div>
+                  )}
+
+                  {needsFiscalReview && onReviewFiscal && (
+                    <button
+                      type="button"
+                      onClick={() => onReviewFiscal(achat)}
+                      className="inline-flex min-h-11 w-full items-center justify-center rounded-lg border border-neutral-700 px-3 py-2 text-sm font-medium text-neutral-200 hover:bg-neutral-800"
+                    >
+                      TVA sur marge : vérifier le prix vendeur
+                    </button>
+                  )}
+
+                  {achat.articles?.length ? (
+                    <div className="space-y-2 border-t border-neutral-800 pt-3">
+                      <p className="text-xs font-semibold uppercase text-neutral-400">Détail des articles</p>
+                      {achat.articles.map((article) => (
+                        <Link
+                          key={article.id}
+                          href={`/items/${article.id}`}
+                          className="block min-w-0 rounded-lg border border-neutral-800 px-3 py-2.5 hover:border-amber-500/30"
+                        >
+                          <p className="break-all font-mono text-xs text-amber-400">{article.reference}</p>
+                          <p className="mt-1 break-words font-medium text-neutral-200">{article.nom}</p>
+                          <p className="mt-1 text-xs text-neutral-400">Stock {article.stockRestant}/{article.quantite}</p>
+                          <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+                            <ItemStatusBadge status={article.statut} />
+                            <span className="text-xs text-neutral-200">Coût TTC : {article.coutTTC != null && Number.isFinite(article.coutTTC) ? formatEuro(article.coutTTC) : "—"}</span>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+              )}
+            </article>
+          );
+        })}
+      </div>
+
+      <div className="relative hidden lg:block">
         <p className="border-b border-neutral-800/60 px-3 py-2 text-xs text-neutral-400 sm:hidden">Glissez horizontalement pour voir toutes les colonnes du tableau.</p>
         <div role="region" aria-label="Tableau des achats, défilement horizontal" className="overflow-x-auto overscroll-x-contain">
         <table className="w-full text-sm">
