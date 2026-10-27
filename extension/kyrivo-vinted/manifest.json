@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Kyrivo — Import Vinted (prototype)",
-  "version": "0.1.0",
-  "description": "Prépare des articles visibles sur votre page Vinted pour une vérification manuelle dans Kyrivo.",
+  "name": "Kyrivo — Import Vinted (prototype privé)",
+  "version": "0.2.0",
+  "description": "Regroupe les fiches Vinted d'une commande et prépare un brouillon unique à vérifier dans Kyrivo.",
   "permissions": ["activeTab", "scripting", "storage"],
   "action": {
     "default_title": "Kyrivo — Import Vinted",
