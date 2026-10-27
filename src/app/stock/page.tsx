@@ -567,7 +567,7 @@ export default function StockPage() {
                       {item.category && <p className="mt-1 break-words text-xs text-neutral-500">{item.category}</p>}
                       {item.item_size && (
                         <p className="mt-1 text-xs font-semibold text-amber-300">
-                          Taille / Pointure : {item.item_size}
+                          Info : {item.item_size}
                         </p>
                       )}
                     </div>
@@ -632,7 +632,7 @@ export default function StockPage() {
                       className="px-4 py-3.5 text-left text-[11px] font-semibold text-neutral-500 uppercase tracking-wider"
                     />
                     <SortableTh
-                      label="Taille / Pointure"
+                      label="Info"
                       sortKey="item_size"
                       sortConfig={sortConfig}
                       onSort={handleSort}
@@ -876,7 +876,7 @@ function StockEditModal({
     const parsed = parseInt(trimmed, 10);
 
     if (itemSize.trim().length > 32) {
-      setFieldError("La taille / pointure ne peut pas dépasser 32 caractères.");
+      setFieldError("L’information ne peut pas dépasser 32 caractères.");
       return;
     }
 
@@ -986,7 +986,7 @@ function StockEditModal({
 
           <div>
             <label htmlFor="stock-item-size" className="block text-[11px] font-semibold text-neutral-500 mb-2 uppercase tracking-wider">
-              Taille / Pointure (facultatif)
+              Info (taille, pointure, couleur…)
             </label>
             <input
               id="stock-item-size"
@@ -994,7 +994,7 @@ function StockEditModal({
               maxLength={32}
               value={itemSize}
               onChange={(e) => setItemSize(e.target.value)}
-              placeholder="Ex. S, M, XL, 42, 42,5"
+              placeholder="Ex. M, 42, rouge, édition spéciale"
               className="w-full rounded-lg border border-neutral-800 bg-neutral-900/60 px-3 py-2.5 text-base text-neutral-200 placeholder:text-neutral-400 focus:border-amber-500/40 focus:outline-none focus:ring-1 focus:ring-amber-500/15 sm:text-sm"
             />
           </div>

@@ -465,7 +465,7 @@ setForm({
         }
 
         if (item.taille.length > MAX_TEXT.taille) {
-          errs[`item-${item.id}-taille`] = `${prefix} : taille trop longue`;
+          errs[`item-${item.id}-taille`] = `${prefix} : information trop longue (32 caractères maximum)`;
         }
 
         if (item.notes.length > MAX_TEXT.notes) {
@@ -1083,14 +1083,14 @@ const buildPayload = (): Achat => {
 
                   <div className="min-w-0 sm:max-w-[260px]">
                     <label htmlFor={`purchase-size-${item.id}`} className={lineLabelClasses}>
-                      Taille / Pointure (facultatif)
+                      Info (taille, pointure, couleur…)
                     </label>
                     <input
                       id={`purchase-size-${item.id}`}
                       type="text"
                       value={item.taille}
                       onChange={(e) => updateItem(item.id, "taille", e.target.value)}
-                      placeholder="Ex. M, XL, 42, 42,5"
+                      placeholder="Ex. M, 42, rouge, édition spéciale"
                       maxLength={MAX_TEXT.taille}
                       className={inputClasses}
                     />

@@ -15,7 +15,7 @@ test("achats : chaque nom détaillé est visible dans la liste, catégorie conse
   assert.match(table, /label="Article\(s\)"/);
 });
 
-test("taille : saisie facultative et persistée à la création comme à la modification", () => {
+test("info : saisie facultative et persistée à la création comme à la modification", () => {
   const form = source("src/components/achats/AchatFormModal.tsx");
   const page = source("src/app/achats/page.tsx");
   const types = source("src/types/achat.ts");
@@ -30,16 +30,28 @@ test("taille : saisie facultative et persistée à la création comme à la modi
   assert.match(purchases, /item_size\?: string \| null/);
 });
 
-test("stock : taille visible mobile/desktop, recherchable et modifiable", () => {
+test("stock : info visible mobile/desktop, recherchable et modifiable", () => {
   const stock = source("src/app/stock/page.tsx");
   const detail = source("src/app/items/[id]/page.tsx");
   assert.match(stock, /item_name, item_size, category/);
-  assert.match(stock, /label="Taille \/ Pointure"/);
-  assert.match(stock, /Taille \/ Pointure : \{item\.item_size\}/);
+  assert.match(stock, /label="Info"/);
+  assert.match(stock, /Info : \{item\.item_size\}/);
   assert.match(stock, /\[item\.item_reference, item\.item_name, item\.item_size \?\? ""/);
   assert.match(stock, /item_size: itemSize\.trim\(\) \|\| null/);
   assert.match(stock, /item_size: itemSize/);
-  assert.match(detail, /label="Taille \/ Pointure" value=\{item\.item_size \|\| "—"\}/);
+  assert.match(detail, /label="Info" value=\{item\.item_size \|\| "—"\}/);
+});
+
+test("info : libellés génériques identiques sur formulaires et vues", () => {
+  const form = source("src/components/achats/AchatFormModal.tsx");
+  const stock = source("src/app/stock/page.tsx");
+  const detail = source("src/app/items/[id]/page.tsx");
+  assert.match(form, /Info \(taille, pointure, couleur…\)/);
+  assert.match(stock, /Info \(taille, pointure, couleur…\)/);
+  assert.match(stock, /label="Info"/);
+  assert.match(detail, /label="Info"/);
+  assert.match(form, /placeholder="Ex. M, 42, rouge, édition spéciale"/);
+  assert.doesNotMatch(stock, /Taille \/ Pointure/);
 });
 
 test("base : champ nullable, limité à 32 caractères, aucune migration de données", () => {
