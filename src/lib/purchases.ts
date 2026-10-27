@@ -94,6 +94,7 @@ export async function createPurchaseItems(
     purchase_document_id: string;
     company_id: string;
     item_name: string;
+    item_size?: string | null;
     item_reference?: string;
     category?: string;
     quantity: number;

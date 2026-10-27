@@ -30,6 +30,7 @@ export interface AchatItemInput {
   quantite: number;
   modeMontant: "ht" | "ttc";
   notes?: string;
+  taille?: string;
 }
 
 export interface AchatArticle {
@@ -45,6 +46,7 @@ export interface AchatArticle {
   fiscalCostReviewRequired?: boolean;
   statut: ItemStatus;
   notes?: string;
+  taille?: string;
 }
 
 export interface Achat {

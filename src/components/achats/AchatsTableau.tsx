@@ -32,7 +32,7 @@ function getAchatSortValue(achat: Achat, key: AchatSortKey) {
     case "fournisseur":
       return achat.fournisseur;
     case "produit":
-      return achat.produit;
+      return achat.articles?.map((article) => article.nom).join(" ") || achat.produit;
     case "type":
       return achat.type;
     case "prixHT":
@@ -147,7 +147,7 @@ export default function AchatsTableau({
                 className="px-2 sm:px-4 py-3.5 text-left text-[11px] font-semibold text-neutral-400 uppercase tracking-wider"
               />
               <SortableTh
-                label="Produit"
+                label="Article(s)"
                 sortKey="produit"
                 sortConfig={sortConfig}
                 onSort={handleSort}
@@ -230,8 +230,19 @@ export default function AchatsTableau({
                   )}
                 </td>
 
-                <td className="px-2 sm:px-4 py-3.5 text-neutral-400 max-w-[100px] sm:max-w-[180px] truncate">
-                  {achat.produit}
+                <td className="px-2 sm:px-4 py-3.5 min-w-[180px] max-w-[320px] align-top">
+                  {achat.articles?.length ? (
+                    <div className="space-y-1">
+                      {achat.articles.map((article) => (
+                        <p key={article.id} className="break-words text-xs font-medium text-neutral-200 sm:text-sm">
+                          {article.nom}
+                        </p>
+                      ))}
+                      <p className="break-words text-[11px] text-neutral-500">{achat.produit}</p>
+                    </div>
+                  ) : (
+                    <span className="break-words text-neutral-400">{achat.produit}</span>
+                  )}
                 </td>
 
                 <td className="hidden sm:table-cell px-2 sm:px-4 py-3.5">

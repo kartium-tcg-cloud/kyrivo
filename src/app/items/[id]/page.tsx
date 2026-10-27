@@ -224,6 +224,7 @@ export default async function ItemDetailPage({ params }: PageProps) {
 
           <div className="space-y-0 text-sm mt-4">
             <DetailRow label="Référence" value={item.item_reference} mono />
+            <DetailRow label="Taille / Pointure" value={item.item_size || "—"} />
             <DetailRow label="Quantité initiale" value={String(initialQuantity)} />
             <DetailRow label="Stock restant" value={String(stockQuantity)} />
             <DetailRow label="Coût unitaire TTC" value={prices.unitTTC === null ? "—" : formatEuro(prices.unitTTC)} />

@@ -27,6 +27,7 @@ interface AchatItem {
   cout: string;
   modeMontant: "ht" | "ttc";
   notes: string;
+  taille: string;
   quantite: string;
 }
 
@@ -46,6 +47,7 @@ function emptyItem(): AchatItem {
     cout: "",
     modeMontant: "ttc",
     notes: "",
+    taille: "",
   };
 }
 
@@ -54,6 +56,7 @@ const MAX_TEXT = {
   produit: 120,
   commentaire: 1000,
   articleNom: 150,
+  taille: 32,
   notes: 1000,
 };
 
@@ -198,7 +201,7 @@ useEffect(() => {
         setItems(itemNames.map((nom, index) => ({
           id: genId(), nom: nom.slice(0, 150), quantite: "1",
           cout: ((unitCents + (index < remainder ? 1 : 0)) / 100).toFixed(2),
-          modeMontant: "ttc" as const, notes: "",
+          modeMontant: "ttc" as const, notes: "", taille: "",
         })));
         const newFees: TransactionFeeDraft[] = [];
         for (const [category, label, amount] of [
@@ -254,6 +257,7 @@ setForm({
                 : String(article.coutHT),
             modeMontant: article.coutTTC !== undefined ? "ttc" : "ht",
             notes: article.notes || "",
+            taille: article.taille || "",
           }))
         : []
     );
@@ -460,6 +464,10 @@ setForm({
           errs[`item-${item.id}-cout`] = `${prefix} : coût invalide`;
         }
 
+        if (item.taille.length > MAX_TEXT.taille) {
+          errs[`item-${item.id}-taille`] = `${prefix} : taille trop longue`;
+        }
+
         if (item.notes.length > MAX_TEXT.notes) {
           errs[`item-${item.id}-notes`] = `${prefix} : notes trop longues`;
         }
@@ -520,6 +528,7 @@ const buildPayload = (): Achat => {
         quantite: Number(item.quantite) || 1,
         modeMontant: item.modeMontant,
         notes: item.notes.trim() || undefined,
+        taille: item.taille.trim() || undefined,
       }))
     : [];
 
@@ -1070,6 +1079,24 @@ const buildPayload = (): Achat => {
                         </p>
                       )}
                     </div>
+                  </div>
+
+                  <div className="min-w-0 sm:max-w-[260px]">
+                    <label htmlFor={`purchase-size-${item.id}`} className={lineLabelClasses}>
+                      Taille / Pointure (facultatif)
+                    </label>
+                    <input
+                      id={`purchase-size-${item.id}`}
+                      type="text"
+                      value={item.taille}
+                      onChange={(e) => updateItem(item.id, "taille", e.target.value)}
+                      placeholder="Ex. M, XL, 42, 42,5"
+                      maxLength={MAX_TEXT.taille}
+                      className={inputClasses}
+                    />
+                    {erreurs[`item-${item.id}-taille`] && (
+                      <p className={erreurClasses}>{erreurs[`item-${item.id}-taille`]}</p>
+                    )}
                   </div>
 
                   <div className="grid min-w-0 grid-cols-1 gap-3 lg:grid-cols-[110px_minmax(0,1fr)_minmax(140px,auto)]">
