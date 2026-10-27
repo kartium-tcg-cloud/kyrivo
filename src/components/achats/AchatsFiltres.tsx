@@ -23,7 +23,7 @@ export default function AchatsFiltres({
 
   // Classes partagées pour tous les inputs
   const inputBase = `
-    w-full rounded-lg px-3 py-2.5 text-base sm:text-sm
+    w-full rounded-lg px-3 py-2.5 text-base lg:text-sm
     bg-neutral-900/60 text-neutral-200
     border border-neutral-800
     placeholder:text-neutral-500
