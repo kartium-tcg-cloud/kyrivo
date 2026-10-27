@@ -37,8 +37,8 @@ test("Stock : cartes jusqu'au format tablette et actions tactiles", () => {
   assert.match(src, /hidden overflow-x-auto lg:block/);
   assert.match(src, /min-h-11 flex-1 items-center justify-center/);
   assert.match(src, /window\.matchMedia\("\(hover: hover\) and \(pointer: fine\)"\)/);
-  assert.match(src, /py-2 pl-9 pr-3 text-base sm:text-sm/);
-  assert.match(src, /py-2\.5 text-base sm:text-sm/);
+  assert.match(src, /py-2 pl-9 pr-3 text-base lg:text-sm/);
+  assert.match(src, /py-2\.5 text-base lg:text-sm/);
 });
 
 test("Formulaires : champs et actions lisibles avec le clavier iOS", () => {
@@ -47,7 +47,7 @@ test("Formulaires : champs et actions lisibles avec le clavier iOS", () => {
   const vinted = read("src/components/achats/VintedItemsEditModal.tsx");
   const modal = read("src/components/ui/Modal.tsx");
   assert.match(achat, /grid-cols-1 gap-3 sm:grid-cols-\[80px_minmax\(0,1fr\)\]/);
-  assert.match(filters, /py-2\.5 text-base sm:text-sm/);
+  assert.match(filters, /py-2\.5 text-base lg:text-sm/);
   assert.match(vinted, /min-h-11 flex-1 rounded-lg bg-amber-500/);
   assert.match(modal, /min-h-11 min-w-11/);
 });
