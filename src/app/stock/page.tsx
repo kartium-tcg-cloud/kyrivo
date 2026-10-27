@@ -495,7 +495,7 @@ export default function StockPage() {
                 onChange={(e) => setSearch(e.target.value)}
                 className="
                   w-full rounded-lg border border-neutral-700/50
-                  bg-neutral-800/60 py-2 pl-9 pr-3 text-base sm:text-sm text-neutral-200
+                  bg-neutral-800/60 py-2 pl-9 pr-3 text-base lg:text-sm text-neutral-200
                   placeholder:text-neutral-500
                   focus:border-amber-500/50 focus:outline-none focus:ring-1 focus:ring-amber-500/20
                   transition-colors duration-200
@@ -508,7 +508,7 @@ export default function StockPage() {
               onChange={(e) => setFilterCategory(e.target.value)}
               className="
                 rounded-lg border border-neutral-700/50
-                bg-neutral-800/60 px-3 py-2 text-base sm:text-sm text-neutral-200
+                bg-neutral-800/60 px-3 py-2 text-base lg:text-sm text-neutral-200
                 focus:border-amber-500/50 focus:outline-none focus:ring-1 focus:ring-amber-500/20
                 transition-colors duration-200
               "
@@ -979,7 +979,7 @@ function StockEditModal({
               maxLength={150}
               value={itemName}
               onChange={(e) => setItemName(e.target.value)}
-              className="w-full rounded-lg border border-neutral-800 bg-neutral-900/60 px-3 py-2.5 text-base text-neutral-200 focus:border-amber-500/40 focus:outline-none sm:text-sm"
+              className="w-full rounded-lg border border-neutral-800 bg-neutral-900/60 px-3 py-2.5 text-base text-neutral-200 focus:border-amber-500/40 focus:outline-none lg:text-sm"
             />
           </div>
 
@@ -993,7 +993,7 @@ function StockEditModal({
               maxLength={120}
               value={itemCategory}
               onChange={(e) => setItemCategory(e.target.value)}
-              className="w-full rounded-lg border border-neutral-800 bg-neutral-900/60 px-3 py-2.5 text-base text-neutral-200 focus:border-amber-500/40 focus:outline-none sm:text-sm"
+              className="w-full rounded-lg border border-neutral-800 bg-neutral-900/60 px-3 py-2.5 text-base text-neutral-200 focus:border-amber-500/40 focus:outline-none lg:text-sm"
             />
           </div>
 
@@ -1008,7 +1008,7 @@ function StockEditModal({
               value={itemSize}
               onChange={(e) => setItemSize(e.target.value)}
               placeholder="Ex. M, 42, rouge, édition spéciale"
-              className="w-full rounded-lg border border-neutral-800 bg-neutral-900/60 px-3 py-2.5 text-base text-neutral-200 placeholder:text-neutral-400 focus:border-amber-500/40 focus:outline-none focus:ring-1 focus:ring-amber-500/15 sm:text-sm"
+              className="w-full rounded-lg border border-neutral-800 bg-neutral-900/60 px-3 py-2.5 text-base text-neutral-200 placeholder:text-neutral-400 focus:border-amber-500/40 focus:outline-none focus:ring-1 focus:ring-amber-500/15 lg:text-sm"
             />
           </div>
 
@@ -1022,7 +1022,7 @@ function StockEditModal({
               maxLength={1000}
               value={itemNotes}
               onChange={(e) => setItemNotes(e.target.value)}
-              className="w-full rounded-lg border border-neutral-800 bg-neutral-900/60 px-3 py-2.5 text-base text-neutral-200 focus:border-amber-500/40 focus:outline-none sm:text-sm"
+              className="w-full rounded-lg border border-neutral-800 bg-neutral-900/60 px-3 py-2.5 text-base text-neutral-200 focus:border-amber-500/40 focus:outline-none lg:text-sm"
             />
           </div>
 
@@ -1043,7 +1043,7 @@ function StockEditModal({
               onWheel={(e) => e.currentTarget.blur()}
               placeholder="0"
               className={`
-                w-full rounded-lg px-3 py-2.5 text-base sm:text-sm
+                w-full rounded-lg px-3 py-2.5 text-base lg:text-sm
                 bg-neutral-900/60 text-neutral-200
                 border ${fieldError ? "border-red-500/50" : "border-neutral-800"}
                 placeholder:text-neutral-400
