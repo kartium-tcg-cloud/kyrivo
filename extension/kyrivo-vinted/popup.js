@@ -44,9 +44,27 @@ function draw() {
       draw();
     });
     li.append(span, remove);
+    const price = document.createElement("input");
+    price.className = "price-input";
+    price.type = "text";
+    price.inputMode = "decimal";
+    price.placeholder = "Prix affiché (€)";
+    price.setAttribute("aria-label", "Prix affiché pour " + item.title);
+    price.value = item.displayPrice.replace(/\s*€\s*$/, "");
+    price.addEventListener("change", async () => {
+      const raw = price.value.trim();
+      item.displayPrice = raw ? raw.replace(/\s*€\s*$/, "") + " €" : "";
+      await save();
+      draw();
+    });
+    li.append(price);
     itemsNode.append(li);
   }
   const o = workspace.order;
+  for (const key of ["sellerPrice", "shippingFee", "buyerProtectionFee", "paidTotal"]) {
+    const input = document.getElementById(key);
+    input.value = String(o[key] || "").replace(/\s*€\s*$/, "");
+  }
   const known = [
     o.sellerPrice && "Prix vendeur : " + o.sellerPrice,
     o.shippingFee && "Livraison : " + o.shippingFee,
@@ -146,6 +164,15 @@ function captureCurrentVintedPage() {
   };
 }
 
+for (const key of ["sellerPrice", "shippingFee", "buyerProtectionFee", "paidTotal"]) {
+  document.getElementById(key).addEventListener("change", async event => {
+    const raw = event.target.value.trim();
+    workspace.order[key] = raw ? raw.replace(/\s*€\s*$/, "") + " €" : "";
+    await save();
+    draw();
+  });
+}
+
 document.querySelectorAll("input[name=kind]").forEach(input => {
   input.addEventListener("change", async () => {
     if (workspace.items.length && selectedKind() !== workspace.kind) {
@@ -198,7 +225,7 @@ captureButton.addEventListener("click", async () => {
       }
     }
     for (const [key, value] of Object.entries(capture.order || {})) {
-      if (value) workspace.order[key] = value;
+      if (value && !workspace.order[key]) workspace.order[key] = value;
     }
     // Aucun lien sur la page récapitulative ? Retenir tout de même les frais
     // pour que l'utilisateur puisse ensuite ouvrir chaque fiche une par une.
