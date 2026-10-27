@@ -26,9 +26,9 @@ type GroupCapture = {
 
 function euros(value: unknown): number | null {
   if (typeof value !== "string" || !value || value.length > 40) return null;
-  const match = value.match(/(?:\\d{1,3}(?:[ .\\u00a0\\u202f]\\d{3})+|\\d+)(?:[,.]\\d{1,2})?\\s*€/);
+  const match = value.match(/(?:\d{1,3}(?:[ .\u00a0\u202f]\d{3})+|\d+)(?:[,.]\d{1,2})?\s*€/);
   if (!match) return null;
-  const number = Number(match[0].replace(/[€\\s\\u00a0\\u202f]/g, "").replace(",", "."));
+  const number = Number(match[0].replace(/[€\s\u00a0\u202f]/g, "").replace(",", "."));
   return Number.isFinite(number) && number >= 0 && number <= 999999
     ? Math.round(number * 100) / 100 : null;
 }
@@ -49,20 +49,20 @@ function groupDraft(capture: GroupCapture): VintedDraft | null {
   const ids = new Set<string>();
   for (const raw of capture.items) {
     if (!isObject(raw) || typeof raw.itemId !== "string" ||
-        !/^\\d{4,20}$/.test(raw.itemId) || typeof raw.title !== "string" ||
+        !/^\d{4,20}$/.test(raw.itemId) || typeof raw.title !== "string" ||
         !raw.title.trim() || raw.title.length > 150 ||
         typeof raw.url !== "string" || raw.url.length > 400 ||
         (raw.displayPrice !== undefined &&
           (typeof raw.displayPrice !== "string" || raw.displayPrice.length > 40))) continue;
     let url: URL;
     try { url = new URL(raw.url); } catch { continue; }
-    const urlId = url.pathname.match(/^\\/items\\/(\\d{4,20})(?:[\\/-]|$)/)?.[1];
+    const urlId = url.pathname.match(/^\/items\/(\d{4,20})(?:[\/-]|$)/)?.[1];
     if (url.protocol !== "https:" || !VINTED_HOST.test(url.hostname) ||
         urlId !== raw.itemId || ids.has(raw.itemId)) continue;
     ids.add(raw.itemId);
     items.push({
       itemId: raw.itemId,
-      title: raw.title.trim().replace(/\\s+/g, " "),
+      title: raw.title.trim().replace(/\s+/g, " "),
       price: euros(raw.displayPrice || ""),
     });
   }
