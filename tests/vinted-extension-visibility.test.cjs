@@ -15,7 +15,7 @@ test("la page publique d'import Vinted ne fait pas la promotion de l'extension e
 
 test("le transfert privé reste actif pour les essais du propriétaire", () => {
   const source = fs.readFileSync(path.join(__dirname, "../src/app/import-vinted/page.tsx"), "utf8");
-  assert.match(source, /searchParams\(window\.location\.search\)\.get\("extension"\)/);
+  assert.match(source, /new URLSearchParams\(window\.location\.search\)\.get\("extension"\)/);
   assert.match(source, /parseVintedExtensionCapture\(event\.data\.payload\)/);
   assert.match(source, /addVintedDrafts\(companyId, drafts\)/);
   assert.match(source, /KYRIVO_VINTED_REQUEST_V1/);
