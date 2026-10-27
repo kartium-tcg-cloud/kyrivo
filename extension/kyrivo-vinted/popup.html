@@ -8,22 +8,36 @@
 </head>
 <body>
   <main>
-    <header><span class="mark">K</span><div><h1>Kyrivo</h1><p>Import Vinted <span class="beta">prototype</span></p></div></header>
-    <p class="intro">Ouvrez sur Vinted une page affichant vos achats ou ventes, puis demandez une lecture des articles visibles.</p>
+    <header><span class="mark">K</span><div><h1>Kyrivo</h1><p>Import Vinted <span class="beta">prototype privé</span></p></div></header>
+    <p class="intro">Une commande Vinted = un seul achat ou une seule vente Kyrivo, même avec plusieurs articles.</p>
     <fieldset>
-      <legend>Ce que vous consultez sur Vinted</legend>
-      <label><input type="radio" name="kind" value="sale" checked> Mes ventes</label>
-      <label><input type="radio" name="kind" value="purchase"> Mes achats</label>
+      <legend>Type de commande</legend>
+      <label><input type="radio" name="kind" value="purchase" checked> Achat</label>
+      <label><input type="radio" name="kind" value="sale"> Vente</label>
     </fieldset>
-    <button id="capture" class="primary">Lire cette page Vinted</button>
+    <label class="intro" for="expected">Nombre d’articles dans cette commande : <input id="expected" type="number" min="1" max="60" value="1" style="width:62px;padding:5px;background:#243140;color:#fff;border:1px solid #586775;border-radius:6px;font-size:16px"></label>
+    <div class="actions">
+      <button id="reset" class="secondary">Nouvelle commande</button>
+      <button id="capture" class="primary">Ajouter cette page Vinted</button>
+    </div>
+    <p class="intro">Sur une commande de plusieurs articles : ouvrez chaque fiche sur Vinted et cliquez sur « Ajouter cette page ». Revenez ensuite ici pour la suivante. Les fiches sont regroupées dans <strong>une seule commande</strong>.</p>
     <p id="status" role="status" aria-live="polite"></p>
-    <section id="preview" hidden>
-      <h2>Articles détectés : <span id="count">0</span></h2>
-      <p class="caution">Il s'agit d'une lecture de la page, pas d'un relevé de transactions vérifié. Les prix et dates seront à contrôler dans Kyrivo.</p>
+    <section id="preview">
+      <h2>Commande en cours · <span id="count">0</span> article(s)</h2>
       <ul id="items"></ul>
-      <button id="send" class="primary">Envoyer à Kyrivo pour vérification</button>
+      <div class="caution">
+        <p>Montants de la commande (facultatifs, à vérifier)</p>
+        <div class="amount-grid">
+          <label>Prix vendeur (€)<input id="sellerPrice" inputmode="decimal" placeholder="Ex. 30,00"></label>
+          <label>Livraison (€)<input id="shippingFee" inputmode="decimal" placeholder="Ex. 3,00"></label>
+          <label>Protection (€)<input id="buyerProtectionFee" inputmode="decimal" placeholder="Ex. 1,00"></label>
+          <label>Total payé (€)<input id="paidTotal" inputmode="decimal" placeholder="Ex. 34,00"></label>
+        </div>
+      </div>
+      <p id="amounts" class="caution"></p>
+      <button id="send" class="primary" disabled>Envoyer cette commande à Kyrivo</button>
     </section>
-    <p class="disclaimer">Aucun mot de passe demandé. Aucune collecte en arrière-plan. Aucun enregistrement comptable sans validation.</p>
+    <p class="disclaimer">Prix affichés = propositions à vérifier. Les frais réellement payés viennent du récapitulatif de commande. Aucun mot de passe, aucune modification automatique du stock ou de la comptabilité.</p>
   </main>
   <script src="popup.js"></script>
 </body>

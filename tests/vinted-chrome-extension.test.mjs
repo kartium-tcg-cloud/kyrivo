@@ -69,7 +69,7 @@ test("formulaires : ne pas préremplir avec un faux zéro ou une fausse date", (
   const purchases = fs.readFileSync(new URL("../src/components/achats/AchatFormModal.tsx", import.meta.url), "utf8");
   const sales = fs.readFileSync(new URL("../src/components/ventes/VenteFormModal.tsx", import.meta.url), "utf8");
   assert.match(purchases, /fromExtension && d\.sellerPrice === null \? ""/);
-  assert.match(purchases, /fromExtension && d\.paidTotal === null \? ""/);
+  assert.match(purchases, /fromExtension && d\.paidTotal === null && d\.sellerPrice === null \? ""/);
   assert.match(purchases, /fromExtension \? "" : dateAujourdhui\(\)/);
   assert.match(sales, /fromExtension \? "" : dateAujourdhui\(\)/);
 });

@@ -15,7 +15,7 @@
       try {
         const stored = await chrome.storage.local.get(storageKey);
         const pending = stored[storageKey];
-        if (!pending || pending.schemaVersion !== 1 ||
+        if (!pending || (pending.schemaVersion !== 1 && pending.schemaVersion !== 2) ||
             typeof pending.timestamp !== "number" ||
             Date.now() - pending.timestamp > 30 * 60 * 1000) return;
         window.postMessage({ type: "KYRIVO_VINTED_CAPTURE_V1", payload: pending }, origin);

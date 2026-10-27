@@ -183,15 +183,19 @@ useEffect(() => {
       resetForm();
       if (importPrefill?.kind === "purchase") {
         const d = importPrefill;
-        const fromExtension = d.key.includes(":vinted-web:");
+        const fromExtension = d.key.includes(":vinted-web:") || d.key.includes(":vinted-group:");
         const seller = d.sellerPrice ?? 0;
         const itemNames = d.items.length ? d.items : [d.title || "Article Vinted"];
+        // Lots issus de l'extension : chaque prix détecté reste une proposition distincte.
+        // Ne jamais diviser arbitrairement le prix du lot entre les fiches.
+        const groupPrices = d.key.includes(":vinted-group:") ? d.itemPrices : undefined;
         const totalCents = Math.round(seller * 100);
         const unitCents = Math.floor(totalCents / itemNames.length);
         const remainder = totalCents % itemNames.length;
         setForm({
           date: d.date || (fromExtension ? "" : dateAujourdhui()), fournisseur: d.counterparty || "Vendeur Vinted",
-          produit: "Vinted", type: "particulier", prixHT: fromExtension && d.paidTotal === null ? "" : String(d.paidTotal ?? seller),
+          produit: "Vinted", type: "particulier", prixHT:
+            fromExtension && d.paidTotal === null && d.sellerPrice === null ? "" : String(d.paidTotal ?? seller),
           commentaire: d.orderReference ? "Commande Vinted n° " + d.orderReference : fromExtension ? "Article repéré sur Vinted (extension, montants à vérifier)" : "Achat importé de Vinted",
           paiement: d.paymentDescription.toLowerCase().includes("bancontact") && !d.paymentDescription.toLowerCase().includes("porte-monnaie")
             ? "Bancontact" : "Vinted",
@@ -201,7 +205,10 @@ useEffect(() => {
         setAvecStock(true);
         setItems(itemNames.map((nom, index) => ({
           id: genId(), nom: nom.slice(0, 150), quantite: "1",
-          cout: fromExtension && d.sellerPrice === null ? "" : ((unitCents + (index < remainder ? 1 : 0)) / 100).toFixed(2),
+          cout: groupPrices
+            ? (groupPrices[index] != null ? groupPrices[index]!.toFixed(2) : "")
+            : fromExtension && d.sellerPrice === null ? ""
+              : ((unitCents + (index < remainder ? 1 : 0)) / 100).toFixed(2),
           modeMontant: "ttc" as const, notes: "", taille: "",
         })));
         const newFees: TransactionFeeDraft[] = [];
