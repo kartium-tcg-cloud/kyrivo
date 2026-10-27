@@ -25,6 +25,15 @@
     <section id="preview">
       <h2>Commande en cours · <span id="count">0</span> article(s)</h2>
       <ul id="items"></ul>
+      <div class="caution">
+        <p>Montants de la commande (facultatifs, à vérifier)</p>
+        <div class="amount-grid">
+          <label>Prix vendeur (€)<input id="sellerPrice" inputmode="decimal" placeholder="Ex. 30,00"></label>
+          <label>Livraison (€)<input id="shippingFee" inputmode="decimal" placeholder="Ex. 3,00"></label>
+          <label>Protection (€)<input id="buyerProtectionFee" inputmode="decimal" placeholder="Ex. 1,00"></label>
+          <label>Total payé (€)<input id="paidTotal" inputmode="decimal" placeholder="Ex. 34,00"></label>
+        </div>
+      </div>
       <p id="amounts" class="caution"></p>
       <button id="send" class="primary" disabled>Envoyer cette commande à Kyrivo</button>
     </section>
