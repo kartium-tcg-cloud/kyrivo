@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { latestRelease } from "@/lib/releases";
+import { newsCategoryStyles } from "@/lib/news";
 
 const release = latestRelease;
 const CANONICAL = "https://kyrivo.fr/nouveautes/v1-1";
@@ -44,7 +45,7 @@ export default function VersionOneOnePage() {
       <article id="v1-1" className="space-y-10">
         <header className="border-b border-neutral-800/90 pb-9">
           <div className="flex flex-wrap items-center gap-3">
-            <span className="rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-bold text-neutral-950">
+            <span className={`rounded-lg border px-3 py-1.5 text-xs font-bold ${newsCategoryStyles["Mises à jour"].badge}`}>
               Version {release.version}
             </span>
             <time dateTime={release.dateISO} className="text-sm text-neutral-300">
