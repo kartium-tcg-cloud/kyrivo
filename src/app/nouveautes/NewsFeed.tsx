@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { newsArticles, newsCategories, type NewsCategory } from "@/lib/news";
+import { newsArticles, newsCategories, newsCategoryStyles, type NewsCategory } from "@/lib/news";
 
 export default function NewsFeed() {
   const [selectedCategories, setSelectedCategories] = useState<NewsCategory[]>([...newsCategories]);
@@ -26,6 +26,7 @@ export default function NewsFeed() {
         <div role="group" aria-labelledby="filters-title" className="flex flex-wrap gap-2.5">
           {newsCategories.map((category) => {
             const selected = selectedCategories.includes(category);
+            const style = newsCategoryStyles[category];
             return (
               <button
                 key={category}
@@ -34,11 +35,11 @@ export default function NewsFeed() {
                 onClick={() => toggleCategory(category)}
                 className={`inline-flex min-h-11 items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400 ${
                   selected
-                    ? "border-amber-500/60 bg-amber-500/15 text-amber-200 hover:bg-amber-500/25"
+                    ? style.selectedFilter
                     : "border-neutral-700 bg-neutral-900/60 text-neutral-400 hover:border-neutral-500 hover:text-neutral-200"
                 }`}
               >
-                <span aria-hidden="true" className={`flex h-4 w-4 items-center justify-center rounded border ${selected ? "border-amber-400 bg-amber-400 text-neutral-950" : "border-neutral-500"}`}>
+                <span aria-hidden="true" className={`flex h-4 w-4 items-center justify-center rounded border ${selected ? `${style.marker} text-neutral-950` : "border-neutral-500"}`}>
                   {selected && (
                     <svg className="h-3 w-3" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
                       <path d="m3 8 3 3 7-7" />
@@ -62,10 +63,10 @@ export default function NewsFeed() {
       {visibleArticles.length > 0 ? (
         <div className="grid gap-4">
           {visibleArticles.map((article) => (
-            <article key={article.slug} className="ky-panel group overflow-hidden rounded-2xl border border-neutral-700/70 bg-neutral-900/45 transition-colors hover:border-amber-500/40 hover:bg-neutral-900/65">
+            <article key={article.slug} className={`ky-panel group overflow-hidden rounded-2xl border border-l-4 border-neutral-700/70 bg-neutral-900/45 transition-colors hover:bg-neutral-900/65 ${newsCategoryStyles[article.category].cardAccent} ${newsCategoryStyles[article.category].cardHover}`}>
               <Link href={article.href} className="block rounded-2xl p-5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400 sm:p-7" aria-label={`Lire : ${article.title}`}>
                 <div className="mb-4 flex flex-wrap items-center gap-2.5">
-                  <span className="rounded-md border border-amber-500/30 bg-amber-500/10 px-2.5 py-1 text-xs font-bold text-amber-300">
+                  <span className={`rounded-md border px-2.5 py-1 text-xs font-bold ${newsCategoryStyles[article.category].badge}`}>
                     {article.category}
                   </span>
                   {article.eyebrow && (

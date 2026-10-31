@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { newsCategoryStyles } from "@/lib/news";
 
 const CANONICAL = "https://kyrivo.fr/nouveautes/import-vinted";
 const DATE_ISO = "2026-10-25";
@@ -72,7 +73,7 @@ export default function VintedBetaNewsPage() {
       <article className="space-y-10">
         <header className="border-b border-neutral-800/90 pb-9">
           <div className="flex flex-wrap items-center gap-2.5">
-            <span className="rounded-md border border-amber-500/30 bg-amber-500/10 px-2.5 py-1 text-xs font-bold text-amber-300">
+            <span className={`rounded-md border px-2.5 py-1 text-xs font-bold ${newsCategoryStyles["Actualité"].badge}`}>
               Actualité
             </span>
             <span className="rounded-md border border-amber-500/30 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-amber-200">
