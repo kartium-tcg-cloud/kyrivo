@@ -1,0 +1,21 @@
+name: News category colors
+on:
+  pull_request:
+    paths:
+      - "src/lib/news.ts"
+      - "src/app/nouveautes/**"
+      - "tests/news-category-colors.test.cjs"
+      - ".github/workflows/news-category-colors.yml"
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx next typegen
+      - run: npx tsc --noEmit
+      - run: node --test tests/news-category-colors.test.cjs tests/public-changelog.test.cjs tests/vinted-beta-announcement.test.cjs
