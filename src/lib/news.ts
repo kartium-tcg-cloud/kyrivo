@@ -67,6 +67,16 @@ export const onboardingGuide: NewsArticle = {
 /** Articles publics : ajouter une entrée ici pour qu'elle apparaisse dans Nouveautés. */
 export const newsArticles: NewsArticle[] = [
   {
+    slug: "cotisations-sociales",
+    href: "/nouveautes/cotisations-sociales",
+    category: "Mises à jour",
+    title: "Cotisations sociales et suivi des ventes : Kyrivo se simplifie",
+    summary: "Définissez un taux de cotisations facultatif par vente, visualisez votre chiffre d'affaires et votre marge après cotisations, et retrouvez immédiatement les noms des articles vendus.",
+    dateISO: "2026-11-27",
+    dateLabel: "27 novembre 2026",
+    eyebrow: "Gestion simplifiée",
+  },
+  {
     slug: "import-vinted",
     href: "/nouveautes/import-vinted",
     category: "Actualité",
