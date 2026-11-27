@@ -84,4 +84,5 @@ test("Annonce publiée dans la catégorie bleue Mises à jour", () => {
  assert.match(news,/category:\s*"Mises à jour"/);
  assert.match(article,/newsCategoryStyles\["Mises à jour"\]\.badge/);
  assert.match(article,/les encaissements vérifiés/i);
+ assert.match(read("src/app/sitemap.ts"),/\$\{BASE\}\/nouveautes\/cotisations-sociales/);
 });
