@@ -150,7 +150,7 @@ export async function upsertCompanyPreferences(
     (!Number.isFinite(preferences.defaultSocialContributionRate) ||
       preferences.defaultSocialContributionRate < 0 ||
       preferences.defaultSocialContributionRate > 100 ||
-      Math.round(preferences.defaultSocialContributionRate * 100) !== preferences.defaultSocialContributionRate * 100)) {
+      Math.abs(preferences.defaultSocialContributionRate * 100 - Math.round(preferences.defaultSocialContributionRate * 100)) > 1e-8)) {
     throw new Error("Le taux de cotisations doit être compris entre 0 et 100 %, avec deux décimales au maximum.");
   }
 
