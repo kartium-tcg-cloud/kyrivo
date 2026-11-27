@@ -4,6 +4,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { getCompanyPreferences } from "@/lib/preferences";
+import { socialContributionSummary } from "@/lib/socialContributions";
 import Modal from "@/components/ui/Modal";
 import TransactionFeesInline from "@/components/fees/TransactionFeesInline";
 import type { TransactionFeeDraft } from "@/lib/transactionFees";
@@ -49,6 +50,7 @@ type VentePayload = {
   vatAmount: number;
   totalTTC: number;
   marginAmount: number;
+  socialContributionRate: number | null;
   notes?: string;
   lines: SaleLineInput[];
   saveClient?: boolean;
@@ -122,6 +124,8 @@ importPrefill = null,
     useState<"ht" | "ttc">("ttc");
 
   const [defaultVatRate, setDefaultVatRate] = useState(21);
+  const [defaultSocialRate, setDefaultSocialRate] = useState<number | null>(null);
+  const [socialRate, setSocialRate] = useState("");
   const [lines, setLines] = useState<FormLine[]>([emptyLine()]);
   const [draftFees, setDraftFees] = useState<TransactionFeeDraft[]>([]);
   const [importStockChoice, setImportStockChoice] = useState<"yes" | "no" | null>(null);
@@ -186,6 +190,7 @@ useEffect(() => {
       if (Number.isFinite(prefs.defaultVatRate)) {
         setDefaultVatRate(prefs.defaultVatRate);
       }
+      setDefaultSocialRate(prefs.defaultSocialContributionRate);
     } catch (e) {
       console.error(e);
     }
@@ -264,6 +269,7 @@ useEffect(() => {
       return;
     }
 
+setSocialRate(venteInitiale.socialContributionRate == null ? "" : String(venteInitiale.socialContributionRate));
 setForm({
   date: venteInitiale.date,
   customerName: venteInitiale.customerName,
@@ -299,6 +305,14 @@ setForm({
     setErreurs([]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ouvert, venteInitiale, prefillItem, importPrefill]);
+
+  // A new sale inherits the optional default when loaded; a manual edit is preserved.
+  // An existing sale always keeps its recorded rate (including NULL), never today's default.
+  useEffect(() => {
+    if (ouvert && !venteInitiale && !isDirtyRef.current) {
+      setSocialRate(defaultSocialRate == null ? "" : String(defaultSocialRate));
+    }
+  }, [ouvert, venteInitiale, defaultSocialRate]);
 
   // Imported prices default to the company's VAT rate, even when preferences
   // arrive after the modal opens. Never overwrite a manually edited rate.
@@ -482,6 +496,7 @@ setForm({
       saveClient: false,
     });
     setModeMontantStandard("ttc");
+    setSocialRate(defaultSocialRate == null ? "" : String(defaultSocialRate));
     setLines([emptyLine(vatRate)]);
     setDraftFees([]);
     setImportStockChoice(null);
@@ -536,6 +551,14 @@ setForm({
         return;
       }
     }
+    const contributionRate = socialRate.trim() === "" ? null : Number(socialRate);
+    if (contributionRate !== null && (
+      !Number.isFinite(contributionRate) || contributionRate < 0 || contributionRate > 100 ||
+      Math.abs(contributionRate * 100 - Math.round(contributionRate * 100)) > 1e-8
+    )) {
+      setErreurs(["Le taux de cotisations doit être compris entre 0 et 100 %, avec deux décimales au maximum."]);
+      return;
+    }
     const validation = validateSale({
       customerName: form.customerName,
       vatMode: form.vatMode,
@@ -559,6 +582,7 @@ setForm({
       vatAmount: totals.vatAmount,
       totalTTC: totals.totalTTC,
       marginAmount: totals.marginAmount,
+      socialContributionRate: contributionRate,
       notes: form.notes.trim() || undefined,
       lines: mappedLines,
       saveClient: form.saveClient,
@@ -571,6 +595,12 @@ setForm({
       onAjouter(payload);
     }
   };
+
+  const numericSocialRate = socialRate.trim() === "" ? null : Number(socialRate);
+  const socialPreview = numericSocialRate !== null && Number.isFinite(numericSocialRate) &&
+    numericSocialRate >= 0 && numericSocialRate <= 100
+    ? socialContributionSummary({ revenueHT: totals.subtotalHT, margin: totals.marginAmount, rate: numericSocialRate })
+    : null;
 
   return (
     <>
@@ -1255,6 +1285,42 @@ setForm({
               </ul>
             </div>
           )}
+
+          <div className="rounded-lg border border-neutral-800 bg-neutral-900/40 px-4 py-3">
+            <label htmlFor="sale-social-rate" className={labelClasses}>Cotisations sociales estimées (%) · facultatif</label>
+            <input
+              id="sale-social-rate"
+              type="number"
+              min={0}
+              max={100}
+              step={0.01}
+              value={socialRate}
+              onChange={(e) => { isDirtyRef.current = true; setSocialRate(e.target.value); setErreurs([]); }}
+              onWheel={(e) => e.currentTarget.blur()}
+              placeholder="Non appliquées"
+              className={inputClasses}
+            />
+            <p className="mt-2 text-[11px] leading-relaxed text-neutral-500">
+              Laissez vide si non concerné. Estimation sur le chiffre d'affaires hors TVA de la vente,
+              sans modifier la TVA, les prix ni les factures.
+            </p>
+            {socialPreview && (
+              <div className="mt-3 space-y-1.5 border-t border-neutral-800 pt-3 text-xs">
+                <div className="flex items-center justify-between gap-2 text-neutral-300">
+                  <span>Cotisations estimées</span>
+                  <span className="tabular-nums text-amber-300">{socialPreview.contribution.toFixed(2)} €</span>
+                </div>
+                <div className="flex items-center justify-between gap-2 text-neutral-300">
+                  <span>CA HT après cotisations</span>
+                  <span className="tabular-nums">{socialPreview.revenueAfter.toFixed(2)} €</span>
+                </div>
+                <div className="flex items-center justify-between gap-2 text-emerald-300">
+                  <span>Marge estimée après cotisations</span>
+                  <span className="tabular-nums">{socialPreview.marginAfter.toFixed(2)} €</span>
+                </div>
+              </div>
+            )}
+          </div>
 
           <div>
             <label className={labelClasses}>Mode de paiement</label>
