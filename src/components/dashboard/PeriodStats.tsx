@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { getTransactionFees } from "@/lib/feeQueries";
 import { getSaleLines } from "@/lib/sales";
 import { estimateSaleProfit } from "@/lib/estimatedSaleProfit";
+import { socialContributionAmount } from "@/lib/socialContributions";
 import type { Sale, SaleLine } from "@/types/sale";
 import { EvolutionChart, ProfitBridge, type EvolutionPoint } from "./PeriodCharts";
 
@@ -22,6 +23,11 @@ interface Stats {
   margeVentesCalculee: number;
   ventesAvecMarge: number;
   nombreVentes: number;
+  ventesAvecCotisations: number;
+  caHT: number;
+  cotisationsEstimees: number;
+  caApresCotisations: number;
+  margeApresCotisationsVerifiable: number;
 }
 
 type Granularity = "day" | "week" | "month";
@@ -184,7 +190,7 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
               .lte("purchase_date", dateFin),
             supabase
               .from("sales")
-              .select("id, total_ttc, vat_amount, sale_date, vat_mode")
+              .select("id, total_ttc, subtotal_ht, vat_amount, social_contribution_rate, sale_date, vat_mode")
               .eq("company_id", companyId)
               .gte("sale_date", dateDebut)
               .lte("sale_date", dateFin),
@@ -237,7 +243,12 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
           });
         }
         let margeCents = 0;
+        let margeApresCotisationsCents = 0;
         let ventesAvecMarge = 0;
+        const ventesAvecCotisations = (ventes ?? []).filter(v => v.social_contribution_rate != null).length;
+        const caHT = round2((ventes ?? []).reduce((sum, v) => sum + Number(v.subtotal_ht ?? 0), 0));
+        const cotisationsEstimees = round2((ventes ?? []).reduce((sum, v) =>
+          sum + (socialContributionAmount(Number(v.subtotal_ht ?? 0), v.social_contribution_rate == null ? null : Number(v.social_contribution_rate)) ?? 0), 0));
         for (const v of ventes ?? []) {
           const guess = estimateSaleProfit({
             id: String(v.id), vatMode: v.vat_mode,
@@ -245,6 +256,8 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
           } as Sale, feesBySale.get(String(v.id)) ?? []);
           if (guess !== null) {
             margeCents += Math.round(guess * 100);
+            const social = socialContributionAmount(Number(v.subtotal_ht ?? 0), v.social_contribution_rate == null ? null : Number(v.social_contribution_rate)) ?? 0;
+            margeApresCotisationsCents += Math.round((guess - social) * 100);
             ventesAvecMarge += 1;
           }
         }
@@ -252,6 +265,9 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
           depenses, recettes, tvaCollectee, tvaDeductible, soldeTva, resultatNet,
           margeVentesCalculee: margeCents / 100,
           ventesAvecMarge, nombreVentes: (ventes ?? []).length,
+          ventesAvecCotisations, caHT, cotisationsEstimees,
+          caApresCotisations: round2(caHT - cotisationsEstimees),
+          margeApresCotisationsVerifiable: margeApresCotisationsCents / 100,
         });
 
         // Évolution par bucket (jour / semaine / mois) — même formule que ci-dessus,
@@ -518,6 +534,28 @@ export default function PeriodStats({ companyId }: PeriodStatsProps) {
             </div>
 
           </div>
+
+          {stats.ventesAvecCotisations > 0 && (
+            <section aria-label="Cotisations sociales estimées" className="rounded-xl border border-blue-500/25 bg-blue-500/[0.05] p-4">
+              <div className="mb-3 text-xs font-semibold uppercase tracking-wide text-blue-200">Cotisations sociales · estimations sur les ventes de la période</div>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {([
+                  ["Chiffre d'affaires HT", stats.caHT],
+                  ["Cotisations estimées", stats.cotisationsEstimees],
+                  ["CA HT après cotisations", stats.caApresCotisations],
+                ] as const).map(([label, amount]) => (
+                  <div key={label} className="rounded-lg border border-neutral-800/80 bg-neutral-950/40 p-3">
+                    <div className="text-[11px] text-neutral-400">{label}</div>
+                    <div className="mt-1 text-xl font-semibold text-neutral-100 tabular-nums">{fmt(amount)}</div>
+                  </div>
+                ))}
+              </div>
+              {stats.ventesAvecMarge > 0 && (
+                <p className="mt-3 text-xs text-neutral-300">Marge économique estimée après frais et cotisations : <strong className="text-emerald-300">{fmt(stats.margeApresCotisationsVerifiable)}</strong> · {stats.ventesAvecMarge} vente(s) sur {stats.nombreVentes} avec coûts renseignés.</p>
+              )}
+              <p className="mt-2 text-[11px] text-neutral-500">Taux propres à chaque vente ; les ventes sans taux n'ont pas de cotisations estimées. Les encaissements effectifs ne sont pas suivis séparément.</p>
+            </section>
+          )}
 
           {stats.ventesAvecMarge > 0 && (
             <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
