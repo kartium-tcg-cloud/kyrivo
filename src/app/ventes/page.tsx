@@ -821,7 +821,7 @@ function VentesContent() {
           </div>
           <p className="mt-3 text-[11px] text-neutral-400">Estimations sur les ventes enregistrées et les taux saisis. Les ventes sans taux n'ont pas de cotisations estimées ; la marge dépend des coûts encodés. Les encaissements réels ne sont pas suivis séparément.</p>
         </section>
-      )
+      )}
 
       {ventes.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-xl border border-neutral-800/60 bg-neutral-900/40 shadow-sm shadow-black/20 px-6 py-20 text-center">
