@@ -21,7 +21,9 @@ function getModule(relativePath, overrides = {}) {
 }
 const calculations = getModule("../src/lib/saleCalculations.ts");
 const { exportPurchasesToExcel } = getModule("../src/lib/exportPurchases.ts");
+const social = getModule("../src/lib/socialContributions.ts");
 const { exportSalesToExcel } = getModule("../src/lib/exportSales.ts", {
+  "@/lib/socialContributions": social,
   "@/lib/saleCalculations": calculations,
 });
 const outputName = (kind) => `kyrivo-${kind}-${new Date().toISOString().slice(0,10)}.xlsx`;
