@@ -95,6 +95,8 @@ export interface Sale {
   vatAmount: number;
   totalTTC: number;
   marginAmount: number;
+  /** Recorded per sale; no recomputation from a subsequently changed default. */
+  socialContributionRate?: number | null;
   notes?: string;
   lines?: SaleLine[];
   saveClient?: boolean;
