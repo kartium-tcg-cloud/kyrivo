@@ -42,6 +42,7 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import TransactionFeesModal from "@/components/fees/TransactionFeesModal";
 import { getTransactionFees } from "@/lib/feeQueries";
+import { socialContributionAmount } from "@/lib/socialContributions";
 import type { TransactionFeeDraft } from "@/lib/transactionFees";
 
 import VentesHeader from "@/components/ventes/VentesHeader";
@@ -59,6 +60,7 @@ type VentePayload = {
   vatAmount: number;
   totalTTC: number;
   marginAmount: number;
+  socialContributionRate: number | null;
   notes?: string;
   lines: SaleLineInput[];
   saveClient?: boolean;
@@ -111,6 +113,7 @@ function mapSale(sale: any, saleLines: any[]): Sale {
     vatAmount: Number(sale.vat_amount),
     totalTTC: Number(sale.total_ttc),
     marginAmount: Number(sale.margin_amount || 0),
+    socialContributionRate: sale.social_contribution_rate == null ? null : Number(sale.social_contribution_rate),
     notes: sale.notes || undefined,
     invoiceNumber: sale.invoice_number || undefined,
     billedAt: sale.billed_at || undefined,
@@ -335,6 +338,18 @@ function VentesContent() {
     return ventesFiltrees.reduce((sum, vente) => sum + vente.marginAmount, 0);
   }, [ventesFiltrees]);
 
+  const socialRecap = useMemo(() => {
+    const enabled = ventesFiltrees.some((sale) => sale.socialContributionRate != null);
+    const caHT = Math.round(ventesFiltrees.reduce((sum, sale) => sum + sale.subtotalHT, 0) * 100) / 100;
+    const contributions = Math.round(ventesFiltrees.reduce((sum, sale) =>
+      sum + (socialContributionAmount(sale.subtotalHT, sale.socialContributionRate) ?? 0), 0) * 100) / 100;
+    return {
+      enabled, caHT, contributions,
+      revenueAfter: Math.round((caHT - contributions) * 100) / 100,
+      marginAfter: Math.round((totalMarge - contributions) * 100) / 100,
+    };
+  }, [ventesFiltrees, totalMarge]);
+
   const ouvrirConfirmationExport = () => {
     setExportConfirmOpen(true);
   };
@@ -481,6 +496,7 @@ function VentesContent() {
           vat_amount: vente.vatAmount,
           total_ttc: vente.totalTTC,
           margin_amount: vente.marginAmount,
+          social_contribution_rate: vente.socialContributionRate,
           notes: vente.notes,
           source_details: importPrefill ? { importKey: importPrefill.key, conversationReference: importPrefill.orderReference } : null,
           contact_id: resolvedContactId,
@@ -624,6 +640,7 @@ function VentesContent() {
         vat_amount: venteEnEdition.vatAmount,
         total_ttc: venteEnEdition.totalTTC,
         margin_amount: venteEnEdition.marginAmount,
+        social_contribution_rate: venteEnEdition.socialContributionRate ?? null,
         notes: venteEnEdition.notes,
         contact_id: venteEnEdition.contactId ?? null,
       };
@@ -648,6 +665,7 @@ function VentesContent() {
           vat_amount: vente.vatAmount,
           total_ttc: vente.totalTTC,
           margin_amount: vente.marginAmount,
+          social_contribution_rate: vente.socialContributionRate,
           notes: vente.notes,
           contact_id: vente.contactId ?? null,
         });
@@ -783,6 +801,27 @@ function VentesContent() {
         totalMarge={totalMarge}
         onAjouter={ouvrirAjout}
       />
+
+      {socialRecap.enabled && (
+        <section aria-label="Récapitulatif des cotisations sociales estimées" className="rounded-xl border border-blue-500/25 bg-blue-500/[0.05] p-4">
+          <div className="mb-3 text-xs font-semibold uppercase tracking-wide text-blue-200">Bilan avec cotisations sociales · ventes filtrées</div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+            {([
+              ["CA hors TVA", socialRecap.caHT],
+              ["Marge enregistrée", totalMarge],
+              ["Cotisations estimées", socialRecap.contributions],
+              ["CA HT après cotisations", socialRecap.revenueAfter],
+              ["Marge après cotisations", socialRecap.marginAfter],
+            ] as const).map(([label, amount]) => (
+              <div key={label} className="rounded-lg border border-neutral-800/80 bg-neutral-950/40 p-3">
+                <div className="text-[11px] text-neutral-400">{label}</div>
+                <div className="mt-1 text-lg font-semibold tabular-nums text-neutral-100">{amount.toLocaleString("fr-BE", { style: "currency", currency: "EUR" })}</div>
+              </div>
+            ))}
+          </div>
+          <p className="mt-3 text-[11px] text-neutral-400">Estimations sur les ventes enregistrées et les taux saisis. Les ventes sans taux n'ont pas de cotisations estimées ; la marge dépend des coûts encodés. Les encaissements réels ne sont pas suivis séparément.</p>
+        </section>
+      )
 
       {ventes.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-xl border border-neutral-800/60 bg-neutral-900/40 shadow-sm shadow-black/20 px-6 py-20 text-center">
