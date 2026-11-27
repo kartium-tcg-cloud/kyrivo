@@ -1,6 +1,7 @@
 import { Sale, SaleLine } from "@/types/sale";
 import type { TransactionFeeDraft } from "@/lib/transactionFees";
 import { calculateMarginVAT } from "@/lib/saleCalculations";
+import { socialContributionAmount } from "@/lib/socialContributions";
 
 // ── Colonnes ──────────────────────────────────────────────────────────────────
 //
@@ -33,6 +34,10 @@ type SaleExportRow = {
   "Frais de vente supportés TTC": number | "";
   "TVA récupérable sur frais déclarée": number | "";
   "Marge estimée après frais": number | "";
+  "Taux cotisations sociales": number | "";
+  "Cotisations sociales estimées": number | "";
+  "CA HT après cotisations": number | "";
+  "Marge estimée après frais et cotisations": number | "";
 
   // Détail ligne article
   Article: string;
@@ -60,6 +65,9 @@ const AMOUNT_COLS = new Set<string>([
   "Frais de vente supportés TTC",
   "TVA récupérable sur frais déclarée",
   "Marge estimée après frais",
+  "Cotisations sociales estimées",
+  "CA HT après cotisations",
+  "Marge estimée après frais et cotisations",
   "Montant TTC",
   "TVA indiquée",
   "TVA récupérable déclarée",
@@ -72,7 +80,7 @@ const AMOUNT_COLS = new Set<string>([
 ]);
 
 // Colonne taux TVA — format numérique + " %"
-const RATE_COLS = new Set<string>(["Taux TVA"]);
+const RATE_COLS = new Set<string>(["Taux TVA", "Taux cotisations sociales"]);
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -181,6 +189,7 @@ export async function exportSalesToExcel(ventes: Sale[], fees: TransactionFeeDra
     const feeGrossCents = saleFees.reduce((n, f) => n + Math.round(f.amountTTC * 100), 0);
     const feeRecoverableCents = saleFees.reduce((n, f) => n + Math.round(f.recoverableVatAmount * 100), 0);
     const saleFeeNet = (feeGrossCents - feeRecoverableCents) / 100;
+    const socialAmount = socialContributionAmount(vente.subtotalHT, vente.socialContributionRate);
 
     return lines.map((line, idx) => {
       const isFirst = idx === 0;
@@ -221,6 +230,11 @@ export async function exportSalesToExcel(ventes: Sale[], fees: TransactionFeeDra
         "Frais de vente supportés TTC": isFirst ? feeGrossCents / 100 : "",
         "TVA récupérable sur frais déclarée": isFirst ? feeRecoverableCents / 100 : "",
         "Marge estimée après frais": isFirst ? (totalEconomic === null ? "" : round2(totalEconomic - saleFeeNet)) : "",
+        "Taux cotisations sociales": isFirst && socialAmount !== null ? vente.socialContributionRate ?? "" : "",
+        "Cotisations sociales estimées": isFirst && socialAmount !== null ? socialAmount : "",
+        "CA HT après cotisations": isFirst && socialAmount !== null ? round2(vente.subtotalHT - socialAmount) : "",
+        "Marge estimée après frais et cotisations": isFirst && socialAmount !== null && totalEconomic !== null
+          ? round2(totalEconomic - saleFeeNet - socialAmount) : "",
 
         // Détail ligne
         Article:           line?.itemName        ?? "",
