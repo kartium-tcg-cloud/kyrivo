@@ -31,3 +31,11 @@ jobs:
       - run: npx next typegen
       - run: npx tsc --noEmit
       - run: node --test tests/social-contributions.test.cjs tests/estimated-sale-profit.test.cjs tests/news-category-colors.test.cjs tests/public-changelog.test.cjs tests/sale-vat-stock-autoselection.test.cjs tests/transaction-fee-exports.test.cjs tests/vinted-export-invoice.test.cjs
+      - name: Next.js production build smoke test
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: build_placeholder_key
+          SUPABASE_SERVICE_ROLE_KEY: build_placeholder_service_key
+          STRIPE_SECRET_KEY: sk_test_placeholder_for_build_only
+          STRIPE_WEBHOOK_SECRET: whsec_placeholder_for_build_only
