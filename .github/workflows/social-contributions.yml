@@ -15,6 +15,8 @@ on:
       - "src/app/nouveautes/**"
       - "supabase/migrations/20261127_optional_social_contributions.sql"
       - "tests/social-contributions.test.cjs"
+      - "tests/transaction-fee-exports.test.cjs"
+      - "tests/vinted-export-invoice.test.cjs"
       - ".github/workflows/social-contributions.yml"
 jobs:
   verify:
@@ -28,4 +30,4 @@ jobs:
       - run: npm ci
       - run: npx next typegen
       - run: npx tsc --noEmit
-      - run: node --test tests/social-contributions.test.cjs tests/estimated-sale-profit.test.cjs tests/news-category-colors.test.cjs tests/public-changelog.test.cjs tests/sale-vat-stock-autoselection.test.cjs
+      - run: node --test tests/social-contributions.test.cjs tests/estimated-sale-profit.test.cjs tests/news-category-colors.test.cjs tests/public-changelog.test.cjs tests/sale-vat-stock-autoselection.test.cjs tests/transaction-fee-exports.test.cjs tests/vinted-export-invoice.test.cjs
