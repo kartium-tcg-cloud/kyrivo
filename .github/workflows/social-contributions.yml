@@ -1,0 +1,31 @@
+name: Social contributions and sales clarity
+on:
+  pull_request:
+    paths:
+      - "src/lib/socialContributions.ts"
+      - "src/lib/exportSales.ts"
+      - "src/lib/preferences.ts"
+      - "src/lib/sales.ts"
+      - "src/types/**"
+      - "src/app/ventes/**"
+      - "src/app/preferences/**"
+      - "src/components/ventes/**"
+      - "src/components/dashboard/**"
+      - "src/lib/news.ts"
+      - "src/app/nouveautes/**"
+      - "supabase/migrations/20261127_optional_social_contributions.sql"
+      - "tests/social-contributions.test.cjs"
+      - ".github/workflows/social-contributions.yml"
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx next typegen
+      - run: npx tsc --noEmit
+      - run: node --test tests/social-contributions.test.cjs tests/estimated-sale-profit.test.cjs tests/news-category-colors.test.cjs tests/public-changelog.test.cjs tests/sale-vat-stock-autoselection.test.cjs
