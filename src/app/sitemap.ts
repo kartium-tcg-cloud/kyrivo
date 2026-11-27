@@ -33,6 +33,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.7,
     },
     {
+      url: `${BASE}/nouveautes/cotisations-sociales`,
+      lastModified: new Date('2026-11-27T00:00:00+01:00'),
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
       url: `${BASE}/nouveautes/import-vinted`,
       lastModified: new Date('2026-10-25T00:00:00+02:00'),
       changeFrequency: 'monthly',

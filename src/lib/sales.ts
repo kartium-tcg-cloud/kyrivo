@@ -89,6 +89,7 @@ export async function createSale(payload: {
   vat_amount: number;
   total_ttc: number;
   margin_amount: number;
+  social_contribution_rate?: number | null;
   notes?: string;
   contact_id?: string | null;
   source_details?: { importKey: string; conversationReference?: string | null } | null;
@@ -127,6 +128,7 @@ export async function updateSale(
     vat_amount: number;
     total_ttc: number;
     margin_amount: number;
+    social_contribution_rate?: number | null;
     notes?: string;
     contact_id?: string | null;
   }

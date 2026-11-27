@@ -16,6 +16,8 @@ export interface CompanyPreferences {
 
   defaultPaymentMethods: string[];
   defaultVatRate: number;
+  /** Optional default for NEW sales only. Null = no social contribution estimate. */
+  defaultSocialContributionRate: number | null;
   /** Enable specialized Vinted purchase import and fiscal-cost verification tools. */
   enableVinted: boolean;
 }
@@ -37,6 +39,7 @@ export const DEFAULT_COMPANY_PREFERENCES: Omit<
   invoiceNextNumber: 1,
 
   defaultVatRate: 0,
+  defaultSocialContributionRate: null,
   enableVinted: false,
 
   defaultPaymentMethods: [

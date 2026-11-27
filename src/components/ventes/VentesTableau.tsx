@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Sale, SALE_VAT_MODE_CONFIG } from "@/types/sale";
 import type { TransactionFeeDraft } from "@/lib/transactionFees";
 import { estimateSaleProfit } from "@/lib/estimatedSaleProfit";
+import { socialContributionAmount } from "@/lib/socialContributions";
 import {
   SortConfig,
   SortableTh,
@@ -196,6 +197,8 @@ export default function VentesTableau({
           <tbody className="divide-y divide-neutral-800/60">
             {ventesTriees.map((vente) => {
               const config = SALE_VAT_MODE_CONFIG[vente.vatMode];
+              const firstItem = vente.lines?.[0];
+              const additionalItems = Math.max(0, (vente.lines?.length ?? 0) - 1);
 
               return [
                 <tr
@@ -222,7 +225,7 @@ export default function VentesTableau({
                     {vente.numInterne}
                   </td>
 
-                  <td className="px-2 sm:px-4 py-3.5 font-medium max-w-[120px] sm:max-w-[220px] truncate">
+                  <td className="px-2 sm:px-4 py-3.5 font-medium max-w-[170px] sm:max-w-[280px]">
                     {vente.contactId ? (
                       <Link
                         href={`/contacts/${vente.contactId}`}
@@ -233,6 +236,12 @@ export default function VentesTableau({
                       </Link>
                     ) : (
                       <span className="text-white">{vente.customerName}</span>
+                    )}
+                    {firstItem && (
+                      <div className="mt-1 max-w-[280px] text-xs font-normal text-neutral-300" title={vente.lines?.map((line) => [line.itemReference, line.itemName].filter(Boolean).join(" · ")).join(" | ")}>
+                        <span className="block truncate">{firstItem.itemName}{additionalItems > 0 ? ` + ${additionalItems} autre${additionalItems > 1 ? "s" : ""}` : ""}</span>
+                        {firstItem.itemReference && <span className="block truncate font-mono text-[10px] text-neutral-500">{firstItem.itemReference}</span>}
+                      </div>
                     )}
                   </td>
 
@@ -284,6 +293,11 @@ export default function VentesTableau({
                         ? formatEuro(vente.marginAmount)
                         : "—"}
                     </span>
+                    {vente.socialContributionRate != null && (
+                      <div className="mt-1 text-[11px] text-blue-300">
+                        Cotisations estimées : −{formatEuro(socialContributionAmount(vente.subtotalHT, vente.socialContributionRate) ?? 0)} ({vente.socialContributionRate} %)
+                      </div>
+                    )}
                     {(feesBySale[vente.id] ?? []).some(f => f.kind === "expense") && (
                       <div className="mt-1 text-[11px] text-neutral-400">
                         {estimateSaleProfit(vente, feesBySale[vente.id]) == null

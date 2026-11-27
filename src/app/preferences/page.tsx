@@ -502,7 +502,7 @@ async function handleInvoicePrefixChange(value: string) {
         {/* ═══ SECTION 5 — TVA ════════════════════════════ */}
         <Section
           title="Fiscalité"
-          description="Taux de TVA appliqué par défaut dans les formulaires d'achat et de vente."
+          description="Réglages indépendants de TVA et, si nécessaire, de cotisations sociales estimées."
           icon={
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm3 0h.008v.008H18V10.5Zm-12 0h.008v.008H6V10.5Z" />
@@ -529,6 +529,31 @@ async function handleInvoicePrefixChange(value: string) {
             </div>
             <p className={helperTextClasses}>
               Ce taux sera utilisé par défaut dans les formulaires d'achat et de vente. Vous pourrez toujours le modifier manuellement dans chaque formulaire.
+            </p>
+          </div>
+          <div className="mt-6 max-w-md border-t border-neutral-800/70 pt-5">
+            <label htmlFor="default-social-rate" className={labelClasses}>
+              Cotisations sociales estimées par défaut (facultatif)
+            </label>
+            <div className="relative max-w-xs">
+              <input
+                id="default-social-rate"
+                type="number"
+                min={0}
+                max={100}
+                step={0.01}
+                value={preferences.defaultSocialContributionRate ?? ""}
+                onChange={(e) => update("defaultSocialContributionRate", e.target.value === "" ? null : Number(e.target.value))}
+                onWheel={(e) => e.currentTarget.blur()}
+                placeholder="Non activées"
+                className={`${inputClasses} pr-7`}
+              />
+              <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-neutral-500">%</span>
+            </div>
+            <p className={helperTextClasses}>
+              Laissez vide pour désactiver. Ce taux sera proposé aux nouvelles ventes et reste modifiable pour chaque vente.
+              L'estimation porte sur le chiffre d'affaires hors TVA ; elle ne change pas la TVA, les prix ou les factures.
+              Les anciennes ventes ne sont pas modifiées.
             </p>
           </div>
         </Section>
