@@ -43,6 +43,8 @@ function mapPreference(row: any): CompanyPreferences {
     defaultVatRate: Number.isFinite(Number(row.default_vat_rate))
       ? Number(row.default_vat_rate)
       : DEFAULT_COMPANY_PREFERENCES.defaultVatRate,
+    defaultSocialContributionRate: row.default_social_contribution_rate == null
+      ? null : Number(row.default_social_contribution_rate),
   };
 }
 
@@ -144,6 +146,14 @@ export async function upsertCompanyPreferences(
     throw new Error("Le taux de TVA doit être compris entre 0 % et 100 %.");
   }
 
+  if (preferences.defaultSocialContributionRate !== null &&
+    (!Number.isFinite(preferences.defaultSocialContributionRate) ||
+      preferences.defaultSocialContributionRate < 0 ||
+      preferences.defaultSocialContributionRate > 100 ||
+      Math.round(preferences.defaultSocialContributionRate * 100) !== preferences.defaultSocialContributionRate * 100)) {
+    throw new Error("Le taux de cotisations doit être compris entre 0 et 100 %, avec deux décimales au maximum.");
+  }
+
   const nextNumberForPrefix = await getPrefixNextNumber(
     preferences.companyId,
     cleanPrefix
@@ -175,6 +185,7 @@ export async function upsertCompanyPreferences(
 
         default_payment_methods: preferences.defaultPaymentMethods,
         default_vat_rate: preferences.defaultVatRate,
+        default_social_contribution_rate: preferences.defaultSocialContributionRate,
         enable_vinted: preferences.enableVinted,
 
         updated_at: new Date().toISOString(),
